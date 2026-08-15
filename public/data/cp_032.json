@@ -1,0 +1,478 @@
+{
+  "jenjang": "SD/MI",
+  "referensi_dokumen": "Keputusan Kepala BSKAP Kemendikbudristek Nomor 032/H/KR/2024 [1, 2]",
+  "mata_pelajaran": [
+    {
+      "nama_pelajaran": "Pendidikan Agama Islam dan Budi Pekerti",
+      "fase": [
+        {
+          "fase": "A",
+          "kelas": "I dan II",
+          "capaian_umum": "Pada akhir Fase A, peserta didik mampu memahami cara membaca Al-Qur’an, beberapa surah pendek, hadis tentang kebersihan, rukun iman, beberapa asmaulhusna, akhlak terhadap Allah Swt. dan diri sendiri, rukun Islam, berbagai hal tentang ibadah, dan kisah beberapa nabi dan rasul. [3]",
+          "elemen": [
+            {
+              "nama": "Al-Qur’an Hadis",
+              "deskripsi": "Peserta didik memahami huruf hijaiah berharakat, huruf hijaiah bersambung, Surah al-Fātiḥah, beberapa surah pendek Al-Qur’an, dan hadis tentang kebersihan. [4]"
+            },
+            {
+              "nama": "Akidah",
+              "deskripsi": "Peserta didik memahami rukun iman, iman kepada Allah Swt., beberapa asmaulhusna, dan iman kepada malaikat. [4]"
+            },
+            {
+              "nama": "Akhlak",
+              "deskripsi": "Peserta didik memahami akhlak terhadap Allah Swt. dengan menyucikan dan memuji-Nya dan akhlak terhadap diri sendiri. [4]"
+            },
+            {
+              "nama": "Fikih",
+              "deskripsi": "Peserta didik memahami rukun Islam, syahadatain, tata cara bersuci, salat fardu, azan, ikamah, zikir, dan berdoa setelah salat. [4, 5]"
+            },
+            {
+              "nama": "Sejarah Peradaban Islam",
+              "deskripsi": "Peserta didik memahami kisah beberapa nabi dan rasul. [5]"
+            }
+          ]
+        },
+        {
+          "fase": "B",
+          "kelas": "III dan IV",
+          "capaian_umum": "Pada akhir Fase B, peserta didik mampu memahami beberapa surah pendek, ayat Al-Qur’an dan hadis tentang kewajiban salat dan menjaga hubungan baik dengan sesama, sifat-sifat Allah Swt., beberapa asmaulhusna, rukun iman, akhlak terhadap Allah Swt. dan sesama manusia, berbagai hal tentang ibadah, dan kisah Nabi Muhammad saw. [5, 6]",
+          "elemen": [
+            {
+              "nama": "Al-Qur’an Hadis",
+              "deskripsi": "Peserta didik memahami beberapa surah pendek, ayat Al-Qur’an dan hadis tentang kewajiban salat dan menjaga hubungan baik dengan sesama. [6]"
+            },
+            {
+              "nama": "Akidah",
+              "deskripsi": "Peserta didik memahami sifat-sifat Allah Swt., beberapa asmaulhusna, iman kepada kitab-kitab Allah Swt. dan rasul-rasul Allah Swt. [6]"
+            },
+            {
+              "nama": "Akhlak",
+              "deskripsi": "Peserta didik memahami akhlak terhadap Allah Swt. dengan berbaik sangka kepada-Nya, akhlak terhadap orang tua, keluarga, dan guru. [6, 7]"
+            },
+            {
+              "nama": "Fikih",
+              "deskripsi": "Peserta didik memahami puasa, salat jumat dan salat sunah, balig dan tanggung jawab yang menyertainya (taklīf). [7]"
+            },
+            {
+              "nama": "Sejarah Peradaban Islam",
+              "deskripsi": "Peserta didik memahami kisah Nabi Muhammad saw. sebelum dan sesudah menjadi rasul periode Makkah. [7]"
+            }
+          ]
+        },
+        {
+          "fase": "C",
+          "kelas": "V dan VI",
+          "capaian_umum": "Pada akhir Fase C, peserta didik mampu memahami beberapa surah pendek, ayat Al-Qur’an dan hadis tentang keragaman, beberapa asmaulhusna, rukun iman, akhlak terhadap Allah Swt., sesama manusia, dan makhluk lainnya, berbagai hal tentang ibadah, ketentuan makanan dan minuman, dan kisah Nabi Muhammad saw. beserta para sahabatnya. [7, 8]",
+          "elemen": [
+            {
+              "nama": "Al-Qur’an Hadis",
+              "deskripsi": "Peserta didik memahami beberapa surah pendek dan ayat Al-Qur’an serta hadis tentang keragaman. [8]"
+            },
+            {
+              "nama": "Akidah",
+              "deskripsi": "Peserta didik memahami beberapa asmaulhusna, iman kepada hari akhir, qadāʾ dan qadr. [8, 9]"
+            },
+            {
+              "nama": "Akhlak",
+              "deskripsi": "Peserta didik memahami akhlak terhadap Allah Swt. dengan berdoa dan bertawakal kepada-Nya, akhlak terhadap teman, tetangga, non muslim, hewan, dan tumbuhan. [9]"
+            },
+            {
+              "nama": "Fikih",
+              "deskripsi": "Peserta didik memahami puasa sunah, zakat, infak, sedekah, hadiah, makanan dan minuman yang halal dan haram. [9]"
+            },
+            {
+              "nama": "Sejarah Peradaban Islam",
+              "deskripsi": "Peserta didik memahami kisah Nabi Muhammad saw. periode Madinah dan khulafaurasyidin. [9]"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "nama_pelajaran": "Pendidikan Pancasila",
+      "fase": [
+        {
+          "fase": "A",
+          "kelas": "I dan II",
+          "capaian_umum": "Pada fase ini, peserta didik mengidentifikasi dan menghargai identitas dirinya sesuai dengan jenis kelamin, hobi, bahasa, serta agama dan kepercayaan di lingkungan rumah dan sekolah; mengenal karakteristik lingkungan tempat tinggal dan sekolah sebagai bagian dari wilayah Negara Kesatuan Republik Indonesia; mengenal bendera negara, lagu kebangsaan, simbol dan sila-sila Pancasila dalam lambang negara Garuda Pancasila; mematuhi aturan di lingkungan keluarga dan menceritakannya; mengenal para perumus Pancasila dan menerapkan nilai-nilai Pancasila; dan mempraktikkan sikap dan perilaku menjaga lingkungan tempat tinggal dan sekolah. [10-12]",
+          "elemen": [
+            {
+              "nama": "Pancasila",
+              "deskripsi": "Peserta didik mengenal bendera negara, lagu kebangsaan, simbol dan sila-sila Pancasila dalam lambang negara Garuda Pancasila, dan menerapkan nilai-nilai Pancasila di lingkungan keluarga; mengenal para perumus Pancasila. [12]"
+            },
+            {
+              "nama": "Undang-Undang Dasar Negara Republik Indonesia Tahun 1945",
+              "deskripsi": "Peserta didik mengenal aturan di lingkungan keluarga; menceritakan contoh sikap mematuhi aturan di lingkungan keluarga; dan menunjukkan perilaku mematuhi aturan di lingkungan keluarga. [12, 13]"
+            },
+            {
+              "nama": "Bhinneka Tunggal Ika",
+              "deskripsi": "Peserta didik mengidentifikasi dan menghargai identitas dirinya sesuai dengan jenis kelamin, hobi, bahasa, serta agama dan kepercayaan di lingkungan rumah dan sekolah. [13]"
+            },
+            {
+              "nama": "Negara Kesatuan Republik Indonesia",
+              "deskripsi": "Peserta didik mengenal karakteristik lingkungan tempat tinggal dan sekolah, sebagai bagian dari wilayah Negara Kesatuan Republik Indonesia; mempraktikkan sikap dan perilaku menjaga lingkungan tempat tinggal dan sekolah; menceritakan bentuk kerja sama dalam keberagaman di lingkungan tempat tinggal dan sekolah. [13, 14]"
+            }
+          ]
+        },
+        {
+          "fase": "B",
+          "kelas": "III dan IV",
+          "capaian_umum": "Pada fase ini, peserta didik menghargai perbedaan identitas diri, keluarga, dan teman-temannya; bangga menjadi anak Indonesia yang memiliki bahasa Indonesia sebagai bahasa persatuan; mengidentifikasi lingkungan tempat tinggal sebagai bagian dari wilayah Negara Kesatuan Republik Indonesia; menunjukkan sikap kerja sama dalam berbagai bentuk keberagaman yang terikat persatuan dan kesatuan; melaksanakan aturan, hak dan kewajiban sebagai anggota keluarga, warga sekolah, dan lingkungan tempat tinggal; dan menerapkan makna sila-sila Pancasila dan meneladani karakter para perumus Pancasila. [14, 15]",
+          "elemen": [
+            {
+              "nama": "Pancasila",
+              "deskripsi": "Peserta didik menunjukkan makna sila-sila Pancasila, dan penerapannya dalam kehidupan sehari-hari; mengenal karakter para perumus Pancasila; menunjukkan sikap bangga menjadi anak Indonesia yang memiliki bahasa Indonesia sebagai bahasa persatuan di lingkungan keluarga, sekolah, dan masyarakat. [15, 16]"
+            },
+            {
+              "nama": "Undang-Undang Dasar Negara Republik Indonesia Tahun 1945",
+              "deskripsi": "Peserta didik mengidentifikasi dan melaksanakan aturan di sekolah dan lingkungan tempat tinggal; mengidentifikasi dan melaksanakan hak dan kewajiban sebagai anggota keluarga dan sebagai warga sekolah. [16, 17]"
+            },
+            {
+              "nama": "Bhinneka Tunggal Ika",
+              "deskripsi": "Peserta didik membedakan dan menghargai identitas diri, keluarga, dan teman-temannya sesuai budaya, suku bangsa, bahasa, agama dan kepercayaannya di lingkungan rumah, sekolah, dan masyarakat. [17]"
+            },
+            {
+              "nama": "Negara Kesatuan Republik Indonesia",
+              "deskripsi": "Peserta didik mengidentifikasi lingkungan tempat tinggal (RT, RW, desa atau kelurahan, dan kecamatan) sebagai bagian dari wilayah Negara Kesatuan Republik Indonesia; menunjukkan sikap kerja sama dalam berbagai bentuk keberagaman suku bangsa, sosial, dan budaya di Indonesia yang terikat persatuan dan kesatuan di lingkungan tempat tinggal dan sekolah. [17, 18]"
+            }
+          ]
+        },
+        {
+          "fase": "C",
+          "kelas": "V dan VI",
+          "capaian_umum": "Pada fase ini, peserta didik memahami kronologi sejarah kelahiran Pancasila dan meneladani sikap para perumus Pancasila; memahami hubungan sila-sila Pancasila sebagai suatu kesatuan yang utuh dan makna nilai-nilai Pancasila sebagai dasar negara, pandangan hidup, dan ideologi negara; mengidentifikasi bentuk-bentuk norma, hak, dan kewajiban; mempraktikkan musyawarah membuat kesepakatan dan aturan bersama; menghormati, menjaga dan melestarikan keberagaman budaya dalam bingkai Bhinneka Tunggal Ika; mengenal wilayahnya dalam konteks kabupaten/kota, provinsi sebagai bagian dari wilayah Negara Kesatuan Republik Indonesia; dan menjaga persatuan dan kesatuan di lingkungan sekolah dan sekitar sebagai wujud bela negara. [18, 19]",
+          "elemen": [
+            {
+              "nama": "Pancasila",
+              "deskripsi": "Peserta didik memahami kronologi sejarah kelahiran Pancasila; meneladani sikap para perumus Pancasila dan menerapkan di lingkungan masyarakat; menghubungkan sila-sila dalam Pancasila sebagai suatu kesatuan yang utuh, menguraikan makna nilai-nilai Pancasila sebagai dasar negara, pandangan hidup, dan ideologi bangsa dan negara. [20]"
+            },
+            {
+              "nama": "Undang-Undang Dasar Negara Republik Indonesia Tahun 1945",
+              "deskripsi": "Peserta didik menyajikan hasil identifikasi bentuk-bentuk norma, hak, dan kewajiban dalam kedudukannya sebagai anggota keluarga, warga sekolah, dan warga negara; mempraktikkan dalam kehidupan sehari-hari; melaksanakan praktik musyawarah untuk membuat kesepakatan dan aturan bersama, serta menerapkannya dalam lingkungan keluarga dan sekolah. [20, 21]"
+            },
+            {
+              "nama": "Bhinneka Tunggal Ika",
+              "deskripsi": "Peserta didik menyajikan hasil identifikasi sikap menghormati, menjaga, dan melestarikan keberagaman budaya dalam bingkai Bhinneka Tunggal Ika di lingkungan rumah, sekolah, dan masyarakat. [21]"
+            },
+            {
+              "nama": "Negara Kesatuan Republik Indonesia",
+              "deskripsi": "Peserta didik mengenal wilayahnya dalam konteks kabupaten/kota, provinsi sebagai bagian dari wilayah Negara Kesatuan Republik Indonesia; menunjukkan perilaku gotong royong untuk menjaga persatuan di lingkungan sekolah dan sekitar sebagai wujud bela negara. [22]"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "nama_pelajaran": "Bahasa Indonesia",
+      "fase": [
+        {
+          "fase": "A",
+          "kelas": "I dan II",
+          "capaian_umum": "Pada akhir fase A, peserta didik memiliki kemampuan berbahasa untuk berkomunikasi dan bernalar kepada teman sebaya dan orang dewasa di sekitar tentang diri dan lingkungannya melalui berbagai kegiatan berbahasa dan bersastra dengan topik yang beragam dan sesuai dengan tujuan. [23, 24]",
+          "elemen": [
+            {
+              "nama": "Menyimak",
+              "deskripsi": "Peserta didik mampu bersikap menjadi pendengar yang penuh perhatian. Peserta didik menunjukkan minat pada tuturan yang didengar serta mampu memahami informasi dari media audio, teks aural (teks yang dibacakan dan/atau didengar), instruksi lisan, dan percakapan yang berkaitan dengan diri, keluarga, dan/atau lingkungan. [24, 25]"
+            },
+            {
+              "nama": "Membaca dan Memirsa",
+              "deskripsi": "Peserta didik mampu bersikap menjadi pembaca dan pemirsa yang menunjukkan minat terhadap teks yang dibaca atau dipirsa. Peserta didik mampu membaca kata-kata yang dikenali sehari-hari dengan fasih. Peserta didik mampu memahami informasi dari bacaan dan tayangan yang dipirsa tentang diri dan lingkungan, narasi imajinatif, dan puisi anak. Peserta didik mampu memaknai kosakata baru dan/atau kosakata Bahasa Indonesia serapan dari bahasa daerah dari teks yang dibaca atau tayangan yang dipirsa dengan bantuan ilustrasi. [25, 26]"
+            },
+            {
+              "nama": "Berbicara dan Mempresentasikan",
+              "deskripsi": "Peserta didik mampu berbicara dengan santun tentang beragam topik yang dikenali menggunakan volume dan intonasi yang tepat sesuai konteks. Peserta didik mampu merespons dengan bertanya tentang sesuatu, menjawab, dan menanggapi komentar orang lain dengan baik dan santun dalam suatu percakapan. Peserta didik mampu mengungkapkan perasaan dan gagasan secara lisan dengan atau tanpa bantuan gambar/ilustrasi. Peserta didik mampu menceritakan kembali suatu isi informasi yang dibaca atau didengar; dan menceritakan kembali teks narasi yang dibacakan atau dibaca dengan topik diri, keluarga, dan/atau lingkungan. [26, 27]"
+            },
+            {
+              "nama": "Menulis",
+              "deskripsi": "Peserta didik mampu menunjukkan keterampilan menulis permulaan dengan benar di atas kertas dan/atau melalui media digital. Peserta didik mampu mengembangkan tulisan tangan yang semakin baik. Peserta didik mampu menulis berbagai teks tentang diri, keluarga, dan/atau lingkungan dengan beberapa kalimat sederhana. [27, 28]"
+            }
+          ]
+        },
+        {
+          "fase": "B",
+          "kelas": "III dan IV",
+          "capaian_umum": "Pada akhir fase B, peserta didik memiliki kemampuan berbahasa untuk berkomunikasi dan bernalar, kepada teman sebaya dan orang dewasa tentang hal-hal menarik di lingkungan sekitar melalui berbagai kegiatan berbahasa dan bersastra dengan topik yang beragam dan sesuai dengan tujuan. Peserta didik mampu membaca dengan fasih dan lancar. [28, 29]",
+          "elemen": [
+            {
+              "nama": "Menyimak",
+              "deskripsi": "Peserta didik mampu memahami ide pokok (gagasan) suatu pesan lisan, informasi dari media audio, teks aural (teks yang dibacakan dan/atau didengar), dan instruksi lisan yang berkaitan dengan hal-hal menarik di lingkungan sekitar. Peserta didik mampu memahami dan memaknai teks narasi yang dibacakan atau dari media audio. [29]"
+            },
+            {
+              "nama": "Membaca dan Memirsa",
+              "deskripsi": "Peserta didik mampu membaca kata-kata baru dengan pola kombinasi huruf yang telah dikenali dengan fasih. Peserta didik mampu memaknai kosakata baru dan/atau kosakata Bahasa Indonesia serapan dari bahasa daerah dari teks yang dibaca atau tayangan yang dipirsa mengenai hal-hal menarik di lingkungan sekitar. Peserta didik mampu memahami pesan dan informasi tentang kehidupan sehari-hari, teks narasi, dan puisi anak dalam bentuk cetak atau elektronik. Peserta didik mampu memahami ide pokok dan ide pendukung pada teks informatif dan teks narasi. [30, 31]"
+            },
+            {
+              "nama": "Berbicara dan Mempresentasikan",
+              "deskripsi": "Peserta didik mampu berbicara dengan pilihan kata dan sikap tubuh/gestur yang santun, menggunakan volume dan intonasi yang tepat sesuai konteks. Peserta didik mampu terlibat secara aktif dalam suatu percakapan dan diskusi sesuai tata cara. Peserta didik mampu menceritakan kembali suatu informasi yang dibaca atau didengar dari teks narasi mengenai hal-hal menarik di lingkungan sekitar. [31]"
+            },
+            {
+              "nama": "Menulis",
+              "deskripsi": "Peserta didik mampu menulis berbagai teks sederhana dengan rangkaian kalimat yang beragam dan informasi mengenai hal-hal menarik di lingkungan sekitar. Peserta didik mampu menggunakan kaidah sederhana kebahasaan dan kosakata baru yang memiliki makna denotatif untuk menulis teks sesuai dengan konteks. Peserta didik terampil menulis kalimat dalam tulisan Latin dan tegak bersambung. [32]"
+            }
+          ]
+        },
+        {
+          "fase": "C",
+          "kelas": "V dan VI",
+          "capaian_umum": "Pada akhir fase C, peserta didik memiliki kemampuan berbahasa untuk berkomunikasi dan bernalar sesuai dengan tujuan dan konteks sosial. Peserta didik menunjukkan minat terhadap teks, mampu memahami informasi dan pesan dari paparan lisan dan tulis tentang topik yang dikenali dalam teks narasi dan informatif. Peserta didik mampu menanggapi dan mempresentasikan informasi yang dipaparkan dan berpartisipasi aktif dalam diskusi menulis teks untuk menyampaikan pengamatan dan pengalamannya dengan lebih terstruktur. Peserta didik memiliki kebiasaan membaca untuk hiburan, menambah pengetahuan, dan keterampilan. [32-34]",
+          "elemen": [
+            {
+              "nama": "Menyimak",
+              "deskripsi": "Peserta didik mampu menganalisis informasi dengan mengidentifikasikan ciri objek, urutan proses kejadian dan nilai-nilai dari berbagai tipe teks nonfiksi dan fiksi yang disajikan dalam bentuk lisan, teks aural, dan audio. [34]"
+            },
+            {
+              "nama": "Membaca dan Memirsa",
+              "deskripsi": "Peserta didik mampu membaca kata-kata dengan berbagai pola kombinasi huruf dalam kata dengan fasih dan indah. Peserta didik mampu memahami informasi dan kosakata baru yang memiliki makna denotatif, konotatif, dan kiasan untuk mengidentifikasi objek, fenomena, dan karakter. Peserta didik mampu menganalisis informasi dari berbagai tipe teks serta nilai-nilai yang terkandung dalam teks sastra dari teks visual dan/atau audiovisual. Peserta didik mampu membaca hasil pengamatan. [34, 35]"
+            },
+            {
+              "nama": "Berbicara dan Mempresentasikan",
+              "deskripsi": "Peserta didik mampu menyampaikan informasi secara lisan untuk tujuan menghibur dan meyakinkan mitra tutur sesuai kaidah dan konteks. Peserta didik mampu menggunakan kosakata baru yang memiliki makna denotatif, konotatif, dan kiasan. Peserta didik mampu memilih kata yang tepat sesuai dengan norma sosial budaya. Peserta didik mampu menyampaikan informasi dengan fasih dan santun. Peserta didik mampu menyampaikan perasaan berdasarkan fakta, imajinasi secara indah dan menarik dalam bentuk karya sastra dengan penggunaan kosakata secara kreatif. Peserta didik mampu mempresentasikan gagasan, hasil pengamatan, dan pengalaman dengan logis, sistematis, efektif, dan kritis; mempresentasikan imajinasi secara kreatif. [35-37]"
+            },
+            {
+              "nama": "Menulis",
+              "deskripsi": "Peserta didik mampu menulis berbagai teks sederhana berdasarkan gagasan, hasil pengamatan, pengalaman, dan imajinasi. Peserta didik mampu menuliskan hasil pengamatan yang menjelaskan hubungan kausalitas (sebab akibat) untuk meyakinkan pembaca. Peserta didik mampu menggunakan kaidah kebahasaan dan kesastraan untuk menulis teks sesuai dengan konteks dan norma sosial budaya. Peserta didik mampu menggunakan kosakata baru yang memiliki makna denotatif, konotatif, dan kiasan. Peserta didik mampu menyampaikan perasaan berdasarkan fakta, imajinasi secara indah dan menarik dalam bentuk karya sastra dengan penggunaan kosakata secara kreatif. Peserta didik terampil menulis teks dalam tulisan Latin dan tegak bersambung. [37, 38]"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "nama_pelajaran": "Matematika",
+      "fase": [
+        {
+          "fase": "A",
+          "kelas": "I dan II",
+          "capaian_umum": "Pada akhir Fase A, peserta didik dapat menunjukkan pemahaman dan memiliki intuisi bilangan (number sense) pada bilangan cacah sampai 100, termasuk menyusun dan mengurai bilangan. Mereka dapat melakukan operasi penjumlahan dan pengurangan pada bilangan cacah sampai 20, dan dapat memahami pecahan setengah dan seperempat. Mereka dapat mengenali, meniru, dan melanjutkan pola. Mereka dapat membandingkan dan mengestimasi panjang, berat, dan durasi waktu. Mereka dapat mengenal berbagai bangun datar dan bangun ruang, serta dapat menyusun dan mengurai bangun datar, serta menentukan posisi benda terhadap benda lain. Mereka dapat mengurutkan, menyortir, mengelompokkan, membandingkan, dan menyajikan data menggunakan turus dan piktogram. [39, 40]",
+          "elemen": [
+            {
+              "nama": "Bilangan",
+              "deskripsi": "Peserta didik menunjukkan pemahaman dan memiliki intuisi bilangan (number sense) pada bilangan cacah sampai 100. Peserta didik dapat membaca, menulis, menentukan nilai tempat, membandingkan, mengurutkan, serta melakukan komposisi (menyusun) dan dekomposisi (mengurai) bilangan. Mereka dapat melakukan operasi penjumlahan dan pengurangan menggunakan benda-benda konkret yang banyaknya sampai 20. Peserta didik menunjukkan pemahaman pecahan sebagai bagian dari keseluruhan melalui konteks membagi sebuah benda atau kumpulan benda sama banyak (pecahan yang diperkenalkan adalah setengah dan seperempat). [40, 41]"
+            },
+            {
+              "nama": "Aljabar",
+              "deskripsi": "Peserta didik dapat menunjukkan pemahaman makna simbol matematika '=' dalam suatu kalimat matematika yang terkait dengan penjumlahan dan pengurangan bilangan cacah sampai 20 menggunakan gambar. Peserta didik dapat mengenali, meniru, dan melanjutkan pola bukan bilangan (misalnya, gambar, warna, bunyi/suara). [41, 42]"
+            },
+            {
+              "nama": "Pengukuran",
+              "deskripsi": "Peserta didik dapat membandingkan panjang dan berat benda secara langsung, dan membandingkan durasi waktu. Mereka dapat mengukur dan mengestimasi panjang benda menggunakan satuan tidak baku. [42]"
+            },
+            {
+              "nama": "Geometri",
+              "deskripsi": "Peserta didik dapat mengenal berbagai bangun datar (segitiga, segiempat, segibanyak, lingkaran) dan bangun ruang (balok, kubus, kerucut, dan bola). Mereka dapat melakukan komposisi (penyusunan) dan dekomposisi (penguraian) suatu bangun datar. Mereka juga dapat menentukan posisi benda terhadap benda lain (kanan, kiri, depan belakang, bawah, atas). [42, 43]"
+            },
+            {
+              "nama": "Analisis Data dan Peluang",
+              "deskripsi": "Peserta didik dapat mengurutkan, menyortir, mengelompokkan, membandingkan, dan menyajikan data dari banyak benda dengan menggunakan turus dan piktogram paling banyak 4 kategori. [43, 44]"
+            }
+          ]
+        },
+        {
+          "fase": "B",
+          "kelas": "III dan IV",
+          "capaian_umum": "Pada akhir Fase B, peserta didik memperluas pemahaman dan intuisi bilangan (number sense), operasi penjumlahan dan pengurangan bilangan cacah, operasi perkalian dan pembagian pada bilangan cacah; menyelesaikan masalah berkaitan dengan kelipatan, faktor dan uang menggunakan ribuan sebagai satuan. Mereka dapat mengisi nilai yang belum diketahui dalam sebuah kalimat matematika serta mengidentifikasi, meniru, mengembangkan pola gambar atau objek dan pola bilangan yang sederhana. Mereka mulai mengenal, membandingkan dan mengurutkan antar-pecahan; menunjukkan pemahaman dan intuisi bilangan pada bilangan desimal dan hubungan pecahan desimal dan perseratusan dengan persen. Mereka dapat melakukan pengukuran panjang dan berat menggunakan satuan baku, hubungan antar-satuan, mengukur dan mengestimasi luas dan volume menggunakan satuan tidak baku dan satuan baku serta mendeskripsikan ciri berbagai bentuk bangun datar, menyusun dan mengurai berbagai bangun datar. Mereka memperluas kemampuan penanganan data dengan bentuk tabel, diagram gambar, piktogram, dan diagram batang (skala satu satuan). [44-46]",
+          "elemen": [
+            {
+              "nama": "Bilangan",
+              "deskripsi": "Peserta didik menunjukkan pemahaman dan intuisi bilangan pada bilangan cacah sampai 10.000. Mereka dapat membaca, menulis, menentukan nilai tempat, membandingkan, mengurutkan, menggunakan nilai tempat, melakukan komposisi dan dekomposisi bilangan tersebut. Mereka juga dapat menyelesaikan masalah berkaitan dengan uang menggunakan ribuan sebagai satuan. Mereka dapat melakukan operasi penjumlahan dan pengurangan bilangan cacah sampai 1.000. Mereka dapat melakukan operasi perkalian dan pembagian bilangan cacah sampai 100 menggunakan benda-benda konkret, gambar, dan simbol matematika. Mereka juga dapat menyelesaikan masalah berkaitan dengan kelipatan dan faktor. Peserta didik dapat membandingkan dan mengurutkan antar-pecahan dengan pembilang satu dan antar-pecahan dengan penyebut yang sama. Mereka dapat mengenali pecahan senilai menggunakan gambar dan simbol matematika. Peserta didik menunjukkan pemahaman dan intuisi bilangan pada bilangan desimal. Mereka dapat menyatakan pecahan desimal persepuluhan dan perseratusan, serta menghubungkan pecahan desimal perseratusan dengan konsep persen. [46-48]"
+            },
+            {
+              "nama": "Aljabar",
+              "deskripsi": "Peserta didik dapat mengisi nilai yang belum diketahui dalam sebuah kalimat matematika yang berkaitan dengan penjumlahan dan pengurangan pada bilangan cacah sampai 100. Peserta didik dapat mengidentifikasi, meniru, dan mengembangkan pola gambar atau objek sederhana dan pola bilangan membesar dan mengecil yang melibatkan penjumlahan dan pengurangan pada bilangan cacah sampai 100. [48, 49]"
+            },
+            {
+              "nama": "Pengukuran",
+              "deskripsi": "Peserta didik dapat mengukur panjang dan berat benda menggunakan satuan baku. Mereka dapat menentukan hubungan antar-satuan baku panjang (cm, m). Mereka dapat mengukur dan mengestimasi luas dan volume menggunakan satuan tidak baku dan satuan baku berupa bilangan cacah. [49, 50]"
+            },
+            {
+              "nama": "Geometri",
+              "deskripsi": "Peserta didik dapat mendeskripsikan ciri berbagai bentuk bangun datar (segiempat, segitiga, segi banyak). Mereka dapat menyusun (komposisi) dan mengurai (dekomposisi) berbagai bangun datar dengan lebih dari satu cara jika memungkinkan. [50]"
+            },
+            {
+              "nama": "Analisis Data dan Peluang",
+              "deskripsi": "Peserta didik dapat mengurutkan, membandingkan, menyajikan, menganalisis dan menginterpretasi data dalam bentuk tabel, diagram gambar, piktogram, dan diagram batang (skala satu satuan). [50, 51]"
+            }
+          ]
+        },
+        {
+          "fase": "C",
+          "kelas": "V dan VI",
+          "capaian_umum": "Pada akhir Fase C, peserta didik memperluas pemahaman dan intuisi bilangan dan operasi aritmetika pada bilangan cacah; membandingkan dan mengurutkan pecahan, mengubah bentuk pecahan dan melakukan penjumlahan dan pengurangan pecahan; serta melakukan operasi perkalian dan pembagian pecahan dengan bilangan asli. Mereka dapat mengisi nilai yang belum diketahui dalam sebuah kalimat matematika; mengidentifikasi, meniru, dan mengembangkan pola bilangan membesar yang melibatkan perkalian dan pembagian; menyelesaikan masalah yang berkaitan dengan kelipatan persekutuan terkecil (KPK), faktor persekutuan terbesar (FPB) dan yang berkaitan dengan uang; serta bernalar secara proporsional. Mereka dapat menentukan keliling, luas, mengonstruksi dan mengurai dari bangun datar dan gabungan; mengenali visualisasi spasial; membandingkan karakteristik antarbangun datar dan antar bangun ruang, serta menentukan lokasi pada peta yang menggunakan sistem berpetak. Mereka dapat mengurutkan, membandingkan, menyajikan, dan menganalisis data untuk mendapatkan informasi serta menentukan seberapa mungkin kejadian dalam suatu percobaan acak. [51-53]",
+          "elemen": [
+            {
+              "nama": "Bilangan",
+              "deskripsi": "Peserta didik dapat menunjukkan pemahaman dan intuisi bilangan pada bilangan cacah sampai 1.000.000. Mereka dapat membaca, menulis, menentukan nilai tempat, membandingkan, mengurutkan, melakukan komposisi dan dekomposisi bilangan tersebut. Mereka juga dapat menyelesaikan masalah yang berkaitan dengan uang. Mereka dapat melakukan operasi penjumlahan, pengurangan, perkalian, dan pembagian bilangan cacah sampai 100.000. Mereka juga dapat menyelesaikan masalah yang berkaitan dengan KPK dan FPB. Peserta didik dapat membandingkan dan mengurutkan berbagai pecahan termasuk pecahan campuran, melakukan operasi penjumlahan dan pengurangan pecahan, serta melakukan operasi perkalian dan pembagian pecahan dengan bilangan asli. Mereka dapat mengubah pecahan menjadi desimal, serta membandingkan dan mengurutkan bilangan desimal (satu angka di belakang koma). [54, 55]"
+            },
+            {
+              "nama": "Aljabar",
+              "deskripsi": "Peserta didik dapat mengisi nilai yang belum diketahui dalam sebuah kalimat matematika yang berkaitan dengan penjumlahan, pengurangan, perkalian, dan pembagian pada bilangan cacah sampai 1000. Peserta didik dapat mengidentifikasi, meniru, dan mengembangkan pola bilangan membesar dan mengecil yang melibatkan perkalian dan pembagian. Mereka dapat bernalar secara proporsional untuk menyelesaikan masalah sehari-hari dengan rasio satuan. Mereka dapat menggunakan operasi perkalian dan pembagian dalam menyelesaikan masalah sehari-hari yang terkait dengan proporsi. [55-57]"
+            },
+            {
+              "nama": "Pengukuran",
+              "deskripsi": "Peserta didik dapat menentukan keliling dan luas berbagai bentuk bangun datar (segitiga, segiempat, dan segi banyak) serta gabungannya. Mereka dapat menghitung durasi waktu dan mengukur besar sudut. [57]"
+            },
+            {
+              "nama": "Geometri",
+              "deskripsi": "Peserta didik dapat mengonstruksi dan mengurai bangun ruang (kubus, balok, dan gabungannya) dan mengenali visualisasi spasial (bagian depan, atas, dan samping). Mereka dapat membandingkan karakteristik antarbangun datar dan antarbangun ruang. Mereka dapat menentukan lokasi pada peta yang menggunakan sistem berpetak. [57, 58]"
+            },
+            {
+              "nama": "Analisis Data dan Peluang",
+              "deskripsi": "Peserta didik dapat mengurutkan, membandingkan, menyajikan, dan menganalisis data banyak benda dan data hasil pengukuran dalam bentuk gambar, piktogram, diagram batang, dan tabel frekuensi untuk mendapatkan informasi. Mereka dapat menentukan kejadian dengan kemungkinan yang lebih besar dalam suatu percobaan acak. [58]"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "nama_pelajaran": "Ilmu Pengetahuan Alam dan Sosial (IPAS)",
+      "fase": [
+        {
+          "fase": "B",
+          "kelas": "III dan IV",
+          "capaian_umum": "Pada akhir Fase B, peserta didik memiliki kemampuan untuk memahami karakteristik makhluk hidup; wujud zat dan perubahannya; energi dan perubahannya; listrik dan magnet; gaya; pergantian waktu, cuaca, dan musim; interaksi sosial; letak geografis; serta keanekaragaman bentang alam, sosial, budaya, dan ekonomi; untuk digunakan dalam menyelesaikan tantangan yang dihadapi dalam kehidupan sehari-hari. Konsep-konsep tersebut memungkinkan peserta didik untuk menerapkan dan mengembangkan keterampilan inkuiri sains mereka. [59]",
+          "elemen": [
+            {
+              "nama": "Pemahaman IPAS",
+              "deskripsi": "Peserta didik memahami bentuk dan fungsi pancaindra; siklus hidup makhluk hidup dan upaya pelestariannya; masalah yang berkaitan dengan pelestarian sumber daya alam sebagai upaya mitigasi perubahan iklim; proses perubahan wujud zat dan perubahan bentuk energi; sumber dan bentuk energi serta proses perubahan bentuk energi dalam kehidupan sehari hari; gejala kemagnetan dalam kehidupan sehari-hari, jenis gaya dan pengaruhnya terhadap arah, gerak, dan bentuk benda; peran, tugas, dan tanggung jawab serta interaksi sosial yang terjadi di sekitar tempat tinggal dan sekolah; mengenal letak kota/kabupaten dan provinsi tempat tinggalnya melalui peta konvensional/digital; ragam bentang alam serta keterkaitannya dengan profesi masyarakat; keanekaragaman hayati, keragaman budaya, kearifan lokal, sejarah keluarga dan masyarakat tempat tinggalnya, dan upaya pelestariannya; serta perbedaan kebutuhan dan keinginan, nilai mata uang dan fungsinya. [60-62]"
+            },
+            {
+              "nama": "Keterampilan Proses",
+              "deskripsi": "Mengamati: Peserta didik mengamati fenomena dan peristiwa secara sederhana dan dapat mencatat hasil pengamatannya. Mempertanyakan dan Memprediksi: Secara mandiri, peserta didik mengajukan pertanyaan tentang hal-hal yang ingin diketahui saat melakukan pengamatan dan membuat prediksi berdasarkan pengetahuan yang dimiliki sebelumnya. Merencanakan dan Melakukan Penyelidikan: Dengan panduan guru, peserta didik membuat rencana dan melakukan langkah-langkah operasional untuk menjawab pertanyaan yang diajukan. Peserta didik melakukan observasi menggunakan alat bantu pengukuran sederhana. Memproses, Menganalisis Data dan Informasi: Dengan panduan guru, peserta didik mengorganisasikan data dalam bentuk turus dan diagram gambar untuk menyajikan dan mengidentifikasi pola. Peserta didik membandingkan antara hasil pengamatan dengan prediksi dan memberikan penjelasan. Mengevaluasi dan Refleksi: Peserta didik melakukan refleksi terhadap penyelidikan yang sudah dilakukan. Mengomunikasikan Hasil: Peserta didik mengomunikasikan hasil penyelidikan secara lisan dan tertulis dalam berbagai media. [62-64]"
+            }
+          ]
+        },
+        {
+          "fase": "C",
+          "kelas": "V dan VI",
+          "capaian_umum": "Pada akhir Fase C, peserta didik memiliki kemampuan untuk memahami sistem organ tubuh manusia; ekosistem; siklus air; bunyi dan cahaya; energi; tata surya; letak dan kondisi geografis; perjuangan para pahlawan; keragaman budaya; dan kegiatan ekonomi yang berfungsi sebagai dasar untuk melakukan suatu tindakan; untuk digunakan dalam mengambil suatu keputusan atau menyelesaikan permasalahan yang berkaitan dengan kehidupan sehari-hari berdasarkan pemahamannya terhadap materi yang telah dipelajari. Konsep-konsep tersebut memungkinkan peserta didik untuk menerapkan dan mengembangkan keterampilan inkuiri sains mereka. [64, 65]",
+          "elemen": [
+            {
+              "nama": "Pemahaman IPAS",
+              "deskripsi": "Peserta didik memahami sistem organ tubuh manusia yang dikaitkan dengan cara menjaga kesehatan tubuhnya; hubungan antar komponen biotik dan abiotik serta pengaruhnya terhadap ekosistem; siklus air dan kaitannya dengan upaya menjaga ketersediaan air; fenomena gelombang bunyi dan cahaya dalam kehidupan sehari-hari; upaya penghematan energi serta pemanfaatan sumber energi alternatif dari sumber daya yang ada di sekitarnya sebagai upaya mitigasi perubahan iklim; sistem tata surya dan kaitannya dengan rotasi dan revolusi bumi; letak dan kondisi geografis negara Indonesia melalui peta konvensional/digital; sejarah perjuangan para pahlawan di lingkungan sekitar tempat tinggalnya; keragaman budaya nasional yang dikaitkan dengan konteks kebinekaan berdasarkan pemahamannya terhadap nilai-nilai kearifan lokal yang berlaku di wilayahnya; serta kegiatan ekonomi masyarakat dan ekonomi kreatif di lingkungan sekitar. [65-67]"
+            },
+            {
+              "nama": "Keterampilan Proses",
+              "deskripsi": "Mengamati: Peserta didik mengamati fenomena dan peristiwa secara sederhana, mencatat hasil pengamatannya, serta mencari persamaan dan perbedaannya. Mempertanyakan dan Memprediksi: Dengan panduan, peserta didik mengidentifikasi pertanyaan yang dapat diselidiki secara ilmiah dan membuat prediksinya. Merencanakan dan Melakukan Penyelidikan: Secara mandiri, peserta didik merencanakan dan melakukan langkah-langkah operasional untuk menjawab pertanyaan yang diajukan. Peserta didik melakukan observasi menggunakan alat bantu pengukuran sederhana. Memproses serta Menganalisis Data dan Informasi: Peserta didik mengolah data dalam bentuk tabel dan grafik serta menjelaskan hasil pengamatan dan pola atau hubungan pada data. Peserta didik membandingkan data dengan prediksi dan memberikan alasan berdasarkan bukti. Mengevaluasi dan Refleksi: Melakukan refleksi dan memberikan saran perbaikan terhadap penyelidikan yang sudah dilakukan. Mengomunikasikan Hasil: Peserta didik mengomunikasikan hasil penyelidikan secara utuh yang ditunjang dengan argumen dalam berbagai media. [67-69]"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "nama_pelajaran": "Pendidikan Jasmani, Olahraga, dan Kesehatan (PJOK)",
+      "fase": [
+        {
+          "fase": "A",
+          "kelas": "I dan II",
+          "capaian_umum": "Pada akhir Fase A, peserta didik dapat menerapkan keterampilan gerak fundamental dalam berbagai situasi gerak dan mengenali bagaimana menggerakkan tubuh. Mereka menjelaskan efektivitas bergerak dengan objek dan di dalam berbagai ruang (space) yang berbeda. Peserta didik menerapkan peraturan dan strategi kolaborasi di dalam berbagai konteks gerak. Mereka menggambarkan berbagai hal yang membuat aktivitas jasmani bermanfaat. [70, 71]",
+          "elemen": [
+            {
+              "nama": "Terampil Bergerak",
+              "deskripsi": "Peserta didik mempraktikkan keterampilan gerak fundamental dan menerapkannya dalam berbagai situasi gerak yang berbeda. Peserta didik mengeksplorasi berbagai cara menggerakkan tubuh. Peserta didik memanipulasi objek dengan bagian tubuh dan dalam ruang yang berbeda, serta menyimpulkan efektivitasnya. [71, 72]"
+            },
+            {
+              "nama": "Belajar melalui Gerak",
+              "deskripsi": "Peserta didik mentaati dan menerapkan peraturan untuk mengembangkan fair play di dalam berbagai aktivitas jasmani. Peserta didik menerapkan strategi kolaborasi ketika berpartisipasi dalam aktivitas jasmani. [72]"
+            },
+            {
+              "nama": "Bergaya Hidup Aktif",
+              "deskripsi": "Peserta didik berpartisipasi di dalam berbagai aktivitas jasmani dan mengeksplorasi manfaatnya. [72, 73]"
+            },
+            {
+              "nama": "Memilih Hidup yang Menyehatkan",
+              "deskripsi": "Peserta didik mengenali gaya hidup aktif dan sehat, manfaat komponen makanan bergizi seimbang dan informasi gizi pada produk makanan yang berdampak pada kesehatan, situasi dan potensi yang berisiko terhadap kesehatan dan keselamatan dan strategi mencari bantuan kepada orang dewasa terpercaya. [73]"
+            }
+          ]
+        },
+        {
+          "fase": "B",
+          "kelas": "III dan IV",
+          "capaian_umum": "Pada akhir Fase B, peserta didik menghaluskan keterampilan gerak fundamental dan memeragakan aplikasi konsep gerak di dalam berbagai situasi gerak. Mereka menerapkan strategi gerak sederhana untuk memecahkan masalah gerak dan meningkatkan capaian gerak. Peserta didik menyusun-bersama dan menerapkan fair play melalui berbagai peran di dalam konteks gerak. Mereka juga mengidentifikasi hal-hal yang menyebabkan aktivitas jasmani menyenangkan. [73, 74]",
+          "elemen": [
+            {
+              "nama": "Terampil Bergerak",
+              "deskripsi": "Peserta didik menghaluskan keterampilan gerak fundamental dan menerapkannya dalam situasi gerak yang baru. Peserta didik menerapkan dan menyesuaikan strategi gerak untuk mendapatkan capaian keterampilan gerak. Peserta didik memeragakan konsep gerak yang dapat diterapkan dalam rangkaian gerak. [74, 75]"
+            },
+            {
+              "nama": "Belajar melalui Gerak",
+              "deskripsi": "Peserta didik menerapkan strategi gerak sederhana dan memecahkan masalah gerak. Peserta didik menyusun bersama dan menerapkan peraturan untuk mengembangkan fair play ketika berpartisipasi atau merancang aktivitas jasmani. Peserta didik mempertunjukkan berbagai peran dengan cara yang terhormat untuk mendapatkan keberhasilan capaian di dalam aktivitas gerak kelompok atau tim. [75, 76]"
+            },
+            {
+              "nama": "Bergaya Hidup Aktif",
+              "deskripsi": "Peserta didik berpartisipasi dalam berbagai aktivitas jasmani dan mengenali faktor-faktor yang menyebabkan aktivitas jasmani menyenangkan. [76]"
+            },
+            {
+              "nama": "Memilih Hidup yang Menyehatkan",
+              "deskripsi": "Peserta didik mengenali risiko kesehatan akibat gaya hidup dan berbagai aktivitas jasmani untuk pencegahannya, mengeksplorasi pola makan sehat dan bergizi seimbang sesuai rekomendasi kesehatan untuk menunjang aktivitas sehari-hari, serta mempraktikkan penanganan cedera ringan sesuai pemahaman tentang prinsip pertolongan pertama. [76, 77]"
+            }
+          ]
+        },
+        {
+          "fase": "C",
+          "kelas": "V dan VI",
+          "capaian_umum": "Pada akhir Fase C, peserta didik memodifikasi keterampilan gerak dan menerapkan konsep gerak dalam berbagai situasi gerak untuk meningkatkan capaian gerak. Mereka mentransfer strategi gerak dari suatu situasi gerak ke situasi lainnya. Peserta didik memprediksi strategi gerak dan menguji efektivitas penerapannya dalam berbagai situasi gerak. Mereka merancang dan menguji peraturan serta memodifikasi permainan dalam rangka mendukung fair play dan inklusi dalam berbagai konteks gerak. Peserta didik menggambarkan kontribusi mereka sebagai anggota kelompok atau tim. Mereka menggambarkan pengaruh aktivitas jasmani terhadap kesehatan dan faktor-faktor yang memengaruhi partisipasi. Peserta didik mengeksplorasi promosi kesehatan terkait aktivitas jasmani dan strategi untuk mencapainya. [77, 78]",
+          "elemen": [
+            {
+              "nama": "Terampil Bergerak",
+              "deskripsi": "Peserta didik menyesuaikan dan memodifikasi keterampilan gerak melintasi berbagai situasi gerak. Peserta didik mentransfer strategi gerak yang sudah dikuasai ke dalam berbagai situasi gerak yang berbeda. Peserta didik menginvestigasi berbagai konsep gerak yang dapat diterapkan untuk meningkatkan capaian keterampilan gerak. [79]"
+            },
+            {
+              "nama": "Belajar melalui Gerak",
+              "deskripsi": "Peserta didik memprediksi dan menguji efektivitas penerapan strategi gerak dalam berbagai situasi gerak. Peserta didik merancang dan menguji peraturan alternatif dan modifikasi permainan untuk mendukung fair play dan partisipasi inklusif. Peserta didik berpartisipasi secara positif dalam kelompok atau tim dengan memberi kontribusi pada aktivitas kelompok, mendorong orang lain dan menegosiasikan peran dan tanggung jawab. [79, 80]"
+            },
+            {
+              "nama": "Bergaya Hidup Aktif",
+              "deskripsi": "Peserta didik berpartisipasi dalam aktivitas jasmani untuk menggambarkan pengaruh aktivitas jasmani yang teratur terhadap kesehatan. Peserta didik berpartisipasi dalam aktivitas jasmani di luar ruang dan/atau lingkungan alam dan menggambarkan faktor-faktor yang mempengaruhi partisipasi, baik secara pribadi maupun kelompok. Peserta didik mengeksplorasi rekomendasi aktivitas jasmani serta pencegahan perilaku sedenter dan membahas strategi pencapaiannya. [80, 81]"
+            },
+            {
+              "nama": "Memilih Hidup yang Menyehatkan",
+              "deskripsi": "Peserta didik mengidentifikasi risiko kesehatan akibat gaya hidup dan pencegahan melalui aktivitas jasmani berdasarkan rekomendasi otoritas kesehatan, memilih makanan sehat untuk menunjang aktivitas jasmani berdasarkan informasi kandungan gizi pada makanan, dan mempraktikkan penanganan cedera sedang sesuai pemahaman tentang prinsip pertolongan pertama. [81, 82]"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "nama_pelajaran": "Bahasa Inggris",
+      "fase": [
+        {
+          "fase": "B",
+          "kelas": "III dan IV",
+          "capaian_umum": "Pada akhir Fase B, peserta didik memahami dan merespons beberapa jenis teks lisan, tulisan dan visual sederhana dalam bahasa Inggris dengan alat bantu visual dan komunikasi nonverbal. Dalam mengembangkan keterampilan berbahasanya, peserta didik berinteraksi dengan orang lain menggunakan bahasa Inggris sederhana dalam situasi sosial sehari-hari dan konteks kelas untuk merespons instruksi, pertanyaan sederhana dalam bahasa Inggris dan/atau membagikan informasi dengan kosakata sederhana. Pembelajaran bahasa Inggris diwajibkan mulai dari Fase B. [83-85]",
+          "elemen": [
+            {
+              "nama": "Menyimak-Berbicara (Listening-Speaking)",
+              "deskripsi": "Peserta didik menggunakan bahasa Inggris untuk berinteraksi dalam lingkup situasi sosial dan kelas, yang dapat diprediksi (rutin) menggunakan kalimat dengan pola yang sesuai dengan konteks yang dibicarakan. Peserta didik mengubah/mengganti sebagian elemen kalimat untuk dapat berpartisipasi dalam rutinitas kelas dan aktivitas belajar. Peserta didik memahami ide pokok dari informasi yang disampaikan secara lisan dengan bantuan visual, serta menggunakan kosakata sederhana. Peserta didik mengikuti rangkaian instruksi sederhana yang berkaitan dengan prosedur kelas dan aktivitas belajar dengan bantuan visual. [85, 86]"
+            },
+            {
+              "nama": "Membaca-Memirsa (Reading-Viewing)",
+              "deskripsi": "Peserta didik memahami kata-kata yang sering digunakan sehari-hari dengan bantuan gambar/ilustrasi. Peserta didik membaca/memirsa dan memberikan respons secara lisan dan komunikasi non-verbal terhadap teks pendek sederhana dan familiar dalam moda tulisan atau digital, termasuk teks visual, multimodal atau interaktif. [87-89]"
+            },
+            {
+              "nama": "Menulis-Mempresentasikan (Writing-Presenting)",
+              "deskripsi": "Peserta didik mengomunikasikan ide dan pengalamannya melalui gambar dan salinan tulisan. Dengan bantuan guru, peserta didik menghasilkan beberapa teks sederhana menggunakan kata/frasa sederhana dan gambar. Peserta didik menulis kosakata sederhana yang berkaitan dengan lingkungan kelas dan rumah dalam bahasa Inggris menggunakan ejaan rekaan (invented spelling). [89, 90]"
+            }
+          ]
+        },
+        {
+          "fase": "C",
+          "kelas": "V dan VI",
+          "capaian_umum": "Pada akhir Fase C, peserta didik memahami dan merespons beberapa jenis teks lisan, tulisan, dan visual sederhana serta menggunakan bahasa Inggris sederhana untuk berkomunikasi dalam situasi yang familiar/lazim/rutin. Peserta didik memahami hubungan bunyi huruf pada kosakata sederhana dalam bahasa Inggris dan menggunakan pemahaman tersebut untuk memahami dan memproduksi teks lisan, tulisan dan visual sederhana dalam bahasa Inggris dengan bantuan contoh. [90, 91]",
+          "elemen": [
+            {
+              "nama": "Menyimak-Berbicara (Listening-Speaking)",
+              "deskripsi": "Peserta didik menggunakan kalimat dengan pola tertentu dalam bahasa Inggris untuk berinteraksi pada lingkup situasi sosial dan kelas yang makin luas, serta masih dapat diprediksi atau bersifat rutin. Peserta didik mengubah/mengganti sebagian elemen kalimat untuk dapat berpartisipasi dalam aktivitas belajar. Peserta didik mengidentifikasi informasi penting/inti teks lisan dalam berbagai konteks dan strategi (meminta pembicara untuk mengulangi, berbicara dengan lebih pelan dan/atau menanyakan arti sebuah kata). Peserta didik mengikuti rangkaian instruksi sederhana yang berkaitan dengan prosedur kelas dan aktivitas belajar. [91, 92]"
+            },
+            {
+              "nama": "Membaca-Memirsa (Reading-Viewing)",
+              "deskripsi": "Peserta didik memahami kata-kata yang sering digunakan sehari-hari dan memahami kata-kata baru dengan bantuan gambar/ilustrasi serta kalimat dalam konteks yang dipahami peserta didik. Peserta didik membaca/memirsa dan memberikan respons terhadap beragam teks pendek, sederhana dan familiar dalam bentuk tulisan atau digital, termasuk teks visual, multimodal atau interaktif. Peserta didik menemukan informasi pada sebuah kalimat dan menjelaskan topik sebuah teks yang dibaca atau diamatinya. [93, 94]"
+            },
+            {
+              "nama": "Menulis-Mempresentasikan (Writing-Presenting)",
+              "deskripsi": "Peserta didik mengomunikasikan ide dan pengalamannya melalui salinan tulisan dan tulisan sederhana mereka sendiri, serta menunjukkan perkembangan pemahaman terhadap proses menulis. Peserta didik menunjukkan pemahaman awal bahwa teks dalam bahasa Inggris ditulis dengan kaidah (konvensi) yang disesuaikan dengan konteks dan tujuannya. Dengan bantuan guru, peserta didik menghasilkan berbagai jenis teks sederhana menggunakan kalimat dengan pola tertentu dan contoh pada tingkatan kata dan kalimat sederhana. Peserta didik menggunakan kosakata yang berkaitan dengan lingkungan kelas dan rumah dengan menggunakan beberapa strategi. [94-96]"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

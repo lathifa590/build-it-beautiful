@@ -1,0 +1,1 @@
+ALTER TABLE public.allowed_customers ADD COLUMN account_type text NOT NULL DEFAULT 'regular';
