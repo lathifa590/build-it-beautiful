@@ -1,0 +1,177 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+/* Neo-Brutalist Educational Design System */
+
+@layer base {
+  :root {
+    /* Core palette - Warm cream background with bold orange accent */
+    --background: 45 33% 97%;
+    --foreground: 0 0% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 10%;
+
+    /* Primary: Warm Educational Orange */
+    --primary: 18 75% 47%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Secondary: Cool Slate */
+    --secondary: 214 20% 92%;
+    --secondary-foreground: 0 0% 10%;
+
+    --muted: 214 20% 96%;
+    --muted-foreground: 215 16% 47%;
+
+    /* Accent colors for different document types */
+    --accent: 234 89% 74%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 0% 0%;
+    --input: 214 32% 91%;
+    --ring: 18 75% 47%;
+
+    --radius: 0.75rem;
+
+    /* Neo-brutalist shadows */
+    --shadow-brutal: 6px 6px 0px 0px rgba(0,0,0,1);
+    --shadow-brutal-sm: 4px 4px 0px 0px rgba(0,0,0,1);
+    --shadow-brutal-hover: 2px 2px 0px 0px rgba(0,0,0,1);
+    --shadow-brutal-active: 0px 0px 0px 0px rgba(0,0,0,1);
+    --shadow-accent: 4px 4px 0px 0px hsl(18 75% 47%);
+
+    /* Document type colors */
+    --doc-modul: 214 20% 92%;
+    --doc-lkpd: 234 89% 95%;
+    --doc-asesmen: 0 84% 95%;
+    --doc-soal: 270 80% 95%;
+    --doc-materi: 45 92% 95%;
+    --doc-refleksi: 160 84% 95%;
+
+    /* Success and info */
+    --success: 160 84% 39%;
+    --success-foreground: 0 0% 100%;
+    --info: 217 91% 60%;
+    --info-foreground: 0 0% 100%;
+
+    /* Sidebar */
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5% 26%;
+    --sidebar-primary: 18 75% 47%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 5% 96%;
+    --sidebar-accent-foreground: 240 6% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 18 75% 47%;
+  }
+
+  .dark {
+    --background: 0 0% 8%;
+    --foreground: 0 0% 95%;
+
+    --card: 0 0% 12%;
+    --card-foreground: 0 0% 95%;
+
+    --popover: 0 0% 12%;
+    --popover-foreground: 0 0% 95%;
+
+    --primary: 18 75% 55%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 217 33% 17%;
+    --secondary-foreground: 0 0% 95%;
+
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
+
+    --accent: 234 89% 65%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 0% 25%;
+    --input: 217 33% 17%;
+    --ring: 18 75% 55%;
+
+    --sidebar-background: 240 6% 10%;
+    --sidebar-foreground: 240 5% 96%;
+    --sidebar-primary: 224 76% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 4% 16%;
+    --sidebar-accent-foreground: 240 5% 96%;
+    --sidebar-border: 240 4% 16%;
+    --sidebar-ring: 18 75% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+}
+
+/* Neo-brutalist utility classes */
+@layer utilities {
+  .shadow-brutal {
+    box-shadow: var(--shadow-brutal);
+  }
+
+  .shadow-brutal-sm {
+    box-shadow: var(--shadow-brutal-sm);
+  }
+
+  .shadow-brutal-hover {
+    box-shadow: var(--shadow-brutal-hover);
+  }
+
+  .shadow-accent {
+    box-shadow: var(--shadow-accent);
+  }
+
+  .bg-grid-pattern {
+    background-image: radial-gradient(hsl(var(--muted-foreground) / 0.15) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+
+  .document-preview table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+  }
+
+  .document-preview th,
+  .document-preview td {
+    border: 1px solid black;
+    padding: 8px;
+    vertical-align: top;
+    text-align: left;
+  }
+
+  .document-preview {
+    color: #000000 !important;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}

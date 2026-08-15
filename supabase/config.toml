@@ -1,0 +1,31 @@
+project_id = "tpwathrdbvaaipjstukf"
+
+[functions.generate-content]
+verify_jwt = false
+
+[functions.check-allowed-email]
+verify_jwt = false
+
+[functions.claim-customer]
+verify_jwt = false
+
+[functions.admin-reset-password]
+verify_jwt = false
+
+[functions.sync-lynk-customers]
+verify_jwt = false
+
+[functions.generate-image]
+verify_jwt = false
+
+[functions.fetch-cp-data]
+verify_jwt = false
+
+[functions.generate-prota]
+verify_jwt = false
+
+[functions.generate-kktp]
+verify_jwt = false
+
+[functions.admin-delete-user]
+verify_jwt = false
