@@ -1,5 +1,6 @@
-import { useState } from 'react';
-import { Loader2 } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
+import { Loader2, RefreshCw, ChevronDown, Maximize2, AlignJustify, AlertTriangle } from 'lucide-react';
 import type {
   GenerationResultV2,
   JenisDokumenPertemuan,
@@ -10,6 +11,18 @@ import {
   LABEL_DOKUMEN,
   LABEL_STATUS,
 } from '@/lib/pertemuan-generation';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+
+export type RegenerateMode = 'default' | 'detail' | 'ringkas';
 
 interface Props {
   result: GenerationResultV2;
@@ -43,6 +56,101 @@ const statusClass: Record<StatusGenerateDokumen, string> = {
   error: 'bg-destructive/20 text-destructive',
 };
 
+// ─── Regenerate Dropdown (Portal) ─────────────────────────────────────────────
+interface RegenDropdownProps {
+  onRegenerate: (mode: RegenerateMode) => void;
+  isModul?: boolean;
+}
+
+const RegenDropdown = ({ onRegenerate, isModul }: RegenDropdownProps) => {
+  const [open, setOpen] = useState(false);
+  const [coords, setCoords] = useState({ top: 0, left: 0 });
+  const triggerRef = useRef<HTMLButtonElement>(null);
+
+  // Hitung posisi dropdown saat dibuka
+  const handleOpen = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!open && triggerRef.current) {
+      const rect = triggerRef.current.getBoundingClientRect();
+      setCoords({ top: rect.bottom + 4, left: rect.left });
+    }
+    setOpen(v => !v);
+  };
+
+  // Tutup saat klik di luar
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e: MouseEvent) => {
+      const target = e.target as Node;
+      if (triggerRef.current && !triggerRef.current.contains(target)) {
+        // cek apakah klik di dalam dropdown portal
+        const dropEl = document.getElementById('regen-dropdown-portal');
+        if (!dropEl || !dropEl.contains(target)) setOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [open]);
+
+  return (
+    <>
+      <button
+        ref={triggerRef}
+        type="button"
+        onClick={handleOpen}
+        title="Opsi Regenerate"
+        aria-label="Opsi Regenerate"
+        className="flex items-center gap-0.5 px-1.5 py-1 text-[10px] font-bold rounded-r-md border-2 border-l-0 border-foreground/40 bg-card text-foreground hover:bg-primary/10 transition-colors flex-shrink-0"
+      >
+        <RefreshCw className="w-3 h-3" />
+        <ChevronDown className={`w-2.5 h-2.5 transition-transform ${open ? 'rotate-180' : ''}`} />
+      </button>
+
+      {open && createPortal(
+        <div
+          id="regen-dropdown-portal"
+          style={{ position: 'fixed', top: coords.top, left: coords.left, zIndex: 9999 }}
+          className="w-48 bg-card border-2 border-foreground rounded-lg shadow-[4px_4px_0px_rgba(0,0,0,0.15)] overflow-hidden"
+        >
+          {isModul && (
+            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 border-b border-amber-200">
+              <AlertTriangle className="w-3 h-3 text-amber-600 flex-shrink-0" />
+              <span className="text-[10px] text-amber-700 font-medium leading-tight">
+                Akan mereset dokumen turunan
+              </span>
+            </div>
+          )}
+          <button
+            className="w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold hover:bg-primary/10 transition-colors text-left"
+            onClick={() => { onRegenerate('default'); setOpen(false); }}
+          >
+            <RefreshCw className="w-3.5 h-3.5 text-primary flex-shrink-0" />
+            Generate Ulang
+          </button>
+          <div className="h-px bg-border" />
+          <button
+            className="w-full flex items-center gap-2 px-3 py-2 text-xs font-medium hover:bg-primary/10 transition-colors text-left text-muted-foreground"
+            onClick={() => { onRegenerate('detail'); setOpen(false); }}
+          >
+            <Maximize2 className="w-3.5 h-3.5 flex-shrink-0" />
+            Buat Lebih Detail
+          </button>
+          <button
+            className="w-full flex items-center gap-2 px-3 py-2 text-xs font-medium hover:bg-primary/10 transition-colors text-left text-muted-foreground"
+            onClick={() => { onRegenerate('ringkas'); setOpen(false); }}
+          >
+            <AlignJustify className="w-3.5 h-3.5 flex-shrink-0" />
+            Buat Lebih Ringkas
+          </button>
+        </div>,
+        document.body
+      )}
+    </>
+  );
+};
+
+
+
 /**
  * Navigasi hasil V2: pilih pertemuan → pilih tab dokumen milik pertemuan itu.
  * Tidak pernah menampilkan dokumen milik pertemuan lain.
@@ -65,6 +173,9 @@ export const PertemuanResultNavigator = ({
   );
   const [innerJenis, setInnerJenis] = useState<JenisDokumenPertemuan>('modul');
 
+  // Alert dialog konfirmasi regenerate Modul
+  const [showModulAlert, setShowModulAlert] = useState(false);
+
   const currentPertemuanId = activePertemuanId ?? innerPertemuanId;
   const currentJenis = activeJenis ?? innerJenis;
   const selectPertemuan = (id: string) => {
@@ -84,7 +195,17 @@ export const PertemuanResultNavigator = ({
   const dipilih = currentJenis === 'modul' ? true : !!aktif.pilihanDokumen[currentJenis];
   const dokumen = aktif.dokumen[currentJenis];
 
+  /** Tangani klik regenerate dari dropdown — Modul perlu konfirmasi lebih dulu */
+  const handleRegenerate = (jenis: JenisDokumenPertemuan, _mode: RegenerateMode) => {
+    if (jenis === 'modul') {
+      setShowModulAlert(true);
+    } else {
+      onRetry?.(aktif.id, jenis);
+    }
+  };
+
   return (
+    <>
     <div className={className}>
       <div className={headerClassName}>
         <div className="flex gap-2 overflow-x-auto no-scrollbar">
@@ -104,29 +225,42 @@ export const PertemuanResultNavigator = ({
           ))}
         </div>
 
-        <div className="flex gap-2 overflow-x-auto no-scrollbar">
+        {/* Tab jenis dokumen + tombol regenerate dropdown */}
+        <div className="flex gap-2 overflow-x-auto no-scrollbar items-center">
           {JENIS_DOKUMEN_ORDER.map((jenis) => {
             const jStatus = aktif.status[jenis] ?? 'idle';
             const isCompleted = !!aktif.dokumen[jenis];
             const isPending = jStatus === 'pending';
+            const isActive = jenis === currentJenis;
 
             return (
-              <button
-                key={jenis}
-                type="button"
-                onClick={() => selectJenis(jenis)}
-                className={`flex-shrink-0 px-3 py-1.5 text-xs font-bold rounded-md border-2 flex items-center gap-1.5 transition-all ${
-                  jenis === currentJenis
-                    ? 'bg-foreground text-background border-foreground'
-                    : 'bg-card text-foreground border-foreground/30'
-                }`}
-              >
-                {isPending && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                {LABEL_DOKUMEN[jenis]}
-                {!isPending && isCompleted && (
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 flex-shrink-0" title="Selesai" />
+              <div key={jenis} className="flex items-center flex-shrink-0">
+                <button
+                  type="button"
+                  onClick={() => selectJenis(jenis)}
+                  className={`flex-shrink-0 px-3 py-1.5 text-xs font-bold rounded-l-md border-2 flex items-center gap-1.5 transition-all ${
+                    isCompleted && isActive ? 'rounded-r-none border-r-0' : 'rounded-md'
+                  } ${
+                    isActive
+                      ? 'bg-foreground text-background border-foreground'
+                      : 'bg-card text-foreground border-foreground/30'
+                  }`}
+                >
+                  {isPending && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                  {LABEL_DOKUMEN[jenis]}
+                  {!isPending && isCompleted && (
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 flex-shrink-0" title="Selesai" />
+                  )}
+                </button>
+
+                {/* Tombol dropdown regenerate — hanya saat tab aktif & sudah ada konten */}
+                {isActive && isCompleted && !isPending && onRetry && (
+                  <RegenDropdown
+                    isModul={jenis === 'modul'}
+                    onRegenerate={(mode) => handleRegenerate(jenis, mode)}
+                  />
                 )}
-              </button>
+              </div>
             );
           })}
         </div>
@@ -213,5 +347,27 @@ export const PertemuanResultNavigator = ({
         )}
       </div>
     </div>
+
+    {/* Alert Dialog: konfirmasi regenerate Modul (dokumen turunan akan direset) */}
+    <AlertDialog open={showModulAlert} onOpenChange={setShowModulAlert}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>⚠️ Regenerate Modul Pertemuan {aktif.nomor}?</AlertDialogTitle>
+          <AlertDialogDescription>
+            Modul adalah fondasi. Jika Anda men-generate ulang Modul ini, <strong>dokumen turunannya</strong> (LKPD, Asesmen, Materi, Refleksi, Soal) pada Pertemuan {aktif.nomor} akan terdampak dan perlu di-generate ulang juga.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Batal</AlertDialogCancel>
+          <AlertDialogAction
+            className="bg-destructive hover:bg-destructive/90"
+            onClick={() => { onRetry?.(aktif.id, 'modul'); setShowModulAlert(false); }}
+          >
+            Ya, Regenerate Modul
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+    </>
   );
 };

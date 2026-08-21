@@ -176,8 +176,6 @@ export const useV2Export = ({
         holder.appendChild(clone);
         try {
           const { default: html2pdf } = await import('html2pdf.js');
-          // Opsi identik dengan pipeline PDF legacy; di-cast karena typing
-          // html2pdf.js tidak mendeklarasikan `pagebreak`.
           const pdfOptions = {
             margin: [10, 10, 10, 10] as [number, number, number, number],
             filename: `${plan.filenameBase}.pdf`,
@@ -187,6 +185,7 @@ export const useV2Export = ({
               useCORS: true,
               logging: false,
               letterRendering: true,
+              scrollY: 0,
             },
             jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' as const },
             pagebreak: {
@@ -196,10 +195,67 @@ export const useV2Export = ({
             },
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           } as any;
-          await html2pdf()
-            .set(pdfOptions)
-            .from(clone)
-            .save();
+
+          const itemsToExport = Array.from(clone.querySelectorAll<HTMLElement>('[data-v2-export-item]'));
+          
+          // Flatten rowSpans to prevent html2pdf table splitting bugs (column crushing)
+          clone.querySelectorAll('td[rowspan], th[rowspan]').forEach((cell) => {
+            const el = cell as HTMLTableCellElement;
+            const rowSpan = parseInt(el.getAttribute('rowspan') || '1', 10);
+            if (rowSpan > 1) {
+              el.removeAttribute('rowspan');
+              el.style.borderBottom = 'none';
+              let currentRow = el.parentElement?.nextElementSibling;
+              for (let i = 1; i < rowSpan; i++) {
+                if (currentRow) {
+                  const cloneCell = el.cloneNode(true) as HTMLTableCellElement;
+                  cloneCell.style.color = 'transparent';
+                  cloneCell.style.borderTop = 'none';
+                  cloneCell.style.borderBottom = 'none';
+                  if (i === rowSpan - 1) cloneCell.style.borderBottom = '1px solid black';
+                  
+                  Array.from(cloneCell.children).forEach((child) => {
+                    if (child instanceof HTMLElement) {
+                      child.style.opacity = '0';
+                    }
+                  });
+                  currentRow.insertBefore(cloneCell, currentRow.firstChild);
+                  currentRow = currentRow.nextElementSibling;
+                }
+              }
+            }
+          });
+
+          // Hapus inline pageBreakInside: avoid untuk mencegah bug duplikasi teks di html2pdf css mode
+          clone.querySelectorAll('[style*="page-break-inside"], [style*="break-inside"]').forEach((el) => {
+            if (el instanceof HTMLElement) {
+              el.style.pageBreakInside = '';
+              el.style.breakInside = '';
+            }
+          });
+
+          if (itemsToExport.length === 0) {
+            await html2pdf().set(pdfOptions).from(clone).save();
+          } else {
+            let worker = html2pdf().set(pdfOptions);
+            for (let i = 0; i < itemsToExport.length; i++) {
+              const el = itemsToExport[i];
+              // Bersihkan margin top dan class page break dari root elemen karena kita akan ganti halaman secara manual
+              el.style.marginTop = '0';
+              el.classList.remove('page-break-before');
+              el.style.pageBreakBefore = 'auto';
+
+              if (i === 0) {
+                worker = worker.from(el).toPdf();
+              } else {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                worker = worker.get('pdf').then((pdf: any) => {
+                  pdf.addPage();
+                }).from(el).toContainer().toCanvas().toPdf();
+              }
+            }
+            await worker.save();
+          }
         } finally {
           destroyStagingContainer(holder);
         }

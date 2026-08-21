@@ -1041,7 +1041,14 @@ export const DocumentPreview = ({
                 Tujuan Pembelajaran
               </td>
               <td style={{ border: '1px solid black', padding: '6px' }}>
-                {formatRichText(formData.tujuanPembelajaran) || '-'}
+                <EditableSection
+                  sectionId="tujuan_pembelajaran"
+                  sectionLabel="Tujuan Pembelajaran"
+                  currentContent={formData.tujuanPembelajaran}
+                  onEdit={handleOpenEditor('modul')}
+                >
+                  {formatRichText(formData.tujuanPembelajaran) || '-'}
+                </EditableSection>
               </td>
             </tr>
             <tr>

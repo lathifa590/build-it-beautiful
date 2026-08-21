@@ -2343,6 +2343,34 @@ ${imageTargetsLines}
         break;
 
       case "tujuan-pembelajaran":
+        const kalender = data.kalender;
+        const ruangLingkup = data.ruangLingkupMateri;
+        let jpInstruction = "Buat 3-5 TP yang progresif dari level rendah ke tinggi";
+        let jpUserInstruction = "Buatkan 3-5 Tujuan Pembelajaran yang sesuai dengan CP di atas. Pastikan TP progresif dari level kognitif rendah ke tinggi.";
+        
+        if (kalender) {
+          const m1 = parseInt(kalender.mingguEfektifSem1) || 0;
+          const m2 = parseInt(kalender.mingguEfektifSem2) || 0;
+          const jp = parseInt(kalender.jpPerMinggu) || 0;
+          const totalJp = (m1 + m2) * jp;
+          
+          if (totalJp > 0) {
+            const minTp = Math.max(5, Math.floor(totalJp / 6)); // Asumsi 1 TP untuk 4-6 JP
+            const maxTp = Math.min(25, Math.ceil(totalJp / 3)); // Maks 25 TP biar ga overload
+            
+            if (ruangLingkup) {
+              jpInstruction = `Pecah Capaian Pembelajaran untuk masing-masing topik/materi yang diberikan guru. Buat sekitar ${minTp} hingga ${maxTp} TP secara total yang proporsional untuk diajarkan selama ${totalJp} Jam Pelajaran (${m1 + m2} minggu efektif). Pastikan setiap topik mendapatkan porsi TP yang merata dan progresif.`;
+              jpUserInstruction = `Guru akan mengajarkan topik/ruang lingkup materi berikut:\n\nTOPIK / RUANG LINGKUP MATERI:\n${ruangLingkup}\n\nBuatkan sekitar ${minTp} hingga ${maxTp} Tujuan Pembelajaran secara total (terdistribusi ke masing-masing topik di atas). Pastikan TP yang dibuat mengacu pada CP, mencakup semua topik yang disebutkan, progresif dari level kognitif rendah ke tinggi, dan memadai untuk durasi ${totalJp} Jam Pelajaran.`;
+            } else {
+              jpInstruction = `Buat sekitar ${minTp} hingga ${maxTp} TP yang progresif dan proporsional untuk diajarkan selama total ${totalJp} Jam Pelajaran (${m1 + m2} minggu efektif).`;
+              jpUserInstruction = `Buatkan sekitar ${minTp} hingga ${maxTp} Tujuan Pembelajaran yang sesuai dengan CP di atas secara komprehensif agar memadai untuk durasi ${totalJp} Jam Pelajaran selama 1 tahun ajaran. Pastikan TP progresif dari level kognitif rendah ke tinggi dan cakupannya merata.`;
+            }
+          }
+        } else if (ruangLingkup) {
+          jpInstruction = `Pecah Capaian Pembelajaran untuk masing-masing topik/materi yang diberikan guru. Buat beberapa TP progresif untuk SETIAP topik yang disebutkan.`;
+          jpUserInstruction = `Guru akan mengajarkan topik/ruang lingkup materi berikut:\n\nTOPIK / RUANG LINGKUP MATERI:\n${ruangLingkup}\n\nBuatkan Tujuan Pembelajaran yang didistribusikan ke masing-masing topik di atas. Pastikan TP yang dibuat mengacu pada CP dan progresif dari level kognitif rendah ke tinggi.`;
+        }
+
         systemPrompt = `Kamu adalah ahli pendidikan Indonesia yang membuat Tujuan Pembelajaran (TP) berdasarkan Capaian Pembelajaran (CP) resmi Kemdikbud.
 
 ATURAN PEMBUATAN TP:
@@ -2355,7 +2383,7 @@ ATURAN PEMBUATAN TP:
    - C5 (Mengevaluasi): menilai, menyimpulkan, mengkritisi
    - C6 (Mencipta): merancang, membuat, menghasilkan
 3. Format: Setiap TP diawali "Peserta didik mampu..." atau "Murid mampu..."
-4. Buat 3-5 TP yang progresif dari level rendah ke tinggi
+4. ${jpInstruction}
 5. Pastikan TP dapat diukur dan diamati
 
 FORMAT OUTPUT JSON:
@@ -2381,7 +2409,7 @@ SUB MATERI: ${data.subMateri || '(tidak diisi)'}
 FASE: ${data.fase || '(tidak diisi)'}
 KELAS: ${data.kelas || '(tidak diisi)'}
 
-Buatkan 3-5 Tujuan Pembelajaran yang sesuai dengan CP di atas. Pastikan TP progresif dari level kognitif rendah ke tinggi.`;
+${jpUserInstruction}`;
         break;
 
       case "kontekstualisasi-cp":

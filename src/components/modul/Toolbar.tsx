@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   PenTool,
   ClipboardCheck,
@@ -16,7 +17,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { TabButton } from './TabButton';
+import { TabButton, type RegenerateMode } from './TabButton';
 import { LetterheadControl } from './LetterheadControl';
 import { QuotaIndicator } from './QuotaIndicator';
 import {
@@ -25,6 +26,16 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 interface ToolbarProps {
   activeTab: string;
@@ -48,11 +59,11 @@ interface ToolbarProps {
   onGenerateTindakLanjut: () => void;
   onOpenSoalModal: () => void;
   onRegenerateModul?: () => void;
-  onRegenerateLKPD?: () => void;
-  onRegenerateAsesmen?: () => void;
-  onRegenerateMateri?: () => void;
-  onRegenerateTindakLanjut?: () => void;
-  onRegenerateBankSoal?: () => void;
+  onRegenerateLKPD?: (mode?: RegenerateMode) => void;
+  onRegenerateAsesmen?: (mode?: RegenerateMode) => void;
+  onRegenerateMateri?: (mode?: RegenerateMode) => void;
+  onRegenerateTindakLanjut?: (mode?: RegenerateMode) => void;
+  onRegenerateBankSoal?: (mode?: RegenerateMode) => void;
   onExportCurrentTab: () => void;
   onExportAll: () => void;
   onExportPDF?: () => void;
@@ -81,6 +92,8 @@ interface ToolbarProps {
   v2Mode?: boolean;
   /** FASE 4B: buka dialog export V2 (dipakai semua jalur saat v2Mode). */
   onOpenV2Export?: () => void;
+  /** Workspace mode: sembunyikan tab Perencanaan karena sudah ada di Workspace Planning. */
+  hidePerencanaan?: boolean;
 }
 
 export const Toolbar = ({
@@ -128,9 +141,13 @@ export const Toolbar = ({
   hideDocGenerate = false,
   v2Mode = false,
   onOpenV2Export,
+  hidePerencanaan = false,
 }: ToolbarProps) => {
   const lockOther = !isModulComplete;
   const lockTitle = lockOther ? 'Selesaikan semua pertemuan modul terlebih dahulu' : '';
+
+  // Local state: alert konfirmasi regenerate Modul (peringatan dokumen turunan hilang)
+  const [showModulAlert, setShowModulAlert] = useState(false);
 
   /**
    * Isi menu Export. Saat V2 aktif, seluruh export dokumen legacy dinonaktifkan
@@ -247,6 +264,7 @@ export const Toolbar = ({
   );
 
   return (
+    <>
     <div className="flex-none p-2 md:p-4 bg-card border-b-2 border-foreground shadow-sm z-30">
       {/* Generate buttons — 3-col card grid on mobile, flex on desktop */}
       {!isPlanningTab && !hideDocGenerate && (
@@ -356,16 +374,52 @@ export const Toolbar = ({
               sehingga tab dokumen legacy disembunyikan (hindari dua navigasi). */}
           {!v2Mode && (
             <>
-              <TabButton id="modul" label="Modul" shortLabel="Modul" icon={Layout} exists={true} isActive={activeTab === 'modul'} onClick={() => setActiveTab('modul')} />
-              <TabButton id="lkpd" label="LKPD" shortLabel="LKPD" icon={PenTool} exists={!!lkpdData} isActive={activeTab === 'lkpd'} onClick={() => setActiveTab('lkpd')} />
-              <TabButton id="asesmen" label="Asesmen" shortLabel="Ases." icon={ClipboardCheck} exists={!!asesmenData} isActive={activeTab === 'asesmen'} onClick={() => setActiveTab('asesmen')} />
-              <TabButton id="soal" label="Soal" shortLabel="Soal" icon={FileQuestion} exists={!!bankSoalData} isActive={activeTab === 'soal'} onClick={() => setActiveTab('soal')} />
-              <TabButton id="materi" label="Materi" shortLabel="Materi" icon={BookOpen} exists={!!materiData} isActive={activeTab === 'materi'} onClick={() => setActiveTab('materi')} />
-              <TabButton id="tindakLanjut" label="Refleksi" shortLabel="Reflek." icon={HeartHandshake} exists={!!tindakLanjutData} isActive={activeTab === 'tindakLanjut'} onClick={() => setActiveTab('tindakLanjut')} />
-              <TabButton id="all" label="Semua" shortLabel="Semua" icon={Layers} exists={false} isActive={activeTab === 'all'} onClick={() => setActiveTab('all')} />
+              <TabButton
+                id="modul" label="Modul" shortLabel="Modul" icon={Layout}
+                exists={!!modulData} isActive={activeTab === 'modul'}
+                onClick={() => setActiveTab('modul')}
+                onRegenerate={onRegenerateModul ? () => setShowModulAlert(true) : undefined}
+              />
+              <TabButton
+                id="lkpd" label="LKPD" shortLabel="LKPD" icon={PenTool}
+                exists={!!lkpdData} isActive={activeTab === 'lkpd'}
+                onClick={() => setActiveTab('lkpd')}
+                onRegenerate={onRegenerateLKPD ? (mode) => onRegenerateLKPD(mode) : undefined}
+              />
+              <TabButton
+                id="asesmen" label="Asesmen" shortLabel="Ases." icon={ClipboardCheck}
+                exists={!!asesmenData} isActive={activeTab === 'asesmen'}
+                onClick={() => setActiveTab('asesmen')}
+                onRegenerate={onRegenerateAsesmen ? (mode) => onRegenerateAsesmen(mode) : undefined}
+              />
+              <TabButton
+                id="soal" label="Soal" shortLabel="Soal" icon={FileQuestion}
+                exists={!!bankSoalData} isActive={activeTab === 'soal'}
+                onClick={() => setActiveTab('soal')}
+                onRegenerate={onRegenerateBankSoal ? (mode) => onRegenerateBankSoal(mode) : undefined}
+              />
+              <TabButton
+                id="materi" label="Materi" shortLabel="Materi" icon={BookOpen}
+                exists={!!materiData} isActive={activeTab === 'materi'}
+                onClick={() => setActiveTab('materi')}
+                onRegenerate={onRegenerateMateri ? (mode) => onRegenerateMateri(mode) : undefined}
+              />
+              <TabButton
+                id="tindakLanjut" label="Refleksi" shortLabel="Reflek." icon={HeartHandshake}
+                exists={!!tindakLanjutData} isActive={activeTab === 'tindakLanjut'}
+                onClick={() => setActiveTab('tindakLanjut')}
+                onRegenerate={onRegenerateTindakLanjut ? (mode) => onRegenerateTindakLanjut(mode) : undefined}
+              />
+              <TabButton
+                id="all" label="Semua" shortLabel="Semua" icon={Layers}
+                exists={false} isActive={activeTab === 'all'}
+                onClick={() => setActiveTab('all')}
+              />
             </>
           )}
-          <TabButton id="perencanaan" label="Perencanaan" shortLabel="Rencana" icon={Calendar} exists={false} isActive={activeTab === 'perencanaan'} onClick={() => setActiveTab('perencanaan')} />
+          {!hidePerencanaan && (
+            <TabButton id="perencanaan" label="Perencanaan" shortLabel="Rencana" icon={Calendar} exists={false} isActive={activeTab === 'perencanaan'} onClick={() => setActiveTab('perencanaan')} />
+          )}
         </div>
 
 
@@ -404,5 +458,27 @@ export const Toolbar = ({
         )}
       </div>
     </div>
+
+    {/* Alert Dialog — konfirmasi regenerate Modul (peringatan dokumen turunan hilang) */}
+    <AlertDialog open={showModulAlert} onOpenChange={setShowModulAlert}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>⚠️ Regenerate Modul Ajar?</AlertDialogTitle>
+          <AlertDialogDescription>
+            Modul adalah fondasi semua dokumen. Jika Anda meneruskan, <strong>semua dokumen turunan</strong> (LKPD, Asesmen, Materi, Refleksi, Soal) yang sudah ada akan direset dan perlu di-generate ulang.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Batal</AlertDialogCancel>
+          <AlertDialogAction
+            className="bg-destructive hover:bg-destructive/90"
+            onClick={() => { onRegenerateModul?.(); setShowModulAlert(false); }}
+          >
+            Ya, Regenerate Modul
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+    </>
   );
 };

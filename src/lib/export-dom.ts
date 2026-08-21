@@ -241,9 +241,8 @@ export const createStagingContainer = (): HTMLDivElement => {
   const el = document.createElement('div');
   el.setAttribute('data-v2-export-stage', 'true');
   el.setAttribute('aria-hidden', 'true');
-  el.style.position = 'fixed';
+  el.style.position = 'absolute';
   el.style.left = '-10000px';
-  el.style.top = '0';
   el.style.width = '210mm';
   el.style.background = 'white';
   el.style.pointerEvents = 'none';
