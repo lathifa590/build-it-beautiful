@@ -1,0 +1,80 @@
+export interface Workspace {
+  id: string;
+  user_id: string;
+  subject: string;
+  phase: string;
+  grade: string;
+  academic_year: string;
+  curriculum?: string;
+  school_name?: string;
+  jp_duration_minutes: number;
+  default_jp_per_meeting: number;
+  created_at: string;
+  updated_at: string;
+  archived_at?: string;
+}
+
+export interface CurriculumPlan {
+  id: string;
+  workspace_id: string;
+  type: 'cp' | 'tp' | 'kktp' | 'prota' | 'prosem';
+  content: any;
+  semester?: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ProsemItem {
+  id: string;
+  workspace_id: string;
+  prosem_id: string;
+  tp_id?: string;
+  title: string;
+  allocated_jp: number;
+  semester: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface MeetingSlot {
+  id: string;
+  workspace_id: string;
+  prosem_id?: string;
+  prosem_item_id?: string;
+  tp_id?: string;
+  sequence: number;
+  title: string;
+  planned_jp: number;
+  week_number?: number;
+  planned_date?: string;
+  module_id?: string;
+  status: 'planned' | 'module_created' | 'taught' | 'completed' | 'skipped';
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Document {
+  id: string;
+  workspace_id: string;
+  document_type: 'prota' | 'prosem' | 'kktp' | 'modul' | 'lkpd' | 'materi' | 'asesmen' | 'soal' | 'refleksi';
+  title: string;
+  status: 'draft' | 'ready' | 'completed' | 'archived';
+  source_type: 'prosem' | 'quick' | 'legacy';
+  source_id?: string;
+  current_version_id?: string;
+  created_at: string;
+  updated_at: string;
+  deleted_at?: string;
+}
+
+export interface DocumentVersion {
+  id: string;
+  document_id: string;
+  version_number: number;
+  content_json: any;
+  input_snapshot?: any;
+  generation_metadata?: any;
+  change_type: 'generated' | 'regenerated' | 'edited' | 'restored' | 'imported';
+  created_by?: string;
+  created_at: string;
+}

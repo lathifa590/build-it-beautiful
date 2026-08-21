@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import type {
   FormData,
   SoalConfig,
@@ -58,6 +58,7 @@ import { TrialCTADialog } from '@/components/modul/TrialCTADialog';
 import { HeaderHistoryDropdown } from '@/components/modul/HeaderHistoryDropdown';
 import { useContentHistory, useSaveContentHistory, useDeleteContentHistory, useUpdateContentHistory, type ContentHistoryItem } from '@/hooks/useContentHistory';
 import { useAuth } from '@/contexts/AuthContext';
+import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { 
   useTeacherProfiles, 
   useSaveTeacherProfile, 
@@ -79,7 +80,7 @@ import { normalizeBankSoalImages } from '@/lib/bank-soal-normalize';
 import { buildContextKey, pickContextFields, JENIS_DOKUMEN_ORDER } from '@/lib/pertemuan-generation';
 import type { JenisDokumenPertemuan } from '@/types/modul';
 
-import { LogOut, Shield, User, Settings, Store, MoreVertical, RotateCcw, Maximize2, Minimize2, Plus, X, FileDown, Image as ImageIcon, RefreshCw } from 'lucide-react';
+import { LogOut, Shield, User, Settings, Store, MoreVertical, RotateCcw, Maximize2, Minimize2, Plus, X, FileDown, Image as ImageIcon, RefreshCw, Lock } from 'lucide-react';
 import {
   DropdownMenu as HeaderMoreMenu,
   DropdownMenuContent as HeaderMoreMenuContent,
@@ -89,6 +90,12 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useIsAgencyOwner } from '@/hooks/useIsAgencyOwner';
 import html2pdf from 'html2pdf.js';
+import { WorkspaceSelector } from '@/components/workspace/WorkspaceSelector';
+import { WorkspaceDashboard } from '@/components/workspace/WorkspaceDashboard';
+import { WorkspacePlanningView } from '@/components/workspace/planning/WorkspacePlanningView';
+import useProsemData from '@/hooks/useProsemData';
+import { WorkspaceExplorerRoot } from '@/components/workspace/explorer/WorkspaceExplorerRoot';
+import { WorkspaceExplorerShell } from '@/components/workspace/explorer/WorkspaceExplorerShell';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -288,7 +295,25 @@ const Index = () => {
   const updateHistoryMutation = useUpdateContentHistory();
 
   // Navigation State
-  const [activeTab, setActiveTab] = useState('modul');
+  const location = useLocation();
+  const appMode = location.pathname.startsWith('/app/workspace') ? 'workspace' : 'quick';
+  
+  const { workspaces, activeWorkspace, setActiveWorkspace } = useWorkspace();
+  
+  useEffect(() => {
+    // Match /app/workspace/:id and /app/workspace/:id/planning (and sub-paths)
+    const match = location.pathname.match(/^\/app\/workspace\/([a-zA-Z0-9-]+)/);
+    if (match) {
+      const urlId = match[1];
+      if (activeWorkspace?.id !== urlId && workspaces.length > 0) {
+        const found = workspaces.find(w => w.id === urlId);
+        if (found) {
+          setActiveWorkspace(found);
+        }
+      }
+    }
+  }, [location.pathname, workspaces, activeWorkspace?.id, setActiveWorkspace]);
+  const [activeTab, setActiveTab] = useState(ENABLE_PERTEMUAN_DOCS_V2 ? 'dashboard' : 'modul');
   const [mobileTab, setMobileTab] = useState<'form' | 'result'>('form');
   const [isPreviewFullscreen, setIsPreviewFullscreen] = useState(false);
 
@@ -1334,6 +1359,8 @@ const Index = () => {
         `Gagal membuat Pertemuan ${target.nomorPertemuan}: ${lastError || 'coba lagi'}`,
         'error'
       );
+    } else {
+      setActiveTab('modul');
     }
 
     setLoading(false);
@@ -2569,31 +2596,62 @@ img{max-width:100%}
       />
 
       {/* Header with user actions */}
-      <header className="flex-shrink-0 bg-card border-b-2 border-foreground px-4 py-3 flex items-center justify-between">
+      <header className="flex-shrink-0 bg-card border-b-2 border-foreground px-4 py-3 flex flex-wrap gap-3 items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-primary rounded-xl border-2 border-foreground flex items-center justify-center shadow-brutal-sm">
             <span className="text-primary-foreground font-extrabold text-lg">📚</span>
           </div>
           <div>
             <h1 className="font-extrabold text-lg">ModulAjar.Online</h1>
-            <p className="text-xs text-muted-foreground">Kurikulum Merdeka - Pembelajaran Mendalam & KBC</p>
+            <p className="text-xs text-muted-foreground hidden sm:block">Kurikulum Merdeka - Pembelajaran Mendalam & KBC</p>
           </div>
         </div>
 
-        <div className="flex items-center gap-1.5 sm:gap-3">
-          <HeaderHistoryDropdown
-            historyItems={historyItems}
-            selectedHistoryId={selectedHistoryId}
-            isLoading={isHistoryLoading}
-            isDeleting={deleteHistoryMutation.isPending}
-            hasContent={hasAnyContent}
-            onSelectHistory={setSelectedHistoryId}
-            onLoadHistory={handleLoadHistory}
-            onSaveClick={openSaveHistoryModal}
-            onDeleteClick={handleDeleteHistory}
-          />
+        {/* App Mode Switcher */}
+        <div className="flex bg-muted p-1 rounded-lg border-2 border-foreground/10 mx-auto md:mx-0 order-last md:order-none w-full md:w-auto justify-center">
+          <button
+            onClick={() => {
+              navigate('/app');
+              if (activeTab === 'dashboard' || activeTab === 'perencanaan') {
+                setActiveTab('modul');
+              }
+            }}
+            className={`px-4 py-1.5 text-sm font-semibold rounded-md transition-all flex items-center gap-2 ${
+              appMode === 'quick' ? 'bg-background shadow-sm border-2 border-foreground text-foreground' : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            <span>⚡</span> Mode Cepat
+          </button>
+          <button
+            onClick={() => {
+              showNotificationMessage('Fitur Workspace masih dalam tahap pengembangan (Coming Soon). Anda bisa menggunakan fitur Mode Cepat untuk saat ini.', 'error');
+            }}
+            className={`px-4 py-1.5 text-sm font-semibold rounded-md transition-all flex items-center gap-2 ${
+              appMode === 'workspace' ? 'bg-background shadow-sm border-2 border-foreground text-foreground' : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            <span>📁</span> Workspace
+            <Lock className="w-3 h-3 ml-1 opacity-50" />
+          </button>
+        </div>
 
-          {(hasAnyContent || hasV2Resettable) && (
+        <div className="flex items-center gap-1.5 sm:gap-3">
+          {appMode === 'workspace' && <WorkspaceSelector />}
+          {appMode === 'quick' && (
+            <HeaderHistoryDropdown
+              historyItems={historyItems}
+              selectedHistoryId={selectedHistoryId}
+              isLoading={isHistoryLoading}
+              isDeleting={deleteHistoryMutation.isPending}
+              hasContent={hasAnyContent}
+              onSelectHistory={setSelectedHistoryId}
+              onLoadHistory={handleLoadHistory}
+              onSaveClick={openSaveHistoryModal}
+              onDeleteClick={handleDeleteHistory}
+            />
+          )}
+
+          {(hasAnyContent || hasV2Resettable) && appMode === 'quick' && (
             <button
               onClick={resetAll}
               title="Reset"
@@ -2734,12 +2792,13 @@ img{max-width:100%}
 
       {/* Main Content */}
       <main className="flex-1 flex overflow-hidden bg-grid-pattern relative min-w-0">
-        {/* LEFT PANEL: INPUT FORM */}
-        <div
-          className={`w-full md:w-[360px] xl:w-[400px] md:shrink-0 p-4 md:p-6 overflow-y-auto overflow-x-hidden border-r-2 border-foreground/10 bg-card/50 backdrop-blur-sm ${
-            mobileTab === 'form' ? 'block' : 'hidden'
-          } md:block pb-24 md:pb-6`}
-        >
+        {/* LEFT PANEL: INPUT FORM (Hidden when in Workspace Dashboard/Perencanaan) */}
+        {!(appMode === 'workspace' && (activeTab === 'dashboard' || activeTab === 'perencanaan')) && (
+          <div
+            className={`w-full md:w-[360px] xl:w-[400px] md:shrink-0 p-4 md:p-6 overflow-y-auto overflow-x-hidden border-r-2 border-foreground/10 bg-card/50 backdrop-blur-sm ${
+              mobileTab === 'form' ? 'block' : 'hidden'
+            } md:block pb-24 md:pb-6`}
+          >
           <ProfileManager
             savedProfiles={cloudProfiles}
             selectedProfile={selectedProfile}
@@ -2909,6 +2968,7 @@ img{max-width:100%}
                 `Hasil Bab diterapkan: ${pertemuanFlat.length} pertemuan${allMateri.length > 1 ? `, ${allMateri.length} materi digabung` : ''}.`,
                 'success'
               );
+              setActiveTab('modul');
             }}
             onGenerate={generateLessonPlan}
             loading={loading}
@@ -2965,6 +3025,7 @@ img{max-width:100%}
             onSelectCP={handleSelectCP}
           />
         </div>
+        )}
 
         {/* RIGHT PANEL: RESULT */}
         <div
@@ -3016,7 +3077,27 @@ img{max-width:100%}
             </div>
           )}
 
-          {activeTab === 'perencanaan' ? (
+          {appMode === 'workspace' && location.pathname === '/app/workspace' ? (
+            <WorkspaceExplorerRoot />
+          ) : appMode === 'workspace' && activeWorkspace && /^\/app\/workspace\/[a-zA-Z0-9-]+\/planning/.test(location.pathname) ? (
+            <WorkspacePlanningView 
+              workspace={activeWorkspace}
+              onExit={() => { window.location.href = `/app/workspace/${activeWorkspace.id}`; }}
+            />
+          ) : appMode === 'workspace' && activeWorkspace && /^\/app\/workspace\/[a-zA-Z0-9-]+$/.test(location.pathname) ? (
+            <WorkspaceExplorerShell
+              workspace={activeWorkspace}
+              onStartPlanning={() => { window.location.href = `/app/workspace/${activeWorkspace.id}/planning`; }}
+            />
+          ) : appMode === 'workspace' && activeTab === 'dashboard' ? (
+            <WorkspaceDashboard
+              onNavigate={setActiveTab}
+              protaData={protaData}
+              prosemSem1={prosemSem1}
+              prosemSem2={prosemSem2}
+              kktpData={kktpData}
+            />
+          ) : appMode === 'workspace' && activeTab === 'perencanaan' ? (
 
             <div className="flex flex-col h-full">
               <div className={isPreviewFullscreen ? 'hidden md:block' : ''}>
@@ -3097,11 +3178,11 @@ img{max-width:100%}
                   onOpenSoalModal={() => setShowSoalModal(true)}
                   onRegenerateModul={() => setShowRegenerateModulAlert(true)}
                   modulData={!!generatedSteps}
-                  onRegenerateLKPD={regenerateLKPD}
-                  onRegenerateAsesmen={regenerateAsesmen}
-                  onRegenerateMateri={regenerateMateri}
-                  onRegenerateTindakLanjut={regenerateTindakLanjut}
-                  onRegenerateBankSoal={regenerateBankSoal}
+                  onRegenerateLKPD={() => regenerateLKPD()}
+                  onRegenerateAsesmen={() => regenerateAsesmen()}
+                  onRegenerateMateri={() => regenerateMateri()}
+                  onRegenerateTindakLanjut={() => regenerateTindakLanjut()}
+                  onRegenerateBankSoal={() => regenerateBankSoal()}
                   onExportCurrentTab={exportCurrentTab}
                   onExportAll={exportToWord}
                   onExportPDF={exportToPDF}
@@ -3121,10 +3202,11 @@ img{max-width:100%}
                   onDeleteLetterhead={deleteLetterhead}
                   quotaInfo={quotaInfo}
                   onOpenPromptExport={() => setShowPromptExport(true)}
+                  isModulComplete={isModulComplete}
                   hideDocGenerate={isV2Mode}
                   v2Mode={isV2Mode}
                   onOpenV2Export={isV2Mode ? () => setShowV2Export(true) : undefined}
-
+                  hidePerencanaan={appMode === 'quick'}
                 />
               </div>
 
