@@ -18,6 +18,7 @@ interface IdentifikasiData {
   kepalaSekolah: string;
   nipKepalaSekolah: string;
   mataPelajaran: string;
+  fase: string;
   kelas: string;
 }
 
@@ -161,19 +162,36 @@ export const SaveProfileModal = ({
                   </div>
                 </div>
 
-                {/* Mata Pelajaran + Kelas */}
+                {/* Mata Pelajaran, Fase + Kelas */}
+                <div className="space-y-1.5 mb-3">
+                  <Label htmlFor="mataPelajaran" className="text-xs">
+                    Mata Pelajaran <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    id="mataPelajaran"
+                    value={identifikasiData.mataPelajaran}
+                    onChange={(e) => onIdentifikasiChange('mataPelajaran', e.target.value)}
+                    placeholder="cth: IPA, Matematika"
+                    className="h-9 text-sm"
+                  />
+                </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1.5">
-                    <Label htmlFor="mataPelajaran" className="text-xs">
-                      Mata Pelajaran <span className="text-destructive">*</span>
+                    <Label htmlFor="fase" className="text-xs">
+                      Fase <span className="text-destructive">*</span>
                     </Label>
-                    <Input
-                      id="mataPelajaran"
-                      value={identifikasiData.mataPelajaran}
-                      onChange={(e) => onIdentifikasiChange('mataPelajaran', e.target.value)}
-                      placeholder="cth: IPA, Matematika"
-                      className="h-9 text-sm"
-                    />
+                    <select
+                      id="fase"
+                      value={identifikasiData.fase}
+                      onChange={(e) => onIdentifikasiChange('fase', e.target.value)}
+                      className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      {['A', 'B', 'C', 'D', 'E', 'F'].map((f) => (
+                        <option key={f} value={f}>
+                          Fase {f}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                   <div className="space-y-1.5">
                     <Label htmlFor="kelas" className="text-xs">

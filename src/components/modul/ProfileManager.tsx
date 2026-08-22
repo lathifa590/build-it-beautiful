@@ -1,4 +1,4 @@
-import { Save, Trash2, Plus } from 'lucide-react';
+import { Save, Trash2, Plus, RotateCcw } from 'lucide-react';
 import type { Profile } from '@/types/modul';
 
 interface ProfileManagerProps {
@@ -8,6 +8,7 @@ interface ProfileManagerProps {
   onSaveProfile: () => void;
   onDeleteProfile: () => void;
   onCreateNewProfile: () => void;
+  onResetForm?: () => void;
 }
 
 export const ProfileManager = ({
@@ -17,6 +18,7 @@ export const ProfileManager = ({
   onSaveProfile,
   onDeleteProfile,
   onCreateNewProfile,
+  onResetForm,
 }: ProfileManagerProps) => {
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value;
@@ -77,6 +79,15 @@ export const ProfileManager = ({
           <Save className="w-4 h-4" />
         </button>
       </div>
+      {onResetForm && (
+        <button
+          onClick={onResetForm}
+          className="w-full mt-2 py-1.5 flex items-center justify-center gap-2 text-xs font-semibold bg-background border-2 border-muted-foreground/30 rounded-lg hover:border-foreground/50 transition-colors text-muted-foreground hover:text-foreground"
+        >
+          <RotateCcw className="w-3.5 h-3.5" />
+          Bersihkan Isi Form
+        </button>
+      )}
     </div>
   );
 };
