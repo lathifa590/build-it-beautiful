@@ -56,6 +56,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { TrialCTADialog } from '@/components/modul/TrialCTADialog';
 import { HeaderHistoryDropdown } from '@/components/modul/HeaderHistoryDropdown';
+import { WorkspaceUpsellDialog } from '@/components/modul/WorkspaceUpsellDialog';
 import { useContentHistory, useSaveContentHistory, useDeleteContentHistory, useUpdateContentHistory, type ContentHistoryItem } from '@/hooks/useContentHistory';
 import { useAuth } from '@/contexts/AuthContext';
 import { useWorkspace } from '@/contexts/WorkspaceContext';
@@ -96,6 +97,7 @@ import { WorkspacePlanningView } from '@/components/workspace/planning/Workspace
 import useProsemData from '@/hooks/useProsemData';
 import { WorkspaceExplorerRoot } from '@/components/workspace/explorer/WorkspaceExplorerRoot';
 import { WorkspaceExplorerShell } from '@/components/workspace/explorer/WorkspaceExplorerShell';
+import { WorkspaceMeetingEditor } from '@/components/workspace/explorer/WorkspaceMeetingEditor';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -173,6 +175,8 @@ const Index = () => {
   const [error, setError] = useState('');
   const [quotaInfo, setQuotaInfo] = useState<{ remaining: number; limit: number; isTrial: boolean } | null>(null);
   const [showTrialCTA, setShowTrialCTA] = useState(false);
+  const [trialCTAReason, setTrialCTAReason] = useState<'quota' | 'busy'>('quota');
+  const [showWorkspaceUpsell, setShowWorkspaceUpsell] = useState(false);
 
   // Image generation now uses backend edge function (no client-side API key needed)
 
@@ -436,6 +440,7 @@ const Index = () => {
         isTrial: !!responseData.isTrial,
       });
       if ((responseData.remaining as number) === 0 && responseData.isTrial) {
+        setTrialCTAReason('quota');
         setShowTrialCTA(true);
       }
     }
@@ -445,6 +450,11 @@ const Index = () => {
         limit: (responseData.limit as number) || 10,
         isTrial: true,
       });
+      setTrialCTAReason('quota');
+      setShowTrialCTA(true);
+    }
+    if (responseData.errorCode === 'demo_server_busy') {
+      setTrialCTAReason('busy');
       setShowTrialCTA(true);
     }
   }, []);
@@ -888,6 +898,12 @@ const Index = () => {
 
       if (error) throw error;
       if (data?.error) {
+        // Demo server busy → tampilkan upsell dialog, bukan error toast
+        if (data?.errorCode === 'demo_server_busy') {
+          setTrialCTAReason('busy');
+          setShowTrialCTA(true);
+          return;
+        }
         showNotificationMessage(data.error, 'error');
         return;
       }
@@ -2523,6 +2539,16 @@ img{max-width:100%}
     }
   };
 
+  // Redirect manual URL navigation for Workspace if user is not PRO/Admin
+  useEffect(() => {
+    if (appMode === 'workspace' && quotaInfo) {
+      if (!isAdmin && quotaInfo.isTrial) {
+        navigate('/app');
+        setShowWorkspaceUpsell(true);
+      }
+    }
+  }, [appMode, quotaInfo, isAdmin, navigate]);
+
   return (
     <div className="h-screen flex flex-col overflow-hidden">
       {/* Notification */}
@@ -2594,6 +2620,11 @@ img{max-width:100%}
         onUpdate={handleUpdateHistory}
         isUpdating={updateHistoryMutation.isPending}
       />
+      
+      <WorkspaceUpsellDialog
+        open={showWorkspaceUpsell}
+        onOpenChange={setShowWorkspaceUpsell}
+      />
 
       {/* Header with user actions */}
       <header className="flex-shrink-0 bg-card border-b-2 border-foreground px-4 py-3 flex flex-wrap gap-3 items-center justify-between">
@@ -2624,14 +2655,20 @@ img{max-width:100%}
           </button>
           <button
             onClick={() => {
-              showNotificationMessage('Fitur Workspace masih dalam tahap pengembangan (Coming Soon). Anda bisa menggunakan fitur Mode Cepat untuk saat ini.', 'error');
+              // Jika user adalah admin ATAU bukan trial (PRO), izinkan masuk
+              if (isAdmin || (quotaInfo && !quotaInfo.isTrial)) {
+                navigate('/app/workspace');
+              } else {
+                // Jika masih trial & bukan admin, tampilkan upsell
+                setShowWorkspaceUpsell(true);
+              }
             }}
             className={`px-4 py-1.5 text-sm font-semibold rounded-md transition-all flex items-center gap-2 ${
               appMode === 'workspace' ? 'bg-background shadow-sm border-2 border-foreground text-foreground' : 'text-muted-foreground hover:text-foreground'
             }`}
           >
             <span>📁</span> Workspace
-            <Lock className="w-3 h-3 ml-1 opacity-50" />
+            {(!quotaInfo || quotaInfo.isTrial) && !isAdmin && <Lock className="w-3 h-3 ml-1 opacity-50" />}
           </button>
         </div>
 
@@ -3078,17 +3115,28 @@ img{max-width:100%}
           )}
 
           {appMode === 'workspace' && location.pathname === '/app/workspace' ? (
-            <WorkspaceExplorerRoot />
+            <div className="flex-1 overflow-y-auto h-full min-h-0 relative">
+              <WorkspaceExplorerRoot />
+            </div>
           ) : appMode === 'workspace' && activeWorkspace && /^\/app\/workspace\/[a-zA-Z0-9-]+\/planning/.test(location.pathname) ? (
             <WorkspacePlanningView 
               workspace={activeWorkspace}
               onExit={() => { window.location.href = `/app/workspace/${activeWorkspace.id}`; }}
             />
-          ) : appMode === 'workspace' && activeWorkspace && /^\/app\/workspace\/[a-zA-Z0-9-]+$/.test(location.pathname) ? (
-            <WorkspaceExplorerShell
+          ) : appMode === 'workspace' && activeWorkspace && /^\/app\/workspace\/[a-zA-Z0-9-]+\/meeting\/[a-zA-Z0-9-]+$/.test(location.pathname) ? (
+            <WorkspaceMeetingEditor
               workspace={activeWorkspace}
-              onStartPlanning={() => { window.location.href = `/app/workspace/${activeWorkspace.id}/planning`; }}
+              meetingId={location.pathname.split('/').pop() || ''}
+              onBack={() => { window.location.href = `/app/workspace/${activeWorkspace.id}`; }}
             />
+          ) : appMode === 'workspace' && activeWorkspace && /^\/app\/workspace\/[a-zA-Z0-9-]+$/.test(location.pathname) ? (
+            <div className="flex-1 overflow-y-auto h-full min-h-0 relative">
+              <WorkspaceExplorerShell
+                workspace={activeWorkspace}
+                onStartPlanning={() => { window.location.href = `/app/workspace/${activeWorkspace.id}/planning`; }}
+                onMeetingClick={(slot) => { window.location.href = `/app/workspace/${activeWorkspace.id}/meeting/${slot.id}`; }}
+              />
+            </div>
           ) : appMode === 'workspace' && activeTab === 'dashboard' ? (
             <WorkspaceDashboard
               onNavigate={setActiveTab}
@@ -3233,7 +3281,7 @@ img{max-width:100%}
               />
 
               {/* Trial CTA Dialog */}
-              <TrialCTADialog open={showTrialCTA} onOpenChange={setShowTrialCTA} />
+              <TrialCTADialog open={showTrialCTA} onOpenChange={setShowTrialCTA} reason={trialCTAReason} />
 
               {/* Regenerate Modul Confirmation */}
               <AlertDialog open={showRegenerateModulAlert} onOpenChange={setShowRegenerateModulAlert}>

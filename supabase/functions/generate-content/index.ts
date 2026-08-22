@@ -148,6 +148,7 @@ serve(async (req) => {
     let useGeminiDirect = false;
     let userProvider: 'gemini' | 'grok' | 'openai' = 'gemini'; // routing target
     let userKeyPool: Array<{ key: string; provider: 'gemini' | 'grok' | 'openai' }> = [];
+    let isUsingDemoKeys = false; // true saat menggunakan demo key pool (bukan user key pribadi)
     
     const authHeader = req.headers.get('Authorization');
     if (authHeader) {
@@ -254,7 +255,7 @@ serve(async (req) => {
           }
         }
 
-        // Fallback ke demo API keys (round-robin)
+        // Fallback ke demo API keys — gunakan SEMUA key sebagai pool agar lebih tahan banting
         if (!userApiKey) {
           const { data: demoKeys } = await supabaseAdmin
             .from('demo_api_keys')
@@ -263,10 +264,17 @@ serve(async (req) => {
             .order('created_at', { ascending: true });
 
           if (demoKeys && demoKeys.length > 0) {
-            const keyIndex = (dailyCount ?? 0) % demoKeys.length;
-            userApiKey = demoKeys[keyIndex].api_key;
+            // Rotasi starting key berdasarkan dailyCount, tapi coba SEMUA key sebagai fallback
+            const startIndex = (dailyCount ?? 0) % demoKeys.length;
+            const rotatedKeys = [
+              ...demoKeys.slice(startIndex),
+              ...demoKeys.slice(0, startIndex),
+            ];
+            userKeyPool = rotatedKeys.map(k => ({ key: k.api_key as string, provider: 'gemini' as const }));
+            userApiKey = rotatedKeys[0].api_key;
             useGeminiDirect = true;
-            console.log(`Using demo key ${keyIndex + 1}/${demoKeys.length} (round-robin, trial=${isTrial})`);
+            isUsingDemoKeys = true;
+            console.log(`Using demo key pool: ${demoKeys.length} keys, starting from index ${startIndex} (trial=${isTrial})`);
           }
         }
       }
@@ -2721,6 +2729,19 @@ Jahit ke seksi/konten yang sudah ada — JANGAN buat seksi baru di luar struktur
         const { errorCode, message } = parseGeminiError(response.status, errorText);
         
         const isAllQuotaExhausted = response.status === 429 || response.status === 404;
+        
+        // Ketika semua demo keys habis → tampilkan pesan server ramai (bukan error teknis)
+        if (isAllQuotaExhausted && isUsingDemoKeys) {
+          return new Response(
+            JSON.stringify({
+              error: 'Saat ini permintaan pembuatan modul dengan mode gratis sedang sangat banyak. Server gratis kami sedang penuh.',
+              errorCode: 'demo_server_busy',
+              isTrial: true,
+              triedModels,
+            }),
+            { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
         
         return new Response(
           JSON.stringify({ 
