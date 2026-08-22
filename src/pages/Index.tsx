@@ -855,6 +855,10 @@ const Index = () => {
 
       if (error) throw error;
       if (data?.error) {
+        if (data.errorCode === 'demo_server_busy' || data.errorCode === 'rate_limit_exceeded') {
+          updateQuotaFromResponse(data);
+          return;
+        }
         showNotificationMessage(data.error, 'error');
         return;
       }
@@ -898,10 +902,8 @@ const Index = () => {
 
       if (error) throw error;
       if (data?.error) {
-        // Demo server busy → tampilkan upsell dialog, bukan error toast
-        if (data?.errorCode === 'demo_server_busy') {
-          setTrialCTAReason('busy');
-          setShowTrialCTA(true);
+        if (data.errorCode === 'demo_server_busy' || data.errorCode === 'rate_limit_exceeded') {
+          updateQuotaFromResponse(data);
           return;
         }
         showNotificationMessage(data.error, 'error');
@@ -940,6 +942,10 @@ const Index = () => {
 
       if (error) throw error;
       if (data?.error) {
+        if (data.errorCode === 'demo_server_busy' || data.errorCode === 'rate_limit_exceeded') {
+          updateQuotaFromResponse(data);
+          return;
+        }
         showNotificationMessage(data.error, 'error');
         return;
       }
