@@ -286,6 +286,7 @@ const Index = () => {
     kepalaSekolah: '',
     nipKepalaSekolah: '',
     mataPelajaran: '',
+    fase: 'A',
     kelas: '',
   });
 
@@ -711,6 +712,7 @@ const Index = () => {
       kepalaSekolah: '',
       nipKepalaSekolah: '',
       mataPelajaran: '',
+      fase: 'A',
       kelas: '',
     });
     setIsCreatingNew(true);
@@ -832,6 +834,23 @@ const Index = () => {
     setBankSoalData(null);
     setError('');
     setActiveTab('modul');
+  };
+
+  const resetForm = () => {
+    if (window.confirm('Bersihkan isi form untuk membuat modul baru? (Data identitas profil akan dipertahankan)')) {
+      if (selectedProfile) {
+        const profile = cloudProfiles.find((p) => p.name === selectedProfile);
+        if (profile) {
+          // Reset to default, but re-apply the profile's identification data
+          setFormData({ ...DEFAULT_FORM_DATA, ...profile.data });
+        } else {
+          setFormData(DEFAULT_FORM_DATA);
+        }
+      } else {
+        setFormData(DEFAULT_FORM_DATA);
+      }
+      showNotificationMessage('Form telah dibersihkan.');
+    }
   };
 
   // CP Selection handler
@@ -2849,6 +2868,7 @@ img{max-width:100%}
             onSaveProfile={handleUpdateProfile}
             onDeleteProfile={handleDeleteProfile}
             onCreateNewProfile={handleCreateNewProfile}
+            onResetForm={resetForm}
           />
 
           <FormSection
