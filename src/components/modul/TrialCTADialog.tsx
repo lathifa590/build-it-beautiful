@@ -7,11 +7,13 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { MessageCircle, Sparkles, X } from 'lucide-react';
+import { MessageCircle, Sparkles, X, Users } from 'lucide-react';
 
 interface TrialCTADialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  /** 'quota' = kuota harian habis | 'busy' = server gratis penuh/overload */
+  reason?: 'quota' | 'busy';
 }
 
 const WA_NUMBER = '6288228511309';
@@ -29,13 +31,44 @@ const BENEFITS = [
   'Prota, Prosem & Penjadwalan otomatis',
 ];
 
-export const TrialCTADialog = ({ open, onOpenChange }: TrialCTADialogProps) => {
+const CONTENT = {
+  quota: {
+    icon: Sparkles,
+    title: 'Kuota Harian Anda Habis!',
+    description: (
+      <>
+        Kuota harian untuk akun gratis sudah terpakai.{' '}
+        Upgrade ke akses <strong className="text-white">FULL</strong> dan generate{' '}
+        <strong className="text-white">tanpa batas kuota</strong>!
+      </>
+    ),
+    gradient: 'from-amber-400 via-orange-400 to-rose-400',
+  },
+  busy: {
+    icon: Users,
+    title: 'Server Gratis Sedang Ramai!',
+    description: (
+      <>
+        Saat ini <strong className="text-white">banyak guru</strong> sedang menggunakan
+        mode gratis bersamaan. Upgrade ke akses{' '}
+        <strong className="text-white">FULL</strong> untuk generate tanpa antrian,{' '}
+        kapan saja!
+      </>
+    ),
+    gradient: 'from-violet-500 via-purple-500 to-indigo-500',
+  },
+};
+
+export const TrialCTADialog = ({ open, onOpenChange, reason = 'quota' }: TrialCTADialogProps) => {
+  const content = CONTENT[reason];
+  const Icon = content.icon;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md border-2 border-foreground shadow-brutal p-0 overflow-hidden">
 
         {/* Hero banner */}
-        <div className="relative bg-gradient-to-br from-amber-400 via-orange-400 to-rose-400 px-6 pt-8 pb-6 text-center">
+        <div className={`relative bg-gradient-to-br ${content.gradient} px-6 pt-8 pb-6 text-center`}>
           {/* Close button */}
           <button
             onClick={() => onOpenChange(false)}
@@ -46,15 +79,14 @@ export const TrialCTADialog = ({ open, onOpenChange }: TrialCTADialogProps) => {
           </button>
 
           <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl border-2 border-white/40 flex items-center justify-center mx-auto mb-3 shadow-lg">
-            <Sparkles className="w-8 h-8 text-white" />
+            <Icon className="w-8 h-8 text-white" />
           </div>
           <DialogHeader>
             <DialogTitle className="text-white text-xl font-extrabold drop-shadow-sm">
-              Kuota Trial Anda Habis!
+              {content.title}
             </DialogTitle>
             <DialogDescription className="text-white/90 text-sm font-medium mt-1 leading-relaxed">
-              Kuota harian untuk akun trial sudah terpakai. Upgrade ke akses
-              <strong className="text-white"> FULL</strong> dan generate tanpa batas!
+              {content.description}
             </DialogDescription>
           </DialogHeader>
         </div>
