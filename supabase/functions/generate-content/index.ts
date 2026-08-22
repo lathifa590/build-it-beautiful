@@ -181,7 +181,7 @@ serve(async (req) => {
             error: 'Langganan tahunan Anda telah berakhir. Silakan perpanjang untuk lanjut menggunakan layanan.',
             errorCode: 'subscription_expired',
           }), {
-            status: 402,
+            status: 200,
             headers: { ...corsHeaders, "Content-Type": "application/json" },
           });
         }
@@ -209,7 +209,7 @@ serve(async (req) => {
               limit: contentLimit,
               isTrial
             }), {
-              status: 429,
+              status: 200,
               headers: { ...corsHeaders, "Content-Type": "application/json" },
             });
           }
@@ -781,7 +781,7 @@ serve(async (req) => {
         error: 'API Key tidak tersedia. Silakan tambahkan Gemini API Key di halaman Pengaturan.',
         needApiKey: true 
       }), {
-        status: 401,
+        status: 200,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
@@ -2978,7 +2978,7 @@ Jahit ke seksi/konten yang sudah ada — JANGAN buat seksi baru di luar struktur
     console.error("generate-content error:", error);
     return new Response(
       JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
 });
