@@ -27,9 +27,11 @@ interface ProsemItem {
 interface StepMeetingProps {
   workspace: Workspace;
   onNext: () => void;
+  isLocked?: boolean;
+  onShowUpsell?: () => void;
 }
 
-export const StepMeeting: React.FC<StepMeetingProps> = ({ workspace, onNext }) => {
+export const StepMeeting: React.FC<StepMeetingProps> = ({ workspace, onNext, isLocked, onShowUpsell }) => {
   const [items, setItems] = useState<ProsemItem[]>([]);
   const [activeSemester, setActiveSemester] = useState<1 | 2>(1);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -246,7 +248,10 @@ export const StepMeeting: React.FC<StepMeetingProps> = ({ workspace, onNext }) =
                         }`}>
                           Terjadwal: {totalSlotJp} / {item.allocated_jp} JP
                         </div>
-                        <Button variant="outline" size="sm" onClick={() => handleAutoSuggest(realIdx)}>
+                        <Button variant="outline" size="sm" onClick={() => {
+                          if (isLocked && onShowUpsell) onShowUpsell();
+                          else handleAutoSuggest(realIdx);
+                        }}>
                           <Wand2 className="w-3.5 h-3.5 mr-2" /> Auto Suggest
                         </Button>
                       </div>
@@ -257,7 +262,10 @@ export const StepMeeting: React.FC<StepMeetingProps> = ({ workspace, onNext }) =
                       {item.slots.length === 0 ? (
                         <div className="text-center py-6 border border-dashed rounded bg-slate-50/50">
                           <p className="text-sm text-muted-foreground mb-3">Belum ada pertemuan untuk topik ini.</p>
-                          <Button size="sm" variant="secondary" onClick={() => handleAutoSuggest(realIdx)}>
+                          <Button size="sm" variant="secondary" onClick={() => {
+                            if (isLocked && onShowUpsell) onShowUpsell();
+                            else handleAutoSuggest(realIdx);
+                          }}>
                             Generate Berdasarkan JP
                           </Button>
                         </div>

@@ -11,11 +11,12 @@ import { StepProsem } from "./StepProsem";
 import { StepMeeting } from "./StepMeeting";
 
 interface WorkspacePlanningViewProps {
-  workspace: Workspace;
   onExit: () => void;
+  isLocked?: boolean;
+  onShowUpsell?: () => void;
 }
 
-export const WorkspacePlanningView: React.FC<WorkspacePlanningViewProps> = ({ workspace, onExit }) => {
+export const WorkspacePlanningView: React.FC<WorkspacePlanningViewProps> = ({ workspace, onExit, isLocked, onShowUpsell }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const navigate = useNavigate();
 
@@ -67,10 +68,10 @@ export const WorkspacePlanningView: React.FC<WorkspacePlanningViewProps> = ({ wo
       <div className="flex-1 w-full px-4 md:px-8 py-6">
         <div className="bg-white rounded-xl shadow-sm border p-6 min-h-[500px] flex flex-col w-full">
           <div className="flex-1">
-            {currentStep === 1 && <StepCpTp workspace={workspace} onNext={() => setCurrentStep(2)} />}
-            {currentStep === 2 && <StepProta workspace={workspace} onNext={() => setCurrentStep(3)} />}
-            {currentStep === 3 && <StepProsem workspace={workspace} onNext={() => setCurrentStep(4)} />}
-            {currentStep === 4 && <StepMeeting workspace={workspace} onNext={onExit} />}
+            {currentStep === 1 && <StepCpTp workspace={workspace} onNext={() => setCurrentStep(2)} isLocked={isLocked} onShowUpsell={onShowUpsell} />}
+            {currentStep === 2 && <StepProta workspace={workspace} onNext={() => setCurrentStep(3)} isLocked={isLocked} onShowUpsell={onShowUpsell} />}
+            {currentStep === 3 && <StepProsem workspace={workspace} onNext={() => setCurrentStep(4)} isLocked={isLocked} onShowUpsell={onShowUpsell} />}
+            {currentStep === 4 && <StepMeeting workspace={workspace} onNext={onExit} isLocked={isLocked} onShowUpsell={onShowUpsell} />}
           </div>
 
           {/* Footer Controls (Hanya untuk navigasi mundur, maju dihandle di dalam step) */}

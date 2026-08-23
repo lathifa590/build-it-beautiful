@@ -10,9 +10,11 @@ import type { ProtaData, KalenderPendidikan, ProsemData } from "@/types/modul";
 interface StepProsemProps {
   workspace: Workspace;
   onNext: () => void;
+  isLocked?: boolean;
+  onShowUpsell?: () => void;
 }
 
-export const StepProsem: React.FC<StepProsemProps> = ({ workspace, onNext }) => {
+export const StepProsem: React.FC<StepProsemProps> = ({ workspace, onNext, isLocked, onShowUpsell }) => {
   const [protaData, setProtaData] = useState<ProtaData | null>(null);
   const [kalenderData, setKalenderData] = useState<KalenderPendidikan | null>(null);
   
@@ -189,7 +191,10 @@ export const StepProsem: React.FC<StepProsemProps> = ({ workspace, onNext }) => 
             <p>Program Semester (Semester 1 & 2) belum disusun.</p>
             <Button 
               className="mt-4" 
-              onClick={handleGenerate}
+              onClick={() => {
+                if (isLocked && onShowUpsell) onShowUpsell();
+                else handleGenerate();
+              }}
               disabled={isGenerating || !protaData}
             >
               {isGenerating ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Menyusun...</> : "Susun Prosem"}

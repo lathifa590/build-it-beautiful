@@ -12,12 +12,16 @@ export const WorkspaceDashboard = ({
   prosemSem1,
   prosemSem2,
   kktpData,
+  isLocked,
+  onShowUpsell,
 }: { 
   onNavigate: (path: string) => void;
   protaData: ProtaData | null;
   prosemSem1: ProsemData | null;
   prosemSem2: ProsemData | null;
   kktpData: KKTPData | null;
+  isLocked?: boolean;
+  onShowUpsell?: () => void;
 }) => {
   const { activeWorkspace, duplicateWorkspace } = useWorkspace();
   const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);
@@ -97,6 +101,25 @@ export const WorkspaceDashboard = ({
 
   return (
     <div className="max-w-5xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      {isLocked && (
+        <div className="bg-amber-100 border-2 border-amber-400 rounded-xl p-4 flex items-center justify-between shadow-brutal-sm">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-amber-200 rounded-full flex items-center justify-center text-amber-600">
+              <AlertTriangle className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="font-bold text-amber-900">Mode Preview</h3>
+              <p className="text-amber-800 text-sm">Anda hanya dapat melihat Workspace. Upgrade ke PRO untuk mengaktifkan pembuatan Modul Ajar dan fitur Perencanaan.</p>
+            </div>
+          </div>
+          {onShowUpsell && (
+            <Button onClick={onShowUpsell} className="bg-amber-500 hover:bg-amber-600 text-white border-2 border-amber-700 shadow-brutal-sm whitespace-nowrap">
+              Upgrade PRO
+            </Button>
+          )}
+        </div>
+      )}
+
       <div className="flex items-start justify-between">
         <div>
           <h1 className="text-3xl font-black">{activeWorkspace.subject}</h1>

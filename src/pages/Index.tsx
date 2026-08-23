@@ -2564,15 +2564,9 @@ img{max-width:100%}
     }
   };
 
-  // Redirect manual URL navigation for Workspace if user is not PRO/Admin
-  useEffect(() => {
-    if (appMode === 'workspace' && quotaInfo) {
-      if (!isAdmin && quotaInfo.isTrial) {
-        navigate('/app');
-        setShowWorkspaceUpsell(true);
-      }
-    }
-  }, [appMode, quotaInfo, isAdmin, navigate]);
+  // Compute if workspace features (like generate) should be locked
+  const isWorkspaceLocked = !isAdmin && (quotaInfo ? quotaInfo.isTrial : true);
+
 
   return (
     <div className="h-screen flex flex-col overflow-hidden">
@@ -2680,13 +2674,7 @@ img{max-width:100%}
           </button>
           <button
             onClick={() => {
-              // Jika user adalah admin ATAU bukan trial (PRO), izinkan masuk
-              if (isAdmin || (quotaInfo && !quotaInfo.isTrial)) {
-                navigate('/app/workspace');
-              } else {
-                // Jika masih trial & bukan admin, tampilkan upsell
-                setShowWorkspaceUpsell(true);
-              }
+              navigate('/app/workspace');
             }}
             className={`px-4 py-1.5 text-sm font-semibold rounded-md transition-all flex items-center gap-2 ${
               appMode === 'workspace' ? 'bg-background shadow-sm border-2 border-foreground text-foreground' : 'text-muted-foreground hover:text-foreground'
@@ -3148,12 +3136,16 @@ img{max-width:100%}
             <WorkspacePlanningView 
               workspace={activeWorkspace}
               onExit={() => { window.location.href = `/app/workspace/${activeWorkspace.id}`; }}
+              isLocked={isWorkspaceLocked}
+              onShowUpsell={() => setShowWorkspaceUpsell(true)}
             />
           ) : appMode === 'workspace' && activeWorkspace && /^\/app\/workspace\/[a-zA-Z0-9-]+\/meeting\/[a-zA-Z0-9-]+$/.test(location.pathname) ? (
             <WorkspaceMeetingEditor
               workspace={activeWorkspace}
               meetingId={location.pathname.split('/').pop() || ''}
               onBack={() => { window.location.href = `/app/workspace/${activeWorkspace.id}`; }}
+              isLocked={isWorkspaceLocked}
+              onShowUpsell={() => setShowWorkspaceUpsell(true)}
             />
           ) : appMode === 'workspace' && activeWorkspace && /^\/app\/workspace\/[a-zA-Z0-9-]+$/.test(location.pathname) ? (
             <div className="flex-1 overflow-y-auto h-full min-h-0 relative">
@@ -3161,6 +3153,8 @@ img{max-width:100%}
                 workspace={activeWorkspace}
                 onStartPlanning={() => { window.location.href = `/app/workspace/${activeWorkspace.id}/planning`; }}
                 onMeetingClick={(slot) => { window.location.href = `/app/workspace/${activeWorkspace.id}/meeting/${slot.id}`; }}
+                isLocked={isWorkspaceLocked}
+                onShowUpsell={() => setShowWorkspaceUpsell(true)}
               />
             </div>
           ) : appMode === 'workspace' && activeTab === 'dashboard' ? (
@@ -3170,6 +3164,8 @@ img{max-width:100%}
               prosemSem1={prosemSem1}
               prosemSem2={prosemSem2}
               kktpData={kktpData}
+              isLocked={isWorkspaceLocked}
+              onShowUpsell={() => setShowWorkspaceUpsell(true)}
             />
           ) : appMode === 'workspace' && activeTab === 'perencanaan' ? (
 

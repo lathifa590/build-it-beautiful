@@ -11,9 +11,11 @@ import type { ProtaData, KalenderPendidikan } from "@/types/modul";
 interface StepProtaProps {
   workspace: Workspace;
   onNext: () => void;
+  isLocked?: boolean;
+  onShowUpsell?: () => void;
 }
 
-export const StepProta: React.FC<StepProtaProps> = ({ workspace, onNext }) => {
+export const StepProta: React.FC<StepProtaProps> = ({ workspace, onNext, isLocked, onShowUpsell }) => {
   const [protaData, setProtaData] = useState<ProtaData | null>(null);
   const [kalenderData, setKalenderData] = useState<KalenderPendidikan>({
     jpPerMinggu: 4,
@@ -152,7 +154,10 @@ export const StepProta: React.FC<StepProtaProps> = ({ workspace, onNext }) => {
             
             <Button 
               className="w-full mt-6" 
-              onClick={handleGenerate}
+              onClick={() => {
+                if (isLocked && onShowUpsell) onShowUpsell();
+                else handleGenerate();
+              }}
               disabled={isGenerating || !cpData?.cp}
             >
               {isGenerating ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Generate Ulang...</> : "Generate Ulang Prota"}
