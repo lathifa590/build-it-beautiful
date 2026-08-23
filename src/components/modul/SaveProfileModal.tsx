@@ -34,6 +34,15 @@ interface SaveProfileModalProps {
   onIdentifikasiChange?: (field: keyof IdentifikasiData, value: string) => void;
 }
 
+const FASE_KELAS_MAP: Record<string, string[]> = {
+  A: ['Kelas I', 'Kelas II'],
+  B: ['Kelas III', 'Kelas IV'],
+  C: ['Kelas V', 'Kelas VI'],
+  D: ['Kelas VII', 'Kelas VIII', 'Kelas IX'],
+  E: ['Kelas X'],
+  F: ['Kelas XI', 'Kelas XII'],
+};
+
 export const SaveProfileModal = ({
   isOpen,
   onClose,
@@ -45,6 +54,14 @@ export const SaveProfileModal = ({
   onIdentifikasiChange,
 }: SaveProfileModalProps) => {
   const isCreateMode = mode === 'create';
+  const kelasOptions = FASE_KELAS_MAP[identifikasiData?.fase || 'A'] || [];
+
+  const handleFaseChange = (newFase: string) => {
+    onIdentifikasiChange?.('fase', newFase);
+    // Auto-pilih kelas pertama dari fase baru agar tidak kosong
+    const firstKelas = (FASE_KELAS_MAP[newFase] || [])[0] || '';
+    onIdentifikasiChange?.('kelas', firstKelas);
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -162,7 +179,7 @@ export const SaveProfileModal = ({
                   </div>
                 </div>
 
-                {/* Mata Pelajaran, Fase + Kelas */}
+                {/* Mata Pelajaran */}
                 <div className="space-y-1.5 mb-3">
                   <Label htmlFor="mataPelajaran" className="text-xs">
                     Mata Pelajaran <span className="text-destructive">*</span>
@@ -175,6 +192,8 @@ export const SaveProfileModal = ({
                     className="h-9 text-sm"
                   />
                 </div>
+
+                {/* Fase + Kelas (keduanya dropdown) */}
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1.5">
                     <Label htmlFor="fase" className="text-xs">
@@ -183,8 +202,8 @@ export const SaveProfileModal = ({
                     <select
                       id="fase"
                       value={identifikasiData.fase}
-                      onChange={(e) => onIdentifikasiChange('fase', e.target.value)}
-                      className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                      onChange={(e) => handleFaseChange(e.target.value)}
+                      className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                     >
                       {['A', 'B', 'C', 'D', 'E', 'F'].map((f) => (
                         <option key={f} value={f}>
@@ -197,13 +216,21 @@ export const SaveProfileModal = ({
                     <Label htmlFor="kelas" className="text-xs">
                       Kelas <span className="text-destructive">*</span>
                     </Label>
-                    <Input
+                    <select
                       id="kelas"
                       value={identifikasiData.kelas}
                       onChange={(e) => onIdentifikasiChange('kelas', e.target.value)}
-                      placeholder="cth: VII (Tujuh)"
-                      className="h-9 text-sm"
-                    />
+                      className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                    >
+                      {kelasOptions.length === 0 && (
+                        <option value="">-- Pilih Fase dulu --</option>
+                      )}
+                      {kelasOptions.map((k) => (
+                        <option key={k} value={k}>
+                          {k}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 </div>
               </div>
