@@ -22,9 +22,11 @@ interface TPItem {
 interface StepCpTpProps {
   workspace: Workspace;
   onNext: () => void;
+  isLocked?: boolean;
+  onShowUpsell?: () => void;
 }
 
-export const StepCpTp: React.FC<StepCpTpProps> = ({ workspace, onNext }) => {
+export const StepCpTp: React.FC<StepCpTpProps> = ({ workspace, onNext, isLocked, onShowUpsell }) => {
   const [showCpModal, setShowCpModal] = useState(false);
   const [cpContent, setCpContent] = useState("");
   const [ruangLingkupMateri, setRuangLingkupMateri] = useState("");
@@ -297,10 +299,12 @@ export const StepCpTp: React.FC<StepCpTpProps> = ({ workspace, onNext }) => {
           
           <div className="flex gap-2 w-full sm:w-auto">
             <Button 
-              variant="default" 
-              onClick={handleGenerateAI}
-              disabled={!cpContent || isGenerating}
-              className="flex-1 sm:flex-none shadow-sm"
+              disabled={isGenerating || !cpContent}
+              onClick={() => {
+                if (isLocked && onShowUpsell) onShowUpsell();
+                else handleGenerateAI();
+              }}
+              className="flex-none gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white shadow-sm"
             >
               {isGenerating ? (
                 <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Menyusun TP...</>

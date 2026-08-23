@@ -19,14 +19,17 @@ import type { V2ExportScope, V2ExportFormat } from "@/lib/pertemuan-export";
 
 interface WorkspaceMeetingEditorProps {
   workspace: Workspace;
-  meetingId: string;
   onBack: () => void;
+  isLocked?: boolean;
+  onShowUpsell?: () => void;
 }
 
 export const WorkspaceMeetingEditor: React.FC<WorkspaceMeetingEditorProps> = ({
   workspace,
   meetingId,
   onBack,
+  isLocked,
+  onShowUpsell,
 }) => {
   const [meeting, setMeeting] = useState<MeetingSlotDB | null>(null);
   const [prosemItem, setProsemItem] = useState<ProsemItemDB | null>(null);
@@ -564,13 +567,25 @@ export const WorkspaceMeetingEditor: React.FC<WorkspaceMeetingEditorProps> = ({
               onGenerate={() => {}} // Handled by V2
               loading={pertemuanV2.isGenerating}
               error={""}
-              onSuggestDesain={handleSuggestDesain}
+              onSuggestDesain={() => {
+                if (isLocked && onShowUpsell) {
+                  onShowUpsell();
+                } else {
+                  handleSuggestDesain();
+                }
+              }}
               isSuggestingDesain={isSuggestingDesain}
               isV2Enabled={true}
               isWorkspaceMode={true}
               pertemuanV2Result={pertemuanV2.result}
               onTogglePilihanDokumenV2={handleTogglePilihanDokumenV2}
-              onGeneratePertemuanV2={() => pertemuanV2.generateMissing()}
+              onGeneratePertemuanV2={() => {
+                if (isLocked && onShowUpsell) {
+                  onShowUpsell();
+                } else {
+                  pertemuanV2.generateMissing();
+                }
+              }}
               isGeneratingPertemuanV2={pertemuanV2.isGenerating}
             />
           </div>

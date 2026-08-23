@@ -8,14 +8,17 @@ import type { MeetingSlotDB } from "@/hooks/useProsemData";
 
 interface WorkspaceExplorerShellProps {
   workspace: Workspace;
-  onStartPlanning?: () => void;
   onMeetingClick?: (slot: MeetingSlotDB) => void;
+  isLocked?: boolean;
+  onShowUpsell?: () => void;
 }
 
 export const WorkspaceExplorerShell: React.FC<WorkspaceExplorerShellProps> = ({
   workspace,
   onStartPlanning,
   onMeetingClick,
+  isLocked,
+  onShowUpsell,
 }) => {
   const navigate = useNavigate();
   const { prosemPlans, prosemItems, isLoading, error, refresh } = useProsemData(workspace.id);
@@ -47,7 +50,14 @@ export const WorkspaceExplorerShell: React.FC<WorkspaceExplorerShellProps> = ({
           Semua Workspace
         </button>
         <span className="text-muted-foreground/40">/</span>
-        <span className="text-sm font-medium truncate">{workspace.subject}</span>
+        <span className="text-sm font-medium truncate flex items-center gap-2">
+          {workspace.subject}
+          {isLocked ? (
+            <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-700 border border-amber-300">PREVIEW</span>
+          ) : (
+            <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-yellow-100 text-yellow-700 border border-yellow-300">👑 PRO</span>
+          )}
+        </span>
       </div>
 
       {/* Workspace Identity Header */}
@@ -127,10 +137,14 @@ export const WorkspaceExplorerShell: React.FC<WorkspaceExplorerShellProps> = ({
           </div>
           {onStartPlanning && (
             <button
-              onClick={onStartPlanning}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground font-semibold text-sm hover:bg-primary/90 transition-colors shadow"
+              onClick={isLocked && onShowUpsell ? onShowUpsell : onStartPlanning}
+              className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-colors shadow ${
+                isLocked 
+                  ? 'bg-amber-500 text-white hover:bg-amber-600'
+                  : 'bg-primary text-primary-foreground hover:bg-primary/90'
+              }`}
             >
-              Mulai Perencanaan
+              {isLocked ? '🔒 Upgrade untuk Perencanaan' : 'Mulai Perencanaan'}
             </button>
           )}
         </div>

@@ -7,47 +7,105 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Crown, ExternalLink } from 'lucide-react';
+import { Crown, MessageCircle, X } from 'lucide-react';
 
 interface WorkspaceUpsellDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
+const WA_NUMBER = '6288228511309';
+const WA_PREFILL = encodeURIComponent(
+  'Halo, saya ingin mengaktifkan fitur PRO (Workspace & Perencanaan)! 👑\n' +
+  'Saya tertarik untuk upgrade ke lisensi penuh agar bisa membuat Prota, Prosem, dan manajemen kelas terpusat.\n' +
+  'Mohon info cara upgrade. Terima kasih!'
+);
+const WA_LINK = `https://wa.me/${WA_NUMBER}?text=${WA_PREFILL}`;
+
+const BENEFITS = [
+  'Manajemen Kelas Terpusat',
+  'Generate Prota & Prosem Otomatis',
+  'Penjadwalan Pertemuan Cerdas',
+  'Simpan & kelola dokumen tanpa batas',
+];
+
 export const WorkspaceUpsellDialog = ({ open, onOpenChange }: WorkspaceUpsellDialogProps) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md border-2 border-foreground shadow-brutal">
-        <DialogHeader className="text-center items-center">
-          <div className="w-16 h-16 bg-amber-100 rounded-xl border-2 border-foreground flex items-center justify-center mb-4 shadow-brutal-sm">
-            <Crown className="w-8 h-8 text-amber-600" />
-          </div>
-          <DialogTitle className="text-2xl font-extrabold">Fitur Eksklusif PRO!</DialogTitle>
-          <DialogDescription className="text-sm font-medium leading-relaxed pt-3 px-2">
-            Fitur <strong>Workspace & Perencanaan</strong> hanya tersedia untuk pengguna dengan lisensi PRO. 
-            Kelola modul, program tahunan, program semester, dan bank soal dalam satu tempat terpusat!
-          </DialogDescription>
-        </DialogHeader>
-        <div className="bg-secondary/50 p-4 rounded-lg border-2 border-foreground/10 text-xs font-medium space-y-2 mb-2">
-          <p className="flex items-center gap-2"><span className="text-green-600">✓</span> Manajemen Kelas Terpusat</p>
-          <p className="flex items-center gap-2"><span className="text-green-600">✓</span> Generate Prota & Prosem Otomatis</p>
-          <p className="flex items-center gap-2"><span className="text-green-600">✓</span> Penjadwalan Pertemuan Cerdas</p>
-        </div>
-        <DialogFooter className="flex flex-col gap-3 sm:flex-col mt-2">
-          <Button
-            asChild
-            className="w-full font-bold text-base py-6 shadow-brutal-sm hover:translate-y-0.5 transition-all"
+      <DialogContent className="sm:max-w-md border-2 border-foreground shadow-brutal p-0 overflow-hidden">
+        
+        {/* Hero banner */}
+        <div className="relative bg-gradient-to-br from-amber-400 via-yellow-500 to-orange-500 px-6 pt-8 pb-6 text-center">
+          {/* Close button */}
+          <button
+            onClick={() => onOpenChange(false)}
+            className="absolute top-3 right-3 w-7 h-7 rounded-full bg-white/20 hover:bg-white/40 flex items-center justify-center transition-colors text-white"
+            aria-label="Tutup"
           >
-            <a
-              href="https://aidukasi.shop/checkout?id=PRD-14"
-              target="_blank"
-              rel="noopener noreferrer"
+            <X className="w-4 h-4" />
+          </button>
+
+          <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl border-2 border-white/40 flex items-center justify-center mx-auto mb-3 shadow-lg">
+            <Crown className="w-8 h-8 text-white" />
+          </div>
+          <DialogHeader>
+            <DialogTitle className="text-white text-xl font-extrabold drop-shadow-sm">
+              Fitur Eksklusif PRO!
+            </DialogTitle>
+            <DialogDescription className="text-white/90 text-sm font-medium mt-1 leading-relaxed">
+              Fitur <strong className="text-white">Workspace & Perencanaan</strong> hanya tersedia untuk pengguna dengan lisensi PRO. Upgrade sekarang untuk mengaktifkannya!
+            </DialogDescription>
+          </DialogHeader>
+        </div>
+
+        {/* Body */}
+        <div className="px-6 py-5 space-y-4">
+          {/* Benefit list */}
+          <ul className="space-y-2">
+            {BENEFITS.map((benefit) => (
+              <li key={benefit} className="flex items-start gap-2.5 text-sm font-medium">
+                <span className="mt-0.5 w-5 h-5 rounded-full bg-green-100 border border-green-300 flex items-center justify-center flex-shrink-0">
+                  <svg className="w-3 h-3 text-green-600" viewBox="0 0 12 12" fill="none">
+                    <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </span>
+                <span className="text-foreground">{benefit}</span>
+              </li>
+            ))}
+          </ul>
+
+          <DialogFooter className="flex flex-col gap-2 sm:flex-col mt-1">
+            {/* Primary CTA — WA */}
+            <Button
+              asChild
+              className="w-full font-bold text-base py-6 bg-green-500 hover:bg-green-600 text-white border-2 border-green-700 shadow-brutal-sm hover:translate-y-0.5 active:translate-y-1 transition-all gap-2"
             >
-              <ExternalLink className="w-5 h-5 mr-2" />
-              Upgrade ke PRO Sekarang
-            </a>
-          </Button>
-        </DialogFooter>
+              <a href={WA_LINK} target="_blank" rel="noopener noreferrer">
+                <MessageCircle className="w-5 h-5" />
+                Upgrade via WhatsApp
+              </a>
+            </Button>
+
+            {/* Secondary — dismiss */}
+            <Button
+              variant="ghost"
+              className="w-full text-sm text-muted-foreground hover:text-foreground"
+              onClick={() => onOpenChange(false)}
+            >
+              Nanti saja
+            </Button>
+          </DialogFooter>
+
+          {/* Trust badges */}
+          <p className="text-xs text-muted-foreground text-center pt-1 flex items-center justify-center gap-3">
+            <span>⚡ Respon cepat</span>
+            <span>·</span>
+            <span>💳 Pembayaran mudah</span>
+            <span>·</span>
+            <span>✅ Aktif langsung</span>
+          </p>
+        </div>
+
       </DialogContent>
     </Dialog>
   );
