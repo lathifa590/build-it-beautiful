@@ -64,26 +64,29 @@ const formatDate = (dateString: string | null) => {
 };
 
 const computeStatus = (c: AllowedCustomer) => {
-  if (c.account_type === 'lifetime' || c.account_type === 'regular') {
-    return { label: 'Lifetime', tone: 'lifetime' as const, daysLeft: null as number | null };
+  const isLifetime = c.account_type === 'lifetime' || c.account_type === 'regular' || c.account_type === 'pro_lifetime';
+  if (isLifetime) {
+    return { label: c.account_type === 'pro_lifetime' ? 'PRO Lifetime' : 'Lifetime', tone: 'lifetime' as const, daysLeft: null as number | null };
   }
   if (c.account_type === 'trial') {
     return { label: 'Trial', tone: 'trial' as const, daysLeft: null };
   }
-  if (c.account_type === 'annual') {
-    if (!c.subscription_expires_at) return { label: 'Tahunan', tone: 'annual' as const, daysLeft: null };
+  if (c.account_type === 'annual' || c.account_type === 'pro_annual') {
+    if (!c.subscription_expires_at) return { label: c.account_type === 'pro_annual' ? 'PRO Tahunan' : 'Tahunan', tone: 'annual' as const, daysLeft: null };
     const diffMs = new Date(c.subscription_expires_at).getTime() - Date.now();
     const daysLeft = Math.ceil(diffMs / 86400000);
     if (daysLeft <= 0) return { label: 'Expired', tone: 'expired' as const, daysLeft };
     if (daysLeft <= 30) return { label: `${daysLeft}h lagi`, tone: 'expiring' as const, daysLeft };
-    return { label: 'Aktif', tone: 'annual' as const, daysLeft };
+    return { label: c.account_type === 'pro_annual' ? 'PRO Aktif' : 'Aktif', tone: 'annual' as const, daysLeft };
   }
   return { label: c.account_type, tone: 'annual' as const, daysLeft: null };
 };
 
 const TYPE_BADGE: Record<string, string> = {
   lifetime: 'bg-amber-100 text-amber-800 border-amber-300',
+  pro_lifetime: 'bg-amber-100 text-amber-800 border-amber-300',
   annual: 'bg-blue-100 text-blue-800 border-blue-300',
+  pro_annual: 'bg-indigo-100 text-indigo-800 border-indigo-300',
   expiring: 'bg-yellow-100 text-yellow-800 border-yellow-400',
   expired: 'bg-red-100 text-red-800 border-red-400',
   trial: 'bg-purple-100 text-purple-700 border-purple-300',
@@ -117,19 +120,19 @@ const AdminCustomers = () => {
 
   const stats = useMemo(() => {
     const list = customers || [];
-    const lifetime = list.filter((c) => c.account_type === 'lifetime' || c.account_type === 'regular').length;
+    const lifetime = list.filter((c) => c.account_type === 'lifetime' || c.account_type === 'regular' || c.account_type === 'pro_lifetime').length;
     const annualActive = list.filter((c) => {
-      if (c.account_type !== 'annual' || !c.subscription_expires_at) return false;
+      if ((c.account_type !== 'annual' && c.account_type !== 'pro_annual') || !c.subscription_expires_at) return false;
       const d = Math.ceil((new Date(c.subscription_expires_at).getTime() - Date.now()) / 86400000);
       return d > 30;
     }).length;
     const expiringSoon = list.filter((c) => {
-      if (c.account_type !== 'annual' || !c.subscription_expires_at) return false;
+      if ((c.account_type !== 'annual' && c.account_type !== 'pro_annual') || !c.subscription_expires_at) return false;
       const d = Math.ceil((new Date(c.subscription_expires_at).getTime() - Date.now()) / 86400000);
       return d > 0 && d <= 30;
     }).length;
     const expired = list.filter((c) => {
-      if (c.account_type !== 'annual' || !c.subscription_expires_at) return false;
+      if ((c.account_type !== 'annual' && c.account_type !== 'pro_annual') || !c.subscription_expires_at) return false;
       return new Date(c.subscription_expires_at).getTime() <= Date.now();
     }).length;
     const trial = list.filter((c) => c.account_type === 'trial').length;
@@ -148,16 +151,16 @@ const AdminCustomers = () => {
 
   const filteredCustomers = (customers || [])
     .filter((c) => {
-      if (filter === 'lifetime') return c.account_type === 'lifetime' || c.account_type === 'regular';
-      if (filter === 'annual') return c.account_type === 'annual';
+      if (filter === 'lifetime') return c.account_type === 'lifetime' || c.account_type === 'regular' || c.account_type === 'pro_lifetime';
+      if (filter === 'annual') return c.account_type === 'annual' || c.account_type === 'pro_annual';
       if (filter === 'trial') return c.account_type === 'trial';
       if (filter === 'expiring') {
-        if (c.account_type !== 'annual' || !c.subscription_expires_at) return false;
+        if ((c.account_type !== 'annual' && c.account_type !== 'pro_annual') || !c.subscription_expires_at) return false;
         const d = Math.ceil((new Date(c.subscription_expires_at).getTime() - Date.now()) / 86400000);
         return d > 0 && d <= 30;
       }
       if (filter === 'expired') {
-        if (c.account_type !== 'annual' || !c.subscription_expires_at) return false;
+        if ((c.account_type !== 'annual' && c.account_type !== 'pro_annual') || !c.subscription_expires_at) return false;
         return new Date(c.subscription_expires_at).getTime() <= Date.now();
       }
       return true;
@@ -299,11 +302,9 @@ const AdminCustomers = () => {
         id: editTarget.id,
         account_type: editForm.account_type,
         subscription_expires_at:
-          editForm.account_type === 'annual' && editForm.subscription_expires_at
+          (editForm.account_type === 'annual' || editForm.account_type === 'pro_annual') && editForm.subscription_expires_at
             ? new Date(editForm.subscription_expires_at).toISOString()
-            : editForm.account_type === 'annual'
-              ? null
-              : null,
+            : null,
       });
       toast.success('Pelanggan diperbarui');
       setEditTarget(null);
@@ -634,12 +635,14 @@ const AdminCustomers = () => {
                     onChange={(e) => setNewCustomer({ ...newCustomer, account_type: e.target.value })}
                     className="w-full px-4 py-3 border-2 border-foreground/30 rounded-lg focus:border-foreground outline-none bg-background"
                   >
-                    <option value="annual">Tahunan (Rp 149.000/tahun)</option>
-                    <option value="lifetime">Lifetime (Selamanya)</option>
+                    <option value="annual">Tahunan (Biasa)</option>
+                    <option value="lifetime">Lifetime (Biasa)</option>
+                    <option value="pro_annual">Tahunan (PRO Workspace)</option>
+                    <option value="pro_lifetime">Lifetime (PRO Workspace)</option>
                     <option value="trial">Trial (Kuota Terbatas)</option>
                   </select>
                 </div>
-                {newCustomer.account_type === 'annual' && (
+                {(newCustomer.account_type === 'annual' || newCustomer.account_type === 'pro_annual') && (
                   <div>
                     <label className="block text-xs font-bold uppercase text-muted-foreground mb-2">Tanggal Berakhir</label>
                     <input
@@ -712,12 +715,14 @@ const AdminCustomers = () => {
                   onChange={(e) => setEditForm({ ...editForm, account_type: e.target.value })}
                   className="w-full px-4 py-3 border-2 border-foreground/30 rounded-lg focus:border-foreground outline-none bg-background"
                 >
-                  <option value="annual">Tahunan</option>
-                  <option value="lifetime">Lifetime</option>
+                  <option value="annual">Tahunan (Biasa)</option>
+                  <option value="lifetime">Lifetime (Biasa)</option>
+                  <option value="pro_annual">Tahunan (PRO Workspace)</option>
+                  <option value="pro_lifetime">Lifetime (PRO Workspace)</option>
                   <option value="trial">Trial</option>
                 </select>
               </div>
-              {editForm.account_type === 'annual' && (
+              {(editForm.account_type === 'annual' || editForm.account_type === 'pro_annual') && (
                 <div>
                   <label className="block text-xs font-bold uppercase text-muted-foreground mb-2">Tanggal Berakhir</label>
                   <input

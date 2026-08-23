@@ -67,6 +67,7 @@ import {
   useMigrateLocalProfiles 
 } from '@/hooks/useTeacherProfiles';
 import { useLetterhead } from '@/hooks/useLetterhead';
+import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
 import { preprocessElementForOmml, WORD_HTML_NAMESPACES } from '@/lib/math-omml';
 
 import { supabase } from '@/integrations/supabase/client';
@@ -109,6 +110,8 @@ const Index = () => {
   const saveProfileMutation = useSaveTeacherProfile();
   const deleteProfileMutation = useDeleteTeacherProfile();
   const migrateProfilesMutation = useMigrateLocalProfiles();
+
+  const { data: subStatus } = useSubscriptionStatus();
 
   // Letterhead hook
   const {
@@ -2565,7 +2568,7 @@ img{max-width:100%}
   };
 
   // Compute if workspace features (like generate) should be locked
-  const isWorkspaceLocked = !isAdmin && (quotaInfo ? quotaInfo.isTrial : true);
+  const isWorkspaceLocked = !isAdmin && (!subStatus || !subStatus.isPro);
 
 
   return (
