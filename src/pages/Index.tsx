@@ -111,7 +111,7 @@ const Index = () => {
   const deleteProfileMutation = useDeleteTeacherProfile();
   const migrateProfilesMutation = useMigrateLocalProfiles();
 
-  const { data: subStatus } = useSubscriptionStatus();
+  const { data: subStatus, isLoading: isSubStatusLoading } = useSubscriptionStatus();
 
   // Letterhead hook
   const {
@@ -2570,6 +2570,13 @@ img{max-width:100%}
   // Compute if workspace features (like generate) should be locked
   const isWorkspaceLocked = !isAdmin && (!subStatus || !subStatus.isPro);
 
+  useEffect(() => {
+    if (!isSubStatusLoading && isWorkspaceLocked && appMode === 'workspace') {
+      setShowWorkspaceUpsell(true);
+      navigate('/app');
+    }
+  }, [isSubStatusLoading, isWorkspaceLocked, appMode, navigate]);
+
 
   return (
     <div className="h-screen flex flex-col overflow-hidden">
@@ -2677,6 +2684,10 @@ img{max-width:100%}
           </button>
           <button
             onClick={() => {
+              if (isWorkspaceLocked) {
+                setShowWorkspaceUpsell(true);
+                return;
+              }
               navigate('/app/workspace');
             }}
             className={`px-4 py-1.5 text-sm font-semibold rounded-md transition-all flex items-center gap-2 ${
@@ -2684,7 +2695,7 @@ img{max-width:100%}
             }`}
           >
             <span>📁</span> Workspace
-            {(!quotaInfo || quotaInfo.isTrial) && !isAdmin && <Lock className="w-3 h-3 ml-1 opacity-50" />}
+            {isWorkspaceLocked && <Lock className="w-3 h-3 ml-1 opacity-50" />}
           </button>
         </div>
 
