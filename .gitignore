@@ -22,3 +22,13 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Supabase CLI binaries and temp
+.bin/
+supabase/.temp/
+
+# Planning/notes markdown files (tidak perlu di-deploy)
+"Profil & Memory Import*.md"
+Prompt*.md
+Review*.md
+Revisi*.md
