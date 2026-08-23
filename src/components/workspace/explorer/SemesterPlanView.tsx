@@ -1,4 +1,4 @@
-﻿import React, { useState } from "react";
+import React, { useState } from "react";
 import { BookOpen, PlusCircle, ChevronDown, Layers, BarChart3 } from "lucide-react";
 import type { CurriculumPlanDB, ProsemItemDB, MeetingSlotDB } from "@/hooks/useProsemData";
 import { TopicRow } from "./TopicRow";
@@ -124,6 +124,7 @@ export const SemesterPlanView: React.FC<SemesterPlanViewProps> = ({
                 item={item}
                 globalMeetingStart={meetingStarts[idx]}
                 onMeetingClick={onMeetingClick}
+                onEditProsem={onAddItem}
               />
             ))
           )}
