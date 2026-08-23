@@ -36,12 +36,32 @@ export const CreateWorkspaceModal = ({ isOpen, onClose }: CreateWorkspaceModalPr
   // Auto-select first profile if none is selected
   React.useEffect(() => {
     if (cloudProfiles.length > 0 && !formData.profile_id) {
-      setFormData(prev => ({ ...prev, profile_id: cloudProfiles[0].id }));
+      const profile = cloudProfiles[0];
+      setFormData(prev => ({ 
+        ...prev, 
+        profile_id: profile.id,
+        subject: profile.data?.mataPelajaran || prev.subject,
+        grade: profile.data?.kelas || prev.grade,
+        phase: profile.data?.fase || prev.phase,
+      }));
     }
   }, [cloudProfiles, formData.profile_id]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleProfileChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const profileId = e.target.value;
+    const profile = cloudProfiles.find(p => p.id === profileId);
+    
+    setFormData(prev => ({
+      ...prev,
+      profile_id: profileId,
+      subject: profile?.data?.mataPelajaran || prev.subject,
+      grade: profile?.data?.kelas || prev.grade,
+      phase: profile?.data?.fase || prev.phase,
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -151,7 +171,7 @@ export const CreateWorkspaceModal = ({ isOpen, onClose }: CreateWorkspaceModalPr
                   id="profile_id"
                   name="profile_id"
                   value={formData.profile_id}
-                  onChange={(e: any) => handleChange(e)}
+                  onChange={handleProfileChange}
                   className="w-full p-2.5 border-2 border-foreground rounded-lg focus:outline-none focus:shadow-brutal-sm transition-all bg-card font-medium"
                   required
                 >
