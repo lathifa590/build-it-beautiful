@@ -2846,7 +2846,7 @@ img{max-width:100%}
       {/* Main Content */}
       <main className="flex-1 flex overflow-hidden bg-grid-pattern relative min-w-0">
         {/* LEFT PANEL: INPUT FORM (Hidden when in Workspace Dashboard/Perencanaan) */}
-        {!(appMode === 'workspace' && (activeTab === 'dashboard' || activeTab === 'perencanaan')) && (
+        {appMode !== 'workspace' && (
           <div
             className={`w-full md:w-[360px] xl:w-[400px] md:shrink-0 p-4 md:p-6 overflow-y-auto overflow-x-hidden border-r-2 border-foreground/10 bg-card/50 backdrop-blur-sm ${
               mobileTab === 'form' ? 'block' : 'hidden'
