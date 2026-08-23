@@ -72,6 +72,7 @@ interface FormSectionProps {
   /** Dipanggil setelah user mengonfirmasi hapus pertemuan (V2, by index). */
   onRemovePertemuanV2?: (index: number) => void;
   isV2Enabled?: boolean;
+  isWorkspaceMode?: boolean;
 }
 
 
@@ -159,6 +160,7 @@ export const FormSection = ({
   checkRemovePertemuanV2,
   onRemovePertemuanV2,
   isV2Enabled = false,
+  isWorkspaceMode = false,
 }: FormSectionProps) => {
   const [pendingRemoveIndex, setPendingRemoveIndex] = useState<number | null>(null);
   const [removeBlockedReason, setRemoveBlockedReason] = useState<string | null>(null);
@@ -379,54 +381,68 @@ export const FormSection = ({
         </select>
 
         {/* Multi-Pertemuan Section */}
-        <div className="border-2 border-dashed border-primary/50 p-4 rounded-lg bg-primary/5">
-          <span className={labelStyle}>Jumlah Pertemuan & Durasi</span>
-          <p className="text-xs text-muted-foreground mt-1 mb-2">
-            Default <strong>40 menit</strong> (1 JP). Bisa diubah sesuai kebutuhan kelas.
-          </p>
-          <div className="space-y-2 mt-2">
-            {formData.pertemuan.map((p, index) => (
-              <div key={index} className="flex items-center gap-2">
-                <span className="text-sm font-bold w-28 flex-shrink-0">
-                  Pertemuan {p.nomorPertemuan}:
+        {isWorkspaceMode ? (
+          <div className="border-2 border-primary/20 p-4 rounded-lg bg-primary/5 flex items-center justify-between">
+            <span className={labelStyle + " mb-0"}>Alokasi Waktu</span>
+            <div className="flex gap-2 items-center">
+              {formData.pertemuan.map((p, index) => (
+                <span key={index} className="px-3 py-1 bg-primary text-primary-foreground text-sm font-bold rounded-lg shadow-sm">
+                  Pertemuan {p.nomorPertemuan} ({p.waktu || p.durasi + ' menit'})
                 </span>
-                <input
-                  type="number"
-                  value={p.durasi}
-                  onChange={(e) => handlePertemuanDurasiChange(index, e.target.value)}
-                  disabled={isGeneratingPertemuanV2}
-                  className={`${inputStyle} w-24 min-w-[80px] text-center disabled:opacity-60`}
-                  placeholder="40"
-                  min="1"
-                />
-                <span className="text-sm text-muted-foreground">menit</span>
-                {formData.pertemuan.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={() => handleRemovePertemuan(index)}
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className="border-2 border-dashed border-primary/50 p-4 rounded-lg bg-primary/5">
+            <span className={labelStyle}>Jumlah Pertemuan & Durasi</span>
+            <p className="text-xs text-muted-foreground mt-1 mb-2">
+              Default <strong>40 menit</strong> (1 JP). Bisa diubah sesuai kebutuhan kelas.
+            </p>
+            <div className="space-y-2 mt-2">
+              {formData.pertemuan.map((p, index) => (
+                <div key={index} className="flex items-center gap-2">
+                  <span className="text-sm font-bold w-28 flex-shrink-0">
+                    Pertemuan {p.nomorPertemuan}:
+                  </span>
+                  <input
+                    type="number"
+                    value={p.durasi}
+                    onChange={(e) => handlePertemuanDurasiChange(index, e.target.value)}
                     disabled={isGeneratingPertemuanV2}
-                    className="p-2.5 text-destructive bg-destructive/10 hover:bg-destructive/20 
-                               border border-destructive/30 hover:border-destructive/50 
-                               rounded-lg transition-all duration-200 disabled:opacity-50"
-                    title="Hapus Pertemuan"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                )}
+                    className={`${inputStyle} w-24 min-w-[80px] text-center disabled:opacity-60`}
+                    placeholder="40"
+                    min="1"
+                  />
+                  <span className="text-sm text-muted-foreground">menit</span>
+                  {formData.pertemuan.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => handleRemovePertemuan(index)}
+                      disabled={isGeneratingPertemuanV2}
+                      className="p-2.5 text-destructive bg-destructive/10 hover:bg-destructive/20 
+                                 border border-destructive/30 hover:border-destructive/50 
+                                 rounded-lg transition-all duration-200 disabled:opacity-50"
+                      title="Hapus Pertemuan"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={handleAddPertemuan}
+                disabled={isGeneratingPertemuanV2}
+                className="flex items-center gap-1 px-3 py-2 text-sm font-bold text-primary hover:bg-primary/10 rounded-lg transition-colors border-2 border-dashed border-primary/30 disabled:opacity-50"
+              >
+                <Plus className="w-4 h-4" />
+                Tambah Pertemuan
+              </button>
+            </div>
+          </div>
+        )}
 
-              </div>
-            ))}
-            <button
-              type="button"
-              onClick={handleAddPertemuan}
-              disabled={isGeneratingPertemuanV2}
-              className="flex items-center gap-1 px-3 py-2 text-sm font-bold text-primary hover:bg-primary/10 rounded-lg transition-colors border-2 border-dashed border-primary/30 disabled:opacity-50"
-            >
-              <Plus className="w-4 h-4" />
-              Tambah Pertemuan
-            </button>
-
-            {/* Konfirmasi hapus pertemuan (hasil V2 akan ikut terhapus) */}
+        {/* Konfirmasi hapus pertemuan (hasil V2 akan ikut terhapus) */}
             <AlertDialog
               open={pendingRemoveIndex !== null}
               onOpenChange={(open) => !open && setPendingRemoveIndex(null)}
@@ -501,9 +517,6 @@ export const FormSection = ({
             )}
           </div>
         </div>
-
-        </div>
-      </div>
 
       {/* 2. IDENTIFIKASI MURID - OPTIONAL (AI Auto-fill) */}
       <CollapsibleSection 
@@ -588,75 +601,79 @@ export const FormSection = ({
         <div>
           <div className="flex flex-col gap-1 mb-1">
             <span className={labelStyle}>Capaian Pembelajaran (CP)</span>
-            <div className="flex flex-wrap gap-1.5">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={onOpenCPSelector}
-                disabled={!formData.mataPelajaran}
-                className="gap-1.5 text-xs h-7"
-                title={!formData.mataPelajaran ? 'Isi Mata Pelajaran terlebih dahulu' : 'Cari CP resmi dari Kemdikbud'}
-              >
-                <Search className="w-3.5 h-3.5" />
-                Cari CP Resmi
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={onKontekstualisasiCP}
-                disabled={!formData.capaianPembelajaran || !formData.materi || isKontekstualisasiCP}
-                className="gap-1.5 text-xs h-7"
-                title={
-                  !formData.capaianPembelajaran ? 'Isi CP terlebih dahulu' :
-                  !formData.materi ? 'Isi Materi terlebih dahulu' :
-                  'Sesuaikan CP dengan materi menggunakan AI'
-                }
-              >
-                {isKontekstualisasiCP ? (
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                ) : (
-                  <Wand2 className="w-3.5 h-3.5" />
+              <div className="flex flex-wrap gap-1.5">
+                {!isWorkspaceMode && (
+                  <>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={onOpenCPSelector}
+                      disabled={!formData.mataPelajaran}
+                      className="gap-1.5 text-xs h-7"
+                      title={!formData.mataPelajaran ? 'Isi Mata Pelajaran terlebih dahulu' : 'Cari CP resmi dari Kemdikbud'}
+                    >
+                      <Search className="w-3.5 h-3.5" />
+                      Cari CP Resmi
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={onKontekstualisasiCP}
+                      disabled={!formData.capaianPembelajaran || !formData.materi || isKontekstualisasiCP}
+                      className="gap-1.5 text-xs h-7"
+                      title={
+                        !formData.capaianPembelajaran ? 'Isi CP terlebih dahulu' :
+                        !formData.materi ? 'Isi Materi terlebih dahulu' :
+                        'Sesuaikan CP dengan materi menggunakan AI'
+                      }
+                    >
+                      {isKontekstualisasiCP ? (
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      ) : (
+                        <Wand2 className="w-3.5 h-3.5" />
+                      )}
+                      {isKontekstualisasiCP ? 'Menyesuaikan...' : 'Sesuaikan CP'}
+                    </Button>
+                  </>
                 )}
-                {isKontekstualisasiCP ? 'Menyesuaikan...' : 'Sesuaikan CP'}
-              </Button>
-            </div>
+              </div>
           </div>
           <textarea
             name="capaianPembelajaran"
             value={formData.capaianPembelajaran}
             onChange={onInputChange}
             className={`${inputStyle} min-h-[120px] resize-y`}
-            placeholder="Capaian Pembelajaran (CP) — Klik 'Cari CP Resmi' untuk mengambil dari data Kemdikbud"
+            placeholder={isWorkspaceMode ? "CP dari Perencanaan" : "Capaian Pembelajaran (CP) — Klik 'Cari CP Resmi' untuk mengambil dari data Kemdikbud"}
           />
         </div>
         <div>
           <div className="flex items-center justify-between mb-1">
             <span className={labelStyle}>Tujuan Pembelajaran *</span>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={onGenerateTP}
-              disabled={!formData.capaianPembelajaran || isGeneratingTP}
-              className="gap-1.5 text-xs h-7"
-              title={!formData.capaianPembelajaran ? 'Isi Capaian Pembelajaran terlebih dahulu' : 'Generate TP dengan AI'}
-            >
-              {isGeneratingTP ? (
-                <Loader2 className="w-3.5 h-3.5 animate-spin" />
-              ) : (
-                <Wand2 className="w-3.5 h-3.5" />
-              )}
-              {isGeneratingTP ? 'Generating...' : 'Generate TP'}
-            </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={onGenerateTP}
+                disabled={!formData.capaianPembelajaran || isGeneratingTP}
+                className="gap-1.5 text-xs h-7"
+                title={!formData.capaianPembelajaran ? 'Isi CP terlebih dahulu' : 'Generate TP dengan AI berdasarkan CP dan Materi'}
+              >
+                {isGeneratingTP ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <Wand2 className="w-3.5 h-3.5" />
+                )}
+                {isGeneratingTP ? 'Generating...' : 'Generate TP'}
+              </Button>
           </div>
           <textarea
             name="tujuanPembelajaran"
             value={formData.tujuanPembelajaran}
             onChange={onInputChange}
-            className={`${inputStyleRequired} min-h-[140px] resize-y`}
-            placeholder="Tujuan Pembelajaran (Wajib) * — Atau klik 'Generate TP' untuk membuat otomatis dari CP"
+            className={`${inputStyleRequired} min-h-[120px] resize-y`}
+            placeholder={isWorkspaceMode ? "TP dari Prosem" : "Contoh: Peserta didik mampu menganalisis struktur teks argumentasi..."}
             required
           />
         </div>

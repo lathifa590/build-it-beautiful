@@ -143,6 +143,7 @@ export const WorkspaceExplorerShell: React.FC<WorkspaceExplorerShellProps> = ({
           plan={plan}
           items={prosemItems[plan.id] || []}
           onMeetingClick={onMeetingClick}
+          onAddItem={onStartPlanning}
         />
       ))}
     </div>

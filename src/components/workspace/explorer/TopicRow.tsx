@@ -1,4 +1,4 @@
-﻿import React, { useState } from "react";
+import React, { useState } from "react";
 import { ChevronDown, ChevronRight, BookOpen, Target, Layers } from "lucide-react";
 import type { ProsemItemDB, MeetingSlotDB } from "@/hooks/useProsemData";
 import { MeetingCard } from "./MeetingCard";
@@ -7,9 +7,10 @@ interface TopicRowProps {
   item: ProsemItemDB;
   globalMeetingStart: number;
   onMeetingClick?: (slot: MeetingSlotDB) => void;
+  onEditProsem?: () => void;
 }
 
-export const TopicRow: React.FC<TopicRowProps> = ({ item, globalMeetingStart, onMeetingClick }) => {
+export const TopicRow: React.FC<TopicRowProps> = ({ item, globalMeetingStart, onMeetingClick, onEditProsem }) => {
   const [open, setOpen] = useState(false);
 
   const completedSlots = item.meeting_slots.filter(s => s.status === "completed").length;
@@ -78,9 +79,19 @@ export const TopicRow: React.FC<TopicRowProps> = ({ item, globalMeetingStart, on
       {open && (
         <div className="px-4 pb-4 space-y-2 border-t-2 border-foreground/5 bg-muted/20 pt-3">
           {item.meeting_slots.length === 0 ? (
-            <div className="flex items-center gap-2 text-xs text-muted-foreground py-3 px-2">
-              <BookOpen className="w-4 h-4" />
-              Belum ada jadwal pertemuan. Tambahkan pertemuan dari editor Prosem.
+            <div className="flex flex-col sm:flex-row items-center gap-2 text-xs text-muted-foreground py-3 px-2 text-center sm:text-left">
+              <div className="flex items-center gap-2">
+                <BookOpen className="w-4 h-4 text-muted-foreground/60" />
+                <span>Belum ada jadwal pertemuan.</span>
+              </div>
+              {onEditProsem && (
+                <button 
+                  onClick={(e) => { e.stopPropagation(); onEditProsem(); }}
+                  className="font-semibold text-primary hover:underline"
+                >
+                  Tambahkan dari editor Prosem &rarr;
+                </button>
+              )}
             </div>
           ) : (
             item.meeting_slots
