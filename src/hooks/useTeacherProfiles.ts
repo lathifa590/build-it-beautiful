@@ -29,6 +29,7 @@ export const useTeacherProfiles = () => {
       if (error) throw error;
 
       return (data as TeacherProfile[]).map((tp) => ({
+        id: tp.id,
         name: tp.name,
         data: tp.data as Partial<FormData>,
       }));

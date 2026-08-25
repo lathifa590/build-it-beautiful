@@ -687,6 +687,21 @@ export const updateDokumenPertemuan = (
     };
   });
 
+/**
+ * Paksa-set konten dokumen, meski slot sebelumnya kosong (undefined).
+ * Digunakan saat memuat dokumen dari database.
+ */
+export const setDokumenContent = (
+  result: GenerationResultV2,
+  pertemuanId: string,
+  jenis: JenisDokumenPertemuan,
+  content: unknown,
+): GenerationResultV2 =>
+  mapPertemuan(result, pertemuanId, (p) => ({
+    ...p,
+    dokumen: { ...p.dokumen, [jenis]: content as never },
+  }));
+
 /** Set nilai pada path bertitik secara immutable (`a.b.0.c`). */
 export const setNestedImmutable = (
   obj: unknown,

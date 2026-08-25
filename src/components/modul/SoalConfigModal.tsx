@@ -76,7 +76,7 @@ export const SoalConfigModal = ({
   };
 
   const inputStyle =
-    'w-full p-3 border-2 border-foreground rounded-lg focus:outline-none focus:shadow-brutal-sm transition-all bg-card font-medium placeholder-muted-foreground';
+    'w-full p-3 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring transition-all bg-card font-medium placeholder-muted-foreground';
   const labelStyle = 'text-sm font-bold text-foreground mb-1 block';
 
   const selectedLevel = LEVEL_OPTIONS.find((l) => l.value === soalConfig.level);
@@ -84,8 +84,8 @@ export const SoalConfigModal = ({
   return (
     <TooltipProvider>
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/50 backdrop-blur-sm animate-fade-in">
-        <div className="bg-card w-full max-w-lg p-6 rounded-xl border-2 border-foreground shadow-brutal m-4 overflow-y-auto max-h-[90vh]">
-          <div className="flex justify-between items-center mb-4 border-b-2 border-foreground pb-2">
+        <div className="bg-card w-full max-w-lg p-6 rounded-xl border border-border shadow-lg m-4 overflow-y-auto max-h-[90vh]">
+          <div className="flex justify-between items-center mb-4 border-b border-border pb-2">
             <h3 className="text-xl font-extrabold flex gap-2">
               <Settings /> Konfigurasi Bank Soal
             </h3>
@@ -132,25 +132,29 @@ export const SoalConfigModal = ({
                           checked={isActive}
                           onCheckedChange={(checked) => handleToggleType(t, !!checked)}
                         />
-                        <span className={`font-medium flex-1 text-sm ${!isActive ? 'text-muted-foreground' : ''}`}>{t}</span>
+                        <span className={`font-medium flex-1 text-sm leading-tight pr-2 ${!isActive ? 'text-muted-foreground' : ''}`}>
+                          {t}
+                        </span>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <HelpCircle className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                            <HelpCircle className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
                           </TooltipTrigger>
                           <TooltipContent side="right" className="max-w-xs">
                             <p>{SOAL_TYPE_INFO[t]}</p>
                           </TooltipContent>
                         </Tooltip>
-                        <Input
-                          type="number"
-                          min={1}
-                          max={MAX_TOTAL}
-                          value={isActive ? cfg.quantity : ''}
-                          onChange={(e) => handleQuantityChange(t, parseInt(e.target.value) || 1)}
-                          disabled={!isActive}
-                          className="w-16 h-8 text-center text-sm"
-                          placeholder="-"
-                        />
+                        <div className="w-20 shrink-0">
+                          <Input
+                            type="number"
+                            min={1}
+                            max={MAX_TOTAL}
+                            value={isActive ? cfg.quantity : ''}
+                            onChange={(e) => handleQuantityChange(t, parseInt(e.target.value) || 1)}
+                            disabled={!isActive}
+                            className="w-full h-9 text-center text-sm !border-2"
+                            placeholder="-"
+                          />
+                        </div>
                       </div>
 
                       {/* Sub-options (stimulus & image) - only when active */}
@@ -170,14 +174,16 @@ export const SoalConfigModal = ({
                             {cfg.useStimulus && (
                               <div className="flex items-center gap-1">
                                 <span className="text-xs text-muted-foreground">Jml:</span>
-                                <Input
-                                  type="number"
-                                  min={1}
-                                  max={Math.max(1, cfg.quantity)}
-                                  value={cfg.stimulusCount}
-                                  onChange={(e) => updateTypeConfig(t, { stimulusCount: Math.max(1, parseInt(e.target.value) || 1) })}
-                                  className="w-12 h-6 text-center text-xs"
-                                />
+                                <div className="w-14">
+                                  <Input
+                                    type="number"
+                                    min={1}
+                                    max={Math.max(1, cfg.quantity)}
+                                    value={cfg.stimulusCount}
+                                    onChange={(e) => updateTypeConfig(t, { stimulusCount: Math.max(1, parseInt(e.target.value) || 1) })}
+                                    className="w-full h-7 text-center text-xs"
+                                  />
+                                </div>
                               </div>
                             )}
                           </div>
@@ -196,14 +202,16 @@ export const SoalConfigModal = ({
                             {cfg.useImages && (
                               <div className="flex items-center gap-1">
                                 <span className="text-xs text-muted-foreground">Jml:</span>
-                                <Input
-                                  type="number"
-                                  min={1}
-                                  max={Math.max(1, cfg.stimulusCount || cfg.quantity)}
-                                  value={cfg.imageCount}
-                                  onChange={(e) => updateTypeConfig(t, { imageCount: Math.max(1, parseInt(e.target.value) || 1) })}
-                                  className="w-12 h-6 text-center text-xs"
-                                />
+                                <div className="w-14">
+                                  <Input
+                                    type="number"
+                                    min={1}
+                                    max={Math.max(1, cfg.stimulusCount || cfg.quantity)}
+                                    value={cfg.imageCount}
+                                    onChange={(e) => updateTypeConfig(t, { imageCount: Math.max(1, parseInt(e.target.value) || 1) })}
+                                    className="w-full h-7 text-center text-xs"
+                                  />
+                                </div>
                               </div>
                             )}
                           </div>
@@ -229,7 +237,7 @@ export const SoalConfigModal = ({
             <Button variant="ghost" onClick={onClose}>Batal</Button>
             <Button
               onClick={onGenerate}
-              className="border-2 border-foreground shadow-brutal-sm"
+              className="shadow-sm"
               disabled={isEmpty || isOverLimit}
             >
               Generate Bank Soal

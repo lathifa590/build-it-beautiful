@@ -401,6 +401,7 @@ export interface BankSoalData {
 }
 
 export interface Profile {
+  id?: string;
   name: string;
   data: Partial<FormData>;
 }
@@ -437,6 +438,7 @@ export interface KalenderPendidikan {
   mingguEfektifSem2: number;
   tanggalMulaiSem1: string;
   tanggalMulaiSem2: string;
+  kegiatanNonPembelajaran?: ProsemEvent[];
 }
 
 // === KKTP (Kriteria Ketercapaian Tujuan Pembelajaran) ===
@@ -465,7 +467,7 @@ export interface ProsemEvent {
   semester: 1 | 2;
   bulan: number; // 1-12
   mingguKe: number; // 1-5
-  tipe: 'PTS' | 'PAS' | 'Libur Nasional' | 'Libur Sekolah';
+  tipe: string;
 }
 
 export interface ProsemWeekCell {

@@ -22,6 +22,10 @@ export const StepProsem: React.FC<StepProsemProps> = ({ workspace, onNext, isLoc
   const [prosemSem2, setProsemSem2] = useState<ProsemData | null>(null);
   const [activeSemester, setActiveSemester] = useState<1 | 2>(1);
   
+  // Track existing DB IDs to prevent deletion errors
+  const [existingItemsSem1, setExistingItemsSem1] = useState<any[]>([]);
+  const [existingItemsSem2, setExistingItemsSem2] = useState<any[]>([]);
+  
   const [isLoaded, setIsLoaded] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -70,6 +74,18 @@ export const StepProsem: React.FC<StepProsemProps> = ({ workspace, onNext, isLoc
           setProsemSem2(ps2[0].content as ProsemData);
         }
 
+        // 4. Load existing prosem_items IDs to preserve them during save
+        const { data: existingItems } = await supabase
+          .from("prosem_items")
+          .select("id, sequence, semester")
+          .eq("workspace_id", workspace.id)
+          .order("sequence");
+
+        if (existingItems) {
+          setExistingItemsSem1(existingItems.filter(i => i.semester === 1));
+          setExistingItemsSem2(existingItems.filter(i => i.semester === 2));
+        }
+
       } catch (err) {
         console.error("Error loading Prosem:", err);
       } finally {
@@ -86,8 +102,8 @@ export const StepProsem: React.FC<StepProsemProps> = ({ workspace, onNext, isLoc
       return;
     }
 
-    const res1 = await generate(protaData, 1, kalenderData.mingguEfektifSem1, kalenderData.tanggalMulaiSem1);
-    const res2 = await generate(protaData, 2, kalenderData.mingguEfektifSem2, kalenderData.tanggalMulaiSem2);
+    const res1 = await generate(protaData, 1, kalenderData.mingguEfektifSem1, kalenderData.tanggalMulaiSem1, kalenderData.kegiatanNonPembelajaran || []);
+    const res2 = await generate(protaData, 2, kalenderData.mingguEfektifSem2, kalenderData.tanggalMulaiSem2, kalenderData.kegiatanNonPembelajaran || []);
 
     if (res1) setProsemSem1(res1);
     if (res2) setProsemSem2(res2);
@@ -115,13 +131,14 @@ export const StepProsem: React.FC<StepProsemProps> = ({ workspace, onNext, isLoc
 
         // 2. Siapkan array items sesuai schema save_prosem_plan
         // Format payload: [{id?, sequence, materi_pokok, allocated_jp, tp_snapshot, tp_ids[]}]
+        const existingItemsForSem = sem === 1 ? existingItemsSem1 : existingItemsSem2;
+        
         const itemsToSave = prosemData.rows.map((item, idx) => {
-          // Cari ID TP dari protaData yang cocok dengan materi_pokok dan tujuan_pembelajaran ini
-          // Dalam implementasi nyata, ProtaItem dan ProsemItem sebaiknya menyimpan tp_ids
-          // Di sini kita gunakan mapping sementara berdasarkan snapshot string
+          // Cari existing item by sequence to preserve its ID
+          const existingItem = existingItemsForSem.find(e => e.sequence === idx + 1);
           
           return {
-            // id is left undefined for insert, UI later will need to store IDs returned
+            id: existingItem?.id, // include ID so RPC updates instead of deletes
             sequence: idx + 1,
             materi_pokok: item.materi_pokok,
             allocated_jp: item.alokasi_jp,

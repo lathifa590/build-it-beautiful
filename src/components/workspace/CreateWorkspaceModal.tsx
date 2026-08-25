@@ -7,9 +7,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { useTeacherProfiles } from '@/hooks/useTeacherProfiles';
 import { AlertCircle } from 'lucide-react';
@@ -105,99 +102,100 @@ export const CreateWorkspaceModal = ({ isOpen, onClose }: CreateWorkspaceModalPr
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
-              <Label htmlFor="subject">Mata Pelajaran</Label>
-              <Input
+            <div className="field-group">
+              <label htmlFor="subject">Mata Pelajaran</label>
+              <input
+                type="text"
                 id="subject"
                 name="subject"
                 value={formData.subject}
                 onChange={handleChange}
                 placeholder="Contoh: Matematika"
-                className="border-2 border-foreground"
                 required
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="grade">Kelas</Label>
-                <Input
+              <div className="field-group">
+                <label htmlFor="grade">Kelas</label>
+                <input
+                  type="text"
                   id="grade"
                   name="grade"
                   value={formData.grade}
                   onChange={handleChange}
                   placeholder="Contoh: X"
-                  className="border-2 border-foreground"
                   required
                 />
               </div>
-              <div className="grid gap-2">
-                <Label htmlFor="phase">Fase</Label>
-                <Input
+              <div className="field-group">
+                <label htmlFor="phase">Fase</label>
+                <input
+                  type="text"
                   id="phase"
                   name="phase"
                   value={formData.phase}
                   onChange={handleChange}
                   placeholder="Contoh: E"
-                  className="border-2 border-foreground"
                   required
                 />
               </div>
             </div>
-            <div className="grid gap-2">
-              <Label htmlFor="academic_year">Tahun Ajaran</Label>
-              <Input
+            <div className="field-group">
+              <label htmlFor="academic_year">Tahun Ajaran</label>
+              <input
+                type="text"
                 id="academic_year"
                 name="academic_year"
                 value={formData.academic_year}
                 onChange={handleChange}
                 placeholder="Contoh: 2024/2025"
-                className="border-2 border-foreground"
                 required
               />
             </div>
-            
-            <div className="grid gap-2 border-t-2 border-dashed border-foreground/20 pt-4 mt-2">
-              <Label htmlFor="profile_id">Profil Guru (Identitas Modul)</Label>
-              {cloudProfiles.length === 0 ? (
-                <div className="bg-destructive/10 border border-destructive/30 p-3 rounded-lg text-sm text-destructive flex items-start gap-2">
-                  <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
-                  <div>
-                    <p className="font-bold">Profil belum tersedia.</p>
-                    <p className="opacity-90">Bapak/Ibu harus membuat profil (Identitas Guru & Sekolah) terlebih dahulu di menu utama.</p>
-                  </div>
-                </div>
-              ) : (
+
+            {cloudProfiles.length > 0 ? (
+              <div className="field-group">
+                <label htmlFor="profile_id">Pilih Profil Guru</label>
                 <select
                   id="profile_id"
                   name="profile_id"
                   value={formData.profile_id}
                   onChange={handleProfileChange}
-                  className="w-full p-2.5 border-2 border-foreground rounded-lg focus:outline-none focus:shadow-brutal-sm transition-all bg-card font-medium"
                   required
                 >
-                  <option value="" disabled>Pilih profil guru...</option>
+                  <option value="" disabled>-- Pilih Profil --</option>
                   {cloudProfiles.map((p) => (
                     <option key={p.id} value={p.id}>
-                      {p.name} ({p.data?.namaPenyusun || 'Tanpa Nama'})
+                      {p.name} - {p.data?.sekolah || 'Tanpa Sekolah'}
                     </option>
                   ))}
                 </select>
-              )}
-            </div>
+              </div>
+            ) : (
+              <div className="bg-yellow-50 border-2 border-yellow-500 rounded-lg p-3 text-sm text-yellow-800 flex items-start gap-2 shadow-sm">
+                <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
+                <div>
+                  <span className="font-bold">Belum Ada Profil Guru!</span> Anda bisa mengosongkannya, namun Modul Ajar nantinya akan memiliki data kosong di identitas. Sebaiknya <a href="/app/profile" className="underline font-bold">isi Profil Guru dulu</a>.
+                </div>
+              </div>
+            )}
           </div>
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting} className="border-2 border-foreground">
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={onClose}
+              disabled={isSubmitting}
+            >
               Batal
-            </Button>
-            {cloudProfiles.length === 0 ? (
-              <Button type="button" onClick={() => { onClose(); navigate('/app'); }} className="border-2 border-foreground bg-primary text-primary-foreground hover:bg-primary/90">
-                Buat Profil Sekarang
-              </Button>
-            ) : (
-              <Button type="submit" disabled={isSubmitting} className="border-2 border-foreground">
-                {isSubmitting ? 'Menyimpan...' : 'Buat Workspace'}
-              </Button>
-            )}
+            </button>
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={isSubmitting || (cloudProfiles.length > 0 && !formData.profile_id)}
+            >
+              {isSubmitting ? 'Menyimpan...' : 'Buat Workspace'}
+            </button>
           </DialogFooter>
         </form>
       </DialogContent>

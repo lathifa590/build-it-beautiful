@@ -36,6 +36,7 @@ import {
   hasGeneratedContent,
   LABEL_DOKUMEN,
   removePertemuanById,
+  setDokumenContent,
   setDokumenStatus,
   setModulPreface,
   setPilihanDokumen,
@@ -230,6 +231,24 @@ export const usePertemuanGeneration = ({
     [setResult],
   );
 
+  /** Inject dokumen dari DB ke state dan ubah status menjadi ok */
+  const injectExternalDocuments = useCallback(
+    (pertemuanId: string, docs: Partial<Record<JenisDokumenPertemuan, any>>) => {
+      setResult((prev) => {
+        let next = prev;
+        for (const [jenis, content] of Object.entries(docs)) {
+          if (content) {
+            // Use setDokumenContent (not updateDokumenPertemuan) so it works even when slot is empty
+            next = setDokumenContent(next, pertemuanId, jenis as JenisDokumenPertemuan, content);
+            next = setDokumenStatus(next, pertemuanId, jenis as JenisDokumenPertemuan, 'ok');
+          }
+        }
+        return next;
+      });
+    },
+    [setResult],
+  );
+
   /** Edit section (path bertitik) pada dokumen pertemuan. */
   const updateSection = useCallback(
     (
@@ -394,9 +413,10 @@ export const usePertemuanGeneration = ({
               if (prefacePatch) next = setModulPreface(next, prefacePatch);
               return applyDokumenResult(next, task.pertemuanId, task.jenis, dokumen);
             });
-            // Jika preface mengandung auto_generated → isi kolom form yang kosong.
-            if (prefacePatch && prefacePatch.auto_generated) {
-              cbRef.current?.onAutoFill?.(prefacePatch.auto_generated as Record<string, unknown>);
+            // Jika preface mengandung auto_generated atau berisi identifikasi_murid → isi kolom form yang kosong.
+            if (prefacePatch) {
+              const autoGenData = prefacePatch.auto_generated ? prefacePatch.auto_generated : prefacePatch;
+              cbRef.current?.onAutoFill?.(autoGenData as Record<string, unknown>);
             }
             cbRef.current?.onNotify?.(
               `${LABEL_DOKUMEN[task.jenis]} Pertemuan ${task.nomor} selesai.`,
@@ -517,6 +537,7 @@ export const usePertemuanGeneration = ({
     togglePilihan,
     updateDokumen,
     updateSection,
+    injectExternalDocuments,
     checkDeletePertemuan,
     removePertemuan,
 

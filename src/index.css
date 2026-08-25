@@ -175,3 +175,1115 @@
     scrollbar-width: none;
   }
 }
+
+/* UI Improvement - ModulAjar.Online /planning Page Neobrutalism */
+body, p, span, li {
+  font-weight: 500;
+}
+
+label, .field-label {
+  font-weight: 600;
+  font-size: 13px;
+  color: #1a1a1a;
+}
+
+.section-title, .section-heading {
+  font-weight: 800;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  color: #1a1a1a;
+  text-transform: uppercase;
+  padding-bottom: 8px;
+  border-bottom: 2.5px solid #1a1a1a;
+  margin-bottom: 20px;
+}
+
+.planning-layout {
+  display: flex;
+  align-items: flex-start;
+  min-height: 100%;
+}
+
+.sidebar {
+  background-color: #f5f0e8;
+  border-right: 2.5px solid #1a1a1a;
+  padding: 24px 16px;
+  position: sticky;
+  top: 0;
+  height: auto;
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+  flex-shrink: 0;
+  width: 260px;
+  align-self: flex-start;
+  border-radius: 8px 0 0 0;
+}
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 600;
+  font-size: 14px;
+  color: #4b5563;
+  padding: 12px 16px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  border: 2.5px solid transparent;
+  border-radius: 8px;
+  transition: all 0.15s ease;
+  width: 100%;
+  text-align: left;
+}
+
+.sidebar-item:hover {
+  background-color: #e8e0d0;
+  color: #1a1a1a;
+}
+
+.sidebar-item.active {
+  background-color: #1a1a1a;
+  color: #ffffff;
+  border: 2.5px solid #1a1a1a;
+  box-shadow: 3px 3px 0px #c04a1a;
+}
+
+.planning-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 32px;
+}
+
+.planning-layout input[type="text"],
+.planning-layout input[type="date"],
+.planning-layout input[type="number"],
+.planning-layout select,
+.planning-layout textarea {
+  height: 44px;
+  padding: 0 12px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #1a1a1a;
+  background: #ffffff;
+  border: 2px solid #1a1a1a !important;
+  border-radius: 6px;
+  box-shadow: 3px 3px 0px #1a1a1a !important;
+  transition: box-shadow 0.1s ease;
+  width: 100%;
+}
+
+.planning-layout input:focus, 
+.planning-layout select:focus, 
+.planning-layout textarea:focus {
+  outline: none;
+  box-shadow: 4px 4px 0px #c04a1a !important;
+  border-color: #c04a1a !important;
+}
+
+.planning-layout textarea {
+  height: auto !important;
+  min-height: 80px;
+  padding: 12px;
+}
+
+.btn-secondary {
+  font-weight: 700;
+  font-size: 14px;
+  color: #1a1a1a;
+  background: #ffffff;
+  border: 2.5px solid #1a1a1a !important;
+  border-radius: 6px;
+  padding: 8px 18px;
+  box-shadow: 3px 3px 0px #1a1a1a !important;
+  cursor: pointer;
+  transition: all 0.1s ease;
+}
+
+.btn-secondary:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0px #1a1a1a !important;
+}
+
+.btn-secondary:active {
+  transform: translate(1px, 1px);
+  box-shadow: 2px 2px 0px #1a1a1a !important;
+}
+
+/* ----------------------------------------- StepMeeting NeoBrutalism UI Redesign ----------------------------------------- */
+
+.footer-instruction {
+  font-size: 13px;
+  font-weight: 600;
+  color: #c04a1a;
+  font-style: italic;
+}
+
+.topik-card {
+  background: #ffffff;
+  border: 2.5px solid #111111;
+  border-radius: 10px;
+  box-shadow: 4px 4px 0px #111111;
+  margin-bottom: 20px;
+  overflow: hidden;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.topik-card:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 5px 5px 0px #111111;
+}
+
+/* Header dalam card */
+.card-head {
+  padding: 13px 16px;
+  background: #fafafa;
+  border-bottom: 2px solid #111111;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.badge-topik {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #c04a1a;
+  background: #fff3ed;
+  border: 2px solid #c04a1a;
+  border-radius: 4px;
+  padding: 2px 7px;
+  margin-bottom: 4px;
+}
+
+/* State: Lengkap (JP terpenuhi) */
+.badge-terjadwal.ok {
+  font-size: 11px;
+  font-weight: 800;
+  color: #15803d;
+  background: #f0fdf4;
+  border: 2px solid #15803d;
+  border-radius: 6px;
+  padding: 3px 9px;
+  white-space: nowrap;
+}
+
+/* State: Kurang (JP belum cukup) */
+.badge-terjadwal.warn {
+  font-size: 11px;
+  font-weight: 800;
+  color: #b45309;
+  background: #fffbeb;
+  border: 2px solid #b45309;
+  border-radius: 6px;
+  padding: 3px 9px;
+  white-space: nowrap;
+}
+
+/* State: Melebihi alokasi */
+.badge-terjadwal.err {
+  font-size: 11px;
+  font-weight: 800;
+  color: #991b1b;
+  background: #fef2f2;
+  border: 2px solid #991b1b;
+  border-radius: 6px;
+  padding: 3px 9px;
+  white-space: nowrap;
+}
+
+.row-pertemuan {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border: 2px solid #e5e7eb;
+  border-radius: 7px;
+  margin-bottom: 7px;
+  background: #fafafa;
+  cursor: pointer;
+  transition: all 0.12s ease;
+  font-weight: 600;
+  font-size: 13px;
+  color: #1a1a1a;
+}
+
+.row-pertemuan:hover {
+  background: #fff3ed;
+  border-color: #c04a1a;
+}
+
+/* Nomor urut */
+.row-nomor {
+  font-size: 10px;
+  font-weight: 800;
+  color: #bbb;
+  min-width: 24px;
+}
+
+.badge-durasi {
+  font-size: 11px;
+  font-weight: 700;
+  color: #111111;
+  background: #ffffff;
+  border: 2px solid #111111;
+  border-radius: 5px;
+  padding: 3px 9px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.btn-tambah-pertemuan {
+  margin-top: 8px;
+  font-size: 12px;
+  font-weight: 800;
+  color: #ffffff;
+  background: #c04a1a;
+  border: 2.5px solid #111111;
+  border-radius: 7px;
+  padding: 7px 16px;
+  box-shadow: 3px 3px 0px #111111;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.1s ease;
+}
+
+.btn-tambah-pertemuan:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0px #111111;
+}
+
+.btn-tambah-pertemuan:active {
+  transform: translate(1px, 1px);
+  box-shadow: 2px 2px 0px #111111;
+}
+
+.btn-auto-suggest {
+  font-size: 11px;
+  font-weight: 800;
+  color: #111111;
+  background: #ffffff;
+  border: 2px solid #111111;
+  border-radius: 6px;
+  padding: 5px 12px;
+  box-shadow: 2px 2px 0px #111111;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+  transition: all 0.1s ease;
+}
+
+.btn-auto-suggest:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0px #111111;
+}
+
+.tabs-wrapper {
+  display: flex;
+  border-bottom: 2.5px solid #111111;
+  margin-bottom: 22px;
+}
+
+.tab-item {
+  padding: 9px 22px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #999;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2.5px;
+  transition: all 0.12s ease;
+}
+
+.tab-item.active {
+  font-weight: 800;
+  color: #111111;
+  border-bottom: 3px solid #c04a1a;
+}
+
+.tab-item:hover:not(.active) {
+  color: #555;
+  border-bottom: 3px solid #ddd;
+}
+
+/* Tombol Kembali */
+.btn-kembali {
+  font-size: 13px;
+  font-weight: 700;
+  color: #111111;
+  background: #ffffff;
+  border: 2.5px solid #111111;
+  border-radius: 7px;
+  padding: 8px 18px;
+  box-shadow: 3px 3px 0px #111111;
+  cursor: pointer;
+  transition: all 0.1s ease;
+}
+
+.btn-kembali:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0px #111111;
+}
+
+/* Hint text */
+.footer-hint {
+  font-size: 12px;
+  font-weight: 700;
+  color: #c04a1a;
+  font-style: italic;
+}
+
+/* Tombol Simpan & Selesai */
+.btn-simpan {
+  font-size: 13px;
+  font-weight: 800;
+  color: #ffffff;
+  background: #111111;
+  border: 2.5px solid #111111;
+  border-radius: 7px;
+  padding: 8px 22px;
+  box-shadow: 3px 3px 0px #c04a1a;
+  cursor: pointer;
+  transition: all 0.1s ease;
+}
+
+.btn-simpan:hover {
+  background: #c04a1a;
+  box-shadow: 3px 3px 0px #111111;
+  transform: translate(-1px, -1px);
+}
+
+/* Step Bar */
+.step-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 6px 12px;
+  transition: all 0.1s ease;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: -16px;
+  padding-bottom: 16px;
+}
+
+.step-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  font-size: 12px;
+  border: 2px solid;
+}
+
+/* Step sudah selesai */
+.step-item.done {
+  color: #15803d;
+}
+.step-item.done .step-number {
+  background: #15803d;
+  border-color: #15803d;
+  color: #ffffff;
+}
+
+/* Step aktif sekarang */
+.step-item.active {
+  color: #111111;
+  border-bottom: 3px solid #c04a1a;
+}
+.step-item.active .step-number {
+  background: #c04a1a;
+  border-color: #c04a1a;
+  color: #ffffff;
+}
+
+/* Step belum dikerjakan */
+.step-item.pending {
+  color: #bbb;
+}
+
+.step-item.pending .step-number {
+  border-color: #ddd;
+  color: #bbb;
+}
+
+/* ----------------------------------------- Workspace Explorer NeoBrutalism ----------------------------------------- */
+
+/* K. SEMESTER HEADER */
+.semester-header {
+  background: var(--color-black);
+  border: 2.5px solid var(--color-black);
+  border-radius: 10px;
+  box-shadow: var(--shadow-lg);
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #ffffff;
+  margin-bottom: 16px;
+}
+
+.semester-header.sem-2 {
+  background: var(--color-primary);     
+}
+
+.semester-header h2 {
+  font-size: var(--fs-xl);
+  font-weight: var(--fw-black);
+  color: #ffffff;
+}
+
+.semester-header .meta {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  color: rgba(255,255,255,0.75);
+  margin-top: 4px;
+}
+
+.semester-progress-badge {
+  font-size: var(--fs-md);
+  font-weight: var(--fw-black);
+  color: var(--color-black);
+  background: #ffffff;
+  border: 2.5px solid var(--color-black);
+  border-radius: 7px;
+  padding: 6px 14px;
+  box-shadow: var(--shadow-sm);
+}
+
+/* L. STAT CARDS */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.stat-card {
+  background: var(--color-surface);
+  border: 2.5px solid var(--color-black);
+  border-radius: 8px;
+  box-shadow: var(--shadow-sm);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stat-label {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-black);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--color-text-muted);
+}
+
+.stat-value {
+  font-size: var(--fs-2xl);
+  font-weight: var(--fw-black);
+  color: var(--color-text);
+  line-height: 1.2;
+}
+
+/* M. TOPIK ROW CARD */
+.topik-row {
+  background: var(--color-surface);
+  border: 2.5px solid var(--color-black);
+  border-radius: 8px;
+  box-shadow: var(--shadow-sm);
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+
+.topik-row:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-primary);
+}
+
+.topik-number {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  background: var(--color-primary-bg);
+  border: 2px solid var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--fs-base);
+  font-weight: var(--fw-black);
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.topik-title {
+  font-size: var(--fs-base);
+  font-weight: var(--fw-bold);
+  color: var(--color-text);
+  line-height: 1.5;
+  margin-bottom: 6px;
+}
+
+.topik-meta {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  color: var(--color-text-muted);
+}
+
+/* N. PROGRESS BAR */
+.progress-wrap {
+  height: 6px;
+  background: var(--color-border);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 8px;
+  border: 1.5px solid var(--color-black);
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--color-primary);
+  border-radius: 0;
+  transition: width 0.3s ease;
+}
+
+.progress-fill.done {
+  background: var(--color-success);
+}
+
+/* O. WORKSPACE INFO CARD */
+.workspace-card {
+  background: var(--color-surface);
+  border: 2.5px solid var(--color-black);
+  border-radius: 10px;
+  box-shadow: var(--shadow-lg);
+  padding: 20px 24px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.workspace-title {
+  font-size: var(--fs-2xl);
+  font-weight: var(--fw-black);
+  color: var(--color-text);
+}
+
+.workspace-meta {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  color: var(--color-text-muted);
+  margin-top: 4px;
+}
+
+@layer base {
+  :root {
+    /* Brand */
+    --color-primary:      #c04a1a;
+    --color-primary-bg:   #fff3ed;
+
+    /* Neobrutalism Base */
+    --color-black:        #111111;
+
+    /* Surface */
+    --color-surface:      #ffffff;
+    --color-surface-alt:  #fafafa;
+    --color-page-bg:      #f5f0e8;
+
+    /* Semantic */
+    --color-success:      #15803d;
+    --color-success-bg:   #f0fdf4;
+    --color-warning:      #b45309;
+    --color-warning-bg:   #fffbeb;
+    --color-danger:       #991b1b;
+    --color-danger-bg:    #fef2f2;
+    --color-pro:          #b45309;
+    --color-pro-bg:       #fffbeb;
+
+    /* Text */
+    --color-text:         #111111;
+    --color-text-muted:   #666666;
+    --color-text-faint:   #bbbbbb;
+
+    /* Border */
+    --color-border:       #e5e7eb;
+    --color-border-bold:  #111111;
+    
+    /* Shadows */
+    --shadow-sm:     2px 2px 0px var(--color-black);
+    --shadow-md:     3px 3px 0px var(--color-black);
+    --shadow-lg:     4px 4px 0px var(--color-black);
+    --shadow-xl:     5px 5px 0px var(--color-black);
+    --shadow-accent: 3px 3px 0px var(--color-primary);
+
+    /* Typography */
+    --font-base: 'Inter', sans-serif;
+
+    /* Font Weight */
+    --fw-regular:  500;
+    --fw-semibold: 600;
+    --fw-bold:     700;
+    --fw-black:    800;
+
+    /* Font Size */
+    --fs-xs:   10px;
+    --fs-sm:   11px;
+    --fs-base: 13px;
+    --fs-md:   14px;
+    --fs-lg:   16px;
+    --fs-xl:   18px;
+    --fs-2xl:  22px;
+  }
+  
+  body {
+    background: var(--color-page-bg) !important;
+  }
+}
+.card {
+  background: var(--color-surface);
+  border: 2.5px solid var(--color-border-bold);
+  border-radius: 10px;
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.card:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: var(--shadow-xl);
+}
+
+/* Header dalam card — background sedikit berbeda */
+.card-head {
+  padding: 13px 16px;
+  background: var(--color-surface-alt);
+  border-bottom: 2px solid var(--color-border-bold);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+/* Body dalam card */
+.card-body {
+  padding: 12px 16px;
+}
+
+
+/* --- */
+
+/* ### B. BADGE */
+
+/* Selalu punya border. Gunakan class variant sesuai makna. */
+
+
+/* Base */
+.badge {
+  display: inline-block;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-black);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  border-radius: 4px;
+  padding: 2px 7px;
+  border: 2px solid;
+}
+
+/* Variant */
+.badge-brand   { color: var(--color-primary);  background: var(--color-primary-bg); border-color: var(--color-primary); }
+.badge-success { color: var(--color-success);  background: var(--color-success-bg); border-color: var(--color-success); }
+.badge-warning { color: var(--color-warning);  background: var(--color-warning-bg); border-color: var(--color-warning); }
+.badge-danger  { color: var(--color-danger);   background: var(--color-danger-bg);  border-color: var(--color-danger);  }
+.badge-neutral { color: var(--color-black);    background: var(--color-surface);    border-color: var(--color-black);   }
+.badge-pro     { color: var(--color-pro);      background: var(--color-pro-bg);     border-color: var(--color-pro);     }
+
+/* Badge status terjadwal — gunakan prefix teks: ✓ ok | ⚠ warn | ✕ err */
+.badge-status-ok   { font-size: var(--fs-sm); font-weight: var(--fw-black); color: var(--color-success); background: var(--color-success-bg); border: 2px solid var(--color-success); border-radius: 6px; padding: 3px 9px; white-space: nowrap; }
+.badge-status-warn { font-size: var(--fs-sm); font-weight: var(--fw-black); color: var(--color-warning); background: var(--color-warning-bg); border: 2px solid var(--color-warning); border-radius: 6px; padding: 3px 9px; white-space: nowrap; }
+.badge-status-err  { font-size: var(--fs-sm); font-weight: var(--fw-black); color: var(--color-danger);  background: var(--color-danger-bg);  border: 2px solid var(--color-danger);  border-radius: 6px; padding: 3px 9px; white-space: nowrap; }
+
+
+/* --- */
+
+/* ### C. BUTTON */
+
+/* Semua tombol wajib punya `border` dan `box-shadow` offset. */
+
+
+/* Base — semua tombol extend ini */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-base);
+  font-weight: var(--fw-bold);
+  font-size: var(--fs-base);
+  border-radius: 7px;
+  padding: 8px 18px;
+  cursor: pointer;
+  border: 2.5px solid var(--color-border-bold);
+  transition: all 0.1s ease;
+  text-decoration: none;
+}
+
+.btn:hover  { transform: translate(-1px, -1px); }
+.btn:active { transform: translate(1px, 1px); }
+
+/* Primary — aksi utama halaman (Simpan, Selesai) */
+.btn-primary {
+  color: #ffffff;
+  background: var(--color-black);
+  box-shadow: var(--shadow-accent);  /* shadow oranye */
+}
+.btn-primary:hover { background: var(--color-primary); box-shadow: var(--shadow-md); }
+
+/* Secondary — aksi biasa (Kembali, Batal, Auto Suggest) */
+.btn-secondary {
+  color: var(--color-black);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-md);
+}
+.btn-secondary:hover { box-shadow: var(--shadow-lg); }
+
+/* Ghost — aksi tambah inline (+ Tambah Pertemuan) */
+.btn-ghost {
+  color: #ffffff;
+  background: var(--color-primary);
+  border-color: var(--color-black);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-black);
+  padding: 7px 14px;
+  box-shadow: var(--shadow-md);
+}
+.btn-ghost:hover { box-shadow: var(--shadow-lg); }
+
+/* Danger — hapus, aksi destruktif */
+.btn-danger-outline {
+  color: var(--color-danger);
+  background: var(--color-surface);
+  border-color: var(--color-danger);
+  box-shadow: 2px 2px 0px var(--color-danger);
+}
+
+
+/* --- */
+
+/* ### D. INPUT FIELD */
+
+/* Semua elemen form harus konsisten. */
+
+
+/* Label */
+label {
+  display: block;
+  font-size: var(--fs-base);
+  font-weight: var(--fw-semibold);
+  color: var(--color-text);
+  margin-bottom: 5px;
+}
+
+/* Input, select, textarea */
+input[type="text"],
+input[type="number"],
+input[type="date"],
+input[type="email"],
+select,
+textarea {
+  height: 44px;
+  padding: 0 12px;
+  font-size: var(--fs-md);
+  font-weight: var(--fw-regular);
+  color: var(--color-text);
+  background: var(--color-surface);
+  border: 2px solid var(--color-border-bold);
+  border-radius: 6px;
+  box-shadow: var(--shadow-sm);
+  width: 100%;
+  transition: box-shadow 0.1s ease, border-color 0.1s ease;
+  font-family: var(--font-base);
+}
+
+textarea { height: auto; padding: 10px 12px; }
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 2px 2px 0px var(--color-primary);
+}
+
+/* Field group */
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 16px;
+}
+
+
+/* --- */
+
+/* ### E. TABLE ROW (Row pertemuan, row data) */
+
+
+.table-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border: 2px solid var(--color-border);
+  border-radius: 7px;
+  margin-bottom: 7px;
+  background: var(--color-surface-alt);
+  cursor: pointer;
+  transition: all 0.12s ease;
+  font-size: var(--fs-base);
+  font-weight: var(--fw-semibold);
+  color: var(--color-text);
+}
+
+.table-row:hover {
+  background: var(--color-primary-bg);
+  border-color: var(--color-primary);
+}
+
+/* Nomor urut (#1, #2, dst) */
+.row-number {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-black);
+  color: var(--color-text-faint);
+  min-width: 24px;
+}
+
+/* Badge durasi (90 menit) */
+.row-duration {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-bold);
+  color: var(--color-black);
+  background: var(--color-surface);
+  border: 2px solid var(--color-black);
+  border-radius: 5px;
+  padding: 3px 9px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+
+/* --- */
+
+/* ### F. TAB */
+
+
+.tabs {
+  display: flex;
+  border-bottom: 2.5px solid var(--color-border-bold);
+  margin-bottom: 22px;
+}
+
+.tab {
+  padding: 9px 22px;
+  font-size: var(--fs-base);
+  font-weight: var(--fw-bold);
+  color: #999;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2.5px;
+  transition: all 0.12s ease;
+}
+
+.tab.active {
+  font-weight: var(--fw-black);
+  color: var(--color-text);
+  border-bottom-color: var(--color-primary);
+}
+
+.tab:hover:not(.active) {
+  color: #555;
+  border-bottom-color: var(--color-border);
+}
+
+
+/* --- */
+
+/* ### G. STEP BAR (Wizard Navigation) */
+
+
+.step-bar {
+  background: var(--color-surface);
+  border-bottom: 2.5px solid var(--color-border-bold);
+  display: flex;
+  align-items: stretch;
+  padding: 0 20px;
+}
+
+.step-item {
+  padding: 10px 18px;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-bold);
+  color: #bbb;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-bottom: 3px solid transparent;
+}
+
+/* State: selesai */
+.step-item.done { color: var(--color-success); }
+.step-item.done .step-num {
+  background: var(--color-success);
+  border-color: var(--color-success);
+  color: #ffffff;
+  /* Tampilkan ikon centang, bukan angka */
+}
+
+/* State: aktif sekarang */
+.step-item.active {
+  color: var(--color-text);
+  border-bottom-color: var(--color-primary);
+}
+.step-item.active .step-num {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #ffffff;
+}
+
+/* State: belum dikerjakan */
+.step-item.pending { color: #bbb; }
+
+/* Lingkaran/kotak nomor step */
+.step-num {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid #ccc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: var(--fw-black);
+  flex-shrink: 0;
+}
+
+
+/* --- */
+
+/* ### H. SIDEBAR */
+
+/* Digunakan di halaman dengan navigasi sub-menu kiri. */
+
+
+/* Layout parent wajib pakai ini */
+.layout-with-sidebar {
+  display: flex;
+  align-items: flex-start;
+  min-height: calc(100vh - 60px);
+}
+
+/* Sidebar sticky — scroll mandiri */
+.sidebar {
+  width: 220px;
+  background: var(--color-surface);
+  border-right: 2.5px solid var(--color-border-bold);
+  position: sticky;
+  top: 0;
+  height: calc(100vh - 60px);  /* sesuaikan angka dengan tinggi topbar */
+  overflow-y: auto;
+  flex-shrink: 0;
+}
+
+.sidebar-item {
+  padding: 10px 18px;
+  font-size: var(--fs-base);
+  font-weight: var(--fw-semibold);
+  color: #2d2d2d;
+  cursor: pointer;
+  border-left: 4px solid transparent;
+  transition: all 0.12s ease;
+}
+
+.sidebar-item:hover {
+  background: var(--color-primary-bg);
+  border-left-color: var(--color-primary);
+  color: var(--color-text);
+}
+
+.sidebar-item.active {
+  background: var(--color-primary-bg);
+  border-left-color: var(--color-primary);
+  color: var(--color-primary);
+  font-weight: var(--fw-black);
+}
+
+.sidebar-divider {
+  height: 1px;
+  background: var(--color-border);
+  margin: 8px 16px;
+}
+
+/* Area konten kanan */
+.layout-content {
+  flex: 1;
+  padding: 20px 24px;
+  overflow-y: auto;
+}
+
+
+/* --- */
+
+/* ### I. FOOTER AKSI (bawah halaman) */
+
+
+.page-footer {
+  background: var(--color-surface);
+  border-top: 2.5px solid var(--color-border-bold);
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+/* Teks instruksi */
+.footer-hint {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-bold);
+  color: var(--color-primary);
+  font-style: italic;
+}
+
+
+/* --- */
+
+/* ### J. SECTION HEADING */
+
+
+.section-heading {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-black);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-text);
+  padding-bottom: 8px;
+  border-bottom: 2.5px solid var(--color-border-bold);
+  margin-bottom: 20px;
+}
+
+

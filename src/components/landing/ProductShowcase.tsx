@@ -15,6 +15,10 @@ const features = [
   'Refleksi & Tindak Lanjut Otomatis',
   'Regenerate per Tab Dokumen',
   'Edit Manual & AI per Section',
+  'Manajemen Workspace Terstruktur',
+  'Generate Modul Multi-Pertemuan',
+  'Tracking Progress Prosem & JP',
+  'Penyimpanan Dokumen Reusable',
 ];
 
 export const ProductShowcase = () => {

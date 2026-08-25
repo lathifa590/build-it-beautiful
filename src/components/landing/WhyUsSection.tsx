@@ -33,9 +33,9 @@ const reasons = [
   },
   {
     icon: BadgeCheck,
-    title: 'Sekali Beli, Akses Selamanya',
-    description: 'Cukup satu kali pembelian, akses penuh selamanya. Tidak ada biaya langganan bulanan.',
-    highlight: 'Tanpa Langganan',
+    title: 'Manajemen Berkelanjutan',
+    description: 'Bukan sekadar generator sekali pakai. Simpan, edit, dan gunakan ulang perangkat ajar untuk tahun berikutnya di dalam Workspace.',
+    highlight: 'Reusable & Terstruktur',
   },
   {
     icon: Globe,

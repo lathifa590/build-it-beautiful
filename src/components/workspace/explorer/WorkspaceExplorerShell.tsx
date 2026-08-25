@@ -1,13 +1,15 @@
-import React from "react";
+import React, { useState } from "react";
 import { ArrowLeft, RefreshCw, BookOpen, Layers, Calendar } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useProsemData } from "@/hooks/useProsemData";
 import type { Workspace } from "@/types/workspace";
 import { SemesterPlanView } from "./SemesterPlanView";
+import { ProtaProsemViewerModal } from "./ProtaProsemViewerModal";
 import type { MeetingSlotDB } from "@/hooks/useProsemData";
 
 interface WorkspaceExplorerShellProps {
   workspace: Workspace;
+  onStartPlanning?: (step?: number) => void;
   onMeetingClick?: (slot: MeetingSlotDB) => void;
   isLocked?: boolean;
   onShowUpsell?: () => void;
@@ -21,6 +23,7 @@ export const WorkspaceExplorerShell: React.FC<WorkspaceExplorerShellProps> = ({
   onShowUpsell,
 }) => {
   const navigate = useNavigate();
+  const [isViewerOpen, setIsViewerOpen] = useState(false);
   const { prosemPlans, prosemItems, isLoading, error, refresh } = useProsemData(workspace.id);
 
   const totalTopics = Object.values(prosemItems).reduce((s, items) => s + items.length, 0);
@@ -36,7 +39,11 @@ export const WorkspaceExplorerShell: React.FC<WorkspaceExplorerShellProps> = ({
     (s, items) => s + items.reduce((ss, i) => ss + i.meeting_slots.filter(m => m.status === "completed").length, 0),
     0
   );
-  const overallProgress = totalMeetings > 0 ? Math.round((completedMeetings / totalMeetings) * 100) : 0;
+  const completedJp = Object.values(prosemItems).reduce(
+    (s, items) => s + items.reduce((ss, i) => ss + i.meeting_slots.filter(m => m.status === "completed").reduce((sss, m) => sss + m.planned_jp, 0), 0),
+    0
+  );
+  const overallProgress = totalJp > 0 ? Math.round((completedJp / totalJp) * 100) : 0;
 
   return (
     <div className="w-full max-w-4xl mx-auto p-4 md:p-6 space-y-6 pb-24 animate-fade-in">
@@ -61,30 +68,37 @@ export const WorkspaceExplorerShell: React.FC<WorkspaceExplorerShellProps> = ({
       </div>
 
       {/* Workspace Identity Header */}
-      <div className="bg-card border-2 border-foreground rounded-2xl p-5 shadow-brutal flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div className="workspace-card">
         <div className="space-y-1">
-          <h1 className="text-2xl font-bold font-heading">{workspace.subject}</h1>
-          <p className="text-muted-foreground text-sm">
+          <h1 className="workspace-title">{workspace.subject}</h1>
+          <p className="workspace-meta">
             Kelas {workspace.grade} · Fase {workspace.phase} · {workspace.academic_year}
           </p>
           {workspace.school_name && (
-            <p className="text-xs text-muted-foreground">{workspace.school_name}</p>
+            <p className="text-xs text-muted-foreground font-semibold">{workspace.school_name}</p>
           )}
+          <button
+            onClick={() => setIsViewerOpen(true)}
+            className="mt-2 inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold bg-primary/10 text-primary hover:bg-primary/20 border-2 border-transparent hover:border-primary/30 rounded-md transition-colors"
+          >
+            <BookOpen className="w-3.5 h-3.5" />
+            Lihat Prota & Prosem
+          </button>
         </div>
 
-        {/* Overall Progress Ring */}
+        {/* Overall Progress Ring - NeoBrutalism style adjustment */}
         <div className="flex items-center gap-4">
-          <div className="relative w-16 h-16">
-            <svg viewBox="0 0 36 36" className="w-16 h-16 -rotate-90">
-              <circle cx="18" cy="18" r="14" fill="none" strokeWidth="3" className="stroke-muted" />
+          <div className="relative w-16 h-16 bg-white rounded-full border-2 border-foreground shadow-brutal-sm flex items-center justify-center">
+            <svg viewBox="0 0 36 36" className="w-14 h-14 -rotate-90 absolute">
+              <circle cx="18" cy="18" r="14" fill="none" strokeWidth="4" className="stroke-muted" />
               <circle
-                cx="18" cy="18" r="14" fill="none" strokeWidth="3"
+                cx="18" cy="18" r="14" fill="none" strokeWidth="4"
                 strokeDasharray={`${overallProgress * 0.879} 87.9`}
                 className="stroke-primary transition-all duration-700"
-                strokeLinecap="round"
+                strokeLinecap="butt"
               />
             </svg>
-            <span className="absolute inset-0 flex items-center justify-center text-sm font-bold">{overallProgress}%</span>
+            <span className="text-sm font-black z-10">{overallProgress}%</span>
           </div>
 
           <div className="space-y-1 text-sm">
@@ -94,7 +108,7 @@ export const WorkspaceExplorerShell: React.FC<WorkspaceExplorerShellProps> = ({
             </div>
             <div className="flex items-center gap-2">
               <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
-              <span className="text-muted-foreground">{completedMeetings}/{totalMeetings} pertemuan</span>
+              <span className="text-muted-foreground">{completedMeetings} pertemuan selesai</span>
             </div>
             <div className="flex items-center gap-2">
               <BookOpen className="w-3.5 h-3.5 text-muted-foreground" />
@@ -137,7 +151,7 @@ export const WorkspaceExplorerShell: React.FC<WorkspaceExplorerShellProps> = ({
           </div>
           {onStartPlanning && (
             <button
-              onClick={isLocked && onShowUpsell ? onShowUpsell : onStartPlanning}
+              onClick={isLocked && onShowUpsell ? onShowUpsell : () => onStartPlanning()}
               className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-colors shadow ${
                 isLocked 
                   ? 'bg-amber-500 text-white hover:bg-amber-600'
@@ -157,9 +171,15 @@ export const WorkspaceExplorerShell: React.FC<WorkspaceExplorerShellProps> = ({
           plan={plan}
           items={prosemItems[plan.id] || []}
           onMeetingClick={onMeetingClick}
-          onAddItem={onStartPlanning}
+          onAddItem={(step?: number) => onStartPlanning?.(step)}
         />
       ))}
+
+      <ProtaProsemViewerModal 
+        isOpen={isViewerOpen} 
+        onClose={() => setIsViewerOpen(false)} 
+        workspace={workspace} 
+      />
     </div>
   );
 };

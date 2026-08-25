@@ -102,7 +102,7 @@ import { WorkspaceMeetingEditor } from '@/components/workspace/explorer/Workspac
 
 const Index = () => {
   const navigate = useNavigate();
-  const { user, signOut, isAdmin } = useAuth();
+  const { user, signOut, isAdmin, isLoading: isAuthLoading } = useAuth();
   const isAgencyOwner = useIsAgencyOwner();
 
   // Cloud profiles
@@ -2571,11 +2571,11 @@ img{max-width:100%}
   const isWorkspaceLocked = !isAdmin && (!subStatus || !subStatus.isPro);
 
   useEffect(() => {
-    if (!isSubStatusLoading && isWorkspaceLocked && appMode === 'workspace') {
+    if (!isAuthLoading && !isSubStatusLoading && isWorkspaceLocked && appMode === 'workspace') {
       setShowWorkspaceUpsell(true);
       navigate('/app');
     }
-  }, [isSubStatusLoading, isWorkspaceLocked, appMode, navigate]);
+  }, [isAuthLoading, isSubStatusLoading, isWorkspaceLocked, appMode, navigate]);
 
 
   return (
@@ -3099,7 +3099,7 @@ img{max-width:100%}
               ? 'fixed inset-0 z-[60] bg-secondary'
               : 'w-full md:flex-1 md:min-w-0 border-l-2 border-foreground relative'
           } flex flex-col h-full bg-secondary ${
-            !isPreviewFullscreen && mobileTab !== 'result' ? 'hidden' : 'block'
+            !isPreviewFullscreen && mobileTab !== 'result' && appMode !== 'workspace' ? 'hidden' : 'block'
           } md:block`}
         >
           {/* Mini topbar — only visible in mobile fullscreen mode. Lets user switch
@@ -3149,7 +3149,7 @@ img{max-width:100%}
           ) : appMode === 'workspace' && activeWorkspace && /^\/app\/workspace\/[a-zA-Z0-9-]+\/planning/.test(location.pathname) ? (
             <WorkspacePlanningView 
               workspace={activeWorkspace}
-              onExit={() => { window.location.href = `/app/workspace/${activeWorkspace.id}`; }}
+              onExit={() => { navigate(`/app/workspace/${activeWorkspace.id}`); }}
               isLocked={isWorkspaceLocked}
               onShowUpsell={() => setShowWorkspaceUpsell(true)}
             />
@@ -3157,7 +3157,7 @@ img{max-width:100%}
             <WorkspaceMeetingEditor
               workspace={activeWorkspace}
               meetingId={location.pathname.split('/').pop() || ''}
-              onBack={() => { window.location.href = `/app/workspace/${activeWorkspace.id}`; }}
+              onBack={() => { navigate(`/app/workspace/${activeWorkspace.id}`); }}
               isLocked={isWorkspaceLocked}
               onShowUpsell={() => setShowWorkspaceUpsell(true)}
             />
@@ -3165,8 +3165,10 @@ img{max-width:100%}
             <div className="flex-1 overflow-y-auto h-full min-h-0 relative">
               <WorkspaceExplorerShell
                 workspace={activeWorkspace}
-                onStartPlanning={() => { window.location.href = `/app/workspace/${activeWorkspace.id}/planning`; }}
-                onMeetingClick={(slot) => { window.location.href = `/app/workspace/${activeWorkspace.id}/meeting/${slot.id}`; }}
+                onStartPlanning={(step?: number) => { 
+                  navigate(`/app/workspace/${activeWorkspace.id}/planning${step ? `?step=${step}` : ''}`); 
+                }}
+                onMeetingClick={(slot) => { navigate(`/app/workspace/${activeWorkspace.id}/meeting/${slot.id}`); }}
                 isLocked={isWorkspaceLocked}
                 onShowUpsell={() => setShowWorkspaceUpsell(true)}
               />
@@ -3516,7 +3518,7 @@ img{max-width:100%}
 
 
         {/* Mobile Navigation */}
-        {!isPreviewFullscreen && (
+        {!isPreviewFullscreen && appMode !== 'workspace' && (
           <MobileNavigation
             mobileTab={mobileTab}
             setMobileTab={(t) => {

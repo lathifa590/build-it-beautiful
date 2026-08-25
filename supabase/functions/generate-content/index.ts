@@ -884,6 +884,74 @@ serve(async (req) => {
 
     switch (type) {
 
+      case "meeting-titles":
+        systemPrompt = `Kamu adalah perancang kurikulum Kurikulum Merdeka yang berpengalaman.
+
+KONTEKS:
+- Mata Pelajaran: ${data.mataPelajaran || '-'} (Rumpun: ${data.rumpun || '-'})
+- Kelas: ${data.kelas || '-'} / Fase: ${data.fase || '-'}  
+- Topik: ${data.judulTopik || '-'}
+- Total Alokasi: ${data.totalJP || '-'} JP
+- Jumlah Pertemuan: ${data.jumlahPertemuan || '-'} pertemuan
+- JP per Pertemuan: ${data.jpPerPertemuan || '-'} JP (~${data.menit || '-'} menit)
+
+TUGAS:
+Buatkan judul untuk ${data.jumlahPertemuan || '-'} pertemuan yang membentuk learning progression yang logis dan kontekstual untuk topik di atas.
+
+ATURAN WAJIB:
+1. Setiap judul HARUS mencerminkan materi/aktivitas SPESIFIK dari topik ini — bukan judul generik
+2. Tidak boleh ada judul yang IDENTIK atau terlalu mirip antar pertemuan
+3. Alur harus membentuk spiral: dari pemahaman awal → pendalaman → aplikasi → evaluasi (disesuaikan jumlah pertemuan)
+4. Aktivitas harus SESUAI rumpun mata pelajaran:
+   - Rumpun Bahasa: fokus pada 4 keterampilan (menyimak, berbicara, membaca, menulis)
+   - Rumpun Eksak: fokus pada eksperimen, pembuktian, problem solving
+   - dst sesuai rumpun
+5. Durasi ${data.jpPerPertemuan || '-'} JP per pertemuan harus realistis — jangan paksakan terlalu banyak aktivitas dalam 1 pertemuan singkat
+6. Pertemuan terakhir HARUS menyisakan ruang untuk evaluasi/refleksi
+
+CONTOH OUTPUT untuk Bahasa Inggris Kelas IX, Topik "Teks Recount; Simple Past Tense", 6 pertemuan @ 2 JP:
+[
+  "Mengenal teks recount: orientasi, events, reorientation",
+  "Simple Past Tense: bentuk, fungsi, dan latihan kalimat",
+  "Membaca & menganalisis model teks recount autentik",
+  "Menyusun kerangka & draf teks recount pengalaman pribadi",
+  "Peer review, revisi, dan penyempurnaan teks recount",
+  "Presentasi teks recount & refleksi pembelajaran"
+]
+
+Jawab HANYA dengan JSON array of strings, tanpa penjelasan, tanpa markdown code block.`;
+        userPrompt = "Hasilkan array JSON judul pertemuan sekarang.";
+        
+        try {
+          const result = await executeCrossProviderParsedJson(systemPrompt, userPrompt, 1500);
+          
+          if (result.ok && Array.isArray(result.parsedContent)) {
+            return new Response(JSON.stringify({ 
+              success: true, 
+              titles: result.parsedContent,
+              model: result.usedModel 
+            }), {
+              headers: { ...corsHeaders, "Content-Type": "application/json" },
+            });
+          }
+          
+          return new Response(JSON.stringify({ 
+            success: false, 
+            error: result.error || "Gagal memproses response",
+            titles: [] 
+          }), {
+            status: 200,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        } catch (err) {
+          console.error("Error generating meeting titles:", err);
+          return new Response(JSON.stringify({ success: false, error: err.message, titles: [] }), {
+            status: 200,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+        break;
+
       case "modul":
         const pertemuanList = data.pertemuan || [{ nomorPertemuan: 1, durasi: '90' }];
         const pertemuanInfo = pertemuanList.map((p: { nomorPertemuan: number; durasi: string }) => 
