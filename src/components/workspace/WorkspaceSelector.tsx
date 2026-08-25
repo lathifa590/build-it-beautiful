@@ -28,7 +28,7 @@ export const WorkspaceSelector = () => {
     <div className="flex items-center gap-2">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" className="flex items-center gap-2 min-w-[250px] justify-between bg-card border-2 border-foreground shadow-brutal-sm">
+          <Button variant="secondary" className="flex items-center gap-2 min-w-[250px] justify-between !py-2.5">
             <div className="flex items-center gap-2 truncate">
               <Folder className="w-4 h-4 text-primary" />
               <div className="text-left flex flex-col">

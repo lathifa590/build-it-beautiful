@@ -1,4 +1,4 @@
-import { BookOpen, FileText, ClipboardCheck, Database, GraduationCap, RefreshCw, CalendarRange, CalendarDays, Target, Pencil, Sparkles, Copy } from 'lucide-react';
+import { BookOpen, FileText, ClipboardCheck, Database, GraduationCap, RefreshCw, CalendarRange, CalendarDays, Target, Pencil, Sparkles, Copy, Layers, FolderOpen, LineChart } from 'lucide-react';
 
 const features = [
   {
@@ -103,6 +103,33 @@ const features = [
     borderColor: 'border-violet-300',
     isNew: true,
   },
+  {
+    icon: Layers,
+    title: 'Modul Multi-Pertemuan',
+    description: 'Generate Rencana Pembelajaran untuk banyak pertemuan (misalnya 10 pertemuan) sekaligus dalam sekali klik!',
+    color: 'text-sky-600',
+    bgColor: 'bg-sky-100',
+    borderColor: 'border-sky-300',
+    isNew: true,
+  },
+  {
+    icon: FolderOpen,
+    title: 'Manajemen Workspace',
+    description: 'Simpan dan kelola perangkat ajar secara terstruktur berdasarkan mata pelajaran, kelas, dan tahun ajaran.',
+    color: 'text-fuchsia-600',
+    bgColor: 'bg-fuchsia-100',
+    borderColor: 'border-fuchsia-300',
+    isNew: true,
+  },
+  {
+    icon: LineChart,
+    title: 'Tracking Progress',
+    description: 'Pantau otomatis persentase ketercapaian Program Semester (Prosem) dan target Jam Pelajaran (JP).',
+    color: 'text-emerald-600',
+    bgColor: 'bg-emerald-100',
+    borderColor: 'border-emerald-300',
+    isNew: true,
+  },
 ];
 export const FeaturesSection = () => {
   return (
@@ -111,7 +138,7 @@ export const FeaturesSection = () => {
         {/* Header */}
         <div className="text-center mb-12 md:mb-16">
           <h2 className="text-3xl md:text-4xl font-extrabold text-foreground mb-4">
-            12 Fitur Unggulan dalam Satu Platform
+            15 Fitur Unggulan dalam Satu Platform
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Semua yang Anda butuhkan untuk menyiapkan administrasi pembelajaran, 

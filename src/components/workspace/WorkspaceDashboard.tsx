@@ -34,9 +34,9 @@ export const WorkspaceDashboard = ({
         <p className="text-muted-foreground mb-6">
           Silakan pilih atau buat Workspace baru untuk mulai merencanakan pembelajaran. Workspace memisahkan data antar kelas dan mata pelajaran.
         </p>
-        <Button size="lg" className="border-2 border-foreground shadow-brutal font-bold" onClick={() => setIsCreateModalOpen(true)}>
+        <button className="btn btn-primary" onClick={() => setIsCreateModalOpen(true)}>
           Buat Workspace Pertama
-        </Button>
+        </button>
         <CreateWorkspaceModal isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)} />
       </div>
     );
@@ -113,26 +113,26 @@ export const WorkspaceDashboard = ({
             </div>
           </div>
           {onShowUpsell && (
-            <Button onClick={onShowUpsell} className="bg-amber-500 hover:bg-amber-600 text-white border-2 border-amber-700 shadow-brutal-sm whitespace-nowrap">
+            <button onClick={onShowUpsell} className="btn btn-primary whitespace-nowrap">
               Upgrade PRO
-            </Button>
+            </button>
           )}
         </div>
       )}
 
-      <div className="flex items-start justify-between">
+      <div className="workspace-card">
         <div>
-          <h1 className="text-3xl font-black">{activeWorkspace.subject}</h1>
-          <p className="text-muted-foreground text-lg">
+          <h1 className="workspace-title">{activeWorkspace.subject}</h1>
+          <p className="workspace-meta">
             Kelas {activeWorkspace.grade} • Fase {activeWorkspace.phase} • {activeWorkspace.academic_year}
           </p>
         </div>
         <div className="flex flex-col gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="icon" className="border-2 border-foreground hover:bg-muted">
+              <button className="btn btn-secondary !px-3">
                 <MoreVertical className="w-5 h-5" />
-              </Button>
+              </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56 font-medium">
               <DropdownMenuItem onClick={() => onNavigate('settings')} className="cursor-pointer py-2">
@@ -186,7 +186,7 @@ export const WorkspaceDashboard = ({
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Planning Status Card */}
-        <div className="bg-card border-2 border-foreground rounded-xl shadow-brutal p-6">
+        <div className="card p-6">
           <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
             <Calendar className="w-5 h-5 text-primary" />
             Status Perencanaan
@@ -201,7 +201,7 @@ export const WorkspaceDashboard = ({
               {progressData.protaDone ? (
                 <CheckCircle2 className="w-5 h-5 text-green-500" />
               ) : (
-                <span className="text-xs px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full font-bold">Belum ada</span>
+                <span className="badge badge-warning">Belum ada</span>
               )}
             </div>
 
@@ -213,7 +213,7 @@ export const WorkspaceDashboard = ({
               {progressData.prosemDone ? (
                 <CheckCircle2 className="w-5 h-5 text-green-500" />
               ) : (
-                <span className="text-xs px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full font-bold">Belum ada</span>
+                <span className="badge badge-warning">Belum ada</span>
               )}
             </div>
 
@@ -226,17 +226,16 @@ export const WorkspaceDashboard = ({
             </div>
           </div>
 
-          <Button 
-            className="w-full mt-6 border-2 border-foreground font-bold" 
-            variant="outline"
+          <button 
+            className="btn btn-secondary w-full mt-6 justify-center" 
             onClick={() => onNavigate('perencanaan')}
           >
             Buka Perencanaan
-          </Button>
+          </button>
         </div>
 
         {/* Module Progress Card */}
-        <div className="bg-card border-2 border-foreground rounded-xl shadow-brutal p-6">
+        <div className="card p-6">
           <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
             <BookOpen className="w-5 h-5 text-primary" />
             Progres Modul Ajar
@@ -247,9 +246,9 @@ export const WorkspaceDashboard = ({
               <span className="font-semibold text-muted-foreground">Semester 1</span>
               <span className="font-bold">{progressData.createdJp} / {progressData.totalPlannedJp} JP</span>
             </div>
-            <div className="h-4 w-full bg-muted rounded-full overflow-hidden border border-foreground/20">
+            <div className="progress-wrap">
               <div 
-                className="h-full bg-primary transition-all duration-1000" 
+                className={`progress-fill ${percentage === 100 ? 'done' : ''}`}
                 style={{ width: `${percentage}%` }}
               />
             </div>
@@ -276,12 +275,12 @@ export const WorkspaceDashboard = ({
             </div>
           )}
 
-          <Button 
-            className="w-full border-2 border-foreground font-bold"
+          <button 
+            className="btn btn-primary w-full mt-6 justify-center"
             onClick={ctaAction}
           >
             {ctaText}
-          </Button>
+          </button>
         </div>
       </div>
     </div>

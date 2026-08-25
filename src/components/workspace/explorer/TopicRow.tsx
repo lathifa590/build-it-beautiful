@@ -7,7 +7,7 @@ interface TopicRowProps {
   item: ProsemItemDB;
   globalMeetingStart: number;
   onMeetingClick?: (slot: MeetingSlotDB) => void;
-  onEditProsem?: () => void;
+  onEditProsem?: (step?: number) => void;
 }
 
 export const TopicRow: React.FC<TopicRowProps> = ({ item, globalMeetingStart, onMeetingClick, onEditProsem }) => {
@@ -18,29 +18,34 @@ export const TopicRow: React.FC<TopicRowProps> = ({ item, globalMeetingStart, on
   const progress = totalSlots > 0 ? Math.round((completedSlots / totalSlots) * 100) : 0;
 
   return (
-    <div className="border-2 border-foreground/10 rounded-2xl overflow-hidden bg-card shadow-sm hover:shadow-md transition-shadow">
-      {/* Topic Header */}
+    <div className="mb-2.5">
       <button
         onClick={() => setOpen(o => !o)}
-        className="w-full flex items-start gap-4 px-5 py-4 hover:bg-muted/30 transition-colors text-left group"
+        className="topik-row w-full text-left m-0"
+        style={{ 
+          marginBottom: open ? 0 : undefined,
+          borderBottomLeftRadius: open ? 0 : undefined,
+          borderBottomRightRadius: open ? 0 : undefined,
+          boxShadow: open ? 'none' : undefined
+        }}
       >
         {/* Sequence number */}
-        <div className="mt-0.5 w-8 h-8 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-sm font-bold text-primary flex-shrink-0">
+        <div className="topik-number">
           {item.sequence}
         </div>
 
-        <div className="flex-1 min-w-0 space-y-1">
+        <div className="flex-1 min-w-0">
           <div className="flex items-start gap-2">
-            <Layers className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
-            <h3 className="font-semibold text-sm leading-snug">{item.materi_pokok}</h3>
+            <Layers className="w-4 h-4 text-primary flex-shrink-0 mt-1" />
+            <h3 className="topik-title">{item.materi_pokok}</h3>
           </div>
 
           {/* TP Chips */}
           {item.tp_snapshot && item.tp_snapshot.length > 0 && (
-            <div className="flex flex-wrap gap-1 mt-1">
+            <div className="flex flex-wrap gap-1 mt-1 mb-2">
               {item.tp_snapshot.map((tp, i) => (
-                <span key={i} className="inline-flex items-center gap-1 text-xs bg-secondary/60 text-secondary-foreground rounded-full px-2 py-0.5 border border-foreground/10">
-                  <Target className="w-2.5 h-2.5" />
+                <span key={i} className="inline-flex items-center gap-1 text-[10px] font-bold bg-secondary/20 text-secondary-foreground rounded border-2 border-black px-1.5 py-0.5 uppercase">
+                  <Target className="w-3 h-3" />
                   {tp.code || `TP${i+1}`}
                 </span>
               ))}
@@ -48,17 +53,17 @@ export const TopicRow: React.FC<TopicRowProps> = ({ item, globalMeetingStart, on
           )}
 
           {/* Progress Bar */}
-          <div className="pt-1 flex items-center gap-3">
-            <div className="flex-1 bg-muted h-1.5 rounded-full overflow-hidden">
+          <div className="flex items-center gap-3">
+            <div className="flex-1 progress-wrap m-0">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-primary to-emerald-500 transition-all duration-500"
+                className={`progress-fill ${progress === 100 ? 'done' : ''}`}
                 style={{ width: `${progress}%` }}
               />
             </div>
-            <span className="text-xs text-muted-foreground whitespace-nowrap">
+            <span className="text-xs font-bold text-muted-foreground whitespace-nowrap">
               {completedSlots}/{totalSlots} pertemuan
             </span>
-            <span className="text-xs font-bold text-muted-foreground">{item.allocated_jp} JP</span>
+            <span className="text-xs font-black text-black">{item.allocated_jp} JP</span>
           </div>
         </div>
 
@@ -86,7 +91,7 @@ export const TopicRow: React.FC<TopicRowProps> = ({ item, globalMeetingStart, on
               </div>
               {onEditProsem && (
                 <button 
-                  onClick={(e) => { e.stopPropagation(); onEditProsem(); }}
+                  onClick={(e) => { e.stopPropagation(); onEditProsem(3); }}
                   className="font-semibold text-primary hover:underline"
                 >
                   Tambahkan dari editor Prosem &rarr;

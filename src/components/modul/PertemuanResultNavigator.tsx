@@ -339,7 +339,7 @@ export const PertemuanResultNavigator = ({
           ) : (
             <p className="text-sm text-muted-foreground p-4 border-2 border-dashed rounded-lg">
               {LABEL_DOKUMEN[currentJenis]} Pertemuan {aktif.nomor}:{' '}
-              {LABEL_STATUS[status].toLowerCase()}.
+              {(LABEL_STATUS[status] ?? status ?? 'menunggu').toLowerCase()}.
             </p>
           )
         ) : (

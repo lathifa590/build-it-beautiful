@@ -95,11 +95,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         setUser(currentSession?.user ?? null);
 
         if (currentSession?.user) {
-          // Defer role fetch to avoid blocking
-          setTimeout(async () => {
-            const userRole = await fetchUserRole(currentSession.user.id);
+          // Fetch role immediately and wait for it
+          fetchUserRole(currentSession.user.id).then((userRole) => {
             setRole(userRole);
-          }, 0);
+            setIsLoading(false);
+          });
 
           // If this is a sign in event, try to claim customer account
           if (event === 'SIGNED_IN') {
@@ -124,9 +124,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           }
         } else {
           setRole(null);
+          setIsLoading(false);
         }
-        
-        setIsLoading(false);
       }
     );
 
@@ -136,10 +135,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setUser(currentSession?.user ?? null);
 
       if (currentSession?.user) {
-        fetchUserRole(currentSession.user.id).then(setRole);
+        fetchUserRole(currentSession.user.id).then((userRole) => {
+          setRole(userRole);
+          setIsLoading(false);
+        });
+      } else {
+        setIsLoading(false);
       }
-      
-      setIsLoading(false);
     });
 
     return () => {

@@ -603,40 +603,40 @@ export const FormSection = ({
             <span className={labelStyle}>Capaian Pembelajaran (CP)</span>
               <div className="flex flex-wrap gap-1.5">
                 {!isWorkspaceMode && (
-                  <>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={onOpenCPSelector}
-                      disabled={!formData.mataPelajaran}
-                      className="gap-1.5 text-xs h-7"
-                      title={!formData.mataPelajaran ? 'Isi Mata Pelajaran terlebih dahulu' : 'Cari CP resmi dari Kemdikbud'}
-                    >
-                      <Search className="w-3.5 h-3.5" />
-                      Cari CP Resmi
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={onKontekstualisasiCP}
-                      disabled={!formData.capaianPembelajaran || !formData.materi || isKontekstualisasiCP}
-                      className="gap-1.5 text-xs h-7"
-                      title={
-                        !formData.capaianPembelajaran ? 'Isi CP terlebih dahulu' :
-                        !formData.materi ? 'Isi Materi terlebih dahulu' :
-                        'Sesuaikan CP dengan materi menggunakan AI'
-                      }
-                    >
-                      {isKontekstualisasiCP ? (
-                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                      ) : (
-                        <Wand2 className="w-3.5 h-3.5" />
-                      )}
-                      {isKontekstualisasiCP ? 'Menyesuaikan...' : 'Sesuaikan CP'}
-                    </Button>
-                  </>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={onOpenCPSelector}
+                    disabled={!formData.mataPelajaran}
+                    className="gap-1.5 text-xs h-7"
+                    title={!formData.mataPelajaran ? 'Isi Mata Pelajaran terlebih dahulu' : 'Cari CP resmi dari Kemdikbud'}
+                  >
+                    <Search className="w-3.5 h-3.5" />
+                    Cari CP Resmi
+                  </Button>
+                )}
+                {(!isWorkspaceMode || onKontekstualisasiCP) && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={onKontekstualisasiCP}
+                    disabled={!formData.capaianPembelajaran || !formData.materi || isKontekstualisasiCP}
+                    className="gap-1.5 text-xs h-7"
+                    title={
+                      !formData.capaianPembelajaran ? 'Isi CP terlebih dahulu' :
+                      !formData.materi ? 'Isi Materi terlebih dahulu' :
+                      'Sesuaikan CP dengan materi menggunakan AI'
+                    }
+                  >
+                    {isKontekstualisasiCP ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <Wand2 className="w-3.5 h-3.5" />
+                    )}
+                    {isKontekstualisasiCP ? 'Menyesuaikan...' : 'Sesuaikan CP'}
+                  </Button>
                 )}
               </div>
           </div>

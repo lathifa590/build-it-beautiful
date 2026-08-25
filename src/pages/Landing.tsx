@@ -9,6 +9,8 @@ import { CTASection } from '@/components/landing/CTASection';
 import { Footer } from '@/components/landing/Footer';
 import { CommunityPopup } from '@/components/landing/CommunityPopup';
 
+import { FAQSection } from '@/components/landing/FAQSection';
+
 const Landing = () => {
   return (
     <div className="min-h-screen bg-background">
@@ -22,6 +24,7 @@ const Landing = () => {
         <WhyUsSection />
         <TestimonialsSection />
         <ProductShowcase />
+        <FAQSection />
         <CTASection />
       </main>
       <Footer />

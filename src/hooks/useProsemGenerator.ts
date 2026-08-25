@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import type { ProtaData, ProsemData } from "@/types/modul";
+import type { ProtaData, ProsemData, ProsemEvent } from "@/types/modul";
 
 export function useProsemGenerator() {
   const [isLoading, setIsLoading] = useState(false);
@@ -9,7 +9,8 @@ export function useProsemGenerator() {
     protaData: ProtaData | null, 
     semester: 1 | 2, 
     mingguEfektif: number,
-    tanggalMulai: string
+    tanggalMulai: string,
+    kegiatanNonPembelajaran: ProsemEvent[] = []
   ): Promise<ProsemData | null> => {
     setIsLoading(true);
     setError(null);
@@ -52,8 +53,13 @@ export function useProsemGenerator() {
         currentDate = new Date(tahun, bulan, 1);
       }
 
-      // No events by default for new generator, user can add them later
-      const events: ProsemEvent[] = [];
+      // Filter events for this semester
+      const events: ProsemEvent[] = kegiatanNonPembelajaran.filter(ev => ev.semester === semester);
+      
+      const nonInstructionalWeekKeys = new Set(events.map(ev => {
+        const monthStr = String(ev.bulan).padStart(2, '0');
+        return allWeekKeys.find(key => key.endsWith(`-${monthStr}-W${ev.mingguKe}`));
+      }).filter(Boolean));
 
       let weekPointer = 0;
       const rows = semesterItems.map((item, index) => {
@@ -62,11 +68,23 @@ export function useProsemGenerator() {
         const weeksNeeded = Math.max(1, Math.ceil(jp / 2));
         const weeks: Record<string, { hasActivity: boolean, jp?: number }> = {};
 
-        for (let i = 0; i < weeksNeeded; i++) {
+        let i = 0;
+        while (i < weeksNeeded) {
           if (weekPointer < allWeekKeys.length) {
             const wk = allWeekKeys[weekPointer];
+            
+            // Skip non-instructional weeks
+            if (nonInstructionalWeekKeys.has(wk)) {
+              weekPointer++;
+              continue;
+            }
+
             weeks[wk] = { hasActivity: true, jp: 2 };
             weekPointer++;
+            i++;
+          } else {
+            // run out of weeks
+            break;
           }
         }
 

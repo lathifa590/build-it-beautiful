@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { ArrowLeft, Loader2, Minimize2, Maximize2, FileDown } from "lucide-react";
+import { ArrowLeft, Loader2, Minimize2, Maximize2, FileDown, RotateCcw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Workspace } from "@/types/workspace";
 import type { MeetingSlotDB, ProsemItemDB } from "@/hooks/useProsemData";
@@ -42,24 +42,34 @@ export const WorkspaceMeetingEditor: React.FC<WorkspaceMeetingEditorProps> = ({
   const [isPreviewFullscreen, setIsPreviewFullscreen] = useState(false);
   const { toast } = useToast();
   const [isSuggestingDesain, setIsSuggestingDesain] = useState(false);
+  const [isKontekstualisasiCP, setIsKontekstualisasiCP] = useState(false);
   const [showSoalModal, setShowSoalModal] = useState(false);
   const [soalConfig, setSoalConfig] = useState(DEFAULT_SOAL_CONFIG);
 
   // Generate synthetic FormData for the AI Generator
   const [formData, setFormData] = useState<FormData | null>(null);
+  const [loadedDocsMap, setLoadedDocsMap] = useState<Record<string, any> | null>(null);
+  const [hasInjectedDocs, setHasInjectedDocs] = useState(false);
 
+  // useMeetingDocuments must be declared before initialize so loadDocuments is available
+  const {
+    documents,
+    isLoading: isDocsLoading,
+    isSaving,
+    loadDocuments,
+    saveAllDocuments
+  } = useMeetingDocuments(workspace.id, meetingId);
+
+  // Single sequential initialization: fetch meeting → build synthetic → load DB docs → merge formData
+  // This eliminates the race condition between separate useEffects
   useEffect(() => {
-    const fetchMeeting = async () => {
+    const initialize = async () => {
       setIsLoading(true);
       try {
+        // STEP 1: Fetch meeting metadata from DB
         const { data, error } = await supabase
           .from("meeting_slots")
-          .select(`
-            *,
-            prosem_items (
-              *
-            )
-          `)
+          .select(`*, prosem_items (*)`)
           .eq("id", meetingId)
           .single();
 
@@ -69,7 +79,7 @@ export const WorkspaceMeetingEditor: React.FC<WorkspaceMeetingEditorProps> = ({
         setMeeting(data as any);
         setProsemItem(data.prosem_items as any);
 
-        // Fetch CP
+        // STEP 2: Fetch CP
         const { data: cpData } = await supabase
           .from("curriculum_plans")
           .select("content")
@@ -80,10 +90,10 @@ export const WorkspaceMeetingEditor: React.FC<WorkspaceMeetingEditorProps> = ({
         const cpContentObj = cpData?.content as { cp?: string } | undefined;
         const capaianPembelajaran = cpContentObj?.cp || "";
 
-        // Hitung JP ke menit
         const jpDuration = workspace.jp_duration_minutes || (workspace.phase === 'F' || workspace.phase === 'E' ? 45 : workspace.phase === 'D' ? 40 : 35);
         const totalMinutes = (data.planned_jp || 2) * jpDuration;
 
+        // Build synthetic formData as the base
         const syntheticFormData: FormData = {
           ...DEFAULT_FORM_DATA,
           mataPelajaran: workspace.subject,
@@ -94,24 +104,39 @@ export const WorkspaceMeetingEditor: React.FC<WorkspaceMeetingEditorProps> = ({
           tujuanPembelajaran: (data.prosem_items.tp_snapshot || [])
             .map((tp: any, idx: number) => `TP${idx + 1}: ${tp.description || tp.teks || JSON.stringify(tp)}`)
             .join("\n"),
-          pertemuan: [
-            {
-              id: meetingId,
-              nomorPertemuan: data.sequence,
-              durasi: totalMinutes.toString(),
-            },
-          ],
+          pertemuan: [{ id: meetingId, nomorPertemuan: data.sequence, durasi: totalMinutes.toString() }],
         };
-        setFormData(syntheticFormData);
+
+        // STEP 3: Load saved documents from DB
+        const docsMap = await loadDocuments();
+
+        // STEP 4: Merge formData — DB form_data always wins over synthetic
+        if (docsMap?.['form_data']?.content_json) {
+          const savedFormData = docsMap['form_data'].content_json as FormData;
+          // Merge synthetic (base) + saved (wins), but keep synthetic pertemuan array if saved lacks it
+          setFormData({
+            ...syntheticFormData,
+            ...savedFormData,
+            // Always keep correct pertemuan array from current meeting context
+            pertemuan: syntheticFormData.pertemuan,
+          });
+        } else {
+          setFormData(syntheticFormData);
+        }
+
+        // STEP 5: Store docs map for document injection
+        if (docsMap) setLoadedDocsMap(docsMap);
+
       } catch (err: any) {
-        console.error("Error fetching meeting:", err);
+        console.error("Error initializing meeting editor:", err);
         setError(err.message || "Failed to load meeting data");
       } finally {
         setIsLoading(false);
       }
     };
-    fetchMeeting();
-  }, [meetingId, workspace]);
+    initialize();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [meetingId, workspace.id]);
 
   const handleAutoGeneratedFields = (autoGenerated: any) => {
     if (!autoGenerated) return;
@@ -334,6 +359,39 @@ export const WorkspaceMeetingEditor: React.FC<WorkspaceMeetingEditorProps> = ({
     }
   };
 
+  const handleKontekstualisasiCP = async () => {
+    if (!formData || !formData.capaianPembelajaran || !formData.materi) {
+      toast({ variant: 'destructive', description: 'Isi CP dan Materi terlebih dahulu' });
+      return;
+    }
+
+    setIsKontekstualisasiCP(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-content', {
+        body: { type: 'kontekstualisasi-cp', data: formData },
+      });
+
+      if (error) throw error;
+      if (data?.error) {
+        toast({ variant: 'destructive', description: data.error });
+        return;
+      }
+
+      const cpData = data?.data;
+      if (cpData?.cp_kontekstual) {
+        setFormData((prev) => prev ? { ...prev, capaianPembelajaran: cpData.cp_kontekstual } : null);
+        toast({ description: 'CP berhasil disesuaikan dengan materi!' });
+      } else {
+        toast({ variant: 'destructive', description: 'Format response tidak valid' });
+      }
+    } catch (err) {
+      console.error('CP kontekstualisasi error:', err);
+      toast({ variant: 'destructive', description: 'Gagal menyesuaikan CP' });
+    } finally {
+      setIsKontekstualisasiCP(false);
+    }
+  };
+
   const handleTogglePilihanDokumenV2 = (pertemuanId: string, doc: JenisDokumenPertemuan, checked: boolean) => {
     pertemuanV2.togglePilihan(pertemuanId, doc, checked);
   };
@@ -346,39 +404,25 @@ export const WorkspaceMeetingEditor: React.FC<WorkspaceMeetingEditorProps> = ({
     [v2Aktif, pertemuanV2]
   );
 
-  const {
-    documents,
-    isLoading: isDocsLoading,
-    isSaving,
-    loadDocuments,
-    saveAllDocuments
-  } = useMeetingDocuments(workspace.id, meetingId);
+  // Documents are loaded sequentially inside initialize() above — no separate effect needed.
 
-  // Load existing documents from database
+  // Inject loaded documents after formData has been synced and generator is ready
   useEffect(() => {
-    loadDocuments().then((docsMap) => {
-      if (docsMap) {
-        if (docsMap['form_data']?.content_json) {
-          // If we have saved formData for this meeting, use it instead of the synthetic one!
-          setFormData((prev) => ({
-            ...prev,
-            ...docsMap['form_data'].content_json
-          }));
+    if (loadedDocsMap && v2Aktif && !hasInjectedDocs && formData !== null) {
+      const docsToInject: Partial<Record<JenisDokumenPertemuan, any>> = {};
+      (Object.keys(V2_TAB_MAP) as JenisDokumenPertemuan[]).forEach((jenis) => {
+        if (loadedDocsMap[jenis]?.content_json) {
+          docsToInject[jenis] = loadedDocsMap[jenis].content_json;
         }
-        
-        if (v2Aktif) {
-          // We inject the loaded documents into V2 generator state
-          (Object.keys(V2_TAB_MAP) as JenisDokumenPertemuan[]).forEach((jenis) => {
-            if (docsMap[jenis]?.content_json) {
-              v2UpdateDoc(jenis, () => docsMap[jenis].content_json);
-            }
-          });
-        }
+      });
+      if (Object.keys(docsToInject).length > 0) {
+        // IMPORTANT: use v2Aktif.id (internal generator ID), NOT meetingId
+        // meetingId is the DB meeting UUID, but the generator assigns its own stable IDs
+        pertemuanV2.injectExternalDocuments(v2Aktif.id, docsToInject);
       }
-    });
-    // We only want this to run once when v2Aktif is first initialized and formData is ready
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [v2Aktif?.id, loadDocuments]);
+      setHasInjectedDocs(true);
+    }
+  }, [loadedDocsMap, v2Aktif, hasInjectedDocs, formData, meetingId, pertemuanV2]);
 
   const handleSaveAll = async () => {
     if (!v2Aktif) return;
@@ -405,6 +449,13 @@ export const WorkspaceMeetingEditor: React.FC<WorkspaceMeetingEditorProps> = ({
 
     if (toSave.length > 0) {
       await saveAllDocuments(toSave);
+    }
+  };
+
+  const handleReset = () => {
+    if (window.confirm("Yakin ingin mereset hasil dokumen (panel kanan) untuk pertemuan ini? Form (panel kiri) akan dipertahankan. (Tekan Simpan Perubahan jika ingin menghapusnya permanen dari database)")) {
+      pertemuanV2.resetV2();
+      toast({ description: "Dokumen pertemuan telah direset. Silakan klik Generate untuk membuat ulang." });
     }
   };
 
@@ -534,6 +585,14 @@ export const WorkspaceMeetingEditor: React.FC<WorkspaceMeetingEditorProps> = ({
               Export
             </button>
             <button
+              onClick={handleReset}
+              className="px-3 py-2 text-sm font-bold rounded-lg border-2 border-foreground bg-card hover:bg-muted transition-all shadow-brutal-sm flex items-center gap-2"
+              title="Reset Hasil Dokumen"
+            >
+              <RotateCcw className="w-4 h-4" />
+              Reset
+            </button>
+            <button
               onClick={handleSaveAll}
               disabled={isSaving || !v2Aktif}
               className={`px-4 py-2 text-sm font-bold rounded-lg border-2 transition-all shadow-brutal-sm flex items-center gap-2 ${
@@ -567,6 +626,14 @@ export const WorkspaceMeetingEditor: React.FC<WorkspaceMeetingEditorProps> = ({
               onGenerate={() => {}} // Handled by V2
               loading={pertemuanV2.isGenerating}
               error={""}
+              onKontekstualisasiCP={() => {
+                if (isLocked && onShowUpsell) {
+                  onShowUpsell();
+                } else {
+                  handleKontekstualisasiCP();
+                }
+              }}
+              isKontekstualisasiCP={isKontekstualisasiCP}
               onSuggestDesain={() => {
                 if (isLocked && onShowUpsell) {
                   onShowUpsell();

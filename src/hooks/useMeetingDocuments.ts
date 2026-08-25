@@ -43,11 +43,13 @@ export function useMeetingDocuments(workspaceId: string, meetingId: string) {
         for (const link of data) {
           const doc = link.documents as any;
           if (doc && doc.document_type) {
+            const versions = doc.document_versions;
+            const contentJson = Array.isArray(versions) ? versions[0]?.content_json : versions?.content_json;
             docsMap[doc.document_type] = {
               document_id: doc.id,
               document_type: doc.document_type,
               title: doc.title,
-              content_json: doc.document_versions?.content_json || null,
+              content_json: contentJson || null,
             };
           }
         }
@@ -143,6 +145,15 @@ export function useMeetingDocuments(workspaceId: string, meetingId: string) {
       }
       
       if (successCount > 0) {
+        const { error: updateError } = await supabase
+          .from('meeting_slots')
+          .update({ status: 'completed' })
+          .eq('id', meetingId);
+          
+        if (updateError) {
+          console.error("Failed to update meeting status:", updateError);
+        }
+
         toast({
           title: "Berhasil",
           description: `${successCount} dokumen berhasil disimpan ke Workspace.`,

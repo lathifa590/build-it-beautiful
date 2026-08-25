@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2, Plus, Trash2, CalendarDays, BookOpen, Clock, Wand2 } from "lucide-react";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Workspace } from "@/types/workspace";
 
@@ -36,6 +37,7 @@ export const StepMeeting: React.FC<StepMeetingProps> = ({ workspace, onNext, isL
   const [activeSemester, setActiveSemester] = useState<1 | 2>(1);
   const [isLoaded, setIsLoaded] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isGeneratingTitles, setIsGeneratingTitles] = useState<Record<number, boolean>>({});
 
   // Beban JP per pertemuan default dari workspace settings (biasanya 2 JP atau 3 JP)
   // Untuk sementara hardcode 2 JP
@@ -91,62 +93,169 @@ export const StepMeeting: React.FC<StepMeetingProps> = ({ workspace, onNext, isL
     if (workspace.id) loadData();
   }, [workspace.id]);
 
-  const handleAutoSuggest = (itemIndex: number) => {
-    const newItems = [...items];
-    const item = newItems[itemIndex];
+  const PROGRESSION = [
+    "Eksplorasi awal, pengenalan konsep, pemantik diskusi",
+    "Pendalaman konsep, latihan terbimbing, pengerjaan LKPD",
+    "Praktik, eksperimen, atau proyek kelompok kecil",
+    "Presentasi hasil, evaluasi, dan asesmen sumatif"
+  ];
+
+  const handleAutoSuggest = async (itemIndex: number) => {
+    setIsGeneratingTitles(prev => ({ ...prev, [itemIndex]: true }));
     
-    // Auto suggest meeting slots based on allocated_jp and defaultJpPerMeeting
-    const numMeetings = Math.ceil(item.allocated_jp / defaultJpPerMeeting);
-    const newSlots: MeetingSlot[] = [];
-    
-    let remainingJp = item.allocated_jp;
-    
-    for (let i = 0; i < numMeetings; i++) {
-      const jpForThisSlot = Math.min(remainingJp, defaultJpPerMeeting);
-      newSlots.push({
-        sequence: i + 1,
-        title: `Pertemuan ${i + 1}`,
-        planned_jp: jpForThisSlot
+    // Fallback logic
+    const applyFallback = () => {
+      setItems(prevItems => {
+        const newItems = [...prevItems];
+        const item = { ...newItems[itemIndex] };
+        
+        const numMeetings = Math.ceil(item.allocated_jp / defaultJpPerMeeting);
+        const newSlots: MeetingSlot[] = [];
+        let remainingJp = item.allocated_jp;
+        
+        for (let i = 0; i < numMeetings; i++) {
+          const jpForThisSlot = Math.min(remainingJp, defaultJpPerMeeting);
+          
+          let title = `Pertemuan ${i + 1}`;
+          if (numMeetings === 1) {
+            title = "Eksplorasi konsep, praktik, dan evaluasi";
+          } else if (numMeetings === 2) {
+            title = i === 0 ? PROGRESSION[0] : PROGRESSION[3];
+          } else if (numMeetings === 3) {
+            title = i === 0 ? PROGRESSION[0] : (i === 1 ? PROGRESSION[1] : PROGRESSION[3]);
+          } else if (i < 3) {
+            title = PROGRESSION[i];
+          } else if (i === numMeetings - 1) {
+            title = PROGRESSION[3];
+          } else {
+            title = PROGRESSION[2];
+          }
+
+          newSlots.push({
+            sequence: i + 1,
+            title,
+            planned_jp: jpForThisSlot
+          });
+          remainingJp -= jpForThisSlot;
+        }
+        
+        item.slots = newSlots;
+        newItems[itemIndex] = item;
+        return newItems;
       });
-      remainingJp -= jpForThisSlot;
+    };
+
+    try {
+      const item = items[itemIndex];
+      const numMeetings = Math.ceil(item.allocated_jp / defaultJpPerMeeting);
+      
+      const { data, error } = await supabase.functions.invoke("generate-content", {
+        body: {
+          type: "meeting-titles",
+          data: {
+            mataPelajaran: workspace.subject || '',
+            rumpun: workspace.subject, // simplified for now, can be expanded
+            kelas: workspace.grade || '',
+            fase: workspace.phase || '',
+            judulTopik: item.materi_pokok,
+            totalJP: item.allocated_jp,
+            jumlahPertemuan: numMeetings,
+            jpPerPertemuan: defaultJpPerMeeting,
+            menit: defaultJpPerMeeting * menitPerJp
+          }
+        }
+      });
+
+      if (error || !data || !data.success || !Array.isArray(data.titles) || data.titles.length === 0) {
+        console.warn("AI Generation failed or returned empty. Using fallback.", error);
+        toast.error("Gagal mendapatkan saran dari AI. Menggunakan format standar sementara. Silakan coba lagi nanti.");
+        applyFallback();
+      } else {
+        // AI Success! Let's map it.
+        setItems(prevItems => {
+          const newItems = [...prevItems];
+          const newItem = { ...newItems[itemIndex] };
+          
+          const newSlots: MeetingSlot[] = [];
+          let remainingJp = newItem.allocated_jp;
+          
+          for (let i = 0; i < numMeetings; i++) {
+            const jpForThisSlot = Math.min(remainingJp, defaultJpPerMeeting);
+            // Use AI title if available, otherwise fallback to string
+            const aiTitle = data.titles[i];
+            
+            newSlots.push({
+              sequence: i + 1,
+              title: aiTitle || `Pertemuan ${i + 1}`,
+              planned_jp: jpForThisSlot
+            });
+            remainingJp -= jpForThisSlot;
+          }
+          
+          newItem.slots = newSlots;
+          newItems[itemIndex] = newItem;
+          return newItems;
+        });
+      }
+    } catch (err) {
+      console.error("Auto Suggest Exception:", err);
+      toast.error("Terjadi kesalahan sistem saat menghubungi AI. Menggunakan format standar sementara.");
+      applyFallback();
+    } finally {
+      setIsGeneratingTitles(prev => ({ ...prev, [itemIndex]: false }));
     }
-    
-    item.slots = newSlots;
-    setItems(newItems);
   };
 
   const handleAddSlot = (itemIndex: number) => {
-    const newItems = [...items];
-    const item = newItems[itemIndex];
-    
-    item.slots.push({
-      sequence: item.slots.length + 1,
-      title: `Pertemuan ${item.slots.length + 1}`,
-      planned_jp: defaultJpPerMeeting
+    setItems(prevItems => {
+      const newItems = [...prevItems];
+      const item = { ...newItems[itemIndex] };
+      
+      item.slots = [...item.slots, {
+        sequence: item.slots.length + 1,
+        title: `Pertemuan ${item.slots.length + 1}`,
+        planned_jp: defaultJpPerMeeting
+      }];
+      
+      newItems[itemIndex] = item;
+      return newItems;
     });
-    
-    setItems(newItems);
   };
 
   const handleUpdateSlot = (itemIndex: number, slotIndex: number, field: keyof MeetingSlot, value: any) => {
-    const newItems = [...items];
-    newItems[itemIndex].slots[slotIndex] = {
-      ...newItems[itemIndex].slots[slotIndex],
-      [field]: value
-    };
-    setItems(newItems);
+    setItems(prevItems => {
+      const newItems = [...prevItems];
+      const item = { ...newItems[itemIndex] };
+      const newSlots = [...item.slots];
+      
+      newSlots[slotIndex] = {
+        ...newSlots[slotIndex],
+        [field]: value
+      };
+      
+      item.slots = newSlots;
+      newItems[itemIndex] = item;
+      return newItems;
+    });
   };
 
   const handleRemoveSlot = (itemIndex: number, slotIndex: number) => {
-    const newItems = [...items];
-    newItems[itemIndex].slots.splice(slotIndex, 1);
-    
-    // Resequence remaining slots
-    newItems[itemIndex].slots.forEach((s, i) => {
-      s.sequence = i + 1;
+    setItems(prevItems => {
+      const newItems = [...prevItems];
+      const item = { ...newItems[itemIndex] };
+      const newSlots = [...item.slots];
+      
+      newSlots.splice(slotIndex, 1);
+      
+      // Resequence remaining slots
+      newSlots.forEach((s, i) => {
+        s.sequence = i + 1;
+      });
+      
+      item.slots = newSlots;
+      newItems[itemIndex] = item;
+      return newItems;
     });
-    
-    setItems(newItems);
   };
 
   const handleSave = async () => {
@@ -201,15 +310,15 @@ export const StepMeeting: React.FC<StepMeetingProps> = ({ workspace, onNext, isL
         </div>
       ) : (
         <>
-          <div className="flex border-b mb-4">
+          <div className="tabs-wrapper">
             <button 
-              className={`px-6 py-3 font-medium text-sm transition-colors border-b-2 ${activeSemester === 1 ? 'border-primary text-primary' : 'border-transparent text-slate-500 hover:text-slate-800'}`}
+              className={`tab-item ${activeSemester === 1 ? 'active' : ''}`}
               onClick={() => setActiveSemester(1)}
             >
               Semester 1
             </button>
             <button 
-              className={`px-6 py-3 font-medium text-sm transition-colors border-b-2 ${activeSemester === 2 ? 'border-primary text-primary' : 'border-transparent text-slate-500 hover:text-slate-800'}`}
+              className={`tab-item ${activeSemester === 2 ? 'active' : ''}`}
               onClick={() => setActiveSemester(2)}
             >
               Semester 2
@@ -229,31 +338,36 @@ export const StepMeeting: React.FC<StepMeetingProps> = ({ workspace, onNext, isL
                 const isUnder = totalSlotJp > 0 && totalSlotJp < item.allocated_jp;
 
                 return (
-                  <div key={item.id} className="border rounded-lg bg-white overflow-hidden shadow-sm">
+                  <div key={item.id} className="topik-card">
                     {/* Header Topik */}
-                    <div className="bg-slate-50 p-4 border-b flex justify-between items-center">
+                    <div className="card-head">
                       <div>
                         <div className="flex items-center gap-2 mb-1">
-                          <span className="bg-slate-200 text-slate-700 text-xs font-bold px-2 py-0.5 rounded">Topik {item.sequence}</span>
+                          <span className="badge-topik">Topik {item.sequence}</span>
                           <h3 className="font-semibold text-slate-800">{item.materi_pokok}</h3>
                         </div>
                         <p className="text-xs text-muted-foreground">Alokasi Total: <strong className="text-slate-700">{item.allocated_jp} JP</strong></p>
                       </div>
                       
                       <div className="flex items-center gap-4 text-sm">
-                        <div className={`px-3 py-1 rounded-full font-medium ${
-                          isOver ? 'bg-red-100 text-red-700' : 
-                          isUnder ? 'bg-amber-100 text-amber-700' : 
-                          'bg-green-100 text-green-700'
+                        <div className={`badge-terjadwal ${
+                          isOver ? 'err' : 
+                          isUnder ? 'warn' : 
+                          'ok'
                         }`}>
-                          Terjadwal: {totalSlotJp} / {item.allocated_jp} JP
+                          {isOver ? '✕ ' : isUnder ? '⚠ ' : '✓ '} Terjadwal: {totalSlotJp} / {item.allocated_jp} JP
                         </div>
-                        <Button variant="outline" size="sm" onClick={() => {
+                        <button className="btn-auto-suggest" disabled={isGeneratingTitles[realIdx]} onClick={() => {
                           if (isLocked && onShowUpsell) onShowUpsell();
                           else handleAutoSuggest(realIdx);
                         }}>
-                          <Wand2 className="w-3.5 h-3.5 mr-2" /> Auto Suggest
-                        </Button>
+                          {isGeneratingTitles[realIdx] ? (
+                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          ) : (
+                            <Wand2 className="w-3.5 h-3.5" />
+                          )}
+                          Auto Suggest
+                        </button>
                       </div>
                     </div>
 
@@ -270,16 +384,16 @@ export const StepMeeting: React.FC<StepMeetingProps> = ({ workspace, onNext, isL
                           </Button>
                         </div>
                       ) : (
-                        <div className="grid gap-3">
+                        <div className="p-4">
                           {item.slots.map((slot, sIdx) => (
-                            <div key={sIdx} className="flex gap-3 items-center group">
-                              <div className="w-12 text-center text-sm font-medium text-slate-400">#{slot.sequence}</div>
+                            <div key={sIdx} className="row-pertemuan group relative pr-10">
+                              <div className="row-nomor">#{slot.sequence}</div>
                               <div className="flex-1">
                                 <Input 
                                   value={slot.title} 
                                   onChange={e => handleUpdateSlot(realIdx, sIdx, "title", e.target.value)} 
                                   placeholder="Nama Pertemuan" 
-                                  className="h-9"
+                                  className="h-9 bg-white"
                                 />
                               </div>
                               <div className="w-24 relative">
@@ -289,18 +403,18 @@ export const StepMeeting: React.FC<StepMeetingProps> = ({ workspace, onNext, isL
                                   max="8"
                                   value={slot.planned_jp || ""} 
                                   onChange={e => handleUpdateSlot(realIdx, sIdx, "planned_jp", parseInt(e.target.value) || 0)} 
-                                  className="h-9 pr-8"
+                                  className="h-9 pr-8 bg-white"
                                 />
                                 <span className="absolute right-3 top-2.5 text-xs text-muted-foreground">JP</span>
                               </div>
-                              <div className="w-36 text-xs text-muted-foreground flex items-center gap-1 bg-slate-50 px-2 h-9 rounded border">
+                              <div className="badge-durasi">
                                 <Clock className="w-3.5 h-3.5" />
                                 {slot.planned_jp ? `${slot.planned_jp * menitPerJp} menit` : '-'}
                               </div>
                               <Button 
                                 variant="ghost" 
                                 size="icon" 
-                                className="h-9 w-9 text-slate-400 hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity" 
+                                className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 text-slate-400 hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity" 
                                 onClick={() => handleRemoveSlot(realIdx, sIdx)}
                               >
                                 <Trash2 className="w-4 h-4" />
@@ -308,14 +422,12 @@ export const StepMeeting: React.FC<StepMeetingProps> = ({ workspace, onNext, isL
                             </div>
                           ))}
                           
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            className="w-fit mt-1 text-primary hover:text-primary hover:bg-primary/5"
+                          <button 
+                            className="btn-tambah-pertemuan"
                             onClick={() => handleAddSlot(realIdx)}
                           >
-                            <Plus className="w-4 h-4 mr-1" /> Tambah Pertemuan
-                          </Button>
+                            <Plus className="w-4 h-4" /> Tambah Pertemuan
+                          </button>
                         </div>
                       )}
                     </div>
@@ -327,10 +439,15 @@ export const StepMeeting: React.FC<StepMeetingProps> = ({ workspace, onNext, isL
         </>
       )}
 
-      <div className="pt-4 border-t flex justify-end">
-        <Button onClick={handleSave} disabled={isSaving || items.length === 0}>
-          {isSaving ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Menyimpan...</> : "Simpan & Kembali ke Dashboard"}
-        </Button>
+      <div className="pt-6 mt-4 border-t border-slate-200 flex justify-between items-center">
+        <div className="footer-hint">Pastikan jumlah JP terjadwal sesuai dengan alokasi Prosem.</div>
+        <button className="btn-simpan" onClick={handleSave} disabled={isSaving || items.length === 0}>
+          {isSaving ? (
+            <span className="flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Menyimpan...</span>
+          ) : (
+            "Simpan & Selesai"
+          )}
+        </button>
       </div>
     </div>
   );
