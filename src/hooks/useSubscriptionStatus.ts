@@ -28,7 +28,7 @@ export const useSubscriptionStatus = () => {
       const { data } = await supabase
         .from('allowed_customers')
         .select('account_type, subscription_expires_at')
-        .eq('user_id', user!.id)
+        .eq('email', user!.email)
         .maybeSingle();
 
       const accountType = ((data as any)?.account_type ?? 'unknown') as AccountType;

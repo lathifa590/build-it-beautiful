@@ -190,7 +190,7 @@ const Auth = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="email@anda.com"
-                    className="w-full pl-11 pr-4 py-3 border-2 border-foreground/30 rounded-lg focus:border-foreground outline-none bg-background transition-colors"
+                    className="w-full !pl-11 pr-4 py-3 border-2 border-foreground/30 rounded-lg focus:border-foreground outline-none bg-background transition-colors"
                     required
                   />
                 </div>
@@ -250,7 +250,7 @@ const Auth = () => {
                     type="email"
                     value={email}
                     disabled
-                    className="w-full pl-11 pr-4 py-3 border-2 border-foreground/30 rounded-lg bg-muted text-muted-foreground"
+                    className="w-full !pl-11 pr-4 py-3 border-2 border-foreground/30 rounded-lg bg-muted text-muted-foreground"
                   />
                 </div>
               </div>
@@ -266,7 +266,7 @@ const Auth = () => {
                     value={displayName}
                     onChange={(e) => setDisplayName(e.target.value)}
                     placeholder="Nama lengkap Anda"
-                    className="w-full pl-11 pr-4 py-3 border-2 border-foreground/30 rounded-lg focus:border-foreground outline-none bg-background transition-colors"
+                    className="w-full !pl-11 pr-4 py-3 border-2 border-foreground/30 rounded-lg focus:border-foreground outline-none bg-background transition-colors"
                     required
                   />
                 </div>
@@ -283,7 +283,7 @@ const Auth = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Minimal 6 karakter"
-                    className="w-full pl-11 pr-12 py-3 border-2 border-foreground/30 rounded-lg focus:border-foreground outline-none bg-background transition-colors"
+                    className="w-full !pl-11 pr-12 py-3 border-2 border-foreground/30 rounded-lg focus:border-foreground outline-none bg-background transition-colors"
                     required
                     minLength={6}
                   />
@@ -308,7 +308,7 @@ const Auth = () => {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="Ulangi password"
-                    className="w-full pl-11 pr-4 py-3 border-2 border-foreground/30 rounded-lg focus:border-foreground outline-none bg-background transition-colors"
+                    className="w-full !pl-11 pr-4 py-3 border-2 border-foreground/30 rounded-lg focus:border-foreground outline-none bg-background transition-colors"
                     required
                     minLength={6}
                   />
@@ -366,7 +366,7 @@ const Auth = () => {
                     type="email"
                     value={email}
                     disabled
-                    className="w-full pl-11 pr-4 py-3 border-2 border-foreground/30 rounded-lg bg-muted text-muted-foreground"
+                    className="w-full !pl-11 pr-4 py-3 border-2 border-foreground/30 rounded-lg bg-muted text-muted-foreground"
                   />
                 </div>
               </div>
@@ -382,7 +382,7 @@ const Auth = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Masukkan password"
-                    className="w-full pl-11 pr-12 py-3 border-2 border-foreground/30 rounded-lg focus:border-foreground outline-none bg-background transition-colors"
+                    className="w-full !pl-11 pr-12 py-3 border-2 border-foreground/30 rounded-lg focus:border-foreground outline-none bg-background transition-colors"
                     required
                   />
                   <button
