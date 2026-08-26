@@ -435,7 +435,7 @@ const AdminCustomers = () => {
               placeholder="Cari email, nama, atau telepon..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-11 pr-4 py-3 border-2 border-foreground/30 rounded-lg focus:border-foreground outline-none bg-background transition-colors"
+              className="w-full !pl-11 pr-4 py-3 border-2 border-foreground/30 rounded-lg focus:border-foreground outline-none bg-background transition-colors"
             />
           </div>
           {filter !== 'all' && (

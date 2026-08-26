@@ -267,7 +267,7 @@ const AdminUsers = () => {
             placeholder="Cari pengguna berdasarkan nama atau email..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-12 pr-4 py-3 bg-card border-2 border-foreground/30 rounded-xl focus:border-foreground outline-none transition-colors"
+            className="w-full !pl-12 pr-4 py-3 bg-card border-2 border-foreground/30 rounded-xl focus:border-foreground outline-none transition-colors"
           />
         </div>
 
