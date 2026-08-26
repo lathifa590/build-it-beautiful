@@ -1,4 +1,5 @@
 import { Save, Trash2, History, Loader2 } from 'lucide-react';
+import { useConfirm } from '@/contexts/ConfirmContext';
 import { useContentHistory, useDeleteContentHistory, type ContentHistoryItem } from '@/hooks/useContentHistory';
 
 interface ContentHistoryManagerProps {
@@ -18,6 +19,7 @@ export const ContentHistoryManager = ({
 }: ContentHistoryManagerProps) => {
   const { data: historyItems = [], isLoading } = useContentHistory();
   const deleteHistoryMutation = useDeleteContentHistory();
+  const { confirm } = useConfirm();
 
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value;
@@ -36,7 +38,12 @@ export const ContentHistoryManager = ({
   const handleDelete = async () => {
     if (!selectedHistoryId) return;
     
-    const confirmed = window.confirm('Hapus riwayat konten ini?');
+    const confirmed = await confirm({
+      title: "Hapus Riwayat?",
+      description: "Hapus riwayat konten ini?",
+      confirmText: "Hapus",
+      variant: "destructive"
+    });
     if (!confirmed) return;
 
     try {

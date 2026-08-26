@@ -6,6 +6,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import type { ProtaData, ProsemData, KKTPData } from '@/types/modul';
 import { CreateWorkspaceModal } from './CreateWorkspaceModal';
 import { toast } from 'sonner';
+import { useConfirm } from '@/contexts/ConfirmContext';
 
 export const WorkspaceDashboard = ({ 
   onNavigate,
@@ -25,14 +26,17 @@ export const WorkspaceDashboard = ({
   onShowUpsell?: () => void;
 }) => {
   const { activeWorkspace, duplicateWorkspace, archiveWorkspace } = useWorkspace();
+  const { confirm, prompt } = useConfirm();
   const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);
   const [isArchiving, setIsArchiving] = React.useState(false);
 
   const handleArchive = async () => {
     if (!activeWorkspace) return;
-    const confirmed = window.confirm(
-      `Arsipkan workspace "${activeWorkspace.subject} - Kelas ${activeWorkspace.grade}"?\n\nWorkspace akan disembunyikan dari daftar aktif. Anda dapat memulihkannya kapan saja dari section Arsip.`
-    );
+    const confirmed = await confirm({
+      title: "Arsipkan Workspace?",
+      description: `Arsipkan workspace "${activeWorkspace.subject} - Kelas ${activeWorkspace.grade}"?\n\nWorkspace akan disembunyikan dari daftar aktif. Anda dapat memulihkannya kapan saja dari section Arsip.`,
+      confirmText: "Arsipkan"
+    });
     if (!confirmed) return;
     setIsArchiving(true);
     const ok = await archiveWorkspace(activeWorkspace.id);
@@ -155,8 +159,13 @@ export const WorkspaceDashboard = ({
                 Pengaturan Workspace
               </DropdownMenuItem>
               <DropdownMenuItem 
-                onClick={() => {
-                  const newYear = window.prompt("Masukkan Tahun Ajaran baru (contoh: 2025/2026):", "2025/2026");
+                onClick={async () => {
+                  const newYear = await prompt({
+                    title: "Duplikasi Workspace",
+                    description: "Masukkan Tahun Ajaran baru",
+                    inputPlaceholder: "contoh: 2025/2026",
+                    defaultValue: "2025/2026"
+                  });
                   if (newYear) {
                     duplicateWorkspace(activeWorkspace.id, newYear).then((success) => {
                       if (success) toast.success('Workspace berhasil diduplikasi!');

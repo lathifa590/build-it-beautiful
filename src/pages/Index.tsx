@@ -59,6 +59,7 @@ import { HeaderHistoryDropdown } from '@/components/modul/HeaderHistoryDropdown'
 import { WorkspaceUpsellDialog } from '@/components/modul/WorkspaceUpsellDialog';
 import { useContentHistory, useSaveContentHistory, useDeleteContentHistory, useUpdateContentHistory, type ContentHistoryItem } from '@/hooks/useContentHistory';
 import { useAuth } from '@/contexts/AuthContext';
+import { useConfirm } from '@/contexts/ConfirmContext';
 import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { 
   useTeacherProfiles, 
@@ -103,6 +104,7 @@ import { WorkspaceMeetingEditor } from '@/components/workspace/explorer/Workspac
 const Index = () => {
   const navigate = useNavigate();
   const { user, signOut, isAdmin, isLoading: isAuthLoading } = useAuth();
+  const { confirm } = useConfirm();
   const isAgencyOwner = useIsAgencyOwner();
 
   // Cloud profiles
@@ -813,13 +815,16 @@ const Index = () => {
     }
   };
 
-  const resetAll = () => {
+  const resetAll = async () => {
     // Reset lifecycle V2: batalkan antrean & buang seluruh dokumen V2.
     if (isV2Mode) {
       if (pertemuanV2.isGenerating) {
-        const ok = window.confirm(
-          'Proses generate masih berjalan. Batalkan antrean dan reset semua hasil?',
-        );
+        const ok = await confirm({
+          title: "Reset Semua Hasil?",
+          description: "Proses generate masih berjalan. Batalkan antrean dan reset semua hasil?",
+          confirmText: "Reset",
+          variant: "destructive"
+        });
         if (!ok) return;
       }
       pertemuanV2.resetV2();
@@ -839,8 +844,14 @@ const Index = () => {
     setActiveTab('modul');
   };
 
-  const resetForm = () => {
-    if (window.confirm('Bersihkan isi form untuk membuat modul baru? (Data identitas profil akan dipertahankan)')) {
+  const resetForm = async () => {
+    const ok = await confirm({
+      title: "Bersihkan Form?",
+      description: "Bersihkan isi form untuk membuat modul baru? (Data identitas profil akan dipertahankan)",
+      confirmText: "Bersihkan",
+      variant: "destructive"
+    });
+    if (ok) {
       if (selectedProfile) {
         const profile = cloudProfiles.find((p) => p.name === selectedProfile);
         if (profile) {
@@ -852,7 +863,7 @@ const Index = () => {
       } else {
         setFormData(DEFAULT_FORM_DATA);
       }
-      showNotificationMessage('Form telah dibersihkan.');
+      showNotificationMessage('Form dibersihkan.');
     }
   };
 
@@ -1000,11 +1011,13 @@ const Index = () => {
    * Cegah menyimpan riwayat ketika antrean generate V2 masih berjalan
    * (status `pending` bukan hasil final).
    */
-  const guardSaveWhileGenerating = (): boolean => {
+  const guardSaveWhileGenerating = async (): Promise<boolean> => {
     if (!isV2Mode || !pertemuanV2.isGenerating) return true;
-    return window.confirm(
-      'Proses generate masih berjalan. Dokumen yang belum selesai tidak akan tersimpan. Lanjut menyimpan?',
-    );
+    return await confirm({
+      title: "Proses Sedang Berjalan",
+      description: "Proses generate masih berjalan. Dokumen yang belum selesai tidak akan tersimpan. Lanjut menyimpan?",
+      confirmText: "Lanjut Simpan"
+    });
   };
 
   /** Buang seluruh state dokumen legacy (dipakai saat pindah ke mode V2). */
@@ -1131,7 +1144,7 @@ const Index = () => {
       showNotificationMessage('Nama riwayat tidak boleh kosong!', 'error');
       return;
     }
-    if (!guardSaveWhileGenerating()) return;
+    if (!(await guardSaveWhileGenerating())) return;
 
     try {
       await saveHistoryMutation.mutateAsync({
@@ -1166,7 +1179,7 @@ const Index = () => {
       showNotificationMessage('Nama riwayat tidak boleh kosong!', 'error');
       return;
     }
-    if (!guardSaveWhileGenerating()) return;
+    if (!(await guardSaveWhileGenerating())) return;
     try {
       await updateHistoryMutation.mutateAsync({
         id: selectedHistoryId,
@@ -1206,7 +1219,12 @@ const Index = () => {
   const handleDeleteHistory = async () => {
     if (!selectedHistoryId) return;
     
-    const confirmed = window.confirm('Hapus riwayat konten ini?');
+    const confirmed = await confirm({
+      title: "Hapus Riwayat?",
+      description: "Hapus riwayat konten ini?",
+      confirmText: "Hapus",
+      variant: "destructive"
+    });
     if (!confirmed) return;
 
     try {

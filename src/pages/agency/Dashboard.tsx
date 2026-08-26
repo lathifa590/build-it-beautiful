@@ -8,6 +8,7 @@ import {
   CheckCircle2, Clock, XCircle, Send, MessageCircle, Sparkles, AlertTriangle, RotateCw,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useConfirm } from '@/contexts/ConfirmContext';
 
 const SUPPORT_WA = '6288228511309';
 const TIERS = ['mini', 'lite', 'pro', 'max'] as const;
@@ -381,11 +382,17 @@ function InviteForm({ owner, onInvited }: { owner: AgencyOwner; onInvited: () =>
 
 function ReinviteButton({ email, tier, owner, onDone }: { email: string; tier: string; owner: AgencyOwner; onDone: () => void }) {
   const [loading, setLoading] = useState(false);
+  const { confirm } = useConfirm();
   const remain = (owner as any)[`${tier}_quota`] - (owner as any)[`${tier}_used`];
 
   const reinvite = async () => {
     if (remain < 1) return toast.error(`Kuota ${tier.toUpperCase()} habis. Restock dulu.`);
-    if (!confirm(`Kirim ulang invite untuk ${email} (tier ${tier.toUpperCase()})? Akan menggunakan 1 slot kuota.`)) return;
+    const confirmed = await confirm({
+      title: "Kirim Ulang Invite?",
+      description: `Kirim ulang invite untuk ${email} (tier ${tier.toUpperCase()})? Akan menggunakan 1 slot kuota.`,
+      confirmText: "Kirim Ulang"
+    });
+    if (!confirmed) return;
     setLoading(true);
     const { error } = await supabase.rpc('create_agency_invite', {
       _email: email,

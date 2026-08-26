@@ -6,7 +6,8 @@ import { Loader2, Plus, Trash2, Wand2, Target, Calendar, Layers, CheckSquare } f
 import { CPSelectorModal } from "@/components/modul/CPSelectorModal";
 import { supabase } from "@/integrations/supabase/client";
 import { Workspace } from "@/types/workspace";
-import { useTpGenerator } from "@/hooks/useTpGenerator";
+import { useTpGenerator } from '@/hooks/useTpGenerator';
+import { useConfirm } from '@/contexts/ConfirmContext';
 import { KalenderPendidikanForm } from "@/components/modul/KalenderPendidikanForm";
 import type { KalenderPendidikan } from "@/types/modul";
 import { DEFAULT_KALENDER_PENDIDIKAN } from "@/lib/constants";
@@ -36,6 +37,8 @@ export const StepCpTp: React.FC<StepCpTpProps> = ({ workspace, onNext, isLocked,
   const [tpItems, setTpItems] = useState<TPItem[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
+  const { confirm } = useConfirm();
+  const [showCPSelector, setShowCPSelector] = useState(false);
 
   const { generate: generateTp, isLoading: isGenerating, error: genError } = useTpGenerator();
 
@@ -116,6 +119,20 @@ export const StepCpTp: React.FC<StepCpTpProps> = ({ workspace, onNext, isLocked,
     setTpItems(newItems);
   };
 
+  const clearCP = async () => {
+    const ok = await confirm({
+      title: "Ganti Capaian Pembelajaran?",
+      description: "Yakin ingin mengganti CP? Data TP dan KKTP yang sudah ada akan direset.",
+      confirmText: "Ganti",
+      variant: "destructive"
+    });
+    if (ok) {
+      setCpContent("");
+      setTpItems([]);
+      setShowCPSelector(true);
+    }
+  };
+
   const handleGenerateAI = async () => {
     if (!cpContent) {
       alert("Pilih Capaian Pembelajaran terlebih dahulu.");
@@ -123,8 +140,13 @@ export const StepCpTp: React.FC<StepCpTpProps> = ({ workspace, onNext, isLocked,
     }
 
     if (tpItems.length > 0) {
-      const confirmMsg = "Generate ulang akan mengganti daftar TP saat ini. Lanjutkan?";
-      if (!window.confirm(confirmMsg)) {
+      const confirmed = await confirm({
+        title: "Generate Ulang TP?",
+        description: "Generate ulang akan mengganti daftar TP saat ini. Lanjutkan?",
+        confirmText: "Lanjutkan",
+        variant: "destructive"
+      });
+      if (!confirmed) {
         return;
       }
     }

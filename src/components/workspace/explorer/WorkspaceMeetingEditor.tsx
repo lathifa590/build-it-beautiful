@@ -14,11 +14,13 @@ import { useTeacherProfiles } from "@/hooks/useTeacherProfiles";
 import { useToast } from "@/hooks/use-toast";
 import { SoalConfigModal } from "@/components/modul/SoalConfigModal";
 import { useV2Export } from "@/hooks/useV2Export";
+import { useConfirm } from "@/contexts/ConfirmContext";
 import { V2ExportDialog } from "@/components/modul/V2ExportDialog";
 import type { V2ExportScope, V2ExportFormat } from "@/lib/pertemuan-export";
 
 interface WorkspaceMeetingEditorProps {
   workspace: Workspace;
+  meetingId: string;
   onBack: () => void;
   isLocked?: boolean;
   onShowUpsell?: () => void;
@@ -41,6 +43,7 @@ export const WorkspaceMeetingEditor: React.FC<WorkspaceMeetingEditorProps> = ({
   const [activeJenis, setActiveJenis] = useState<JenisDokumenPertemuan>("modul");
   const [isPreviewFullscreen, setIsPreviewFullscreen] = useState(false);
   const { toast } = useToast();
+  const { confirm } = useConfirm();
   const [isSuggestingDesain, setIsSuggestingDesain] = useState(false);
   const [isKontekstualisasiCP, setIsKontekstualisasiCP] = useState(false);
   const [showSoalModal, setShowSoalModal] = useState(false);
@@ -452,8 +455,14 @@ export const WorkspaceMeetingEditor: React.FC<WorkspaceMeetingEditorProps> = ({
     }
   };
 
-  const handleReset = () => {
-    if (window.confirm("Yakin ingin mereset hasil dokumen (panel kanan) untuk pertemuan ini? Form (panel kiri) akan dipertahankan. (Tekan Simpan Perubahan jika ingin menghapusnya permanen dari database)")) {
+  const handleReset = async () => {
+    const confirmed = await confirm({
+      title: "Reset Hasil Dokumen?",
+      description: "Yakin ingin mereset hasil dokumen (panel kanan) untuk pertemuan ini? Form (panel kiri) akan dipertahankan. (Tekan Simpan Perubahan jika ingin menghapusnya permanen dari database)",
+      confirmText: "Reset",
+      variant: "destructive"
+    });
+    if (confirmed) {
       pertemuanV2.resetV2();
       toast({ description: "Dokumen pertemuan telah direset. Silakan klik Generate untuk membuat ulang." });
     }
