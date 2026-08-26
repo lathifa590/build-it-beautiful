@@ -25,11 +25,24 @@ export const useSubscriptionStatus = () => {
     enabled: !!user,
     staleTime: 60_000,
     queryFn: async () => {
-      const { data } = await supabase
+      // Try to find by user_id first (most reliable after claim-customer runs).
+      // Fallback to email for cases where admin added the user after initial sign-in
+      // and claim-customer hasn't re-run (user_id may still be null on the row).
+      let { data } = await supabase
         .from('allowed_customers')
         .select('account_type, subscription_expires_at')
-        .eq('email', user!.email)
+        .eq('user_id', user!.id)
         .maybeSingle();
+
+      // Fallback: query by email if user_id lookup returned nothing
+      if (!data && user!.email) {
+        const { data: dataByEmail } = await supabase
+          .from('allowed_customers')
+          .select('account_type, subscription_expires_at')
+          .eq('email', user!.email.toLowerCase())
+          .maybeSingle();
+        data = dataByEmail;
+      }
 
       const accountType = ((data as any)?.account_type ?? 'unknown') as AccountType;
       const expiresAt = (data as any)?.subscription_expires_at ?? null;
