@@ -6,11 +6,15 @@ import { useAuth } from '@/contexts/AuthContext';
 interface WorkspaceContextType {
   activeWorkspace: Workspace | null;
   setActiveWorkspace: (workspace: Workspace | null) => void;
-  workspaces: Workspace[];
+  workspaces: Workspace[];           // only active (not archived)
+  archivedWorkspaces: Workspace[];   // only archived
   isLoading: boolean;
   refreshWorkspaces: () => Promise<void>;
   duplicateWorkspace: (workspaceId: string, newAcademicYear: string) => Promise<boolean>;
   createWorkspace: (workspace: Omit<Workspace, 'id' | 'user_id' | 'created_at'>) => Promise<Workspace | null>;
+  archiveWorkspace: (workspaceId: string) => Promise<boolean>;
+  restoreWorkspace: (workspaceId: string) => Promise<boolean>;
+  deleteWorkspace: (workspaceId: string) => Promise<boolean>;
 }
 
 const WorkspaceContext = createContext<WorkspaceContextType | undefined>(undefined);
@@ -18,12 +22,14 @@ const WorkspaceContext = createContext<WorkspaceContextType | undefined>(undefin
 export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
+  const [archivedWorkspaces, setArchivedWorkspaces] = useState<Workspace[]>([]);
   const [activeWorkspace, setActiveWorkspace] = useState<Workspace | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const refreshWorkspaces = async () => {
     if (!user) {
       setWorkspaces([]);
+      setArchivedWorkspaces([]);
       setActiveWorkspace(null);
       setIsLoading(false);
       return;
@@ -38,16 +44,19 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
 
       if (error) throw error;
       
-      const loadedWorkspaces = data as Workspace[];
-      setWorkspaces(loadedWorkspaces);
+      const all = data as Workspace[];
+      const active = all.filter(w => !w.is_archived);
+      const archived = all.filter(w => w.is_archived);
+
+      setWorkspaces(active);
+      setArchivedWorkspaces(archived);
       
-      // Auto-select the first workspace if none is active but we have workspaces
-      if (loadedWorkspaces.length > 0 && !activeWorkspace) {
-        // Look for a previously selected workspace in localStorage
+      // Auto-select first active workspace if none is selected
+      if (active.length > 0 && !activeWorkspace) {
         const savedId = localStorage.getItem('active_workspace_id');
-        const toSelect = savedId ? loadedWorkspaces.find(w => w.id === savedId) || loadedWorkspaces[0] : loadedWorkspaces[0];
+        const toSelect = savedId ? active.find(w => w.id === savedId) || active[0] : active[0];
         setActiveWorkspace(toSelect);
-      } else if (loadedWorkspaces.length === 0) {
+      } else if (active.length === 0) {
         setActiveWorkspace(null);
       }
     } catch (err) {
@@ -61,12 +70,63 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     refreshWorkspaces();
   }, [user]);
 
+  const archiveWorkspace = async (workspaceId: string): Promise<boolean> => {
+    try {
+      const { error } = await supabase
+        .from('workspaces')
+        .update({ is_archived: true, archived_at: new Date().toISOString() } as any)
+        .eq('id', workspaceId);
+      if (error) throw error;
+      // If archiving the active workspace, clear it
+      if (activeWorkspace?.id === workspaceId) {
+        setActiveWorkspace(null);
+      }
+      await refreshWorkspaces();
+      return true;
+    } catch (err) {
+      console.error('Error archiving workspace:', err);
+      return false;
+    }
+  };
+
+  const restoreWorkspace = async (workspaceId: string): Promise<boolean> => {
+    try {
+      const { error } = await supabase
+        .from('workspaces')
+        .update({ is_archived: false, archived_at: null } as any)
+        .eq('id', workspaceId);
+      if (error) throw error;
+      await refreshWorkspaces();
+      return true;
+    } catch (err) {
+      console.error('Error restoring workspace:', err);
+      return false;
+    }
+  };
+
+  const deleteWorkspace = async (workspaceId: string): Promise<boolean> => {
+    try {
+      const { error } = await supabase
+        .from('workspaces')
+        .delete()
+        .eq('id', workspaceId);
+      if (error) throw error;
+      if (activeWorkspace?.id === workspaceId) {
+        setActiveWorkspace(null);
+      }
+      await refreshWorkspaces();
+      return true;
+    } catch (err) {
+      console.error('Error deleting workspace:', err);
+      return false;
+    }
+  };
+
   const duplicateWorkspace = async (workspaceId: string, newAcademicYear: string): Promise<boolean> => {
     if (!user) return false;
     
     try {
       setIsLoading(true);
-      // 1. Get the original workspace
       const { data: originalWs, error: wsError } = await supabase
         .from('workspaces')
         .select('*')
@@ -75,7 +135,6 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         
       if (wsError || !originalWs) throw wsError || new Error('Workspace not found');
       
-      // 2. Create the new workspace
       const { data: newWs, error: insertError } = await supabase
         .from('workspaces')
         .insert({
@@ -90,7 +149,6 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         
       if (insertError) throw insertError;
       
-      // 3. Duplicate curriculum plans (Prota & KKTP)
       const { data: originalPlans, error: plansError } = await supabase
         .from('curriculum_plans')
         .select('*')
@@ -102,7 +160,6 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
           type: plan.type,
           content: plan.content,
         }));
-        
         await supabase.from('curriculum_plans').insert(newPlans);
       }
       
@@ -159,10 +216,14 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         activeWorkspace,
         setActiveWorkspace,
         workspaces,
+        archivedWorkspaces,
         isLoading,
         refreshWorkspaces,
         duplicateWorkspace,
         createWorkspace,
+        archiveWorkspace,
+        restoreWorkspace,
+        deleteWorkspace,
       }}
     >
       {children}
