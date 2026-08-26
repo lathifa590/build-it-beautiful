@@ -2,9 +2,10 @@ import React from 'react';
 import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { Button } from '@/components/ui/button';
 import { BookOpen, Calendar, CheckCircle2, AlertTriangle, FileText, BarChart3, Settings, MoreVertical, Copy, Archive } from 'lucide-react';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import type { ProtaData, ProsemData, KKTPData } from '@/types/modul';
 import { CreateWorkspaceModal } from './CreateWorkspaceModal';
+import { toast } from 'sonner';
 
 export const WorkspaceDashboard = ({ 
   onNavigate,
@@ -23,8 +24,22 @@ export const WorkspaceDashboard = ({
   isLocked?: boolean;
   onShowUpsell?: () => void;
 }) => {
-  const { activeWorkspace, duplicateWorkspace } = useWorkspace();
+  const { activeWorkspace, duplicateWorkspace, archiveWorkspace } = useWorkspace();
   const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);
+  const [isArchiving, setIsArchiving] = React.useState(false);
+
+  const handleArchive = async () => {
+    if (!activeWorkspace) return;
+    const confirmed = window.confirm(
+      `Arsipkan workspace "${activeWorkspace.subject} - Kelas ${activeWorkspace.grade}"?\n\nWorkspace akan disembunyikan dari daftar aktif. Anda dapat memulihkannya kapan saja dari section Arsip.`
+    );
+    if (!confirmed) return;
+    setIsArchiving(true);
+    const ok = await archiveWorkspace(activeWorkspace.id);
+    setIsArchiving(false);
+    if (ok) toast.success('Workspace diarsipkan. Lihat section Arsip untuk memulihkan.');
+    else toast.error('Gagal mengarsipkan workspace.');
+  };
 
   if (!activeWorkspace) {
     return (
@@ -144,8 +159,8 @@ export const WorkspaceDashboard = ({
                   const newYear = window.prompt("Masukkan Tahun Ajaran baru (contoh: 2025/2026):", "2025/2026");
                   if (newYear) {
                     duplicateWorkspace(activeWorkspace.id, newYear).then((success) => {
-                      if (success) alert("Workspace berhasil diduplikasi!");
-                      else alert("Gagal menduplikasi workspace.");
+                      if (success) toast.success('Workspace berhasil diduplikasi!');
+                      else toast.error('Gagal menduplikasi workspace.');
                     });
                   }
                 }}
@@ -154,9 +169,14 @@ export const WorkspaceDashboard = ({
                 <Copy className="w-4 h-4 mr-2" />
                 Duplikasi Workspace
               </DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer py-2 text-red-600 focus:text-red-600 focus:bg-red-50">
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={handleArchive}
+                disabled={isArchiving}
+                className="cursor-pointer py-2 text-amber-600 focus:text-amber-700 focus:bg-amber-50"
+              >
                 <Archive className="w-4 h-4 mr-2" />
-                Arsipkan Workspace
+                {isArchiving ? 'Mengarsipkan...' : 'Arsipkan Workspace'}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

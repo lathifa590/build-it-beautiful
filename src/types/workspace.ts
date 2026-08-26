@@ -11,7 +11,8 @@ export interface Workspace {
   default_jp_per_meeting: number;
   created_at: string;
   updated_at: string;
-  archived_at?: string;
+  is_archived: boolean;
+  archived_at?: string | null;
 }
 
 export interface CurriculumPlan {
