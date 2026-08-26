@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { ImageIcon, Upload, Trash2, Loader2, Info } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
+import { useConfirm } from '@/contexts/ConfirmContext';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -46,6 +47,7 @@ export const LetterheadControl = ({
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [localError, setLocalError] = useState<string | null>(null);
+  const { confirm } = useConfirm();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -90,8 +92,14 @@ export const LetterheadControl = ({
     setLocalError(null);
   };
 
-  const handleDelete = () => {
-    if (confirm('Yakin ingin menghapus kop sekolah?')) {
+  const handleDelete = async () => {
+    const confirmed = await confirm({
+      title: "Hapus Kop Surat?",
+      description: "Yakin ingin menghapus kop sekolah?",
+      confirmText: "Hapus",
+      variant: "destructive"
+    });
+    if (confirmed) {
       onDelete();
     }
   };

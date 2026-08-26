@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Loader2, Sparkles, Plus, Trash2, Pencil, X } from 'lucide-react';
 import { toast } from 'sonner';
+import { useConfirm } from '@/contexts/ConfirmContext';
 
 interface Promo {
   id: string;
@@ -27,6 +28,7 @@ function toLocalInput(iso: string) {
 
 export default function AgencyPromos() {
   const qc = useQueryClient();
+  const { confirm } = useConfirm();
   const [editing, setEditing] = useState<Promo | null>(null);
   const [open, setOpen] = useState(false);
 
@@ -45,7 +47,13 @@ export default function AgencyPromos() {
   const refresh = () => qc.invalidateQueries({ queryKey: ['agency-promos-admin'] });
 
   const remove = async (id: string) => {
-    if (!confirm('Hapus promo ini?')) return;
+    const confirmed = await confirm({
+      title: "Hapus Promo?",
+      description: "Yakin ingin menghapus promo ini?",
+      confirmText: "Hapus",
+      variant: "destructive"
+    });
+    if (!confirmed) return;
     const { error } = await supabase.from('agency_promos' as any).delete().eq('id', id);
     if (error) return toast.error(error.message);
     toast.success('Promo dihapus');

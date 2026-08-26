@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { useProsemData } from '@/hooks/useProsemData';
 import { toast } from 'sonner';
 import { Workspace } from '@/types/workspace';
+import { useConfirm } from '@/contexts/ConfirmContext';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -123,12 +124,15 @@ const WorkspaceCard = ({ ws, onClick }: { ws: Workspace; onClick: () => void }) 
   const { archiveWorkspace } = useWorkspace();
   const { totalJp, completedJp, progress, statusText, isLoading } = useWorkspaceProgress(ws.id);
   const [isArchiving, setIsArchiving] = React.useState(false);
+  const { confirm } = useConfirm();
 
   const handleArchive = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    const confirmed = window.confirm(
-      `Arsipkan "${ws.subject} - Kelas ${ws.grade}"?\n\nWorkspace akan disembunyikan dari daftar aktif. Bisa dipulihkan kapan saja.`
-    );
+    const confirmed = await confirm({
+      title: "Arsipkan Workspace?",
+      description: `Arsipkan "${ws.subject} - Kelas ${ws.grade}"?\n\nWorkspace akan disembunyikan dari daftar aktif. Bisa dipulihkan kapan saja.`,
+      confirmText: "Arsipkan"
+    });
     if (!confirmed) return;
     setIsArchiving(true);
     const ok = await archiveWorkspace(ws.id);
@@ -195,12 +199,15 @@ const WorkspaceListCard = ({ ws, onClick }: { ws: Workspace; onClick: () => void
   const { archiveWorkspace } = useWorkspace();
   const { totalJp, completedJp, progress, statusText, isLoading } = useWorkspaceProgress(ws.id);
   const [isArchiving, setIsArchiving] = React.useState(false);
+  const { confirm } = useConfirm();
 
   const handleArchive = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    const confirmed = window.confirm(
-      `Arsipkan "${ws.subject} - Kelas ${ws.grade}"?\n\nWorkspace akan disembunyikan dari daftar aktif. Bisa dipulihkan kapan saja.`
-    );
+    const confirmed = await confirm({
+      title: "Arsipkan Workspace?",
+      description: `Arsipkan "${ws.subject} - Kelas ${ws.grade}"?\n\nWorkspace akan disembunyikan dari daftar aktif. Bisa dipulihkan kapan saja.`,
+      confirmText: "Arsipkan"
+    });
     if (!confirmed) return;
     setIsArchiving(true);
     const ok = await archiveWorkspace(ws.id);
