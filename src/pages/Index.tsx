@@ -1447,6 +1447,7 @@ const Index = () => {
         },
         kaitanKehidupan: prev.kaitanKehidupan || autoGen.kaitan_kehidupan || '',
         dimensiProfilLulusan: prev.dimensiProfilLulusan?.length > 0 ? prev.dimensiProfilLulusan : (autoGen.dimensi_profil_lulusan || []),
+        dimensiProfilLulusanDeskripsi: prev.dimensiProfilLulusanDeskripsi || autoGen.dpl_deskripsi,
         nilaiKarakter: prev.nilaiKarakter?.length > 0 ? prev.nilaiKarakter : (autoGen.nilai_karakter || []),
         lintasDisiplinIlmu: {
           ppkn: prev.lintasDisiplinIlmu.ppkn || autoGen.lintas_disiplin?.ppkn || '',
@@ -1477,6 +1478,7 @@ const Index = () => {
           asesmen: prev.pemanfaatanDigitalDetail.asesmen || autoGen.pemanfaatan_digital?.asesmen || '',
         },
         topikPancaCinta: (prev.topikPancaCinta?.length > 0 ? prev.topikPancaCinta : (autoGen.topik_panca_cinta || prev.topikPancaCinta || [])),
+        topikPancaCintaDeskripsi: prev.topikPancaCintaDeskripsi || autoGen.panca_cinta_deskripsi,
         materiIntegrasiKBC: prev.materiIntegrasiKBC || autoGen.materi_integrasi_kbc || '',
       }));
       showNotificationMessage('Modul + data auto-fill berhasil dibuat!');

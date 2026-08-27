@@ -1,468 +1,278 @@
-# 📘 Panduan Lengkap ModulAjar.Online
+# 📘 Panduan & Tutorial Lengkap ModulAjar.Online
 
-Selamat datang! Dokumen ini adalah **manual pengguna** untuk aplikasi **ModulAjar.Online** — platform pembuat perangkat ajar berbasis AI untuk guru Kurikulum Merdeka (Deep Learning & KBC).
+Selamat datang di pusat bantuan dan panduan tutorial **ModulAjar.Online**. Aplikasi ini adalah platform pembuat perangkat ajar berbasis AI terlengkap untuk guru Kurikulum Merdeka, yang memadukan pendekatan *Deep Learning* (Mindful, Meaningful, Joyful) dan Konsep Berbasis Capaian (KBC).
 
-Panduan disusun dari hal paling sederhana sampai fitur paling kompleks. Cari bagian yang Anda butuhkan lewat Daftar Isi di bawah.
+Dokumen ini disusun sebagai **Bahan Tutorial Langkah Demi Langkah (Step-by-Step)**. Silakan ikuti daftar isi di bawah untuk mempelajari semua fitur mulai dari tingkat dasar hingga mahir.
 
 ---
 
 ## 🗂️ Daftar Isi
 
-1. [Pengantar](#1-pengantar)
-2. [Memulai (Akses & Login)](#2-memulai-akses--login)
-3. [Install di HP (PWA)](#3-install-di-hp-pwa)
-4. [Tipe Akun & Kuota](#4-tipe-akun--kuota)
-5. [Mengenal Tampilan Utama](#5-mengenal-tampilan-utama)
-6. [Profil Guru & Kop Surat](#6-profil-guru--kop-surat)
-7. [Membuat Modul Ajar (Alur Utama)](#7-membuat-modul-ajar-alur-utama)
-8. [Tab Turunan: LKPD, Asesmen, Bank Soal, Materi, Refleksi](#8-tab-turunan)
-9. [Perencanaan: Prota, Prosem, KKTP, Kalender](#9-perencanaan-prota-prosem-kktp-kalender)
-10. [Riwayat (History) Hasil](#10-riwayat-history-hasil)
-11. [Ekspor: Word, PDF, Prompt](#11-ekspor-word-pdf-prompt)
-12. [Pengaturan Akun](#12-pengaturan-akun)
-13. [Panduan Admin](#13-panduan-admin)
-14. [Panduan Reseller / Agency](#14-panduan-reseller--agency)
-15. [Tips & Trik](#15-tips--trik)
-16. [FAQ & Troubleshooting](#16-faq--troubleshooting)
-17. [Kontak & Dukungan](#17-kontak--dukungan)
+1. [Pengantar & Konsep Utama](#1-pengantar--konsep-utama)
+2. [Memulai (Akses, Login, & Instalasi PWA)](#2-memulai-akses-login--instalasi-pwa)
+3. [Tipe Akun & Paket Langganan](#3-tipe-akun--paket-langganan)
+4. [Mengenal Dua Mode: Mode Cepat vs Mode Workspace](#4-mengenal-dua-mode-mode-cepat-vs-mode-workspace)
+5. **[Tutorial 1]** [Mode Cepat (Quick Mode): Modul Instan Tanpa Ribet](#5-tutorial-1-mode-cepat-quick-mode-modul-instan-tanpa-ribet)
+6. **[Tutorial 2]** [Mode Workspace: Alur Perencanaan (CP, Prota, Prosem)](#6-tutorial-2-mode-workspace-alur-perencanaan-cp-prota-prosem)
+7. **[Tutorial 3]** [Workspace Explorer & Meeting Editor (Eksekusi Modul)](#7-tutorial-3-workspace-explorer--meeting-editor-eksekusi-modul)
+8. **[Tutorial 4]** [Tab Turunan, Regenerate Konten, & Edit Langsung](#8-tutorial-4-tab-turunan-regenerate-konten--edit-langsung)
+9. **[Tutorial 5]** [Ekspor Dokumen & Gabung Multipertemuan (V2)](#9-tutorial-5-ekspor-dokumen--gabung-multipertemuan-v2)
+10. [Pengaturan Profil Guru & Kop Surat](#10-pengaturan-profil-guru--kop-surat)
+11. [Manajemen Arsip & Duplikasi Workspace](#11-manajemen-arsip--duplikasi-workspace)
+12. [Panduan Kemitraan & Reseller](#12-panduan-kemitraan--reseller)
+13. [FAQ & Troubleshooting](#13-faq--troubleshooting)
+14. [Kontak & Dukungan](#14-kontak--dukungan)
 
 ---
 
-## 1. Pengantar
+## 1. Pengantar & Konsep Utama
 
-**ModulAjar.Online** membantu guru menyusun perangkat ajar secara cepat dan sesuai standar Kurikulum Merdeka (Pembelajaran Mendalam & KBC).
-
-### Yang bisa Anda buat
-- 📄 **Modul Ajar** (RPP) lengkap 12 bagian dengan kerangka Deep Learning (Mindful, Meaningful, Joyful)
-- 📝 **LKPD** (Lembar Kerja Peserta Didik)
-- ✅ **Asesmen** (Diagnostik, Formatif, Sumatif)
-- 🧠 **Bank Soal** dengan standar TKA (stimulus, pilihan ganda, esai)
-- 📚 **Materi Ajar**
-- 🪞 **Refleksi pembelajaran**
-- 📅 **Prota** (Program Tahunan), **Prosem** (Program Semester), **KKTP** (4 level), **Kalender Pendidikan**
-
-### Untuk siapa
-- Guru SD/SMP/SMA/SMK semua mapel
-- Kepala sekolah / wakasek kurikulum
-- Reseller / agency pendidikan
+### Apa yang bisa Anda buat di sini?
+Tidak hanya sekadar RPP, sistem kami mengotomatisasi seluruh administrasi Anda:
+- 📄 **Modul Ajar 12 Komponen:** Otomatis mengandung unsur *Deep Learning* (Pendahuluan yang *Mindful*, Inti yang *Meaningful*, dan Penutup yang *Joyful*).
+- 📝 **LKPD (Lembar Kerja Peserta Didik):** Dilengkapi langkah kerja dan rubrik.
+- ✅ **Asesmen Lengkap:** Mulai dari Diagnostik (Awal), Formatif (Proses), hingga Sumatif (Akhir).
+- 🧠 **Bank Soal Berbasis TKA:** Menyediakan soal dengan stimulus, C1-C6, PG Kompleks, Isian, dll.
+- 📚 **Materi Ajar:** Bahan bacaan komprehensif bagi siswa.
+- 🪞 **Refleksi:** Lembar refleksi terstruktur untuk guru dan siswa.
+- 📅 **Dokumen Perencanaan:** Pemetaan CP & TP, Prota (Program Tahunan), Prosem (Program Semester), KKTP.
 
 ---
 
-## 2. Memulai (Akses & Login)
+## 2. Memulai (Akses, Login, & Instalasi PWA)
 
-### 📌 Alamat aplikasi
-Buka browser (Chrome / Safari / Edge) lalu ketik:
-
-```
-https://modulajar.online
-```
-
-> Halaman pertama yang muncul adalah **Landing Page** dengan tombol **Masuk** dan **Beli Sekarang**.
-
-### 🔑 Login
-
-1. Klik tombol **"Masuk"** di kanan atas landing page.
-2. Anda akan diarahkan ke halaman `/auth`.
-3. Masukkan **email** dan **password** Anda.
-4. Klik **"Login"**.
-
-### ✉️ Login dengan Magic Link (tanpa password)
-1. Di halaman login, klik **"Login dengan Magic Link"**.
-2. Masukkan email Anda.
-3. Buka email yang masuk, klik link → otomatis masuk ke aplikasi.
-
-### 🆕 Daftar Akun Baru
-1. Di halaman `/auth`, pilih tab **"Daftar"**.
-2. Isi **Nama**, **Email**, **Password** (min. 6 karakter).
-3. Klik **"Daftar"**.
-4. Cek email Anda untuk verifikasi (jika diminta).
-
-> 💡 Jika Anda sudah membeli paket melalui Lynk.id menggunakan email yang sama, akun Anda akan **otomatis aktif** dengan paket yang dibeli (auto-claim).
-
-### 🔄 Lupa Password
-1. Di halaman login, klik **"Lupa Password?"**.
-2. Masukkan email → cek inbox → ikuti instruksi reset.
-
-### 🧪 Akun Demo
-Untuk mencoba aplikasi tanpa daftar:
-- **Email:** `demo@modulajar.com`
-- **Password:** (tanyakan ke admin / lihat halaman landing)
+1. Buka browser (Chrome / Safari) dan akses: **`https://modulajar.online`**
+2. Klik **Masuk** pada pojok kanan atas.
+3. Anda bisa login menggunakan Email & Password, ATAU menggunakan fitur **Login dengan Magic Link** (tautan ajaib akan dikirim ke email Anda agar bisa masuk tanpa mengetik password).
+4. **Instalasi ke HP (PWA):**
+   - **Android (Chrome):** Klik ikon titik tiga di kanan atas browser → pilih *"Tambahkan ke Layar Utama"*.
+   - **iPhone (Safari):** Wajib gunakan Safari. Tap ikon Share (kotak panah atas) di bawah → pilih *"Tambah ke Layar Utama"*.
+   - Aplikasi akan terpasang layaknya aplikasi Android/iOS biasa tanpa perlu mengunduh lewat App Store/Play Store.
 
 ---
 
-## 3. Install di HP (PWA)
+## 3. Tipe Akun & Paket Langganan
 
-Aplikasi ini adalah **PWA** (Progressive Web App), jadi bisa diinstall di HP seperti aplikasi native — tanpa Play Store / App Store.
+Sistem langganan terbaru ModulAjar.Online dibagi menjadi 3 tingkatan, yang dapat Anda cek di menu **Settings (Pengaturan)**:
 
-### 📱 Android (Chrome)
-1. Buka `https://modulajar.online` di **Chrome**.
-2. Tap ikon **titik tiga** di kanan atas browser.
-3. Pilih **"Tambahkan ke Layar Utama"** atau **"Install aplikasi"**.
-4. Ikon ModulAjar akan muncul di home screen HP Anda.
+- **1. Paket Lite (Rp 49.000 / 3 bulan):** 
+  Mendapatkan akses penuh **Mode Cepat**, pembuatan Modul Multi-Pertemuan untuk uji coba atau pemakaian jangka pendek selama 3 bulan. Fitur Workspace Perencanaan (Prota/Prosem) terkunci.
+  
+- **2. Paket Standar (Rp 149.000 / tahun):** 
+  Sama seperti Paket Lite, memberikan akses **Mode Cepat** (tanpa fitur manajemen kelas/Workspace) dengan masa aktif 1 tahun penuh. Cocok untuk kebutuhan pembuatan modul yang instan tanpa terikat kalender akademik.
 
-### 🍎 iPhone (Safari)
-1. Buka `https://modulajar.online` di **Safari** (wajib Safari, bukan Chrome).
-2. Tap ikon **Share** (kotak dengan panah ke atas).
-3. Scroll ke bawah → pilih **"Tambah ke Layar Utama"**.
-4. Tap **"Tambah"**.
-
-### 💻 Desktop (Chrome / Edge)
-- Akan muncul ikon **install** (⬇️) di kanan address bar. Klik → Install.
-- Atau klik tombol **"Install Aplikasi"** di header aplikasi.
-
-> ✅ Setelah install, aplikasi terbuka **layar penuh tanpa address bar** persis seperti aplikasi native.
+- **3. Paket Pro (Rp 197.000 / tahun):** 
+  *Highly Recommended!* Anda mendapatkan semua fitur Paket Standar DITAMBAH akses penuh ke **Mode Workspace**. Mode ini membuka fitur Manajemen Dokumen Terstruktur, pembuatan Prota & Prosem, KKTP, auto-save per pertemuan, dan integrasi penuh selama setahun ajaran.
 
 ---
 
-## 4. Tipe Akun & Kuota
+## 4. Mengenal Dua Mode: Mode Cepat vs Mode Workspace
 
-| Paket | Harga | Kuota | Berlaku |
-|---|---|---|---|
-| 🧪 **Trial** | Gratis | Terbatas per hari | Tidak ada batas waktu |
-| 📅 **Annual** | Rp 149.000/tahun (~Rp 12.500/bulan) | Tidak terbatas | 1 tahun, harus diperpanjang |
-| 💎 **Lifetime** | Pembelian sekali | Tidak terbatas | Selamanya |
+Aplikasi kini dirancang melayani dua tipe guru: guru yang sedang terburu-buru dan guru yang rapi secara administratif.
 
-### Cara upgrade
-1. Klik **"Beli Sekarang"** di landing page, **atau**
-2. Buka **Settings** → bagian Langganan → **Upgrade**.
-3. Anda diarahkan ke halaman pembayaran Lynk.id.
-4. Setelah bayar, akun **otomatis aktif** (sinkron otomatis).
+### ⚡ Mode Cepat (Akses: `/app`)
+Mode Cepat berfungsi layaknya *generator instan*. Anda dihadapkan pada satu halaman formulir besar untuk membuat modul secara cepat (termasuk multi-pertemuan) tanpa harus melewati proses pembuatan Program Tahunan / Program Semester terlebih dahulu.
 
-### Cek sisa kuota
-Lihat **indikator kuota** (chip kecil di header / toolbar). Format:
-- Trial: `Sisa: 3/5 hari ini`
-- Annual: `Aktif s/d 12 Jun 2027`
-- Lifetime: `♾️ Lifetime`
-
-⚠️ **Jika kuota habis:** tombol generate akan dinonaktifkan dan muncul dialog untuk upgrade.
+### 🏢 Mode Workspace (Akses: `/app/workspace`)
+Mode Workspace adalah "Ruang Kerja" digital. Anda membuat ruang khusus per kelas (misal: "Matematika - Kelas 4"). Di sini Anda merencanakan 1 tahun ajaran utuh mulai dari CP, Prota, hingga Prosem, dan sistem akan menyimpan riwayat pertemuan secara otomatis per jadwal kalender akademik.
 
 ---
 
-## 5. Mengenal Tampilan Utama
+## 5. [Tutorial 1] Mode Cepat (Quick Mode): Modul Instan Tanpa Ribet
 
-Setelah login, Anda masuk ke **halaman utama** (`/app`).
+Mode Cepat sangat cocok jika Anda ingin segera mencetak Modul Ajar (beserta LKPD, Asesmen, dll.) untuk satu materi tanpa terikat dengan kalender akademik penuh. 
 
-### Bagian-bagian utama
+### Langkah 1: Mengisi Identitas & Profil Guru
+1. Pastikan Anda berada di halaman Mode Cepat (`/app`).
+2. Di pojok kanan atas formulir input, klik menu dropdown **Profil Guru**. 
+3. Anda dapat memilih profil yang sudah pernah dibuat, atau membuat profil baru yang berisi kelengkapan instansi (Nama Guru, NIP, Nama Sekolah, Kepala Sekolah, dan NIP Kepala Sekolah).
+4. Profil yang dipilih ini akan disematkan secara otomatis di dokumen akhir Anda.
 
-```
-┌─────────────────────────────────────────────────┐
-│  [Logo]  Kuota  ⛶  ↺  ⋮          ← HEADER     │
-├─────────────────────────────────────────────────┤
-│  [Modul] [LKPD] [Asesmen] [Soal] [Materi] ...  │ ← TOOLBAR
-├──────────────────┬──────────────────────────────┤
-│  FORM INPUT      │  PREVIEW HASIL               │
-│  - Mapel         │  (mirip Word document)       │
-│  - Fase/Kelas    │                              │
-│  - CP            │                              │
-│  - dst.          │                              │
-└──────────────────┴──────────────────────────────┘
-```
+### Langkah 2: Mengisi Informasi Dasar Pembelajaran
+Isi formulir utama yang berada di kolom sebelah kiri:
+- **Mata Pelajaran:** (Misal: Matematika, Bahasa Indonesia).
+- **Fase & Kelas:** (Pilih Fase A-F, maka opsi Kelas akan menyesuaikan secara otomatis).
+- **Materi Pokok / Topik:** (Sangat disarankan spesifik, misal: "Operasi Hitung Pecahan Campuran").
+- **Karakteristik Peserta Didik (Opsional):** Bila perlu, ketikkan profil siswa kelas Anda. Ini akan membantu AI membuat modul berdiferensiasi yang cocok (misal: "Siswa lebih banyak visual learner").
 
-### Header (kiri ke kanan)
-- **Logo + Nama Aplikasi**
-- **Indikator Kuota / Status Langganan**
-- **⛶ Fullscreen** preview (terutama untuk mobile)
-- **↺ Reset** — kosongkan form & hasil (hati-hati!)
-- **⋮ Menu titik tiga** — berisi: Settings, Riwayat, Reseller (jika reseller), Admin (jika admin), Logout
+### Langkah 3: Memilih Capaian Pembelajaran (CP)
+Ini adalah langkah krusial agar modul Anda diakui sesuai dengan standar Kurikulum Merdeka.
+1. Klik tombol biru **"Pilih CP"**. Modal direktori CP akan terbuka.
+2. Sistem secara otomatis menyaring CP berdasarkan Fase dan Mapel Anda. 
+3. Pilih "Elemen" (misal: Bilangan / Aljabar). 
+4. Centang CP yang paling relevan untuk topik Anda, lalu klik **Simpan**.
 
-### Toolbar Generate
-Tombol-tombol untuk menghasilkan tiap dokumen:
-- **Modul** — Modul Ajar utama
-- **LKPD** — Lembar Kerja
-- **Asesmen** — penilaian
-- **Soal** — Bank Soal
-- **Materi** — bahan ajar
-- **Refleksi** — refleksi guru & siswa
+### Langkah 4: Multipertemuan & Generate Modul Ajar
+Aplikasi mendukung pembuatan untuk lebih dari satu pertemuan dalam sekali permohonan.
+1. Di bawah formulir utama, terdapat bagian **Daftar Pertemuan**.
+2. Anda bisa menambah (*Add*) jadwal pertemuan (contoh: Pertemuan 1, Pertemuan 2, dst).
+3. Atur durasi **Jam Pelajaran (JP)** spesifik untuk setiap pertemuan.
+4. Klik tombol utama **"Generate Modul"**.
+5. Tunggu sekitar 10-30 detik. Sistem AI akan merangkai 12 komponen Modul Ajar (dari Pendahuluan *Mindful*, Inti *Meaningful*, hingga Penutup *Joyful*) yang tampil di layar sebelah kanan (Pratinjau).
 
-> Jika sebuah tombol punya badge kecil ↻, artinya konten sudah pernah dibuat dan klik akan **regenerate**.
-
-### Panel Preview
-Hasil selalu ditampilkan dengan **gaya mirip Word** (font Times New Roman, A4, page break otomatis). Anda bisa:
-- 🖱️ **Klik bagian teks** untuk edit langsung
-- ⛶ **Fullscreen** di mobile dengan tap tombol maximize
-- 📤 **Export** ke Word / PDF dari menu
-
-### Mode Fullscreen (mobile)
-- Tap **⛶** di header → preview menutupi seluruh layar.
-- Di atas ada **pill selector** untuk pindah tab (Modul/LKPD/dst.).
-- Di kanan-bawah ada **FAB (tombol bulat)** untuk Regenerate tab aktif, Export, Toggle Kop Surat, dll.
-- Tap **⛶** lagi untuk keluar fullscreen.
+> 💡 *Jika Anda men-generate banyak pertemuan sekaligus, perhatikan tab navigasi [Pertemuan 1], [Pertemuan 2] di atas pratinjau dokumen untuk berpindah ke dokumen pertemuan yang berbeda.*
 
 ---
 
-## 6. Profil Guru & Kop Surat
+## 6. [Tutorial 2] Mode Workspace: Alur Perencanaan (CP, Prota, Prosem)
 
-### Membuat Profil Guru
-1. Di form input, klik **"Profil Guru"** → **"+ Tambah Profil"**.
-2. Isi: **Nama Guru, NIP, Nama Sekolah, Alamat, Kepala Sekolah, NIP Kepsek, Tahun Ajaran**.
-3. Klik **Simpan**.
+Jika Anda adalah pengguna Pro dan ingin sistem yang sangat rapi untuk laporan akreditasi/sekolah, mulailah administrasi tahunan Anda dengan langkah berikut:
 
-> 💡 Anda bisa menyimpan **banyak profil** (misal kalau mengajar di 2 sekolah). Tinggal pilih dari dropdown sebelum generate.
+### Langkah 1: Buat Workspace Baru
+Di halaman utama `/app/workspace`, klik tombol **"Buat Workspace Pertama"**. Isi formulir awal: Mata Pelajaran, Fase, Kelas, dan Tahun Ajaran (misal 2026/2027).
 
-### Mengatur Kop Surat (Letterhead)
-1. Buka panel **Kop Surat** di samping form.
-2. Upload **logo kiri** (dinas/yayasan) dan **logo kanan** (sekolah).
-3. Isi teks kop (Dinas, Sekolah, Alamat, Telepon, NPSN).
-4. Aktifkan toggle **"Gunakan Kop Surat"**.
+### Langkah 2: Pahami Dashboard Workspace
+Setelah masuk ke Workspace, Anda melihat sebuah *Dashboard*. Di situ terdapat dua kartu utama:
+1. **Status Perencanaan:** Indikator ceklis apakah Prota, Prosem, dan KKTP Anda sudah berstatus hijau.
+2. **Progres Modul Ajar:** Lingkaran progres *(Progress Ring)* yang melacak berapa JP modul yang sudah selesai dibuat dibandingkan dengan janji jadwal Anda di Prosem.
+*Klik tombol "Mulai Perencanaan" di Dashboard ini untuk memulai alur 4 Tahap.*
 
-> Saat export Word/PDF, kop akan otomatis muncul di **header dokumen**.
+### Langkah 3: Perencanaan (Step 1 - CP & TP)
+1. Aplikasi menampilkan antarmuka pemilihan **Capaian Pembelajaran (CP)**.
+2. Centang Capaian Pembelajaran dan Tujuan Pembelajaran (TP) dari database kementerian yang ingin Anda ajarkan **selama 1 tahun penuh**.
 
----
+### Langkah 4: Perencanaan (Step 2 - Prota)
+1. Di layar Prota, deretan TP yang Anda pilih tadi akan berjejer.
+2. Tugas Anda adalah membagi **Alokasi Waktu (JP)** untuk setiap TP tersebut, dan meletakkannya di Semester 1 atau Semester 2.
+3. Klik tombol *Generate Prota* untuk mengunci dokumen Program Tahunan Anda.
 
-## 7. Membuat Modul Ajar (Alur Utama)
+### Langkah 5: Perencanaan (Step 3 - Prosem)
+1. Anda wajib mengisi form **Kalender Pendidikan** terlebih dahulu. Tentukan tanggal kapan Semester 1 dimulai dan berapa minggu efektifnya.
+2. Masukkan daftar *Event* sekolah (Kapan libur, UTS, UAS, pembagian raport).
+3. Klik *Generate Prosem*. Sistem *AI Mapping* akan mem-plot alokasi TP Anda ke minggu-minggu efektif di kalender, lalu melompati minggu libur secara otomatis.
 
-Ini adalah fitur inti. Modul Ajar yang Anda generate akan menjadi **dasar** untuk LKPD, Asesmen, Soal, Materi, dan Refleksi.
-
-### Langkah-langkah
-
-**1️⃣ Pilih Profil Guru** (yang sudah Anda buat di langkah sebelumnya).
-
-**2️⃣ Isi form Modul Ajar:**
-- **Mata Pelajaran** (mis. Matematika)
-- **Fase** (A, B, C, D, E, F) — otomatis menyesuaikan kelas
-- **Kelas** (1–12)
-- **Topik / Materi** (mis. "Operasi Hitung Pecahan")
-- **Jumlah Pertemuan** (1–10)
-- **Alokasi Waktu** (mis. 2 × 35 menit)
-- **Karakteristik Siswa** (opsional)
-
-**3️⃣ Pilih Capaian Pembelajaran (CP)**
-- Klik tombol **"Pilih CP"** → modal CP Selector terbuka.
-- Pilih fase & elemen → daftar CP otomatis tampil dari database resmi.
-- Centang CP yang relevan → **Simpan**.
-
-**4️⃣ Klik tombol "Modul"** di toolbar untuk generate.
-
-**5️⃣ Tunggu** ~10–30 detik. Hasil muncul di panel kanan.
-
-### Struktur Modul Ajar (12 bagian)
-Hasil akan berisi:
-1. Identitas
-2. Capaian Pembelajaran (CP)
-3. Tujuan Pembelajaran (TP)
-4. Pemahaman Bermakna
-5. Pertanyaan Pemantik
-6. Profil Pelajar Pancasila
-7. Sarana & Prasarana
-8. Target Peserta Didik
-9. Model & Metode Pembelajaran
-10. **Kegiatan Pembelajaran** (Pendahuluan → **Inti 3 fase: Mindful + Meaningful + Joyful** → Penutup)
-11. Asesmen (ringkas)
-12. Pengayaan & Remedial
-
-### Edit hasil
-- **Klik teks** mana saja di preview untuk edit inline.
-- Perubahan otomatis tersimpan ke history.
-
-### ⚠️ Regenerasi Modul → Reset Tab Turunan
-Jika Anda klik **Modul lagi**, semua tab turunan (LKPD, Asesmen, Soal, Materi, Refleksi) akan **otomatis di-reset**. Ini disengaja agar tab turunan selalu sinkron dengan Modul terbaru.
-
-> 💡 Untuk pertemuan lebih dari 2, sistem generate **secara berurutan** (sequential) supaya tidak overload AI.
+### Langkah 6: Perencanaan (Step 4 - Pertemuan)
+1. Prosem yang sudah di-plot tersebut dapat Anda tinjau kembali bentuk akhirnya. 
+2. Pada tahap ini, sistem memastikan alokasi JP per minggu terpotong menjadi blok-blok jadwal "Pertemuan" (misal pertemuan 2 JP x 35 menit). 
+3. *Selamat! Perencanaan Anda selesai. Dokumen KKTP (4 level ketercapaian) otomatis digenerate.*
 
 ---
 
-## 8. Tab Turunan
+## 7. [Tutorial 3] Workspace Explorer & Meeting Editor (Eksekusi Modul)
 
-Setelah Modul Ajar jadi, Anda bisa generate dokumen turunan. Klik **tab** di toolbar lalu klik tombol generate-nya.
+Setelah merencanakan jadwal setahun, kembali ke Workspace. Anda akan disambut oleh **Workspace Explorer**.
 
-### 📝 LKPD (Lembar Kerja Peserta Didik)
-1. Klik tab **LKPD** → klik **"Generate LKPD"**.
-2. Hasil berisi: judul, tujuan, alat & bahan, langkah kerja, pertanyaan, rubrik.
-3. Edit & export Word.
+### Menggunakan Workspace Explorer
+1. Di halaman Explorer, perencanaan Prosem Anda kini terbagi ke dalam **Semester 1** dan **Semester 2**.
+2. Anda bisa melihat daftar Topik, lalu di bawahnya ada daftar riil jadwal **Pertemuan** (misal: *Pertemuan 1 - Minggu ke-3 Juli*).
+3. Jadwal pertemuan yang belum ada modulnya akan terlihat pudar. Klik tombol pertemuan tersebut untuk mulai mengeksekusinya. Anda akan masuk ke **Meeting Editor (Editor Pertemuan)**.
 
-### ✅ Asesmen
-LKPD menghasilkan **3 tahap**:
-- **Diagnostik** (awal — cek kemampuan awal siswa)
-- **Formatif** (selama pembelajaran)
-- **Sumatif** (akhir — penilaian akhir)
-
-Klik tab **Asesmen** → **Generate**. Hasil tersusun rapi per tahap.
-
-### 🧠 Bank Soal
-1. Klik tab **Soal** → muncul modal **Konfigurasi Soal**.
-2. Atur:
-   - **Jumlah soal**
-   - **Jenis** (Pilihan Ganda, PG Kompleks, Menjodohkan, Isian Singkat, Esai)
-   - **Level kognitif** (C1–C6)
-   - **Pakai stimulus?** (ya/tidak)
-3. Klik **Generate**.
-
-> ⚠️ **Aturan stimulus**: maksimal **5 soal per stimulus**. Jumlah opsi pilihan ganda otomatis menyesuaikan kelas.
-
-#### Gambar Stimulus
-Jika butuh gambar untuk stimulus, klik **"Generate Gambar Stimulus"** → AI bikinkan ilustrasi yang relevan.
-
-### 📚 Materi Ajar
-Klik tab **Materi** → **Generate**. Hasil berupa bahan bacaan siswa yang **modern, kontekstual**, dengan gaya belajar masa kini.
-
-### 🪞 Refleksi
-Klik tab **Refleksi** → **Generate**. Berisi refleksi untuk **guru** dan **siswa**.
+### Meeting Editor (Editor Pertemuan)
+1. Karena Anda berangkat dari Prosem, seluruh target belajar untuk hari itu sudah **Terisi Otomatis** di editor. Anda tidak perlu mengetik lagi.
+2. Klik **Generate Modul** khusus untuk hari tersebut. 
+3. Voila! AI akan membuatkan Modul Ajar yang presisi hanya untuk jadwal pertemuan di minggu tersebut. Progres persentase Workspace Anda akan otomatis naik.
 
 ---
 
-## 9. Perencanaan: Prota, Prosem, KKTP, Kalender
+## 8. [Tutorial 4] Tab Turunan, Regenerate Konten, & Edit Langsung
 
-Klik tab **Perencanaan** (atau menu Planning) di toolbar.
+Pusat kerja Anda (baik di Mode Cepat maupun Mode Workspace) berada pada area Pratinjau Dokumen. Setelah sebuah Modul utama dibuat, Anda punya kunci untuk membuka dokumen pelengkapnya.
 
-### 📅 Prota (Program Tahunan)
-1. Pilih **mapel, fase, kelas, tahun ajaran**.
-2. Klik **Generate Prota**.
-3. Hasil: tabel berisi seluruh CP & alokasi waktu per semester.
+### Menu Tab Turunan (Dokumen Pelengkap)
+Di baris atas area dokumen, Anda dapat mengklik Tab berikut lalu menekan tombol "Generate":
+1. **LKPD:** Lembar Kerja Siswa yang lengkap dari alat bahan sampai rubrik skor.
+2. **Asesmen:** Pemetaan Penilaian Awal (Diagnostik), Proses (Formatif), dan Akhir (Sumatif).
+3. **Materi:** Bahan bacaan teoritis/faktual untuk pegangan siswa.
+4. **Refleksi:** Jurnal penutup untuk guru dan peserta didik.
+5. **Bank Soal:** Di tab ini muncul *Modal Konfigurasi Soal* di mana Anda bisa menentukan rasio jenis soal (Berapa jumlah PG, Isian Singkat, atau Esai) dan Level Kognitif (C1 sampai C6).
+   - *Keistimewaan:* Tersedia tombol **Generate Gambar Stimulus** agar AI mendesain ilustrasi gambar yang menempel pada soal Anda.
 
-### 📊 Prosem (Program Semester)
-1. Setelah Prota jadi, klik **Prosem**.
-2. Atur **kalender pendidikan** (tanggal mulai, libur, event).
-3. Klik **Generate Prosem**.
-4. Hasil: **grid mingguan** semester berisi materi per minggu, ditandai pula minggu libur/event.
+### ✨ Pembaruan "Regenerate" V2 (Muat Ulang per Bagian)
+Jika hasil AI dirasa kurang memuaskan, **jangan tekan generate utama lagi (karena akan me-reset semuanya)**. 
+- Jika hanya LKPD yang jelek, buka tab **LKPD**, lalu klik tombol kecil berlogo **Panah Berputar (Regenerate)** di area dokumen tersebut. Sistem hanya akan menulis ulang LKPD tanpa mengganggu modul, asesmen, atau soal yang sudah bagus.
 
-### 📋 KKTP (Kriteria Ketercapaian Tujuan Pembelajaran)
-1. Tab **KKTP** → **Generate**.
-2. Hasil: tiap TP dengan **4 level** ketercapaian (Belum Berkembang → Mahir).
-
-### 🗓️ Kalender Pendidikan
-- Isi tanggal-tanggal libur, ujian, event sekolah.
-- Akan dipakai otomatis oleh Prosem.
-
----
-
-## 10. Riwayat (History) Hasil
-
-Semua hasil generate **otomatis tersimpan** di Riwayat. Maksimal **50 item terakhir**.
-
-### Akses
-- Klik **menu ⋮** → **Riwayat**, atau ikon jam di header.
-
-### Yang tersimpan
-- Seluruh state: form, Modul, LKPD, Asesmen, Soal, Materi, Refleksi, **plus Prota/Prosem/KKTP**.
-
-### Memuat ulang
-1. Pilih item dari daftar riwayat.
-2. Klik **"Muat"** → seluruh state aplikasi dikembalikan persis seperti saat tersimpan.
-
-### Hapus
-Klik ikon 🗑️ di item yang ingin dihapus.
+### ✍️ Section Editor (Edit Langsung di Tempat)
+Anda ingin mengubah kata "membaca" menjadi "berdiskusi"?
+1. **Tidak perlu** di-ekspor ke Word dulu!
+2. Arahkan *mouse* ke paragraf atau judul yang ingin Anda ganti di layar pratinjau.
+3. Klik paragraf tersebut. Paragraf itu akan berubah menjadi *Text Box* (kotak ketik).
+4. Edit kalimat sesuka hati Anda, lalu tekan *Enter/Simpan*. Perubahan langsung terkunci di sistem.
 
 ---
 
-## 11. Ekspor: Word, PDF, Prompt
+## 9. [Tutorial 5] Ekspor Dokumen & Gabung Multipertemuan (V2)
 
-Setelah hasil siap, klik menu Export (di toolbar / FAB mobile):
+Sudah selesai meracik seluruh dokumen? Mari kita cetak.
 
-### 📄 Word (.docx)
-- Hasil paling **mirip aslinya** — bisa diedit lagi di MS Word.
-- Otomatis pakai **Kop Surat** jika diaktifkan.
-- Math (rumus) dirender dengan **Unicode** (langsung bisa dibaca di Word).
+### Tombol Ekspor (Export)
+Di pojok kanan antarmuka, cari tombol **Export / Unduh**. Terdapat 2 opsi format:
+- **PDF (.pdf):** Untuk dokumen *Read-Only* siap cetak.
+- **Word (.docx):** Format Microsoft Word yang formatnya sudah di-*styling*. Rumus matematika di Bank Soal akan terekspor sebagai *OMML/Unicode* yang sangat rapi saat dibuka di MS Word (2016+).
 
-### 📕 PDF
-- Untuk dikirim / dicetak.
-- Page break sesuai preview.
-
-### 🤖 Prompt Export
-- Untuk pengguna lanjutan: ekspor prompt yang dipakai AI, agar bisa diperbaiki / di-share.
-
----
-
-## 12. Pengaturan Akun
-
-Buka via **menu ⋮ → Settings** atau langsung ke `/settings`.
-
-Yang bisa diatur:
-- **Ganti Password**
-- **Lihat Statistik Pemakaian** (jumlah generate, breakdown per tipe)
-- **Status Langganan** (jenis paket, expiry)
-- **Logout**
+### 🚀 Ekspor Multipertemuan (V2 Export)
+Jika Anda menggunakan fitur Multipertemuan (di mana Pertemuan 1, Pertemuan 2, dan Pertemuan 3 berada di tab terpisah), maka fitur **V2 Export** ini sangat menghemat waktu.
+1. Saat Anda mengklik Export, pilih Opsi *"Gabungkan Semua Pertemuan"*.
+2. Sistem akan menyedot dokumen Modul dari Pertemuan 1, dilanjut Pertemuan 2, dan Pertemuan 3.
+3. Sistem akan memisahnya dengan *Page Break* otomatis, membubuhkan Kop Surat, dan mengemasnya ke dalam **satu file MS Word (.docx) tunggal**. Anda tidak perlu repot-repot nge-*merge* Word lagi!
 
 ---
 
-## 13. Panduan Admin
+## 10. Pengaturan Profil Guru & Kop Surat
 
-Hanya untuk akun dengan role **admin**. Akses: `/admin`.
+Dokumen resmi butuh kop surat yang elegan.
 
-### Menu Admin
-- **Dashboard** (`/admin`) — statistik pengguna & generate
-- **Pengguna** (`/admin/users`) — kelola semua user, reset password
-- **Pelanggan** (`/admin/customers`) — whitelist email pembeli (Lynk sync)
-- **Paket Agency** (`/admin/agency/packages`)
-- **Pemilik Agency** (`/admin/agency/owners`)
-- **Promo Agency** (`/admin/agency/promos`)
-- **Pengaturan** (`/admin/settings`) — konfigurasi sistem
+1. **Mengatur Profil:** Pergi ke Menu Dropdown Profil di kanan atas → *Settings*. Masukkan data diri, NIP, Kepala Sekolah. Profil ini disisipkan di kolom "Penyusun" dan "Mengetahui" pada akhir file Word Anda.
+2. **Kop Surat (Letterhead):** Di menu Settings yang sama (atau tombol pintas di menu Export), Anda akan menemukan menu Kop Surat.
+   - Upload *Logo Kiri* (Misal logo Tut Wuri Handayani / Dinas Provinsi).
+   - Upload *Logo Kanan* (Logo yayasan atau sekolah Anda).
+   - Ketik nama instansi, alamat, no telepon, NPSN.
+   - Aktifkan tuas *(toggle)* **"Gunakan Kop Surat"**. Semua ekspor Word dan PDF otomatis bermahkotakan kop instansi Anda di *Header* halaman pertama.
 
 ---
 
-## 14. Panduan Reseller / Agency
+## 11. Manajemen Arsip & Duplikasi Workspace
 
-Untuk pemilik agency / reseller. Akses: `/agency`.
+Tahun ajaran berganti, Workspace Anda di beranda mulai penuh.
 
-Di dashboard ini Anda bisa:
-- Melihat **daftar pelanggan** Anda
-- Mengatur **paket & promo** yang ditawarkan
-- Memantau **pemakaian** pelanggan Anda
-- Mendapatkan **link unik** untuk dibagikan ke calon pelanggan
+### Mengarsipkan Workspace (Archive)
+1. Di halaman `/app/workspace`, pada kartu Workspace, klik tombol "Titik Tiga (⋮)".
+2. Pilih **Arsipkan Workspace**. Workspace akan disembunyikan agar tidak membuat penuh layar. Data tidak dihapus dan bisa dikembalikan *(Unarchive)* kapan saja dari tab Arsip.
 
----
-
-## 15. Tips & Trik
-
-### ✍️ Agar hasil AI lebih bagus
-- Tulis **topik** dengan spesifik. Bukan "Matematika kelas 4" tapi "Operasi pecahan campuran kelas 4 semester 1".
-- Isi **Karakteristik Siswa** dengan detail (misal: "20 siswa, mayoritas visual learner, ada 2 ABK").
-- Pilih **CP** yang relevan — jangan terlalu banyak (3–5 CP cukup per modul).
-
-### 🚀 Performa
-- Untuk Modul dengan **> 2 pertemuan**, biarkan sistem generate **bertahap** — jangan refresh halaman.
-- Jika preview terasa berat di HP, **fullscreen mode** lebih ringan.
-
-### 💾 Hemat kuota
-- Manfaatkan **Riwayat** untuk memuat ulang hasil lama, daripada generate dari awal.
-- Edit manual hasil daripada regenerate berkali-kali.
+### Duplikasi Workspace (Copy)
+Anda mengajar "Matematika Kelas 4" tahun lalu, dan tahun ini masih mengajar kelas yang sama?
+1. Klik tombol "Titik Tiga (⋮)" pada Workspace Matematika yang lama.
+2. Pilih **Duplikasi Workspace**.
+3. Ketik Tahun Ajaran baru (misal: 2027/2028).
+4. JRENG! Seluruh Prota, Prosem, Modul, dan materi direplikasi sempurna. Anda tinggal mengubah jadwal libur di kalendernya saja, dan pekerjaan setahun selesai dalam satu klik.
 
 ---
 
-## 16. FAQ & Troubleshooting
+## 12. Panduan Kemitraan & Reseller
 
-### ❓ Tombol Generate harus diklik berkali-kali, baru jalan
-- Sekarang sudah ada **auto-retry** otomatis di backend.
-- Pastikan **koneksi internet stabil**.
-- Cek **sisa kuota** — kalau habis tombol nonaktif.
-- Refresh halaman (F5) lalu coba lagi.
+Kami memiliki program afiliasi *(Agency)*. Jika Anda adalah Reseller, Anda mendapat akses ke menu dasbor khusus.
 
-### ❓ Hasil generate kosong / error
-- Tunggu 5 detik, klik tombol generate sekali lagi.
-- Pastikan **form sudah lengkap** (terutama CP).
-- Logout & login ulang jika error berulang.
-
-### ❓ Kuota habis padahal baru beberapa kali generate
-- Cek di **Settings → Statistik Pemakaian**.
-- Trial punya kuota terbatas per hari — reset otomatis tengah malam.
-
-### ❓ Sudah bayar di Lynk.id tapi akun masih Trial
-- Pastikan **email login** = **email pembelian**.
-- Logout & login ulang (auto-sync akan jalan).
-- Jika masih, hubungi admin.
-
-### ❓ PWA tidak bisa diinstall di HP
-- **Android:** wajib pakai Chrome, bukan in-app browser FB/IG.
-- **iOS:** wajib pakai Safari, bukan Chrome iOS.
-- Pastikan situs dibuka via **HTTPS** (`https://modulajar.online`).
-
-### ❓ Hasil di Word berantakan
-- Pastikan buka di **MS Word 2016+** atau **Google Docs**.
-- Cek apakah **Kop Surat** ukurannya tidak terlalu besar.
-
-### ❓ Bagaimana hapus akun?
-- Hubungi admin via kontak di bawah.
+- **Akses Dashboard Reseller:** Buka menu profil, klik **Agency Dashboard (`/agency`)**.
+- **Fitur Agency:** Di dashboard ini, Anda dapat melihat total klien/pembeli yang berlangganan menggunakan Link Afiliasi Anda.
+- Anda dapat membuat kode promo diskon khusus *(Coupon Codes)* untuk menarik pembeli, serta memantau omzet komisi yang akan Anda terima.
 
 ---
 
-## 17. Kontak & Dukungan
+## 13. FAQ & Troubleshooting
 
-- 🌐 **Website:** [modulajar.online](https://modulajar.online)
-- 📧 **Email:** support@modulajar.online
-- 💬 **Komunitas:** lihat popup komunitas di landing page (grup WhatsApp/Telegram)
-- 🐛 **Lapor bug:** kirim email dengan screenshot + langkah reproduksi
+### ❓ Saya sudah memilih banyak pertemuan di Mode Cepat, tapi kenapa hasilnya cuma satu pertemuan panjang?
+Perhatikan navigasi dokumen di layar tengah-atas! Di V2, agar tidak terlalu panjang (*scroll of death*), kami memecah tampilan menjadi tombol tab `[Pertemuan 1]`, `[Pertemuan 2]`, dsb. Anda harus mengklik masing-masing tab untuk melihat hasil pertemuan tersebut.
+
+### ❓ Saya pelanggan Paket Pro, tapi menu Perencanaan saya tergembok / terkunci?
+Periksa email profil Anda. Pastikan **email yang digunakan login SAMA PERSIS dengan email yang diketik saat pembayaran di Lynk.id**. Jika belum tersinkronisasi, coba klik tombol *Logout* (Keluar) lalu *Login* (Masuk) kembali. 
+
+### ❓ Data Prota & Prosem saya tiba-tiba hilang/kosong?
+Kemungkinan besar Anda sedang menggunakan **Mode Cepat** (url: `/app`). Modul instan Mode Cepat tidak mendukung kalender akademik. Silakan menuju ke `/app/workspace` untuk menggunakan Mode Workspace yang mendukung penuh Prota dan Prosem.
+
+### ❓ Gambar stimulus di Soal hilang atau tata letaknya hancur saat di MS Word!
+Ini bisa terjadi apabila gambar masih dalam proses *rendering* (loading) tapi Anda sudah memencet tombol ekspor. Tunggu hingga gambar tampil sempurna di web. Pastikan juga Anda membuka file tersebut di Microsoft Word 2016 ke atas (versi Word yang terlalu jadul kadang kesulitan merender *layout* modern).
 
 ---
 
-> Dokumen ini akan terus diperbarui seiring rilis fitur baru. Terakhir diperbarui: **Juni 2026**.
->
-> Selamat berkarya, Bapak/Ibu Guru! 🎓✨
+## 14. Kontak & Dukungan
+
+Apabila Anda mengalami kendala atau *bug* teknis yang belum terjawab dalam panduan ini, jangan ragu untuk berinteraksi dengan tim kami:
+
+- 🌐 **Website Utama:** [modulajar.online](https://modulajar.online)
+- 📧 **Dukungan Email:** support@modulajar.online
+- 💬 **Komunitas & Grup:** Temukan tautan grup WhatsApp/Telegram *Official* kami pada halaman *Dashboard* utama.
+- 🐛 **Laporan Bug (Masalah):** Hubungi *Customer Service* dengan melampirkan rekaman layar atau minimal *screenshot* penuh (termasuk *url* browser) agar tim *programmer* kami dapat melacak kendala Anda dengan cepat.
+
+---
+
+> Panduan/Tutorial ini disesuaikan dengan arsitektur rilis **V2.0 - Ekosistem Workspace & Multipertemuan**.
+> Terima kasih telah menjadi pahlawan tanpa tanda jasa. Selamat bereksplorasi dan mencetak generasi hebat! 🎓✨

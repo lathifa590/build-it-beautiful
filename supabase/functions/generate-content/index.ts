@@ -1410,6 +1410,10 @@ ${distribusiInfo}
     },
     "kaitan_kehidupan": "...",
     "dimensi_profil_lulusan": ["DPL 3", "DPL 5"],
+    "dpl_deskripsi": {
+      "DPL 3": "Deskripsi 1-2 kalimat bagaimana DPL 3 diterapkan secara spesifik dalam materi ini.",
+      "DPL 5": "Deskripsi 1-2 kalimat bagaimana DPL 5 diterapkan secara spesifik dalam materi ini."
+    },
     "nilai_karakter": ["Kritis dan Kreatif", "Kolaborasi"],
     "lintas_disiplin": {
       "ppkn": "...",
@@ -1431,6 +1435,10 @@ ${distribusiInfo}
       "asesmen": "..."
     }${isKBC ? `,
     "topik_panca_cinta": ["Cinta kepada Ilmu", "Cinta kepada Diri dan Sesama Manusia"],
+    "panca_cinta_deskripsi": {
+      "Cinta kepada Ilmu": "Deskripsi kontekstual penerapan pilar ini dalam materi...",
+      "Cinta kepada Diri dan Sesama Manusia": "Deskripsi kontekstual penerapan pilar ini dalam materi..."
+    },
     "materi_integrasi_kbc": "- **Cinta kepada Ilmu**: [deskripsi integrasi]\\n- **Cinta kepada Diri dan Sesama Manusia**: [deskripsi integrasi]"` : ''}
   }
 }`;
