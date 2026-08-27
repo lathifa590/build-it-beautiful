@@ -84,6 +84,7 @@ export interface FormData {
   
   // === DIMENSI PROFIL LULUSAN (dengan kode DPL) ===
   dimensiProfilLulusan: string[];
+  dimensiProfilLulusanDeskripsi?: Record<string, string>;
   
   // === DESAIN PEMBELAJARAN ===
   capaianPembelajaran: string;
@@ -103,6 +104,7 @@ export interface FormData {
   
   // === KBC-SPECIFIC FIELDS ===
   topikPancaCinta: string[];
+  topikPancaCintaDeskripsi?: Record<string, string>;
   materiIntegrasiKBC: string;
 
   // === INTEGRASI PROGRAM NASIONAL ===

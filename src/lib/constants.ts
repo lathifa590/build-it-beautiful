@@ -29,7 +29,7 @@ export const semesterOptions = ['1 (Ganjil)', '2 (Genap)'];
 // Dimensi Profil Lulusan dengan kode DPL (sesuai dokumen resmi)
 export const DPL_OPTIONS = [
   { kode: 'DPL 1', nama: 'Keimanan dan Ketakwaan terhadap Tuhan Yang Maha Esa' },
-  { kode: 'DPL 2', nama: 'Kewargaan Global' },
+  { kode: 'DPL 2', nama: 'Kewargaan' },
   { kode: 'DPL 3', nama: 'Penalaran Kritis' },
   { kode: 'DPL 4', nama: 'Kreativitas' },
   { kode: 'DPL 5', nama: 'Kolaborasi' },

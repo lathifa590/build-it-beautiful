@@ -949,9 +949,11 @@ export const DocumentPreview = ({
                   <ul style={{ margin: 0, paddingLeft: '16px' }}>
                     {formData.dimensiProfilLulusan.map((kode, idx) => {
                       const dpl = DPL_OPTIONS.find(d => d.kode === kode);
+                      const desc = formData.dimensiProfilLulusanDeskripsi?.[kode];
                       return (
-                        <li key={idx}>
+                        <li key={idx} style={{ marginBottom: desc ? '6px' : '0' }}>
                           <strong>{kode}:</strong> {dpl?.nama || kode}
+                          {desc && <span> &mdash; {desc}</span>}
                         </li>
                       );
                     })}
@@ -982,9 +984,15 @@ export const DocumentPreview = ({
                   <td style={{ border: '1px solid black', padding: '6px' }}>
                     {(formData as any).topikPancaCinta && (formData as any).topikPancaCinta.length > 0 ? (
                       <ul style={{ margin: 0, paddingLeft: '16px' }}>
-                        {(formData as any).topikPancaCinta.map((elemen: string, idx: number) => (
-                          <li key={idx}>{elemen}</li>
-                        ))}
+                        {(formData as any).topikPancaCinta.map((elemen: string, idx: number) => {
+                          const desc = (formData as any).topikPancaCintaDeskripsi?.[elemen];
+                          return (
+                            <li key={idx} style={{ marginBottom: desc ? '6px' : '0' }}>
+                              <strong>{elemen}</strong>
+                              {desc && <span> &mdash; {desc}</span>}
+                            </li>
+                          );
+                        })}
                       </ul>
                     ) : '-'}
                   </td>
