@@ -70,7 +70,7 @@ describe('FASE 4B — buildV2ExportPlan', () => {
     expect(plan.items).toHaveLength(1);
     expect(plan.items[0].pertemuanId).toBe('p-2');
     expect(plan.items[0].jenis).toBe('soal');
-    expect(plan.filenameBase).toBe('Pertemuan_2_Soal_Bahasa_Inggris');
+    expect(plan.filenameBase).toBe('Soal_P2_Bahasa_Inggris');
   });
 
   it('2. active_meeting hanya dokumen milik meeting aktif', () => {
@@ -87,7 +87,7 @@ describe('FASE 4B — buildV2ExportPlan', () => {
       'asesmen',
       'materi',
     ]);
-    expect(plan.filenameBase).toBe('Pertemuan_1_Lengkap_Bahasa_Inggris');
+    expect(plan.filenameBase).toBe('Lengkap_P1_Bahasa_Inggris');
   });
 
   it('3. complete_package berurutan P1 semua jenis lalu P2 semua jenis', () => {
@@ -105,7 +105,7 @@ describe('FASE 4B — buildV2ExportPlan', () => {
       '2:soal',
       '2:refleksi',
     ]);
-    expect(plan.filenameBase).toBe('Modul_Multi_Pertemuan_Bahasa_Inggris');
+    expect(plan.filenameBase).toBe('Modul_Multi_Bahasa_Inggris');
     expect(plan.pertemuanCount).toBe(2);
   });
 
@@ -201,7 +201,7 @@ describe('FASE 4B — buildV2ExportPlan', () => {
       scope: 'complete_package',
       formData: { mataPelajaran: 'IPA/Fisika: Kelas "X"' },
     });
-    expect(plan.filenameBase).toBe('Modul_Multi_Pertemuan_IPA_Fisika_Kelas_X');
+    expect(plan.filenameBase).toBe('Modul_Multi_IPAFisika_Kelas_X');
   });
 
   it('meeting tidak ditemukan → plan kosong dengan alasan jelas', () => {

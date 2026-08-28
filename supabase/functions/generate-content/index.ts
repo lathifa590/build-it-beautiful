@@ -2062,9 +2062,22 @@ PENTING — FORMAT "remedial" dan "pengayaan":
         const hurufOpsi = kelasNum <= 9 ? 'A-D' : 'A-E';
         const opsiArray = kelasNum <= 9 ? '["...", "...", "...", "..."]' : '["...", "...", "...", "...", "..."]';
         
-        // Deteksi apakah mata pelajaran Bahasa Inggris
         const isEnglishSubjectSoal = /bahasa\s*inggris|english/i.test(data.mataPelajaran || '');
         const isArabicSubjectSoal = /bahasa\s*arab/i.test(data.mataPelajaran || '');
+        const isIndonesianSubjectSoal = /bahasa\s*indonesia/i.test(data.mataPelajaran || '');
+        const isLanguage = isEnglishSubjectSoal || isIndonesianSubjectSoal || isArabicSubjectSoal;
+
+        let stimulusLengthGuide = '';
+        if (kelasNum <= 3) {
+          stimulusLengthGuide = '   - Panjang teks: 3-5 kalimat sederhana (target pembaca kelas 1-3 SD).';
+        } else if (kelasNum <= 6) {
+          stimulusLengthGuide = `   - Panjang teks: 2-3 paragraf utuh (sekitar 100-200 kata, target kelas 4-6 SD).${isLanguage ? ' WAJIB berupa teks bacaan yang komprehensif, BUKAN HANYA 1 paragraf singkat.' : ''}`;
+        } else if (kelasNum <= 9) {
+          stimulusLengthGuide = `   - Panjang teks: 3-4 paragraf yang komprehensif (sekitar 200-350 kata, target SMP).${isLanguage ? ' WAJIB menyajikan bacaan literasi (misal: Narrative, Report, Descriptive) yang mendalam (minimal 3 paragraf utuh). JANGAN BUAT TEKS YANG TERLALU PENDEK.' : ''}`;
+        } else {
+          stimulusLengthGuide = `   - Panjang teks: Teks literasi panjang dan kompleks (sekitar 300-500 kata, target SMA/SMK).${isLanguage ? ' WAJIB menyajikan bacaan tingkat lanjut setara soal UTBK/SNBT. JANGAN BUAT TEKS PENDEK.' : ''}`;
+        }
+
         const arabicTierSoal: 'sd-low' | 'sd-high-smp' | 'sma' =
           kelasNum <= 3 ? 'sd-low' : kelasNum <= 9 ? 'sd-high-smp' : 'sma';
 
@@ -2212,6 +2225,7 @@ ${useStimulus
    - Setiap stimulus/bacaan MAKSIMAL untuk ${soalPerStimulus} soal
    - Jadi perlu ${jumlahStimulus} teks bacaan yang BERBEDA
    - Setiap bacaan dengan topik/fokus yang berbeda tapi masih dalam materi yang sama
+${stimulusLengthGuide}
    - Gunakan field "stimulus_list" (array) untuk menyimpan multiple stimulus:
      [{"id": 1, "teks": "Bacaan 1..."}, {"id": 2, "teks": "Bacaan 2..."}]
    - Setiap soal memiliki field "stimulus_id" yang merujuk ke id stimulus yang relevan
@@ -2382,7 +2396,7 @@ KONFIGURASI:
 
 DISTRIBUSI STIMULUS & GAMBAR PER TIPE:
 ${perTypeDistribusi}
-${useStimulus ? `- Total stimulus yang dibutuhkan: ${jumlahStimulus} bacaan (masing-masing untuk maks ${soalPerStimulus} soal)` : '- Tidak ada tipe soal yang menggunakan stimulus'}
+${useStimulus ? `- Total stimulus yang dibutuhkan: ${jumlahStimulus} bacaan (masing-masing untuk maks ${soalPerStimulus} soal)\n${stimulusLengthGuide}` : '- Tidak ada tipe soal yang menggunakan stimulus'}
 
 DISTRIBUSI TIPE SOAL (WAJIB DIIKUTI PERSIS):
 - ${distribusiTipe}
