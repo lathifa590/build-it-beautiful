@@ -39,6 +39,7 @@ import temml from 'temml';
 import { mml2omml } from 'mathml2omml';
 import type { BankSoalData, FormData as ModulFormData, SoalItem } from '@/types/modul';
 import { classifySoal, computeAnswerLines, parseAlternatifJawaban } from '@/lib/soal-format';
+import { generateExportFilename } from '@/lib/export-filename';
 
 const MATH_NS = 'http://schemas.openxmlformats.org/officeDocument/2006/math';
 
@@ -921,14 +922,17 @@ export async function exportSoalToDocx(
     compression: 'DEFLATE',
   });
 
-  const safe = (bank.judul_latihan || 'lembar-soal')
-    .replace(/[^\w\-]+/g, '_')
-    .replace(/^_+|_+$/g, '')
-    .slice(0, 60);
+  const filenameBase = generateExportFilename({
+    documentType: 'BankSoal',
+    mapel: formData.mataPelajaran,
+    kelas: formData.kelas,
+    materi: formData.materi || bank.judul_latihan,
+    extension: 'docx'
+  });
 
   return {
     blob: finalBlob,
-    filename: `${safe || 'lembar-soal'}.docx`,
+    filename: filenameBase,
     equationCount,
     markerCount: markerMap.size,
   };

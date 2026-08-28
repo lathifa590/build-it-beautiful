@@ -1,4 +1,5 @@
 import type { FormData, ProtaData, ProsemData } from "@/types/modul";
+import { generateExportFilename } from '@/lib/export-filename';
 import { BULAN_NAMES } from "./constants";
 
 export const exportProtaToWord = (protaData: ProtaData, formData: Partial<FormData>) => {
@@ -97,7 +98,12 @@ h2{font-size:14pt;font-weight:bold;margin:10px 0}
     });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = `Prota_${formData.mataPelajaran || 'Mapel'}_${formData.kelas || ''}.doc`;
+    link.download = generateExportFilename({
+      documentType: 'Prota',
+      mapel: formData.mataPelajaran || 'Mapel',
+      kelas: formData.kelas || '',
+      extension: 'doc'
+    });
     link.click();
     return true;
   } catch (err) {
@@ -211,7 +217,13 @@ h1{font-size:14pt;font-weight:bold;margin:10px 0}
     });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = `Prosem_Sem${semester}_${formData.mataPelajaran || 'Mapel'}_${formData.kelas || ''}.doc`;
+    link.download = generateExportFilename({
+      documentType: 'Prosem',
+      semester: semester,
+      mapel: formData.mataPelajaran || 'Mapel',
+      kelas: formData.kelas || '',
+      extension: 'doc'
+    });
     link.click();
     return true;
   } catch (err) {

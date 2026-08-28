@@ -70,6 +70,7 @@ import {
 import { useLetterhead } from '@/hooks/useLetterhead';
 import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
 import { preprocessElementForOmml, WORD_HTML_NAMESPACES } from '@/lib/math-omml';
+import { generateExportFilename } from '@/lib/export-filename';
 
 import { supabase } from '@/integrations/supabase/client';
 import { invokeGenerateWithRetry } from '@/lib/invokeWithRetry';
@@ -1974,7 +1975,12 @@ h2{font-size:14pt;font-weight:bold;margin:10px 0}
       });
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
-      link.download = `Prota_${formData.mataPelajaran}_${formData.kelas || ''}.doc`;
+      link.download = generateExportFilename({
+        documentType: 'Prota',
+        mapel: formData.mataPelajaran,
+        kelas: formData.kelas,
+        extension: 'doc'
+      });
       link.click();
       showNotificationMessage('Prota berhasil di-download!');
     } catch (err) {
@@ -2097,7 +2103,12 @@ h3{font-size:11pt;font-weight:bold;margin:10px 0}
       });
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
-      link.download = `KKTP_${formData.mataPelajaran}_${formData.kelas || ''}.doc`;
+      link.download = generateExportFilename({
+        documentType: 'KKTP',
+        mapel: formData.mataPelajaran,
+        kelas: formData.kelas,
+        extension: 'doc'
+      });
       link.click();
       showNotificationMessage('KKTP berhasil di-download!');
     } catch (err) {
@@ -2322,7 +2333,13 @@ h1{font-size:14pt;font-weight:bold;margin:8px 0}
       });
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
-      link.download = `Prosem_Sem${semester}_${formData.mataPelajaran}_${formData.kelas || ''}.doc`;
+      link.download = generateExportFilename({
+        documentType: 'Prosem',
+        semester: semester,
+        mapel: formData.mataPelajaran,
+        kelas: formData.kelas,
+        extension: 'doc'
+      });
       link.click();
       showNotificationMessage(`Prosem Semester ${semester} berhasil di-download!`);
     } catch (err) {
@@ -2411,7 +2428,18 @@ img{max-width:100%}
     });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = `Modul_Lengkap_${formData.mataPelajaran}.doc`;
+    const isMulti = formData.pertemuan.length > 1;
+    const pertemuanKe = !isMulti && formData.pertemuan.length > 0 ? formData.pertemuan[0].pertemuanKe : undefined;
+
+    link.download = generateExportFilename({
+      documentType: 'Modul',
+      isMultiPertemuan: isMulti,
+      pertemuanKe: pertemuanKe,
+      mapel: formData.mataPelajaran,
+      kelas: formData.kelas,
+      materi: formData.materi,
+      extension: 'doc'
+    });
     link.click();
     showNotificationMessage('Word berhasil di-download!');
   };
@@ -2471,7 +2499,18 @@ img{max-width:100%}
     });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = `${activeTab.toUpperCase()}_${formData.mataPelajaran}.doc`;
+    const isMulti = formData.pertemuan.length > 1;
+    const pertemuanKe = !isMulti && formData.pertemuan.length > 0 ? formData.pertemuan[0].pertemuanKe : undefined;
+
+    link.download = generateExportFilename({
+      documentType: activeTab === 'all' ? 'Modul' : activeTab,
+      isMultiPertemuan: isMulti,
+      pertemuanKe: pertemuanKe,
+      mapel: formData.mataPelajaran,
+      kelas: formData.kelas,
+      materi: formData.materi,
+      extension: 'doc'
+    });
     link.click();
     showNotificationMessage('Word berhasil di-download!');
   };

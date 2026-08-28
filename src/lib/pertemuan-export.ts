@@ -12,9 +12,11 @@
 import type {
   BankSoalData,
   GenerationResultV2,
+  PermendikbudModulAjarStructure,
   JenisDokumenPertemuan,
   PertemuanResult,
 } from '@/types/modul';
+import { generateExportFilename } from '@/lib/export-filename';
 
 export type V2ExportScope =
   | 'active_document'
@@ -158,18 +160,21 @@ const buildFilenameBase = (
   input: BuildV2ExportPlanInput,
   aktif?: PertemuanResult,
 ): string => {
-  const mapel = input.formData?.mataPelajaran || 'Modul';
-  if (scope === 'complete_package') {
-    return sanitizeFilename(`Modul_Multi_Pertemuan_${mapel}`);
-  }
-  const nomor = aktif?.nomor ?? 1;
-  if (scope === 'active_meeting') {
-    return sanitizeFilename(`Pertemuan_${nomor}_Lengkap_${mapel}`);
-  }
-  const jenis = input.activeJenisDokumen ?? 'modul';
-  return sanitizeFilename(
-    `Pertemuan_${nomor}_${V2_JENIS_LABEL[jenis]}_${mapel}`,
-  );
+  const mapel = input.formData?.mataPelajaran || 'Mapel';
+  const kelas = input.formData?.kelas || '';
+  const isMulti = scope === 'complete_package';
+  const jenis = isMulti ? 'modul' : (input.activeJenisDokumen ?? 'modul');
+  const materi = isMulti && input.formData?.materi ? input.formData.materi : (aktif?.materi || input.formData?.materi || '');
+
+  return generateExportFilename({
+    documentType: isMulti ? 'Modul' : (scope === 'active_meeting' ? 'Lengkap' : V2_JENIS_LABEL[jenis]),
+    isWorkspace: !!input.formData?.title, // if it has title, it's likely a workspace, or we can just omit it
+    isMultiPertemuan: isMulti,
+    pertemuanKe: isMulti ? undefined : (aktif?.nomor ?? 1),
+    mapel: mapel,
+    kelas: kelas,
+    materi: materi
+  });
 };
 
 /**
