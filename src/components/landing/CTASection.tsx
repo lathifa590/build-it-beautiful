@@ -1,9 +1,10 @@
 import { ArrowRight, Sparkles, Calendar, Check, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-const PURCHASE_LINK_LITE = '#'; // Update id produk Lite nantinya
-const PURCHASE_LINK_BIASA = 'https://aidukasi.shop/checkout?id=PRD-14';
-const PURCHASE_LINK_PRO = 'https://aidukasi.shop/checkout?id=PRD-15'; // Change to actual ID later
+const WA_NUMBER = '6288228511309';
+const PURCHASE_LINK_LITE = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent('Halo Admin, saya tertarik untuk berlangganan Paket Lite ModulAjar.Online. Mohon info cara pembayarannya.')}`;
+const PURCHASE_LINK_BIASA = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent('Halo Admin, saya tertarik untuk berlangganan Paket Standar ModulAjar.Online. Mohon info cara pembayarannya.')}`;
+const PURCHASE_LINK_PRO = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent('Halo Admin, saya tertarik untuk berlangganan Paket Pro ModulAjar.Online. Mohon info cara pembayarannya.')}`;
 
 export const CTASection = () => {
   return (

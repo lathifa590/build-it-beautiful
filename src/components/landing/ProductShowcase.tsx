@@ -1,7 +1,8 @@
 import { Check, FileDown, Monitor, Pencil } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-const PURCHASE_LINK = 'https://aidukasi.shop/checkout?id=PRD-14';
+const WA_NUMBER = '6288228511309';
+const PURCHASE_LINK = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent('Halo Admin, saya tertarik untuk berlangganan Paket Standar ModulAjar.Online. Mohon info cara pembayarannya.')}`;
 
 const features = [
   'Rencana Pembelajaran Mendalam (RPM)',

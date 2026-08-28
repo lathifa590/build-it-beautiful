@@ -1,4 +1,4 @@
-﻿import { useState, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { ProtaData } from "@/types/modul";
 
@@ -10,6 +10,7 @@ interface GenerateProtaParams {
   jpPerMinggu: number;
   mingguEfektifSem1: number;
   mingguEfektifSem2: number;
+  tujuanPembelajaran?: string[];
 }
 
 export function useProtaGenerator() {
@@ -29,6 +30,7 @@ export function useProtaGenerator() {
           jp_per_minggu: params.jpPerMinggu,
           minggu_efektif_sem1: params.mingguEfektifSem1,
           minggu_efektif_sem2: params.mingguEfektifSem2,
+          tujuan_pembelajaran: params.tujuanPembelajaran,
         },
       });
 

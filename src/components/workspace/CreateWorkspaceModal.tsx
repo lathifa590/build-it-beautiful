@@ -28,6 +28,7 @@ export const CreateWorkspaceModal = ({ isOpen, onClose }: CreateWorkspaceModalPr
     phase: '',
     academic_year: '2024/2025',
     profile_id: '',
+    jp_duration_minutes: 45,
   });
 
   // Auto-select first profile if none is selected
@@ -83,6 +84,7 @@ export const CreateWorkspaceModal = ({ isOpen, onClose }: CreateWorkspaceModalPr
         phase: '',
         academic_year: '2024/2025',
         profile_id: cloudProfiles.length > 0 ? cloudProfiles[0].id : '',
+        jp_duration_minutes: 45,
       });
     } catch (error) {
       console.error(error);
@@ -179,6 +181,21 @@ export const CreateWorkspaceModal = ({ isOpen, onClose }: CreateWorkspaceModalPr
                 </div>
               </div>
             )}
+            <div className="field-group">
+              <label htmlFor="jp_duration_minutes">Durasi 1 JP (Menit)</label>
+              <input
+                type="number"
+                id="jp_duration_minutes"
+                name="jp_duration_minutes"
+                value={formData.jp_duration_minutes}
+                onChange={handleChange}
+                placeholder="Contoh: 45"
+                min="10"
+                max="120"
+                required
+              />
+              <p className="text-xs text-muted-foreground mt-1">Digunakan untuk menghitung estimasi waktu pertemuan di Modul Ajar.</p>
+            </div>
           </div>
           <DialogFooter>
             <button

@@ -7,7 +7,7 @@ import { useProtaGenerator } from "@/hooks/useProtaGenerator";
 import { supabase } from "@/integrations/supabase/client";
 import { Workspace } from "@/types/workspace";
 import type { ProtaData, KalenderPendidikan } from "@/types/modul";
-
+import { exportProtaToWord } from "@/lib/export-word";
 interface StepProtaProps {
   workspace: Workspace;
   onNext: () => void;
@@ -28,6 +28,7 @@ export const StepProta: React.FC<StepProtaProps> = ({ workspace, onNext, isLocke
   const [isLoaded, setIsLoaded] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [cpData, setCpData] = useState<any>(null);
+  const [tpList, setTpList] = useState<string[]>([]);
 
   const { generate, isLoading: isGenerating, error: genError } = useProtaGenerator();
 
@@ -49,6 +50,17 @@ export const StepProta: React.FC<StepProtaProps> = ({ workspace, onNext, isLocke
           // Load default kalender dari TP plan jika ada
           if (tpContent?.kalender) {
             setKalenderData(tpContent.kalender);
+          }
+          
+          // Load TP items
+          const { data: items } = await supabase
+            .from("tp_items")
+            .select("description")
+            .eq("tp_plan_id", tpPlans[0].id)
+            .order("sequence", { ascending: true });
+            
+          if (items && items.length > 0) {
+            setTpList(items.map(item => item.description));
           }
         }
 
@@ -93,7 +105,8 @@ export const StepProta: React.FC<StepProtaProps> = ({ workspace, onNext, isLocke
       kelas: cpData.kelas || "7",
       jpPerMinggu: kalenderData.jpPerMinggu,
       mingguEfektifSem1: kalenderData.mingguEfektifSem1,
-      mingguEfektifSem2: kalenderData.mingguEfektifSem2
+      mingguEfektifSem2: kalenderData.mingguEfektifSem2,
+      tujuanPembelajaran: tpList.length > 0 ? tpList : undefined
     });
 
     if (result) {
@@ -184,7 +197,11 @@ export const StepProta: React.FC<StepProtaProps> = ({ workspace, onNext, isLocke
                   protaData={protaData} 
                   onDataChange={setProtaData}
                   formData={{ cp: cpData?.cp || '', mata_pelajaran: cpData?.mataPelajaran || '', fase: cpData?.fase || '', kelas: cpData?.kelas || '' } as any}
-                  onExportWord={() => {}}
+                  onExportWord={() => exportProtaToWord(protaData, { 
+                    mataPelajaran: cpData?.mataPelajaran, 
+                    fase: cpData?.fase, 
+                    kelas: cpData?.kelas 
+                  } as any)}
                   kurikulum={workspace.curriculum}
                 />
               </div>

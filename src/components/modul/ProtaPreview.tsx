@@ -46,26 +46,58 @@ export const ProtaPreview = ({ protaData, formData, onExportWord, isExporting, o
     onDataChange({ ...protaData, prota: newProta, total_jp_sem1, total_jp_sem2 });
   };
 
+  const handleAddTP = (semester: number) => {
+    if (!onDataChange) return;
+    const newProta = [...protaData.prota];
+    const maxNo = newProta.length > 0 ? Math.max(...newProta.map(p => p.no)) : 0;
+    
+    newProta.push({
+      no: maxNo + 1,
+      semester,
+      tujuan_pembelajaran: '',
+      materi_pokok: '',
+      alokasi_jp: 0,
+      profil_pelajar_pancasila: [],
+      dimensi_profil_lulusan: [],
+      keterangan: '',
+      generated: false
+    });
+    
+    newProta.sort((a, b) => a.semester - b.semester || a.no - b.no);
+    
+    const total_jp_sem1 = newProta.filter(i => i.semester === 1).reduce((sum, i) => sum + i.alokasi_jp, 0);
+    const total_jp_sem2 = newProta.filter(i => i.semester === 2).reduce((sum, i) => sum + i.alokasi_jp, 0);
+    
+    onDataChange({ ...protaData, prota: newProta, total_jp_sem1, total_jp_sem2 });
+    setEditMode(true);
+  };
+
   const isEditing = (no: number, field: string) => editingCell?.row === no && editingCell?.field === field;
 
-  const renderEditableCell = (item: typeof protaData.prota[0], field: string, value: string | number, isTextarea = false) => {
+  const renderEditableCell = (item: typeof protaData.prota[0], field: string, value: string | number | string[], isTextarea = false) => {
     const globalIdx = protaData.prota.findIndex(p => p.no === item.no);
     if (!editMode || !onDataChange) {
-      return <>{typeof value === 'number' ? value : value || '-'}</>;
+      return <>{Array.isArray(value) ? (value.join(', ') || '-') : (typeof value === 'number' ? value : value || '-')}</>;
     }
 
     if (isEditing(item.no, field)) {
       const handleBlur = (newValue: string) => {
-        const finalValue = field === 'alokasi_jp' ? parseInt(newValue) || 0 : newValue;
-        handleCellChange(globalIdx, field, finalValue as any);
+        let finalValue: string | number | string[] = newValue;
+        if (field === 'alokasi_jp') finalValue = parseInt(newValue) || 0;
+        if (field === 'dimensi_profil_lulusan' || field === 'profil_pelajar_pancasila') {
+          finalValue = newValue.split(',').map(s => s.trim()).filter(s => s);
+        }
+        handleCellChange(globalIdx, field, finalValue);
         setEditingCell(null);
       };
+
+      const stringValue = Array.isArray(value) ? value.join(', ') : String(value);
 
       if (isTextarea) {
         return (
           <textarea
             autoFocus
-            defaultValue={String(value)}
+            defaultValue={stringValue}
             className="w-full text-xs border border-primary rounded p-1 min-h-[40px] resize-y bg-background"
             onBlur={(e) => handleBlur(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Escape') setEditingCell(null); }}
@@ -76,7 +108,7 @@ export const ProtaPreview = ({ protaData, formData, onExportWord, isExporting, o
         <input
           autoFocus
           type={field === 'alokasi_jp' ? 'number' : 'text'}
-          defaultValue={String(value)}
+          defaultValue={stringValue}
           className="w-full text-xs border border-primary rounded p-1 bg-background"
           onBlur={(e) => handleBlur(e.target.value)}
           onKeyDown={(e) => { if (e.key === 'Enter' || e.key === 'Escape') { if (e.key === 'Enter') handleBlur((e.target as HTMLInputElement).value); else setEditingCell(null); } }}
@@ -89,7 +121,7 @@ export const ProtaPreview = ({ protaData, formData, onExportWord, isExporting, o
         className="cursor-pointer hover:bg-primary/5 rounded px-1 -mx-1 min-h-[20px]"
         onClick={() => setEditingCell({ row: item.no, field })}
       >
-        {typeof value === 'number' ? value : value || '-'}
+        {Array.isArray(value) ? (value.join(', ') || '-') : (typeof value === 'number' ? value : value || '-')}
       </div>
     );
   };
@@ -133,7 +165,7 @@ export const ProtaPreview = ({ protaData, formData, onExportWord, isExporting, o
                   {renderEditableCell(item, 'alokasi_jp', item.alokasi_jp)}
                 </td>
                 <td className="border border-foreground/20 px-2 py-2">
-                  {(item.dimensi_profil_lulusan || item.profil_pelajar_pancasila)?.join(', ') || '-'}
+                  {renderEditableCell(item, 'dimensi_profil_lulusan', (item.dimensi_profil_lulusan || item.profil_pelajar_pancasila || []), true)}
                 </td>
                 {hasPancaCinta && (
                   <td className="border border-foreground/20 px-2 py-2">
@@ -177,6 +209,18 @@ export const ProtaPreview = ({ protaData, formData, onExportWord, isExporting, o
           </tbody>
         </table>
       </div>
+      {onDataChange && editMode && (
+        <div className="mt-2 flex justify-end">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handleAddTP(semester)}
+            className="text-xs border-dashed border-primary text-primary hover:bg-primary/10"
+          >
+            + Tambah Tujuan Pembelajaran (Semester {semester})
+          </Button>
+        </div>
+      )}
     </div>
   );
 
