@@ -12,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    const { cp, mata_pelajaran, fase, kelas, jp_per_minggu, minggu_efektif_sem1, minggu_efektif_sem2 } = await req.json();
+    const { cp, mata_pelajaran, fase, kelas, jp_per_minggu, minggu_efektif_sem1, minggu_efektif_sem2, tujuan_pembelajaran } = await req.json();
 
     if (!cp || !mata_pelajaran) {
       return new Response(JSON.stringify({ error: "CP dan Mata Pelajaran wajib diisi" }), {
@@ -101,6 +101,13 @@ serve(async (req) => {
 
     const totalJPSem1 = jp_per_minggu * minggu_efektif_sem1;
     const totalJPSem2 = jp_per_minggu * minggu_efektif_sem2;
+    
+    let tpInstruction = "";
+    if (tujuan_pembelajaran && Array.isArray(tujuan_pembelajaran) && tujuan_pembelajaran.length > 0) {
+      tpInstruction = `1. WAJIB GUNAKAN DAFTAR Tujuan Pembelajaran (TP) berikut SECARA UTUH tanpa mengubah redaksinya atau membuat TP baru:\n${tujuan_pembelajaran.map((tp, i) => `   - TP ${i+1}: ${tp}`).join('\n')}\n2. Kamu HANYA perlu melengkapi materi_pokok, alokasi_jp, semester, dimensi_profil_lulusan, panca_cinta, dan keterangan untuk masing-masing TP tersebut.`;
+    } else {
+      tpInstruction = "1. Breakdown CP menjadi beberapa Tujuan Pembelajaran (TP) yang spesifik, terukur, dan operasional\n2. Setiap TP harus punya materi pokok yang jelas";
+    }
 
     const prompt = `Kamu adalah ahli kurikulum pendidikan Indonesia (Kurikulum Merdeka).
 
@@ -118,8 +125,7 @@ Informasi JP:
 - Minggu efektif Semester 2: ${minggu_efektif_sem2} → Total JP Sem 2: ${totalJPSem2}
 
 ATURAN:
-1. Breakdown CP menjadi beberapa Tujuan Pembelajaran (TP) yang spesifik, terukur, dan operasional
-2. Setiap TP harus punya materi pokok yang jelas
+${tpInstruction}
 3. Alokasi JP harus realistis dan TOTAL JP per semester TIDAK BOLEH melebihi kapasitas
 4. Total JP Semester 1 harus ≤ ${totalJPSem1}
 5. Total JP Semester 2 harus ≤ ${totalJPSem2}

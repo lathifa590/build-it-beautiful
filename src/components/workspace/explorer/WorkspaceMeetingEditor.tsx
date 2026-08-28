@@ -691,7 +691,13 @@ export const WorkspaceMeetingEditor: React.FC<WorkspaceMeetingEditorProps> = ({
           onRetry={(id, jenis) => pertemuanV2.regenerateDokumen(id, jenis)}
           onOpenSoalModal={() => setShowSoalModal(true)}
           renderDokumen={({ jenis, dokumen }) => (
-            <DocumentPreview
+            <>
+              <div className="mb-4 p-3 bg-blue-50 text-blue-800 border border-blue-200 rounded-lg text-sm flex items-center justify-between">
+                <div>
+                  <strong>💡 Tips:</strong> Anda dapat mengedit teks pada dokumen di bawah ini. Arahkan kursor (hover) ke bagian teks yang ingin diubah, lalu klik tombol <strong>Edit</strong>.
+                </div>
+              </div>
+              <DocumentPreview
               contentRef={contentRef}
               activeTab={V2_TAB_MAP[jenis]}
               formData={formData}
@@ -730,6 +736,7 @@ export const WorkspaceMeetingEditor: React.FC<WorkspaceMeetingEditorProps> = ({
               isSaving={isSaving}
               onSaveToWorkspace={handleSaveAll}
             />
+            </>
           )}
           onGenerateMissing={() => pertemuanV2.generateMissing()}
           isGenerating={pertemuanV2.isGenerating}

@@ -6,7 +6,7 @@ import { useProsemGenerator } from "@/hooks/useProsemGenerator";
 import { supabase } from "@/integrations/supabase/client";
 import { Workspace } from "@/types/workspace";
 import type { ProtaData, KalenderPendidikan, ProsemData } from "@/types/modul";
-
+import { exportProsemToWord } from "@/lib/export-word";
 interface StepProsemProps {
   workspace: Workspace;
   onNext: () => void;
@@ -197,8 +197,17 @@ export const StepProsem: React.FC<StepProsemProps> = ({ workspace, onNext, isLoc
               <ProsemPreview 
                 prosemSem1={prosemSem1} 
                 prosemSem2={prosemSem2} 
-                formData={{ cp: '', mata_pelajaran: '', fase: '', kelas: '' } as any}
-                onExportWord={() => {}} 
+                formData={{ cp: '', mata_pelajaran: workspace.subject, fase: workspace.phase, kelas: workspace.grade } as any}
+                onExportWord={(semester) => {
+                  const data = semester === 1 ? prosemSem1 : prosemSem2;
+                  if (data) {
+                    exportProsemToWord(data, { 
+                      mataPelajaran: workspace.subject, 
+                      fase: workspace.phase, 
+                      kelas: workspace.grade 
+                    } as any, semester);
+                  }
+                }} 
               />
             </div>
           </div>

@@ -15,6 +15,7 @@ interface WorkspaceContextType {
   archiveWorkspace: (workspaceId: string) => Promise<boolean>;
   restoreWorkspace: (workspaceId: string) => Promise<boolean>;
   deleteWorkspace: (workspaceId: string) => Promise<boolean>;
+  updateWorkspace: (workspaceId: string, updates: Partial<Workspace>) => Promise<boolean>;
 }
 
 const WorkspaceContext = createContext<WorkspaceContextType | undefined>(undefined);
@@ -122,6 +123,24 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const updateWorkspace = async (workspaceId: string, updates: Partial<Workspace>): Promise<boolean> => {
+    try {
+      const { error } = await supabase
+        .from('workspaces')
+        .update(updates as any)
+        .eq('id', workspaceId);
+      if (error) throw error;
+      await refreshWorkspaces();
+      if (activeWorkspace?.id === workspaceId) {
+        setActiveWorkspace({ ...activeWorkspace, ...updates } as Workspace);
+      }
+      return true;
+    } catch (err) {
+      console.error('Error updating workspace:', err);
+      return false;
+    }
+  };
+
   const duplicateWorkspace = async (workspaceId: string, newAcademicYear: string): Promise<boolean> => {
     if (!user) return false;
     
@@ -224,6 +243,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         archiveWorkspace,
         restoreWorkspace,
         deleteWorkspace,
+        updateWorkspace,
       }}
     >
       {children}

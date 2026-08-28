@@ -6,6 +6,7 @@ import { exportProtaProsemToExcel } from "@/lib/export-excel";
 import { supabase } from "@/integrations/supabase/client";
 import { ProtaPreview } from "@/components/modul/ProtaPreview";
 import { ProsemPreview } from "@/components/modul/ProsemPreview";
+import { exportProtaToWord, exportProsemToWord } from "@/lib/export-word";
 import type { ProsemData } from "@/types/modul";
 
 interface ProtaProsemViewerModalProps {
@@ -146,7 +147,11 @@ export const ProtaProsemViewerModal: React.FC<ProtaProsemViewerModalProps> = ({
                 <ProtaPreview 
                   protaData={protaData} 
                   formData={{ cp: '', mataPelajaran: workspace.subject, fase: workspace.grade, kelas: workspace.grade, sekolah: workspace.name } as any}
-                  onExportWord={() => {}}
+                  onExportWord={() => exportProtaToWord(protaData, { 
+                    mataPelajaran: workspace.subject, 
+                    fase: workspace.grade, 
+                    kelas: workspace.grade 
+                  } as any)}
                   kurikulum={workspace.curriculum}
                 />
               )}
@@ -162,7 +167,16 @@ export const ProtaProsemViewerModal: React.FC<ProtaProsemViewerModalProps> = ({
                   prosemSem1={prosemSem1} 
                   prosemSem2={prosemSem2} 
                   formData={{ cp: '', mataPelajaran: workspace.subject, fase: workspace.grade, kelas: workspace.grade, sekolah: workspace.name } as any}
-                  onExportWord={() => {}}
+                  onExportWord={(semester) => {
+                    const data = semester === 1 ? prosemSem1 : prosemSem2;
+                    if (data) {
+                      exportProsemToWord(data, { 
+                        mataPelajaran: workspace.subject, 
+                        fase: workspace.grade, 
+                        kelas: workspace.grade 
+                      } as any, semester);
+                    }
+                  }}
                 />
               )}
             </div>

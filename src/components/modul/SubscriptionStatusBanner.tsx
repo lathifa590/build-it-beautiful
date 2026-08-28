@@ -1,7 +1,8 @@
 import { AlertTriangle, CheckCircle2, Clock, ExternalLink } from 'lucide-react';
 import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
 
-const RENEW_LINK = 'https://aidukasi.shop/checkout?id=PRD-14';
+const WA_NUMBER = '6288228511309';
+const RENEW_LINK = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent('Halo Admin, saya tertarik untuk memperpanjang langganan ModulAjar.Online. Mohon infonya.')}`;
 
 const formatDate = (iso: string) =>
   new Date(iso).toLocaleDateString('id-ID', {

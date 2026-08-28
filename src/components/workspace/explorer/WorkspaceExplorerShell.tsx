@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { ArrowLeft, RefreshCw, BookOpen, Layers, Calendar } from "lucide-react";
+import { ArrowLeft, RefreshCw, BookOpen, Layers, Calendar, Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { WorkspaceSettingsModal } from "../WorkspaceSettingsModal";
 import { useProsemData } from "@/hooks/useProsemData";
 import type { Workspace } from "@/types/workspace";
 import { SemesterPlanView } from "./SemesterPlanView";
@@ -24,6 +25,7 @@ export const WorkspaceExplorerShell: React.FC<WorkspaceExplorerShellProps> = ({
 }) => {
   const navigate = useNavigate();
   const [isViewerOpen, setIsViewerOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const { prosemPlans, prosemItems, isLoading, error, refresh } = useProsemData(workspace.id);
 
   const totalTopics = Object.values(prosemItems).reduce((s, items) => s + items.length, 0);
@@ -77,13 +79,22 @@ export const WorkspaceExplorerShell: React.FC<WorkspaceExplorerShellProps> = ({
           {workspace.school_name && (
             <p className="text-xs text-muted-foreground font-semibold">{workspace.school_name}</p>
           )}
-          <button
-            onClick={() => setIsViewerOpen(true)}
-            className="mt-2 inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold bg-primary/10 text-primary hover:bg-primary/20 border-2 border-transparent hover:border-primary/30 rounded-md transition-colors"
-          >
-            <BookOpen className="w-3.5 h-3.5" />
-            Lihat Prota & Prosem
-          </button>
+          <div className="flex items-center gap-2 mt-2">
+            <button
+              onClick={() => setIsViewerOpen(true)}
+              className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold bg-primary/10 text-primary hover:bg-primary/20 border-2 border-transparent hover:border-primary/30 rounded-md transition-colors"
+            >
+              <BookOpen className="w-3.5 h-3.5" />
+              Lihat Prota & Prosem
+            </button>
+            <button
+              onClick={() => setIsSettingsOpen(true)}
+              className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold bg-muted text-muted-foreground hover:bg-muted/80 border-2 border-transparent hover:border-foreground/20 rounded-md transition-colors"
+            >
+              <Settings className="w-3.5 h-3.5" />
+              Pengaturan Workspace
+            </button>
+          </div>
         </div>
 
         {/* Overall Progress Ring - NeoBrutalism style adjustment */}
@@ -179,6 +190,12 @@ export const WorkspaceExplorerShell: React.FC<WorkspaceExplorerShellProps> = ({
         isOpen={isViewerOpen} 
         onClose={() => setIsViewerOpen(false)} 
         workspace={workspace} 
+      />
+
+      <WorkspaceSettingsModal
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        workspace={workspace}
       />
     </div>
   );
