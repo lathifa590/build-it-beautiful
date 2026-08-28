@@ -43,17 +43,17 @@ export const CTASection = () => {
             </div>
             
             <div className="flex items-baseline gap-2 mb-2">
-              <span className="text-4xl font-extrabold text-foreground">Rp 49.000</span>
-              <span className="text-sm font-bold text-muted-foreground">/ 3 bulan</span>
+              <span className="text-4xl font-extrabold text-foreground">Rp 99.000</span>
+              <span className="text-sm font-bold text-muted-foreground">/ 6 bulan</span>
             </div>
             <p className="text-xs text-muted-foreground mb-6 pb-6 border-b border-foreground/10">
-              Setara dengan Rp 16.333 / bulan
+              Setara dengan Rp 16.500 / bulan
             </p>
 
             <ul className="space-y-4 mb-8 flex-1">
               <li className="flex items-start gap-3">
                 <Check className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
-                <span className="text-sm">Akses 3 Bulan Penuh</span>
+                <span className="text-sm">Akses 6 Bulan Penuh</span>
               </li>
               <li className="flex items-start gap-3">
                 <Check className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
