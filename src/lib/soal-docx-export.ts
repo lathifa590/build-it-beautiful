@@ -37,6 +37,7 @@ import {
 import JSZip from 'jszip';
 import temml from 'temml';
 import { mml2omml } from 'mathml2omml';
+import { isEnglishSubject, getQuestionRange, getStimulusInstruction } from '@/lib/soal-utils';
 import type { BankSoalData, FormData as ModulFormData, SoalItem } from '@/types/modul';
 import { classifySoal, computeAnswerLines, parseAlternatifJawaban } from '@/lib/soal-format';
 import { generateExportFilename } from '@/lib/export-filename';
@@ -331,7 +332,7 @@ export async function exportSoalToDocx(
         keepNext: true,
         children: [
           new TextRun({
-            text: 'Bacalah teks berikut untuk menjawab soal-soal di bawah ini!',
+            text: getStimulusInstruction(isEnglishSubject(formData.mataPelajaran), getQuestionRange(soalList, null)),
             bold: true,
           }),
         ],
@@ -364,7 +365,7 @@ export async function exportSoalToDocx(
             keepNext: true,
             children: [
               new TextRun({
-                text: 'Bacalah teks berikut untuk menjawab soal-soal berikutnya!',
+                text: getStimulusInstruction(isEnglishSubject(formData.mataPelajaran), getQuestionRange(soalList, soal.stimulus_id)),
                 bold: true,
               }),
             ],

@@ -5,6 +5,8 @@ import { DPL_OPTIONS, NILAI_KARAKTER_OPTIONS, KBC_ELEMEN_CINTA } from '@/lib/con
 import { classifySoal, computeAnswerLines, parseAlternatifJawaban } from '@/lib/soal-format';
 import { Sparkles } from 'lucide-react';
 import { StimulusImageGenerator } from '@/components/modul/StimulusImageGenerator';
+import { getLetterheadConfig } from '@/lib/workspace';
+import { isEnglishSubject, getQuestionRange, getStimulusInstruction } from '@/lib/soal-utils';
 import { EditableSection } from '@/components/modul/EditableSection';
 import { SectionEditor } from '@/components/modul/SectionEditor';
 import type {
@@ -1958,7 +1960,7 @@ export const DocumentPreview = ({
           {bankSoalData.stimulus && (
             <div style={{ ...blockKeep, padding: '4px 0', marginBottom: '20px' }}>
               <p style={{ fontWeight: 'bold', marginBottom: '8px' }}>
-                Bacalah teks berikut untuk menjawab soal-soal di bawah ini!
+                {getStimulusInstruction(isEnglishSubject(formData.mataPelajaran), getQuestionRange(soalList, null))}
               </p>
 
               {onUpdateStimulusImage && includeImages ? (
@@ -2004,7 +2006,7 @@ export const DocumentPreview = ({
                     stimulusBlock = (
                       <div style={{ marginBottom: '12px', ...blockKeep }}>
                         <p style={{ fontWeight: 'bold', marginBottom: '8px' }}>
-                          Bacalah teks berikut untuk menjawab soal-soal berikutnya!
+                          {getStimulusInstruction(isEnglishSubject(formData.mataPelajaran), getQuestionRange(soalList, s.stimulus_id))}
                         </p>
                         {onUpdateStimulusImage && includeImages ? (
                           <StimulusImageGenerator
