@@ -780,6 +780,14 @@ label, .field-label {
   gap: 16px;
 }
 
+@media (max-width: 640px) {
+  .workspace-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+  }
+}
+
 .workspace-title {
   font-size: var(--fs-2xl);
   font-weight: var(--fw-black);
