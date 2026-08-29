@@ -202,6 +202,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         .from('workspaces')
         .insert({
           user_id: user.id,
+          is_archived: false,
           ...workspace
         })
         .select()

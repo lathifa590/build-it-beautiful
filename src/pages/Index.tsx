@@ -79,12 +79,14 @@ import type { V2ExportFormat, V2ExportScope } from '@/lib/pertemuan-export';
 import { usePertemuanGeneration } from '@/hooks/usePertemuanGeneration';
 import { PertemuanResultNavigator } from '@/components/modul/PertemuanResultNavigator';
 import { V2ExportDialog } from '@/components/modul/V2ExportDialog';
+import { ExportFormatDialog } from '@/components/modul/ExportFormatDialog';
+import type { OutputFormat } from '@/types/export-format';
 import { useV2Export } from '@/hooks/useV2Export';
 import { normalizeBankSoalImages } from '@/lib/bank-soal-normalize';
 import { buildContextKey, pickContextFields, JENIS_DOKUMEN_ORDER } from '@/lib/pertemuan-generation';
 import type { JenisDokumenPertemuan } from '@/types/modul';
 
-import { LogOut, Shield, User, Settings, Store, MoreVertical, RotateCcw, Maximize2, Minimize2, Plus, X, FileDown, Image as ImageIcon, RefreshCw, Lock } from 'lucide-react';
+import { LogOut, Shield, User, Settings, Store, ShoppingBag, MoreVertical, RotateCcw, Maximize2, Minimize2, Plus, X, FileDown, Image as ImageIcon, RefreshCw, Lock } from 'lucide-react';
 import {
   DropdownMenu as HeaderMoreMenu,
   DropdownMenuContent as HeaderMoreMenuContent,
@@ -643,6 +645,15 @@ const Index = () => {
     };
   }, [v2Aktif]);
 
+  const [showExportFormatDialog, setShowExportFormatDialog] = useState(false);
+  const [exportTarget, setExportTarget] = useState<'current' | 'all' | 'pdf' | null>(null);
+  const [outputFormat, setOutputFormat] = useState<OutputFormat>('tabel');
+  const outputFormatRef = useRef<OutputFormat>('tabel');
+
+  // 🚩 FEATURE FLAG — set ke `true` untuk mengaktifkan dialog pemilihan format.
+  // Saat false: tombol Export langsung mengunduh tanpa menampilkan dialog format.
+  const ENABLE_MULTI_FORMAT_EXPORT = false;
+
   // --- FASE 4B: export dokumen multi-pertemuan V2 --------------------------
   const [showV2Export, setShowV2Export] = useState(false);
   const v2Export = useV2Export({
@@ -1046,6 +1057,24 @@ const Index = () => {
 
 
   // Content History Handlers
+  const handleExportCurrentTab = () => {
+    if (!ENABLE_MULTI_FORMAT_EXPORT) { exportCurrentTab(); return; }
+    setExportTarget('current');
+    setShowExportFormatDialog(true);
+  };
+
+  const handleExportAll = () => {
+    if (!ENABLE_MULTI_FORMAT_EXPORT) { exportToWord(); return; }
+    setExportTarget('all');
+    setShowExportFormatDialog(true);
+  };
+
+  const handleExportPDF = () => {
+    if (!ENABLE_MULTI_FORMAT_EXPORT) { exportToPDF(); return; }
+    setExportTarget('pdf');
+    setShowExportFormatDialog(true);
+  };
+
   const handleLoadHistory = (item: ContentHistoryItem) => {
     const plan = resolveHistoryLoadPlan(item, { flagOn: ENABLE_PERTEMUAN_DOCS_V2 });
 
@@ -2384,7 +2413,8 @@ h1{font-size:14pt;font-weight:bold;margin:8px 0}
   };
 
   // Export functions - Updated CSS for Word compatibility
-  const exportToWord = async () => {
+  const exportToWord = async (formatOverride?: OutputFormat) => {
+    const fmt = formatOverride ?? outputFormatRef.current;
     if (!contentRef.current) return;
 
     showNotificationMessage('Memproses dokumen untuk export...');
@@ -2444,8 +2474,16 @@ img{max-width:100%}
     showNotificationMessage('Word berhasil di-download!');
   };
 
-  const exportCurrentTab = async () => {
-    if (!contentRef.current) return;
+  // Helper: apply minimalis style to a cloned DOM element (removes tables, injects heading+list layout)
+  const applyMinimalisToClone = (container: HTMLElement) => {
+    // In minimalis mode, the DocumentPreview renders minimalis-specific divs AND table divs.
+    // Tables are rendered only when outputFormat !== 'minimalis', so the cloned DOM from a
+    // minimalis-rendered preview will already have the correct structure.
+    // No additional manipulation needed — the conditional rendering in DocumentPreview handles it.
+  };
+
+  const exportCurrentTab = async (formatOverride?: OutputFormat) => {
+    const fmt = formatOverride ?? outputFormatRef.current;
 
     showNotificationMessage('Memproses dokumen untuk export...');
 
@@ -2667,6 +2705,25 @@ img{max-width:100%}
       )}
 
       {/* Modals */}
+      <ExportFormatDialog
+        isOpen={showExportFormatDialog}
+        onOpenChange={setShowExportFormatDialog}
+        onConfirm={(format) => {
+          outputFormatRef.current = format;
+          setOutputFormat(format);
+          setShowExportFormatDialog(false);
+          // Wait two animation frames to ensure React has fully re-rendered the DOM
+          // with the new outputFormat before we snapshot it for export.
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              if (exportTarget === 'pdf') exportToPDF();
+              else if (exportTarget === 'all') exportToWord(format);
+              else if (activeTab === 'soal') exportSoalDocx();
+              else exportCurrentTab(format);
+            });
+          });
+        }}
+      />
       <SaveProfileModal
         isOpen={showSaveModal}
         onClose={handleCloseModal}
@@ -2819,6 +2876,16 @@ img{max-width:100%}
                 <span>Reseller</span>
               </Link>
             )}
+            {(isAdmin || user?.email === 'jagofeed@gmail.com') && (
+              <Link
+                to="/app/store-management"
+                className="flex items-center gap-2 px-3 py-2 text-sm font-medium bg-blue-50 text-blue-700 border-2 border-blue-200 rounded-lg hover:bg-blue-100 transition-colors"
+                title="Kelola Toko & Karya"
+              >
+                <ShoppingBag className="w-4 h-4" />
+                <span className="hidden sm:inline">Toko Saya</span>
+              </Link>
+            )}
 
             {isAdmin && (
               <Link
@@ -2877,6 +2944,14 @@ img{max-width:100%}
                     <Link to="/agency" className="flex items-center gap-2 cursor-pointer">
                       <Store className="w-4 h-4 text-orange-600" />
                       <span>Dashboard Reseller</span>
+                    </Link>
+                  </HeaderMoreMenuItem>
+                )}
+                {(isAdmin || user?.email === 'jagofeed@gmail.com') && (
+                  <HeaderMoreMenuItem asChild>
+                    <Link to="/app/store-management" className="flex items-center gap-2 cursor-pointer">
+                      <ShoppingBag className="w-4 h-4 text-blue-600" />
+                      <span>Toko Saya</span>
                     </Link>
                   </HeaderMoreMenuItem>
                 )}
@@ -3267,8 +3342,8 @@ img{max-width:100%}
                   onRegenerateMateri={regenerateMateri}
                   onRegenerateTindakLanjut={regenerateTindakLanjut}
                   onRegenerateBankSoal={regenerateBankSoal}
-                  onExportCurrentTab={exportCurrentTab}
-                  onExportAll={exportToWord}
+                  onExportCurrentTab={handleExportCurrentTab}
+                  onExportAll={handleExportAll}
                   isPlanningTab={true}
                 />
               </div>
@@ -3328,9 +3403,9 @@ img{max-width:100%}
                   onRegenerateMateri={() => regenerateMateri()}
                   onRegenerateTindakLanjut={() => regenerateTindakLanjut()}
                   onRegenerateBankSoal={() => regenerateBankSoal()}
-                  onExportCurrentTab={exportCurrentTab}
-                  onExportAll={exportToWord}
-                  onExportPDF={exportToPDF}
+                  onExportCurrentTab={handleExportCurrentTab}
+                  onExportAll={handleExportAll}
+                  onExportPDF={handleExportPDF}
                   isExportingPDF={isExportingPDF}
                   onExportSoalDocx={exportSoalDocx}
                   isExportingSoalDocx={isExportingSoalDocx}
@@ -3449,7 +3524,7 @@ img{max-width:100%}
                       maxMateriImages={MAX_MATERI_IMAGES}
                       includeImages={Object.values(soalConfig.typeConfigs).some(c => c.useImages)}
                       onUpdateSection={v2Handlers.onUpdateSection}
-
+                      outputFormat={outputFormat}
                       formContext={{ mataPelajaran: formData.mataPelajaran, materi: formData.materi, kelas: formData.kelas }}
                       isModulComplete={true}
                       generatingPertemuanIndex={null}
@@ -3485,6 +3560,7 @@ img{max-width:100%}
                   maxMateriImages={MAX_MATERI_IMAGES}
                   includeImages={Object.values(soalConfig.typeConfigs).some(c => c.useImages)}
                   onUpdateSection={handleUpdateSection}
+                  outputFormat={outputFormat}
                   formContext={{ mataPelajaran: formData.mataPelajaran, materi: formData.materi, kelas: formData.kelas }}
                   onGeneratePertemuan={generatePertemuanByIndex}
                   isModulComplete={isModulComplete}

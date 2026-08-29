@@ -28,6 +28,7 @@ import {
   type V2ExportScope,
 } from '@/lib/pertemuan-export';
 import { V2ExportStage } from '@/components/modul/V2ExportStage';
+import type { OutputFormat } from '@/types/export-format';
 import type {
   FormData,
   GenerationResultV2,
@@ -47,6 +48,7 @@ export interface RunV2ExportArgs {
   format: V2ExportFormat;
   activePertemuanId?: string;
   activeJenisDokumen?: JenisDokumenPertemuan;
+  outputFormat?: OutputFormat;
 }
 
 export const useV2Export = ({
@@ -79,6 +81,7 @@ export const useV2Export = ({
   const withStagedDom = useCallback(
     async (
       plan: V2ExportPlan,
+      outputFormat: OutputFormat,
       fn: (node: HTMLElement) => Promise<void>,
     ): Promise<void> => {
       let container: HTMLElement | null = null;
@@ -94,6 +97,7 @@ export const useV2Export = ({
               modulPreface={result.modulPreface}
               letterheadUrl={letterheadUrl}
               isLetterheadEnabled={isLetterheadEnabled}
+              outputFormat={outputFormat}
               onMounted={() => resolve()}
             />,
           );
@@ -119,8 +123,8 @@ export const useV2Export = ({
   );
 
   const exportWord = useCallback(
-    async (plan: V2ExportPlan) => {
-      await withStagedDom(plan, async (node) => {
+    async (plan: V2ExportPlan, outputFormat: OutputFormat) => {
+      await withStagedDom(plan, outputFormat, async (node) => {
         const clone = node.cloneNode(true) as HTMLElement;
         // 1. Bersihkan inline CSS berbahaya (flex, min-height, position, overflow)
         //    SEBELUM prune agar hasSubstantialContent membaca DOM yang sudah bersih.
@@ -148,8 +152,8 @@ export const useV2Export = ({
 
 
   const exportPdf = useCallback(
-    async (plan: V2ExportPlan) => {
-      await withStagedDom(plan, async (node) => {
+    async (plan: V2ExportPlan, outputFormat: OutputFormat) => {
+      await withStagedDom(plan, outputFormat, async (node) => {
         const clone = node.cloneNode(true) as HTMLElement;
         stripWordExportInlineStyles(clone);
         sanitizeWordFormElements(clone);
@@ -286,6 +290,9 @@ export const useV2Export = ({
         notify('Tidak ada dokumen yang bisa diekspor', 'error');
         return false;
       }
+      
+      const outputFormat = args.outputFormat || 'tabel';
+
       // FASE 4B.1 — invariant runtime DOCX Soal (tidak bergantung dialog).
       if (args.format === 'soal_docx') {
         const bank =
@@ -303,8 +310,8 @@ export const useV2Export = ({
       runningRef.current = true;
       setIsExporting(true);
       try {
-        if (args.format === 'word') await exportWord(plan);
-        else if (args.format === 'pdf') await exportPdf(plan);
+        if (args.format === 'word') await exportWord(plan, outputFormat);
+        else if (args.format === 'pdf') await exportPdf(plan, outputFormat);
         else await exportSoalDocx(plan, args.activePertemuanId);
         notify('Export berhasil di-download!');
         return true;

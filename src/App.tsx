@@ -23,6 +23,13 @@ import AdminAgencyOwners from "./pages/admin/AgencyOwners";
 import AdminAgencyPromos from "./pages/admin/AgencyPromos";
 import NotFound from "./pages/NotFound";
 
+// Store Imports
+import StoreIndex from "./pages/store/StoreIndex";
+import StoreProfile from "./pages/store/StoreProfile";
+import StoreDetail from "./pages/store/StoreDetail";
+import StoreManagement from "./pages/store/StoreManagement";
+import StoreCheckout from "./pages/store/StoreCheckout";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -40,6 +47,12 @@ const App = () => (
                 
                 {/* Auth routes */}
                 <Route path="/auth" element={<Auth />} />
+
+                {/* Public Store routes */}
+                <Route path="/store" element={<StoreIndex />} />
+                <Route path="/store/:storeSlug" element={<StoreProfile />} />
+                <Route path="/store/item/:listingId" element={<StoreDetail />} />
+                <Route path="/checkout/:orderId" element={<StoreCheckout />} />
                 
                 {/* Protected App routes */}
                 <Route
@@ -59,6 +72,16 @@ const App = () => (
                   }
                 />
                 
+                {/* Protected Store Management */}
+                <Route
+                  path="/app/store-management"
+                  element={
+                    <ProtectedRoute>
+                      <StoreManagement />
+                    </ProtectedRoute>
+                  }
+                />
+
                 {/* Admin routes */}
                 <Route
                   path="/admin"

@@ -22,6 +22,7 @@ import type {
   MateriData,
   TindakLanjutData,
 } from '@/types/modul';
+import type { OutputFormat } from '@/types/export-format';
 
 export const V2_EXPORT_TAB_MAP: Record<JenisDokumenPertemuan, string> = {
   modul: 'modul',
@@ -38,6 +39,7 @@ interface V2ExportStageProps {
   modulPreface?: BabModulPreface;
   letterheadUrl?: string | null;
   isLetterheadEnabled?: boolean;
+  outputFormat?: OutputFormat;
   /** Dipanggil setelah seluruh item ter-mount. */
   onMounted?: () => void;
 }
@@ -49,6 +51,7 @@ const ItemRenderer = ({
   modulPreface,
   letterheadUrl,
   isLetterheadEnabled,
+  outputFormat,
 }: {
   item: V2ExportItem;
   index: number;
@@ -56,6 +59,7 @@ const ItemRenderer = ({
   modulPreface?: BabModulPreface;
   letterheadUrl?: string | null;
   isLetterheadEnabled?: boolean;
+  outputFormat?: OutputFormat;
 }) => {
   const ref = useRef<HTMLDivElement>(null);
   const jenis = item.jenis;
@@ -123,6 +127,12 @@ const ItemRenderer = ({
         isModulComplete={true}
         generatingPertemuanIndex={null}
         v2Mode={true}
+        isExportMode={true}
+        exportContext={{
+          pertemuanKe: item.nomorPertemuan,
+          jenis: item.jenis,
+        }}
+        outputFormat={outputFormat}
       />
     </div>
   );
@@ -134,6 +144,7 @@ export const V2ExportStage = ({
   modulPreface,
   letterheadUrl,
   isLetterheadEnabled,
+  outputFormat,
   onMounted,
 }: V2ExportStageProps) => {
   useEffect(() => {
@@ -153,6 +164,7 @@ export const V2ExportStage = ({
           modulPreface={modulPreface}
           letterheadUrl={letterheadUrl}
           isLetterheadEnabled={isLetterheadEnabled}
+          outputFormat={outputFormat}
         />
       ))}
     </div>
