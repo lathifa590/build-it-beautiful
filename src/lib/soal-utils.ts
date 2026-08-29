@@ -11,12 +11,12 @@ export function isEnglishSubject(mapel?: string | null): boolean {
 export function getQuestionRange(soalList: SoalItem[], stimulusId?: number | string | null): { start: number; end: number } | null {
   if (!soalList || soalList.length === 0) return null;
 
-  if (stimulusId === undefined || stimulusId === null) {
-    return { start: 1, end: soalList.length };
-  }
-
   const indices = soalList
-    .map((s, idx) => (s.stimulus_id === stimulusId ? idx + 1 : -1))
+    .map((s, idx) => {
+      // Cocokkan jika sama-sama null (Teks Global) ATAU jika stimulus_id cocok
+      const isMatch = (stimulusId == null && s.stimulus_id == null) || (s.stimulus_id == stimulusId);
+      return isMatch ? idx + 1 : -1;
+    })
     .filter((idx) => idx !== -1);
 
   if (indices.length === 0) return null;

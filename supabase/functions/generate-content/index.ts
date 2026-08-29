@@ -2428,8 +2428,9 @@ INSTRUKSI PENTING:
 7. Gunakan konteks Indonesia (nama orang, tempat, budaya lokal) dalam soal
 8. Pastikan distribusi level kognitif sesuai dengan konfigurasi
 9. Stimulus/bacaan HANYA dibuat untuk tipe soal yang dikonfigurasi menggunakan stimulus. Tipe tanpa stimulus = soal mandiri tanpa bacaan.
-${useStimulus && jumlahStimulus > 1 ? `10. Buat ${jumlahStimulus} teks bacaan yang BERBEDA topiknya dalam stimulus_list, dan hubungkan setiap soal ke stimulus yang relevan via stimulus_id\n` : ''}${hasImageTargets ? `
-11. PENANDA SOAL BERGAMBAR (WAJIB TEPAT JUMLAHNYA):
+10. HINDARI FRASA REDUNDAN: JANGAN memulai stem soal dengan kata-kata referensi seperti "Berdasarkan teks di atas...", "Berdasarkan teks 1...", "Dari wacana...", dsb. Sistem aplikasi sudah otomatis melabeli dan mengaitkan teks dengan nomor soal. Langsung saja tulis inti pertanyaannya.
+${useStimulus && jumlahStimulus > 1 ? `11. Buat ${jumlahStimulus} teks bacaan yang BERBEDA topiknya dalam stimulus_list, dan hubungkan setiap soal ke stimulus yang relevan via stimulus_id\n` : ''}${hasImageTargets ? `
+12. PENANDA SOAL BERGAMBAR (WAJIB TEPAT JUMLAHNYA):
 ${imageTargetsLines}
    - Untuk tiap soal yang dipilih bergambar: set "requires_image": true dan sediakan "stimulus_image_prompt" (Bahasa Inggris singkat, deskriptif, aman untuk edukasi — untuk diberikan ke ChatGPT/Gemini/Midjourney).
    - Untuk soal lain yang TIDAK bergambar: set "requires_image": false (atau hilangkan field-nya) dan JANGAN isi "stimulus_image_prompt".
