@@ -651,22 +651,60 @@ export const FormSection = ({
         <div>
           <div className="flex items-center justify-between mb-1">
             <span className={labelStyle}>Tujuan Pembelajaran *</span>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={onGenerateTP}
-                disabled={!formData.capaianPembelajaran || isGeneratingTP}
-                className="gap-1.5 text-xs h-7"
-                title={!formData.capaianPembelajaran ? 'Isi CP terlebih dahulu' : 'Generate TP dengan AI berdasarkan CP dan Materi'}
-              >
-                {isGeneratingTP ? (
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                ) : (
-                  <Wand2 className="w-3.5 h-3.5" />
-                )}
-                {isGeneratingTP ? 'Generating...' : 'Generate TP'}
-              </Button>
+              {isWorkspaceMode ? (
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      disabled={!formData.capaianPembelajaran || isGeneratingTP}
+                      className="gap-1.5 text-xs h-7"
+                      title={!formData.capaianPembelajaran ? 'Isi CP terlebih dahulu' : 'Generate TP dengan AI berdasarkan CP dan Materi'}
+                    >
+                      {isGeneratingTP ? (
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      ) : (
+                        <Wand2 className="w-3.5 h-3.5" />
+                      )}
+                      {isGeneratingTP ? 'Generating...' : 'Generate TP'}
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Generate Ulang Tujuan Pembelajaran?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Tujuan Pembelajaran (TP) ini awalnya didapatkan dari dokumen Perencanaan Anda (Prosem). 
+                        <br /><br />
+                        Jika Anda men-generate ulang TP di sini, TP untuk modul ini akan <b>berbeda</b> dengan yang ada di Perencanaan. 
+                        <br />
+                        (Catatan: Perencanaan awal Anda tidak akan diubah).
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Batal</AlertDialogCancel>
+                      <AlertDialogAction onClick={onGenerateTP}>Ya, Generate Baru</AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              ) : (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={onGenerateTP}
+                  disabled={!formData.capaianPembelajaran || isGeneratingTP}
+                  className="gap-1.5 text-xs h-7"
+                  title={!formData.capaianPembelajaran ? 'Isi CP terlebih dahulu' : 'Generate TP dengan AI berdasarkan CP dan Materi'}
+                >
+                  {isGeneratingTP ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <Wand2 className="w-3.5 h-3.5" />
+                  )}
+                  {isGeneratingTP ? 'Generating...' : 'Generate TP'}
+                </Button>
+              )}
           </div>
           <textarea
             name="tujuanPembelajaran"
