@@ -43,12 +43,15 @@ export const TopicRow: React.FC<TopicRowProps> = ({ item, globalMeetingStart, on
           {/* TP Chips */}
           {item.tp_snapshot && item.tp_snapshot.length > 0 && (
             <div className="flex flex-wrap gap-1 mt-1 mb-2">
-              {item.tp_snapshot.map((tp, i) => (
-                <span key={i} className="inline-flex items-center gap-1 text-[10px] font-bold bg-secondary/20 text-secondary-foreground rounded border-2 border-black px-1.5 py-0.5 uppercase">
-                  <Target className="w-3 h-3" />
-                  {tp.code || `TP${i+1}`}
-                </span>
-              ))}
+              {item.tp_snapshot.map((tp, i) => {
+                const code = typeof tp === 'string' ? `TP${item.sequence}` : (tp.code || `TP${item.sequence}`);
+                return (
+                  <span key={i} className="inline-flex items-center gap-1 text-[10px] font-bold bg-secondary/20 text-secondary-foreground rounded border-2 border-black px-1.5 py-0.5 uppercase">
+                    <Target className="w-3 h-3" />
+                    {code}
+                  </span>
+                );
+              })}
             </div>
           )}
 

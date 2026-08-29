@@ -105,7 +105,11 @@ export const WorkspaceMeetingEditor: React.FC<WorkspaceMeetingEditorProps> = ({
           materi: data.prosem_items.materi_pokok,
           capaianPembelajaran,
           tujuanPembelajaran: (data.prosem_items.tp_snapshot || [])
-            .map((tp: any, idx: number) => `TP${idx + 1}: ${tp.description || tp.teks || JSON.stringify(tp)}`)
+            .map((tp: any) => {
+              const code = typeof tp === 'string' ? `TP${data.prosem_items.sequence}` : (tp.code || `TP${data.prosem_items.sequence}`);
+              const text = typeof tp === 'string' ? tp : (tp.description || tp.teks || JSON.stringify(tp));
+              return `${code}: ${text}`;
+            })
             .join("\n"),
           pertemuan: [{ id: meetingId, nomorPertemuan: data.sequence, durasi: totalMinutes.toString() }],
         };

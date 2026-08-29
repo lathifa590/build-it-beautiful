@@ -142,7 +142,11 @@ export const StepProsem: React.FC<StepProsemProps> = ({ workspace, onNext, isLoc
             sequence: idx + 1,
             materi_pokok: item.materi_pokok,
             allocated_jp: item.alokasi_jp,
-            tp_snapshot: [item.tujuan_pembelajaran], // as simple array
+            tp_snapshot: [{
+              id: `temp-${item.no}`,
+              code: `TP${item.no}`,
+              description: item.tujuan_pembelajaran
+            }],
             tp_ids: [] // kosongi dulu, butuh mapping UUID dari tp_items DB
           };
         });
