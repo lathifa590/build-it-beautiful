@@ -50,10 +50,13 @@ export const WorkspaceUpsellDialog = ({ open, onOpenChange }: WorkspaceUpsellDia
           </div>
           <DialogHeader>
             <DialogTitle className="text-white text-xl font-extrabold drop-shadow-sm">
-              Fitur Eksklusif PRO!
+              Halo Bapak/Ibu! Ada Fitur Baru Lho... 👋
             </DialogTitle>
-            <DialogDescription className="text-white/90 text-sm font-medium mt-1 leading-relaxed">
-              Fitur <strong className="text-white">Workspace & Perencanaan</strong> hanya tersedia untuk pengguna dengan lisensi PRO. Upgrade sekarang untuk mengaktifkannya!
+            <DialogDescription className="text-white/90 text-sm font-medium mt-2 leading-relaxed text-left">
+              Aplikasi ModulAjar saat ini sudah punya <strong className="text-white">Mode Workspace!</strong> 🎉<br/><br/>
+              <strong>Apa bedanya dengan mode cepat yang saat ini?</strong><br/>
+              Di Mode Workspace, Bapak/Ibu bisa menyimpan semua modul ajar secara terpusat dan rapi, membuat Prota, Prosem, serta menerbitkan modul ke Store.<br/><br/>
+              Fitur Workspace ini khusus untuk <strong>Akun PRO</strong> ya, sedangkan akun Bapak/Ibu saat ini masih Standar. Yuk upgrade sekarang!
             </DialogDescription>
           </DialogHeader>
         </div>

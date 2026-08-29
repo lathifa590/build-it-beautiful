@@ -2,8 +2,8 @@ import type { FormData, ProtaData, ProsemData } from "@/types/modul";
 import { generateExportFilename } from '@/lib/export-filename';
 import { BULAN_NAMES } from "./constants";
 
-export const exportProtaToWord = (protaData: ProtaData, formData: Partial<FormData>) => {
-  if (!protaData) return;
+export const exportProtaToWord = (protaData: ProtaData, formData: Partial<FormData>, returnBlob: boolean = false): Blob | boolean => {
+  if (!protaData) return false;
 
   try {
     // Build HTML table for Word
@@ -96,6 +96,9 @@ h2{font-size:14pt;font-weight:bold;margin:10px 0}
     const blob = new Blob(['\ufeff', preHtml + contentHTML + '</body></html>'], {
       type: 'application/msword',
     });
+    
+    if (returnBlob) return blob;
+    
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
     link.download = generateExportFilename({
@@ -112,8 +115,8 @@ h2{font-size:14pt;font-weight:bold;margin:10px 0}
   }
 };
 
-export const exportProsemToWord = (data: ProsemData, formData: Partial<FormData>, semester: 1 | 2) => {
-  if (!data) return;
+export const exportProsemToWord = (data: ProsemData, formData: Partial<FormData>, semester: 1 | 2, returnBlob: boolean = false): Blob | boolean => {
+  if (!data) return false;
 
   try {
     const allWeekKeys: string[] = [];
@@ -215,6 +218,9 @@ h1{font-size:14pt;font-weight:bold;margin:10px 0}
     const blob = new Blob(['\ufeff', preHtml + contentHTML + '</div></body></html>'], {
       type: 'application/msword',
     });
+    
+    if (returnBlob) return blob;
+    
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
     link.download = generateExportFilename({

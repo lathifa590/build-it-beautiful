@@ -29,6 +29,7 @@ export const CreateWorkspaceModal = ({ isOpen, onClose }: CreateWorkspaceModalPr
     academic_year: '2024/2025',
     profile_id: '',
     jp_duration_minutes: 45,
+    default_jp_per_meeting: 2,
   });
 
   // Auto-select first profile if none is selected
@@ -85,6 +86,7 @@ export const CreateWorkspaceModal = ({ isOpen, onClose }: CreateWorkspaceModalPr
         academic_year: '2024/2025',
         profile_id: cloudProfiles.length > 0 ? cloudProfiles[0].id : '',
         jp_duration_minutes: 45,
+        default_jp_per_meeting: 2,
       });
     } catch (error) {
       console.error(error);

@@ -1,4 +1,5 @@
 import React, { useState, useCallback } from 'react';
+import type { OutputFormat } from '@/types/export-format';
 import { formatRichText, parseMarkdownTable, renderInstruksiWithTable, formatMathAndHtml } from '@/lib/formatters';
 import { formatMathTextSimple } from '@/components/ui/MathRenderer';
 import { DPL_OPTIONS, NILAI_KARAKTER_OPTIONS, KBC_ELEMEN_CINTA } from '@/lib/constants';
@@ -68,6 +69,13 @@ interface DocumentPreviewProps {
   onGeneratePertemuan?: (pertemuanIndex: number) => void;
   isModulComplete?: boolean;
   generatingPertemuanIndex?: number | null;
+  /** Konteks spesifik saat dirender oleh V2ExportStage */
+  isExportMode?: boolean;
+  exportContext?: {
+    pertemuanKe: number;
+    jenis: string;
+  };
+  outputFormat?: OutputFormat;
   /** Saat true, sembunyikan UI status/pending milik flow V1 (multi-pertemuan sequential).
    *  V2 punya PertemuanResultNavigator sendiri — duplikasi hanya membingungkan. */
   v2Mode?: boolean;
@@ -676,8 +684,11 @@ export const DocumentPreview = ({
   onUpdateSection,
   formContext,
   onGeneratePertemuan,
-  isModulComplete = true,
-  generatingPertemuanIndex = null,
+  isModulComplete,
+  generatingPertemuanIndex,
+  isExportMode,
+  exportContext,
+  outputFormat = 'tabel',
   v2Mode = false,
 }: DocumentPreviewProps) => {
   // Section editor state
@@ -760,8 +771,96 @@ export const DocumentPreview = ({
           </div>
         )}
 
-        {/* Identifikasi Table */}
-        <table
+        {/* Identifikasi Table or Minimalis */}
+        {outputFormat === 'minimalis' ? (
+          <div style={{ marginBottom: '20px' }}>
+            <h3 style={{ fontSize: '12pt', fontWeight: 'bold', borderBottom: '1px solid black', paddingBottom: '4px', marginBottom: '8px' }}>I. IDENTIFIKASI DASAR</h3>
+            <div style={{ paddingLeft: '8px', marginBottom: '16px' }}>
+              <div style={{ marginBottom: '4px' }}><strong>Nama Penyusun:</strong> {formData.namaPenyusun}</div>
+              <div style={{ marginBottom: '4px' }}><strong>Sekolah:</strong> {formData.sekolah}</div>
+              <div style={{ marginBottom: '4px' }}><strong>Mata Pelajaran:</strong> {formData.mataPelajaran}</div>
+              <div style={{ marginBottom: '4px' }}><strong>Materi:</strong> {formData.materi} {formData.subMateri && `- ${formData.subMateri}`}</div>
+              <div style={{ marginBottom: '4px' }}><strong>Kelas/Fase:</strong> {formData.kelas} / {formData.fase}</div>
+              <div style={{ marginBottom: '4px' }}><strong>Semester:</strong> {formData.semester}</div>
+              <div style={{ marginBottom: '4px' }}><strong>Jumlah Pertemuan:</strong> {formData.pertemuan.length} ({getTotalDurasi(formData)} Menit)</div>
+            </div>
+
+            <h3 style={{ fontSize: '12pt', fontWeight: 'bold', borderBottom: '1px solid black', paddingBottom: '4px', marginBottom: '8px' }}>II. IDENTIFIKASI MURID</h3>
+            <div style={{ paddingLeft: '8px', marginBottom: '16px' }}>
+              <div style={{ marginBottom: '4px' }}><strong>Aspek Pengetahuan Awal:</strong> {formData.aspekPengetahuanAwal || '-'}</div>
+              <div style={{ marginBottom: '4px' }}><strong>Aspek Minat:</strong> {formData.aspekMinat || '-'}</div>
+              <div style={{ marginBottom: '4px' }}><strong>Aspek Latar Belakang:</strong> {formData.aspekLatarBelakang || '-'}</div>
+              <div style={{ marginBottom: '4px' }}><strong>Aspek Kebutuhan Belajar:</strong> {formData.aspekKebutuhanBelajar || '-'}</div>
+            </div>
+
+            <h3 style={{ fontSize: '12pt', fontWeight: 'bold', borderBottom: '1px solid black', paddingBottom: '4px', marginBottom: '8px' }}>III. JENIS PENGETAHUAN MATERI</h3>
+            <div style={{ paddingLeft: '8px', marginBottom: '16px' }}>
+              <div style={{ marginBottom: '4px' }}><strong>Faktual:</strong> {formData.materiPengetahuan?.faktual || '-'}</div>
+              <div style={{ marginBottom: '4px' }}><strong>Konseptual:</strong> {formData.materiPengetahuan?.konseptual || '-'}</div>
+              <div style={{ marginBottom: '4px' }}><strong>Prosedural:</strong> {formData.materiPengetahuan?.prosedural || '-'}</div>
+              <div style={{ marginBottom: '4px' }}><strong>Metakognitif:</strong> {formData.materiPengetahuan?.metakognitif || '-'}</div>
+              <div style={{ marginBottom: '4px', marginTop: '8px' }}><strong>Kaitan dengan Kehidupan:</strong> {formData.kaitanKehidupan || '-'}</div>
+            </div>
+
+            <h3 style={{ fontSize: '12pt', fontWeight: 'bold', borderBottom: '1px solid black', paddingBottom: '4px', marginBottom: '8px' }}>IV. INTEGRASI NILAI & KARAKTER</h3>
+            <div style={{ paddingLeft: '8px', marginBottom: '16px' }}>
+              <div><strong>Nilai Karakter:</strong> {formData.nilaiKarakter && formData.nilaiKarakter.length > 0 ? formData.nilaiKarakter.join(', ') : '-'}</div>
+            </div>
+
+            <h3 style={{ fontSize: '12pt', fontWeight: 'bold', borderBottom: '1px solid black', paddingBottom: '4px', marginBottom: '8px' }}>V. DIMENSI PROFIL LULUSAN</h3>
+            <div style={{ paddingLeft: '8px', marginBottom: '16px' }}>
+              <div style={{ marginBottom: '4px' }}><strong>DPL yang Dikembangkan:</strong></div>
+              {formData.dimensiProfilLulusan && formData.dimensiProfilLulusan.length > 0 ? (
+                <ul style={{ margin: '4px 0', paddingLeft: '20px' }}>
+                  {formData.dimensiProfilLulusan.map((kode, idx) => {
+                    const dpl = DPL_OPTIONS.find(d => d.kode === kode);
+                    const desc = formData.dimensiProfilLulusanDeskripsi?.[kode];
+                    return (
+                      <li key={idx} style={{ marginBottom: desc ? '6px' : '0' }}>
+                        <strong>{kode}:</strong> {dpl?.nama || kode}
+                        {desc && <span> &mdash; {desc}</span>}
+                      </li>
+                    );
+                  })}
+                </ul>
+              ) : (
+                <div style={{ marginLeft: '12px' }}>{formData.profilLulusan && formData.profilLulusan.length > 0 ? formData.profilLulusan.join(', ') : '-'}</div>
+              )}
+            </div>
+
+            {formData.kurikulum === 'kbc' && (
+              <>
+                <h3 style={{ fontSize: '12pt', fontWeight: 'bold', borderBottom: '1px solid black', paddingBottom: '4px', marginBottom: '8px' }}>V-B. TOPIK PANCA CINTA (KBC)</h3>
+                <div style={{ paddingLeft: '8px', marginBottom: '16px' }}>
+                  <div style={{ marginBottom: '4px' }}><strong>Elemen Cinta yang Dikembangkan:</strong></div>
+                  {(formData as any).topikPancaCinta && (formData as any).topikPancaCinta.length > 0 ? (
+                    <ul style={{ margin: '4px 0', paddingLeft: '20px' }}>
+                      {(formData as any).topikPancaCinta.map((elemen: string, idx: number) => {
+                        const desc = (formData as any).topikPancaCintaDeskripsi?.[elemen];
+                        return (
+                          <li key={idx} style={{ marginBottom: desc ? '6px' : '0' }}>
+                            <strong>{elemen}</strong>
+                            {desc && <span> &mdash; {desc}</span>}
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  ) : (
+                    <div style={{ marginLeft: '12px' }}>-</div>
+                  )}
+                  <div style={{ marginTop: '8px', marginBottom: '4px' }}><strong>Materi Integrasi KBC:</strong></div>
+                  <div style={{ marginLeft: '12px' }}>
+                    {(formData as any).materiIntegrasiKBC 
+                      ? formatRichText((formData as any).materiIntegrasiKBC)
+                      : <span style={{ color: '#6b7280', fontStyle: 'italic' }}>Akan di-generate oleh AI</span>
+                    }
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        ) : (
+          <table
           style={{
             width: '100%',
             borderCollapse: 'collapse',
@@ -1014,8 +1113,68 @@ export const DocumentPreview = ({
             )}
           </tbody>
         </table>
+        )}
 
         {/* Desain Pembelajaran Table */}
+        {outputFormat === 'minimalis' ? (
+          <div style={{ marginBottom: '20px' }}>
+            <h3 style={{ fontSize: '12pt', fontWeight: 'bold', borderBottom: '1px solid black', paddingBottom: '4px', marginBottom: '8px' }}>VI. DESAIN PEMBELAJARAN</h3>
+            <div style={{ paddingLeft: '8px', marginBottom: '16px' }}>
+              <div style={{ marginBottom: '8px' }}>
+                <strong>Capaian Pembelajaran:</strong>
+                <div style={{ marginTop: '4px', paddingLeft: '12px' }}>{formatRichText(formData.capaianPembelajaran) || '-'}</div>
+              </div>
+              <div style={{ marginBottom: '8px' }}>
+                <strong>Tujuan Pembelajaran:</strong>
+                <div style={{ marginTop: '4px', paddingLeft: '12px' }}>
+                  <EditableSection
+                    sectionId="tujuan_pembelajaran"
+                    sectionLabel="Tujuan Pembelajaran"
+                    currentContent={formData.tujuanPembelajaran}
+                    onEdit={handleOpenEditor('modul')}
+                  >
+                    {formatRichText(formData.tujuanPembelajaran) || '-'}
+                  </EditableSection>
+                </div>
+              </div>
+              <div style={{ marginBottom: '8px' }}>
+                <strong>Pemahaman Bermakna:</strong>
+                <div style={{ marginTop: '4px', paddingLeft: '12px' }}>
+                  <EditableSection
+                    sectionId="pemahaman_bermakna"
+                    sectionLabel="Pemahaman Bermakna"
+                    currentContent={pemahaman_bermakna}
+                    onEdit={handleOpenEditor('modul')}
+                  >
+                    {formatRichText(pemahaman_bermakna) || '-'}
+                  </EditableSection>
+                </div>
+              </div>
+              <div style={{ marginBottom: '4px' }}><strong>Model Pembelajaran:</strong> {formData.modelPembelajaran || '-'}</div>
+              <div style={{ marginBottom: '4px' }}>
+                <strong>Metode Pembelajaran:</strong> {formData.metodePembelajaran && formData.metodePembelajaran.length > 0 ? formData.metodePembelajaran.join(', ') : '-'}
+              </div>
+            </div>
+
+            <h3 style={{ fontSize: '12pt', fontWeight: 'bold', borderBottom: '1px solid black', paddingBottom: '4px', marginBottom: '8px' }}>VII. LINTAS DISIPLIN ILMU</h3>
+            <div style={{ paddingLeft: '8px', marginBottom: '16px' }}>
+              {formData.lintasDisiplinIlmu ? (
+                <ul style={{ margin: '0', paddingLeft: '20px' }}>
+                  {formData.lintasDisiplinIlmu.ppkn && <li><strong>PPKn:</strong> {formData.lintasDisiplinIlmu.ppkn}</li>}
+                  {formData.lintasDisiplinIlmu.ips && <li><strong>IPS:</strong> {formData.lintasDisiplinIlmu.ips}</li>}
+                  {formData.lintasDisiplinIlmu.matematika && <li><strong>Matematika:</strong> {formData.lintasDisiplinIlmu.matematika}</li>}
+                  {formData.lintasDisiplinIlmu.bahasaIndonesia && <li><strong>Bahasa Indonesia:</strong> {formData.lintasDisiplinIlmu.bahasaIndonesia}</li>}
+                  {formData.lintasDisiplinIlmu.seniBudaya && <li><strong>Seni Budaya:</strong> {formData.lintasDisiplinIlmu.seniBudaya}</li>}
+                  {formData.lintasDisiplinIlmu.prakarya && <li><strong>Prakarya:</strong> {formData.lintasDisiplinIlmu.prakarya}</li>}
+                  {formData.lintasDisiplinIlmu.pjok && <li><strong>PJOK:</strong> {formData.lintasDisiplinIlmu.pjok}</li>}
+                  {formData.lintasDisiplinIlmu.lainnya && <li><strong>Lainnya:</strong> {formData.lintasDisiplinIlmu.lainnya}</li>}
+                </ul>
+              ) : (
+                <div>-</div>
+              )}
+            </div>
+          </div>
+        ) : (
         <table
           style={{
             width: '100%',
@@ -1261,6 +1420,45 @@ export const DocumentPreview = ({
             )}
             
             {/* Pemanfaatan Digital */}
+        {outputFormat === 'minimalis' && (
+          <div style={{ marginBottom: '20px' }}>
+            <h3 style={{ fontSize: '12pt', fontWeight: 'bold', borderBottom: '1px solid black', paddingBottom: '4px', marginBottom: '8px' }}>VIII. KEMITRAAN PEMBELAJARAN</h3>
+            <div style={{ paddingLeft: '8px', marginBottom: '16px' }}>
+              {formData.kemitraanPembelajaran ? (
+                <ul style={{ margin: '0', paddingLeft: '20px' }}>
+                  {formData.kemitraanPembelajaran.guruBidangStudiLain && <li><strong>Guru Bidang Studi Lain:</strong> {formData.kemitraanPembelajaran.guruBidangStudiLain}</li>}
+                  {formData.kemitraanPembelajaran.orangTua && <li><strong>Orang Tua:</strong> {formData.kemitraanPembelajaran.orangTua}</li>}
+                  {formData.kemitraanPembelajaran.tokohMasyarakat && <li><strong>Tokoh Masyarakat:</strong> {formData.kemitraanPembelajaran.tokohMasyarakat}</li>}
+                  {formData.kemitraanPembelajaran.instansiTerkait && <li><strong>Instansi Terkait:</strong> {formData.kemitraanPembelajaran.instansiTerkait}</li>}
+                  {formData.kemitraanPembelajaran.duniaUsaha && <li><strong>Dunia Usaha/Industri:</strong> {formData.kemitraanPembelajaran.duniaUsaha}</li>}
+                  {formData.kemitraanPembelajaran.perguruanTinggiLSM && <li><strong>Perguruan Tinggi/LSM:</strong> {formData.kemitraanPembelajaran.perguruanTinggiLSM}</li>}
+                  {formData.kemitraanPembelajaran.mgmpKomunitasBelajar && <li><strong>MGMP/Komunitas Belajar:</strong> {formData.kemitraanPembelajaran.mgmpKomunitasBelajar}</li>}
+                </ul>
+              ) : formData.kemitraan ? (
+                <div style={{ marginLeft: '12px' }}>{formData.kemitraan}</div>
+              ) : (
+                <div style={{ marginLeft: '12px' }}>-</div>
+              )}
+            </div>
+
+            <h3 style={{ fontSize: '12pt', fontWeight: 'bold', borderBottom: '1px solid black', paddingBottom: '4px', marginBottom: '8px' }}>IX. LINGKUNGAN PEMBELAJARAN</h3>
+            <div style={{ paddingLeft: '8px', marginBottom: '16px' }}>
+              {formData.lingkunganPembelajaranDetail ? (
+                <ul style={{ margin: '0', paddingLeft: '20px' }}>
+                  {formData.lingkunganPembelajaranDetail.ruangFisik && <li><strong>Ruang Fisik:</strong> {formData.lingkunganPembelajaranDetail.ruangFisik}</li>}
+                  {formData.lingkunganPembelajaranDetail.ruangVirtual && <li><strong>Ruang Virtual:</strong> {formData.lingkunganPembelajaranDetail.ruangVirtual}</li>}
+                  {formData.lingkunganPembelajaranDetail.budayaBelajar && <li><strong>Budaya Belajar:</strong> {formData.lingkunganPembelajaranDetail.budayaBelajar}</li>}
+                </ul>
+              ) : formData.lingkunganPembelajaran ? (
+                <div style={{ marginLeft: '12px' }}>{formData.lingkunganPembelajaran}</div>
+              ) : (
+                <div style={{ marginLeft: '12px' }}>-</div>
+              )}
+            </div>
+          </div>
+        )}
+            
+            {/* Pemanfaatan Digital */}
             <tr style={{ backgroundColor: '#ede9fe' }}>
               <td
                 colSpan={2}
@@ -1300,6 +1498,61 @@ export const DocumentPreview = ({
             )}
           </tbody>
         </table>
+        )}
+
+        {/* Minimalis layout for VIII, IX, X */}
+        {outputFormat === 'minimalis' && (
+          <div style={{ marginBottom: '20px' }}>
+            <h3 style={{ fontSize: '12pt', fontWeight: 'bold', borderBottom: '1px solid black', paddingBottom: '4px', marginBottom: '8px' }}>VIII. KEMITRAAN PEMBELAJARAN</h3>
+            <div style={{ paddingLeft: '8px', marginBottom: '16px' }}>
+              {formData.kemitraanPembelajaran ? (
+                <ul style={{ margin: '0', paddingLeft: '20px' }}>
+                  {formData.kemitraanPembelajaran.guruBidangStudiLain && <li><strong>Guru Bidang Studi Lain:</strong> {formData.kemitraanPembelajaran.guruBidangStudiLain}</li>}
+                  {formData.kemitraanPembelajaran.orangTua && <li><strong>Orang Tua:</strong> {formData.kemitraanPembelajaran.orangTua}</li>}
+                  {formData.kemitraanPembelajaran.tokohMasyarakat && <li><strong>Tokoh Masyarakat:</strong> {formData.kemitraanPembelajaran.tokohMasyarakat}</li>}
+                  {formData.kemitraanPembelajaran.instansiTerkait && <li><strong>Instansi Terkait:</strong> {formData.kemitraanPembelajaran.instansiTerkait}</li>}
+                  {formData.kemitraanPembelajaran.duniaUsaha && <li><strong>Dunia Usaha/Industri:</strong> {formData.kemitraanPembelajaran.duniaUsaha}</li>}
+                  {formData.kemitraanPembelajaran.perguruanTinggiLSM && <li><strong>Perguruan Tinggi/LSM:</strong> {formData.kemitraanPembelajaran.perguruanTinggiLSM}</li>}
+                  {formData.kemitraanPembelajaran.mgmpKomunitasBelajar && <li><strong>MGMP/Komunitas Belajar:</strong> {formData.kemitraanPembelajaran.mgmpKomunitasBelajar}</li>}
+                </ul>
+              ) : formData.kemitraan ? (
+                <div style={{ marginLeft: '12px' }}>{formData.kemitraan}</div>
+              ) : (
+                <div style={{ marginLeft: '12px' }}>-</div>
+              )}
+            </div>
+
+            <h3 style={{ fontSize: '12pt', fontWeight: 'bold', borderBottom: '1px solid black', paddingBottom: '4px', marginBottom: '8px' }}>IX. LINGKUNGAN PEMBELAJARAN</h3>
+            <div style={{ paddingLeft: '8px', marginBottom: '16px' }}>
+              {formData.lingkunganPembelajaranDetail ? (
+                <ul style={{ margin: '0', paddingLeft: '20px' }}>
+                  {formData.lingkunganPembelajaranDetail.ruangFisik && <li><strong>Ruang Fisik:</strong> {formData.lingkunganPembelajaranDetail.ruangFisik}</li>}
+                  {formData.lingkunganPembelajaranDetail.ruangVirtual && <li><strong>Ruang Virtual:</strong> {formData.lingkunganPembelajaranDetail.ruangVirtual}</li>}
+                  {formData.lingkunganPembelajaranDetail.budayaBelajar && <li><strong>Budaya Belajar:</strong> {formData.lingkunganPembelajaranDetail.budayaBelajar}</li>}
+                </ul>
+              ) : formData.lingkunganPembelajaran ? (
+                <div style={{ marginLeft: '12px' }}>{formData.lingkunganPembelajaran}</div>
+              ) : (
+                <div style={{ marginLeft: '12px' }}>-</div>
+              )}
+            </div>
+
+            <h3 style={{ fontSize: '12pt', fontWeight: 'bold', borderBottom: '1px solid black', paddingBottom: '4px', marginBottom: '8px' }}>X. PEMANFAATAN DIGITAL</h3>
+            <div style={{ paddingLeft: '8px', marginBottom: '16px' }}>
+              {formData.pemanfaatanDigitalDetail ? (
+                <ul style={{ margin: '0', paddingLeft: '20px' }}>
+                  {formData.pemanfaatanDigitalDetail.perencanaan && <li><strong>Perencanaan:</strong> {formData.pemanfaatanDigitalDetail.perencanaan}</li>}
+                  {formData.pemanfaatanDigitalDetail.pelaksanaan && <li><strong>Pelaksanaan:</strong> {formData.pemanfaatanDigitalDetail.pelaksanaan}</li>}
+                  {formData.pemanfaatanDigitalDetail.asesmen && <li><strong>Asesmen:</strong> {formData.pemanfaatanDigitalDetail.asesmen}</li>}
+                </ul>
+              ) : formData.pemanfaatanDigital ? (
+                <div style={{ marginLeft: '12px' }}>{formData.pemanfaatanDigital}</div>
+              ) : (
+                <div style={{ marginLeft: '12px' }}>-</div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Langkah Pembelajaran Section */}
         <div style={{ marginBottom: '30px' }}>

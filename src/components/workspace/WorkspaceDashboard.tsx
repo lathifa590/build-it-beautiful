@@ -7,6 +7,9 @@ import type { ProtaData, ProsemData, KKTPData } from '@/types/modul';
 import { CreateWorkspaceModal } from './CreateWorkspaceModal';
 import { toast } from 'sonner';
 import { useConfirm } from '@/contexts/ConfirmContext';
+import { StorePublishModal } from '../store/StorePublishModal';
+import { Store } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 export const WorkspaceDashboard = ({ 
   onNavigate,
@@ -26,9 +29,11 @@ export const WorkspaceDashboard = ({
   onShowUpsell?: () => void;
 }) => {
   const { activeWorkspace, duplicateWorkspace, archiveWorkspace } = useWorkspace();
+  const { user, isAdmin } = useAuth();
   const { confirm, prompt } = useConfirm();
   const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);
   const [isArchiving, setIsArchiving] = React.useState(false);
+  const [isPublishModalOpen, setIsPublishModalOpen] = React.useState(false);
 
   const handleArchive = async () => {
     if (!activeWorkspace) return;
@@ -179,6 +184,18 @@ export const WorkspaceDashboard = ({
                 Duplikasi Workspace
               </DropdownMenuItem>
               <DropdownMenuSeparator />
+              {(isAdmin || user?.email === 'jagofeed@gmail.com') && (
+                <>
+                  <DropdownMenuItem
+                    onClick={() => setIsPublishModalOpen(true)}
+                    className="cursor-pointer py-2 text-green-700 focus:text-green-800 focus:bg-green-50"
+                  >
+                    <Store className="w-4 h-4 mr-2" />
+                    Publish ke Toko
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                </>
+              )}
               <DropdownMenuItem
                 onClick={handleArchive}
                 disabled={isArchiving}
@@ -191,6 +208,19 @@ export const WorkspaceDashboard = ({
           </DropdownMenu>
         </div>
       </div>
+
+      <StorePublishModal 
+        isOpen={isPublishModalOpen}
+        onClose={() => setIsPublishModalOpen(false)}
+        protaData={protaData}
+        prosemSem1={prosemSem1}
+        prosemSem2={prosemSem2}
+        formData={{
+          mataPelajaran: activeWorkspace.subject,
+          kelas: activeWorkspace.grade,
+          fase: activeWorkspace.phase,
+        } as FormData}
+      />
 
       {isMismatch && (
         <div className="bg-red-50 border-2 border-red-500 rounded-xl p-4 flex items-start gap-3 shadow-brutal-sm">
