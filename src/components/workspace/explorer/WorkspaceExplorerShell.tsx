@@ -34,6 +34,7 @@ export const WorkspaceExplorerShell: React.FC<WorkspaceExplorerShellProps> = ({
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isEnqueuing, setIsEnqueuing] = useState(false);
   const [queueStats, setQueueStats] = useState({ pending: 0, processing: 0, completed: 0, failed: 0, total: 0 });
+  const [isQueueLoading, setIsQueueLoading] = useState(true);
   const [isAutoGenerateModalOpen, setIsAutoGenerateModalOpen] = useState(false);
   const [autogenQuota, setAutogenQuota] = useState({ used: 0, limit: 10, isCurrentUsed: false });
   const { prosemPlans, prosemItems, isLoading, error, refresh } = useProsemData(workspace.id);
@@ -66,6 +67,7 @@ export const WorkspaceExplorerShell: React.FC<WorkspaceExplorerShellProps> = ({
           return stats;
         });
       }
+      setIsQueueLoading(false);
     };
     
     const fetchQuota = async () => {
@@ -209,7 +211,8 @@ export const WorkspaceExplorerShell: React.FC<WorkspaceExplorerShellProps> = ({
               <p className="text-sm font-bold text-amber-800">Perhatian</p>
               <p className="text-sm text-amber-700 mt-0.5">Ada {totalMeetings - completedMeetings} pertemuan yang belum mempunyai Modul Ajar.</p>
               
-              {queueStats.total > 0 && (queueStats.pending > 0 || queueStats.processing > 0) ? (
+              {/* Show progress bar if queue is loading OR if there are active/completed items */}
+              {(isQueueLoading || (queueStats.total > 0 && (queueStats.pending > 0 || queueStats.processing > 0))) ? (
                 <div className="mt-3 text-sm text-amber-900 bg-amber-100/50 p-3 rounded-lg border border-amber-200/50">
                   <p className="font-semibold flex items-center justify-between">
                     <span>Sedang diproses di server...</span>

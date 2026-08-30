@@ -446,12 +446,6 @@ export const usePertemuanGeneration = ({
         runningRef.current = false;
         setIsGenerating(false);
         setProgress(null);
-      }
-    },
-    [enabled, invoke, setResult],
-  );
-
-  /** Memasukkan dokumen yang belum ada / gagal ke dalam queue di backend (Cron Job). */
   const enqueueMissingDocuments = useCallback(
     async (workspaceId: string, pertemuanIds?: string[]) => {
       if (!enabled) return false;
@@ -459,6 +453,19 @@ export const usePertemuanGeneration = ({
       if (tasks.length === 0) return false;
 
       const totalPertemuan = resultRef.current.pertemuan.length;
+      
+      // Cek apakah workspace INI sudah punya antrean aktif (pending/processing)
+      const { data: thisWorkspaceTasks } = await supabase
+        .from('generation_queue')
+        .select('id')
+        .eq('workspace_id', workspaceId)
+        .in('status', ['pending', 'processing'])
+        .limit(1);
+
+      if (thisWorkspaceTasks && thisWorkspaceTasks.length > 0) {
+        cbRef.current?.onNotify?.('Workspace ini sudah memiliki antrean yang sedang berjalan. Harap tunggu hingga selesai.', 'error');
+        return false;
+      }
       
       // Cek apakah user sudah punya antrean aktif di workspace lain
       const { data: otherActiveTasks, error: checkError } = await supabase
