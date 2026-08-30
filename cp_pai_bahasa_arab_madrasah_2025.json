@@ -1,0 +1,498 @@
+{
+  "kategori": "Capaian Pembelajaran PAI dan Bahasa Arab Madrasah (SK Dirjen Pendis No 9941 Tahun 2025)",
+  "kategori_detail": [
+    {
+      "kategori": "Raudlatul Athfal (RA)",
+      "mata_pelajaran": [
+        {
+          "nama": "Pendidikan Anak Usia Dini / RA",
+          "capaian_per_fase": [
+            {
+              "fase": "Fondasi",
+              "kelas": "Anak Usia Dini (4-6 Tahun)",
+              "elemen": {
+                "Nilai Agama dan Budi Pekerti": "Murid mengenal dan percaya kepada Allah Swt. melalui asmaulhusna dan ciptaan-Nya. Murid mengenal Al-Qur’an dan Al-Hadis sebagai pedoman hidupnya. Murid mempraktikkan ibadah sehari-hari dengan tuntunan orang dewasa. Murid membiasakan berakhlak karimah di lingkungan rumah, madrasah, dan lingkungan sekitarnya dengan menghargai perbedaan. Murid meneladani kisah Nabi Muhammad saw. dan para sahabat serta cerita-cerita islami. Murid mengenal kosa kata bahasa Arab secara sederhana. Murid berpartisipasi aktif dalam menjaga kebersihan, kesehatan, dan keselamatan diri sebagai bentuk rasa sayang terhadap dirinya dan rasa syukur kepada Allah Swt. Murid menghargai alam dengan cara merawatnya dan menunjukkan rasa sayang terhadap makhluk hidup yang merupakan ciptaan Allah Swt.",
+                "Jati Diri": "Murid mengenali identitas dirinya yang terbentuk oleh karakteristik fisik, gender, minat, kebutuhan, agama dan sosial budaya. Murid mengenali kebiasaan-kebiasaan di lingkungan keluarga, satuan pendidikan, dan masyarakat. Murid mengenali, mengekspresikan, dan mengelola emosi diri, serta membangun hubungan sosial secara sehat. Murid mengenali perannya sebagai bagian dari keluarga, madarasah, masyarakat dan warga negara Indonesia sehingga dapat menyesuaikan diri dengan lingkungan, aturan dan norma yang berlaku; dan mengetahui keberadaan negara lain di dunia. Murid memiliki fungsi gerak (motorik kasar, halus dan taktil) untuk merawat dirinya, membangun kemandirian dan berkegiatan.",
+                "Dasar-Dasar Literasi, Matematika, Sains, Teknologi, Rekayasa, dan Seni": "Murid mengenali dan memahami berbagai informasi, mengomunikasikan perasaan dan pikiran secara lisan, tulisan, atau menggunakan berbagai media serta membangun percakapan, menunjukkan minat, dan berpartisipasi dalam kegiatan pramembaca. Murid memiliki kepekaan bilangan; mengidentifikasi pola; memiliki kesadaran tentang bentuk; posisi, dan ruang, menyadari adanya persamaan dan perbedaan karakteristik antarobjek; mampu melakukan pengukuran dengan satuan tidak baku; dan memiliki kesadaran mengenal waktu. Murid mampu mengamati, menyebutkan alasan, pilihan atau keputusannya, mampu memecahkan masalah sederhana, serta mengetahui hubungan sebab akibat atau dari suatu kondisi atau situasi yang dipengaruhi oleh hukum alam dan kondisi sosial. Murid menunjukkan kemampuan awal menggunakan dan merekayasa teknologi serta untuk mencari informasi, gagasan, dan keterampilan secara aman dan bertanggungjawab. Murid mengeksplorasi berbagai proses seni, mengekspresikannya serta mengapresiasi karya seni."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kategori": "Mata Pelajaran PAI dan Bahasa Arab Umum (MI, MTs, MA/MAK)",
+      "mata_pelajaran": [
+        {
+          "nama": "Al-Qur'an Hadis",
+          "capaian_per_fase": [
+            {
+              "fase": "A",
+              "kelas": "Kelas 1 dan 2 MI",
+              "elemen": {
+                "Pemahaman Konsep - Tajwid": "Mengenal dan menulis huruf hijaiyah secara terpisah dan bersambung beserta tanda bacanya; menerapkan hukum Gunnah; Alif Lam Qamariyah dan Alif Lam Syamsiyah sebagai bekal dalam mempraktikan bacaan Al-Qur’an dengan baik dan benar.",
+                "Pemahaman Konsep - Al-Qur'an": "Menghafal dan menjelaskan surah-surah pendek pilihan serta menerapkannya dalam kehidupan sehari-hari.",
+                "Pemahaman Konsep - Hadis": "Menghafal dan menjelaskan hadis tentang kebersihan; keutamaan belajar; dan berbakti pada kedua orang tua, serta menerapkan isi kandungannya dalam kehidupan sehari-hari.",
+                "Keterampilan Proses": "Mengamati fenomena, fakta dan peristiwa secara sederhana kemudian mencatat hasil pengamatannya; mempertanyakan dan memprediksi dengan bantuan guru; merencanakan dan melakukan penyelidikan; memproses dan menganalisis data; mengevaluasi dan merefleksikan; mengomunikasikan hasil."
+              }
+            },
+            {
+              "fase": "B",
+              "kelas": "Kelas 3 dan 4 MI",
+              "elemen": {
+                "Pemahaman Konsep - Tajwid": "Menerapkan hukum bacaan kalkalah, mad tabi’i, izhar halqi, ikhfa’ hakiki, idgam bigunnah, idgam bilagunnah, dan iqlab sebagai bekal dalam praktik membaca Al-Qur’an dengan baik dan benar.",
+                "Pemahaman Konsep - Al-Qur'an": "Menghafal dan menulis surah-surah pendek/pilihan; menjelaskan arti dan isi kandungannya agar dapat menerapkan dalam kehidupan sehari-hari.",
+                "Pemahaman Konsep - Hadis": "Menghafal dan menulis hadis tentang salat berjemaah, persaudaraan, takwa, niat, dan silaturahmi, menjelaskan arti serta isi kandungannya, agar dapat menerapkan dalam kehidupan sehari-hari.",
+                "Keterampilan Proses": "Mengamati dan mengidentifikasi fenomena; mempertanyakan dan memprediksi; merencanakan dan melakukan penyelidikan; memproses dan menganalisis data; mengevaluasi dan merefleksi; mengomunikasikan hasil secara lisan maupun tulisan."
+              }
+            },
+            {
+              "fase": "C",
+              "kelas": "Kelas 5 dan 6 MI",
+              "elemen": {
+                "Pemahaman Konsep - Tajwid": "Menerapkan hukum bacaan mim sukun, waqaf wasal, dan hukum ra’ tafkhim dan tarqiq, jawazul wajhain dalam praktik membaca Al-Qur’an dengan baik dan benar.",
+                "Pemahaman Konsep - Al-Qur'an": "Menghafal dan menulis ayat/surah dalam Al-Qur’an tentang ciri-ciri orang munafik, menyayangi anak yatim, keutamaan memberi, amal saleh; menjelaskan arti dan isi kandungannya agar dapat menerapkan dalam kehidupan sehari-hari.",
+                "Pemahaman Konsep - Hadis": "Menghafal dan menulis hadis tentang ciri-ciri orang munafik, menyayangi anak yatim, keutamaan memberi, dan amal saleh; menjelaskan arti dan isi kandungannya agar dapat menerapkan dalam kehidupan sehari-hari.",
+                "Keterampilan Proses": "Mengamati fenomena yang relevan dengan Al-Qur'an dan Hadis; mempertanyakan dan memprediksi; merencanakan dan melakukan penyelidikan; memproses dan menganalisis data; mengevaluasi dan merefleksi; mengomunikasikan hasil."
+              }
+            },
+            {
+              "fase": "D",
+              "kelas": "Kelas 7, 8, dan 9 MTs",
+              "elemen": {
+                "Pemahaman Konsep - Tajwid": "Menerapkan hukum bacaan mad tabi’i, mad far’i, dan bacaan garib agar dapat membaca Al-Qur’an secara baik dan benar.",
+                "Pemahaman Konsep - Al-Qur'an": "Merefleksi isi kandungan ayat-ayat Al-Qur’an secara tekstual dan kontekstual tentang kekuasaan dan rahmat Allah Swt., sifat pemurah, optimis dan sabar, infak di jalan Allah Swt., kehidupan dunia yang sementara dan akhirat yang kekal, sikap peduli terhadap masyarakat dan lingkungannya, bersikap jujur dalam bemuamalah, semangat menuntut ilmu.",
+                "Pemahaman Konsep - Hadis": "Merefleksi isi kandungan hadis secara tekstual dan kontekstual tentang kekuasaan dan rahmat Allah Swt., sifat pemurah, optimis dan sabar, infak di jalan Allah Swt., kehidupan dunia yang sementara dan akhirat yang kekal, sikap peduli terhadap masyarakat dan lingkungannya, bersikap jujur dalam bemuamalah, semangat menuntut ilmu.",
+                "Keterampilan Proses": "Mengamati perilaku masyarakat; merencanakan dan melakukan penyelidikan; memproses, menganalisis data dan informasi; mengevaluasi dan refleksi; mengomunikasikan hasil secara sistematis."
+              }
+            },
+            {
+              "fase": "E",
+              "kelas": "Kelas 10 MA/MAK",
+              "elemen": {
+                "Pemahaman Konsep - Ilmu Al-Qur'an": "Menganalisis pendefinisian Al-Qur’an dari para ulama; merefleksikan sejarah Al-Qur’an dan proses kodifikasi Al-Qur’an; menganalisis bukti keautentikan dan kemukjizatan Al-Qur’an; pokok-pokok kandungan, dan struktur Al-Qur’an.",
+                "Pemahaman Konsep - Ilmu Hadis": "Menganalisis konsep hadis, sunah, khabar, dan asar; merefleksikan sejarah kodifikasi dan perkembangan Ilmu Hadis; menganalisis unsur-unsur hadis; menganalisis kedudukan dan fungsi hadis terhadap Al-Qur’an; menganalisis pembagian hadis berdasarkan kualitas dan kuantitas; merefleksikan peran ulama hadis dalam mengembangkan ilmu hadis.",
+                "Keterampilan Proses": "Mengamati perilaku masyarakat; merencanakan dan melakukan penyelidikan; memproses dan menganalisis data; mengevaluasi dan merefleksi; mengomunikasikan hasil analisis."
+              }
+            },
+            {
+              "fase": "F",
+              "kelas": "Kelas 11 dan 12 MA/MAK",
+              "elemen": {
+                "Pemahaman Konsep - Al-Qur'an": "Merefleksi isi kandungan ayat Al-Qur’an tentang manusia sebagai khalifah Allah, tanggung jawab manusia, patuh dan hormat kepada orang tua dan guru, sikap terhadap kehidupan dunia yang sementara dan akhirat yang kekal, menghindari perilaku keji dan mungkar, kompetisi dalam kebaikan, konsumsi makanan yang baik dan halal, kewajiban bersyukur, pola hidup sederhana dan empati kepada duafa, sabar menghadapi ujian, pelestarian lingkungan hidup, kewajiban menuntut ilmu, kewajiban dakwah, amar makruf nahi mungkar, toleransi dan moderasi, musyawarah dan demokrasi, berlaku adil dan jujur.",
+                "Pemahaman Konsep - Hadis": "Merefleksi isi kandungan hadis-hadis tentang manusia sebagai khalifah Allah, tanggung jawab manusia, patuh dan hormat kepada orang tua dan guru, sikap terhadap kehidupan dunia yang sementara dan akhirat yang kekal, menghindari perilaku keji dan mungkar, kompetisi dalam kebaikan, konsumsi makanan yang baik dan halal, kewajiban bersyukur, pola hidup sederhana dan empati kepada duafa, sabar menghadapi ujian, pelestarian lingkungan hidup, kewajiban menuntut ilmu, kewajiban dakwah, amar makruf nahi mungkar, toleransi dan moderasi, musyawarah dan demokrasi, berlaku adil dan jujur.",
+                "Keterampilan Proses": "Mengamati; merencanakan dan melakukan penyelidikan; memproses dan menganalisis data dan informasi; mengevaluasi dan refleksi; mengomunikasikan hasil."
+              }
+            }
+          ]
+        },
+        {
+          "nama": "Akidah Akhlak",
+          "capaian_per_fase": [
+            {
+              "fase": "A",
+              "kelas": "Kelas 1 dan 2 MI",
+              "elemen": {
+                "Pemahaman Konsep - Akidah": "Menghafal dan menjelaskan dua kalimah syahadat, enam rukun iman, sifat wajib bagi Allah, dan iman kepada malaikat Allah; menemukan contoh asmaulhusna (ar-Rahman, ar-Rahim, al-Malik, al-Quddus, as-Salam, al-Mukmin, al-Muhaimin, al-Aziz).",
+                "Pemahaman Konsep - Akhlak": "Menghafal dan menjelaskan kalimah thayyibah (basmalah, hamdalah, dan taawuz); mengidentifikasi dan menerapkan pola hidup sehat dan bersih, sikap jujur, rasa terima kasih dan rendah hati, cara menghindari sikap malas, berkata kasar, dan berbohong.",
+                "Pemahaman Konsep - Adab": "Mengidentifikasi dan menerapkan adab belajar, mandi, berpakaian, bersin, menguap, makan, dan minum.",
+                "Pemahaman Konsep - Kisah Keteladanan": "Menceritakan dan meneladan kisah Nabi Muhammad saw. dan Nabi Nuh a.s.",
+                "Keterampilan Proses": "Mengamati fenomena kehidupan/gambar/video; menanya dan mengumpulkan informasi; menyimpulkan; mengomunikasikan hasil; menghafal dan menerapkan; merefleksikan dan rencana tindak lanjut."
+              }
+            },
+            {
+              "fase": "B",
+              "kelas": "Kelas 3 dan 4 MI",
+              "elemen": {
+                "Pemahaman Konsep - Akidah": "Menemukan contoh asmaulhusna (al-Halim, al-Wahhab, al-Kabir, al-'Adhim, as-Sami’, al-Bashir, al-Waliy, dan al-'Alim); menghafal dan menjelaskan iman kepada kitab-kitab Allah Swt. serta nabi dan rasul-Nya.",
+                "Pemahaman Konsep - Akhlak": "Menghafal dan menjelaskan kalimah thayyibah (Subhanallah, Allahu Akbar, Masya Allah); menjelaskan dan menerapkan sikap bersyukur, pantang menyerah, pemberani, tolong-menolong, amanah serta cara menghindari sikap serakah, kikir, dan kufur nikmat.",
+                "Pemahaman Konsep - Adab": "Menerapkan adab kepada kedua orang tua, guru, dan teman.",
+                "Pemahaman Konsep - Kisah Keteladanan": "Menceritakan dan menerapkan perilaku taat melalui kisah Nabi Ibrahim a.s. dan Nabi Ismail a.s.",
+                "Keterampilan Proses": "Mengamati; mempertanyakan dan memprediksi; merencanakan dan melakukan penyelidikan; memproses dan menganalisis informasi; mengomunikasikan hasil; merefleksikan dan rencana tindak lanjut."
+              }
+            },
+            {
+              "fase": "C",
+              "kelas": "Kelas 5 dan 6 MI",
+              "elemen": {
+                "Pemahaman Konsep - Akidah": "Menerapkan perilaku yang mencerminkan sifat asmaulhusna (al-Qawiyy, al-Khabir, al-Muhyi, al-Wahid, al-Ahad, as-Samad, al-Ghaffar, dan al-Waasi’); menjelaskan hari akhir (kiamat), qada dan qadar.",
+                "Pemahaman Konsep - Akhlak": "Menjelaskan dan menerapkan kalimah thayyibah (istigfar, hauqalah, tarji', dan tahlil); menerapkan dan merefleksikan akhlak terpuji (sabar, disiplin, mandiri, pemaaf, tanggung jawab, adil, dan bijaksana), serta cara menghindari akhlak tercela (pemarah, fasik, pilih kasih, iri hati, dan egois).",
+                "Pemahaman Konsep - Adab": "Mengidentifikasi dan menerapkan adab bertamu, adab kepada tetangga, dan lingkungan.",
+                "Pemahaman Konsep - Kisah Keteladanan": "Menceritakan dan menerapkan sikap keberanian dan teguh pendirian melalui kisah Nabi Musa a.s. dan sikap sabar melalui kisah Nabi Isa a.s.",
+                "Keterampilan Proses": "Mengamati; menanya dan mengumpulkan informasi; menganalisis; menyimpulkan; mengomunikasikan; menerapkan; merefleksikan dan rencana tindak lanjut."
+              }
+            },
+            {
+              "fase": "D",
+              "kelas": "Kelas 7, 8, dan 9 MTs",
+              "elemen": {
+                "Pemahaman Konsep - Akidah": "Menganalisis akidah Islam (iman, Islam, ihsan); menerapkan perilaku yang mencerminkan asmaulhusna (al-Bashith, al-Gani, ar-Ra'uf, al-Barr, al-Fattah, al-'Adl, al-Wakiil, at-Thawwab, al-Lathif, al-Qohhar); menganalisis enam rukun iman (Iman kepada Allah, malaikat, kitab, rasul, hari kiamat, qada dan qadar).",
+                "Pemahaman Konsep - Akhlak": "Menerapkan dan merefleksikan akhlak terpuji (tobat, taat, istikamah, ikhlas, ikhtiar, tawakal, kanaah, sabar, syukur, husnuzan, tawaduk, tasamuh, ta'awun, berilmu, kreatif, produktif, dan inovatif) dan cara menghindari akhlak tercela (riya, nifak, putus asa, ananiyah, dendam, ghadhab, khalwat (pacaran) dan ikhtilat).",
+                "Pemahaman Konsep - Adab": "Menerapkan adab salat dan zikir, membaca Al-Qur’an dan berdoa; menerapkan dan merefleksikan adab kepada orang tua, guru, saudara, tetangga, dan teman, adab berjalan dan berpakaian, serta menyusun dan menerapkan strategi bijak adab bermedia sosial.",
+                "Pemahaman Konsep - Kisah Keteladanan": "Menganalisis dan menerapkan keteladanan dari kisah-kisah Nabi (Nabi Yunus a.s., Nabi Ayub a.s., Nabi Daud a.s., dan Nabi Sulaiman a.s.) dan keteladanan dari kisah Khulafaurasyidin (Abu Bakar, Umar bin Khattab, Usman bin Affan, dan Ali bin Abi Thalib).",
+                "Keterampilan Proses": "Mengamati, mengidentifikasi, dan menanya; mengumpulkan informasi, menganalisis, dan memecahkan masalah; menyimpulkan; mengomunikasikan hasil; menerapkan; merefleksikan dan rencana tindak lanjut."
+              }
+            },
+            {
+              "fase": "E",
+              "kelas": "Kelas 10 MA/MAK",
+              "elemen": {
+                "Pemahaman Konsep - Akidah": "Menganalisis sifat wajib Allah Swt. (nafsiyah, salbiyah, ma'ani, dan ma'nawiyah), mustahil, dan jaiz; menganalisis dan menerapkan perilaku yang mencerminkan asmaulhusna (al-Karim, al-Hakam, al-Haq, al-Hafiz, al-Wahhab, ar-Rakib, al-Mubdi’, dan al-Qoyyum).",
+                "Pemahaman Konsep - Akhlak": "Menganalisis dan menerapkan akhlak terpuji (hikmah, 'iffah, syaja'ah, dan 'adalah) dan cara menghindari akhlak tercela (hubbud-dunya, hasad, ujub, sombong, syahwat, licik, tamak, zalim, dan diskriminatif).",
+                "Pemahaman Konsep - Adab": "Menganalisis dalil berbakti kepada orang tua dan guru dan merefleksikan hikmah berbakti kepada orang tua dan guru.",
+                "Pemahaman Konsep - Kisah Keteladanan": "Menganalisis dan menerapkan keteladanan kisah Nabi Luth a.s. dan Ashabulkahfi dalam kesabaran, ketangguhan, dan keberanian dalam menegakkan amar ma'ruf dan nahi munkar.",
+                "Keterampilan Proses": "Mengamati, mengidentifikasi, dan menanya; mengumpulkan informasi, menganalisis, dan memecahkan masalah; menyimpulkan; mengomunikasikan hasil; menerapkan; merefleksikan dan rencana tindak lanjut."
+              }
+            },
+            {
+              "fase": "F",
+              "kelas": "Kelas 11 dan 12 MA/MAK",
+              "elemen": {
+                "Pemahaman Konsep - Akidah": "Menganalisis sejarah ilmu kalam; mengidentifikasi dan menganalisis tokoh utama aliran ilmu kalam, ajaran pokok aliran-aliran ilmu kalam (Khawarij, Syiah, Murji'ah, Jabariyah, Qodariyah, Mu'tazilah, Ahlusunah waljamaah (Asy'ariyah dan Maturidiyah); menganalisis dan merefleksikan perilaku yang mencerminkan asmaulhusna (al-‘Afuww, ar-Razzaq, ad- Dhaar, an-Nafi’, al-Hasib, al-Hadi, dan al-Khalik), menganalisis dalil serta fakta terkait kematian; mengidentifikasi dan menganalisis ciri husnul khotimah dan su’ul khatimah.",
+                "Pemahaman Konsep - Akhlak": "Menganalisis dan mengklasifikasi tingkatan spiritual (syariat, tarekat, hakikat, dan makrifat); menganalisis inti ajaran tasawuf menurut tokoh (Imam Junaid al-Baghdadi, Rabiah al-Adawiyah, al-Ghazali, Syekh Abdul Qadir al-Jailani); menganalisis dan merefleksikan sikap musawah, tawasut dan ukhuah; sikap kolaboratif, fastabiqul khairat, dan ikhlas; cara menghindari sikap israf, tabzir, bakhil, dan pergaulan bebas lawan jenis.",
+                "Pemahaman Konsep - Kisah Keteladanan": "Menganalisis, menerapkan, dan merefleksi keteladanan kisah para sahabat (Fatimah az-Zahra r.a. Uways al-Qarni, Abdurrahman bin Auf, Abu Dzar al-Gifari r.a.), kesufian empat Imam mazhab (Imam Hanafi, Imam Malik, Imam Asy-Syafi'i, Imam Ahmad bin Hambal), dan ulama Nusantara (K.H. Khalil al-Bangkalani, K.H. Hasyim Asy'ari, dan K.H. Ahmad Dahlan).",
+                "Keterampilan Proses": "Mengamati, mengidentifikasi, dan menganalisis; mengumpulkan informasi dan memecahkan masalah; menyimpulkan; mengomunikasikan hasil; menerapkan; merefleksikan dan rencana tindak lanjut."
+              }
+            }
+          ]
+        },
+        {
+          "nama": "Fikih",
+          "capaian_per_fase": [
+            {
+              "fase": "A",
+              "kelas": "Kelas 1 dan 2 MI",
+              "elemen": {
+                "Pemahaman Konsep - Ibadah": "Menyebutkan rukun Islam; meniru dan melafalkan kalimah syahadatain; meniru praktik taharah, salat fardu, salat berjemaah; meniru dan melafalkan azan dan ikamah serta bacaan zikir sesudah salat.",
+                "Keterampilan Proses": "Mengamati; menanya; mengumpulkan data; menganalisis data; menyimpulkan dan merefleksikan; mengomunikasikan hasil."
+              }
+            },
+            {
+              "fase": "B",
+              "kelas": "Kelas 3 dan 4 MI",
+              "elemen": {
+                "Pemahaman Konsep - Ibadah": "Menyebutkan tata cara pelaksanaan puasa Ramadan; meniru tata cara salat Jumat dan beberapa salat sunah; menyebutkan rukhsah pada salat; menyebutkan tata cara khitan, tanda-tanda balig beserta cara bersuci dari hadas besar.",
+                "Keterampilan Proses": "Mengamati; menanya; mengumpulkan data; menganalisis data; menyimpulkan dan merefleksikan; mengomunikasikan hasil."
+              }
+            },
+            {
+              "fase": "C",
+              "kelas": "Kelas 5 dan 6 MI",
+              "elemen": {
+                "Pemahaman Konsep - Ibadah": "Membedakan zakat fitrah, infak dan sedekah; mengklasifikasikan jenis-jenis hewan kurban; menyebutkan hikmah dari pelaksanaan kurban; mengurutkan pelaksanaan tata cara haji dan umrah; menjelaskan ketentuan halal dan haram.",
+                "Pemahaman Konsep - Muamalah": "Menceritakan pengalaman praktik jual beli; mengilustrasikan ketentuan pinjam meminjam; menjelaskan pentingnya menghindari perbuatan gasab, ketentuan barang temuan/luqathah.",
+                "Keterampilan Proses": "Mengamati; menanya; mengumpulkan data; menganalisis data; menyimpulkan dan merefleksikan; mengomunikasikan hasil."
+              }
+            },
+            {
+              "fase": "D",
+              "kelas": "Kelas 7, 8, dan 9 MTs",
+              "elemen": {
+                "Pemahaman Konsep - Ibadah": "Menerapkan dan menganalisis ketentuan taharah dari hadas dan najis, macam-macam salat dan rukhsahnya; menerjemahkan bacaan salat; membedakan dan menganalisis macam-macam sujud; menerapkan dan menganalisis ketentuan puasa Ramadan dan rangkaian ibadah sunah yang menyertainya; menerapkan dan menganalisis ketentuan puasa sunah, jenis-jenis infak dan zakat; membedakan dan menganalisis ketentuan kurban dan akikah; pelaksanaan haji dan umrah beserta macam-macamnya; mengklasifikasi dan menganalisis makanan, minuman, dan hewan yang halal dan haram; menjelaskan dan menerapkan ketentuan pemulasaraan jenazah.",
+                "Pemahaman Konsep - Muamalah": "Menganalisis ketentuan jual beli, khiyar, qiradl, larangan riba, ‘ariyah, wadi’ah, hutang-piutang, gadai, hiwalah, ijarah; dan menjelaskan ketentuan warisan.",
+                "Keterampilan Proses": "Mengamati; menanya; mengumpulkan data; menganalisis data; menyimpulkan dan merefleksikan; mengomunikasikan hasil."
+              }
+            },
+            {
+              "fase": "E",
+              "kelas": "Kelas 10 MA/MAK",
+              "elemen": {
+                "Pemahaman Konsep - Ibadah": "Memecahkan masalah dalam praktik taharah, salat dalam berbagai situasi seperti jamak, qasar, salat dalam kondisi sakit, salat dalam kendaraan dan keadaan darurat; merefleksikan pelaksanaan zakat profesi dan wakaf; menganalisis persoalan haji dan umrah; menerapkan dan merefleksi pelaksanaan pemulasaraan jenazah; menganalisis pelaksanaan sertifikasi halal dan tata cara penyembelihan hewan.",
+                "Pemahaman Konsep - Muamalah": "Menganalisis konsep kepemilikan dan perpindahannya meliputi sebab-sebab kepemilikan, akad, ihyaul mawat, jual beli, transaksi mengandung riba, khiyar, salam, al-hajru; menganalisis kerja sama permodalan dalam muamalah Islam seperti mudharabah, murabahah, syirkah, syuf’ah, wakalah, shulhu, dlaman, kafalah, wadiah, dan rahn; merefleksikan praktik transaksi online dalam perspektif Islam meliputi jual beli, pembayaran, pinjaman, dan judi online serta dampak yang menyertainya.",
+                "Keterampilan Proses": "Mengamati; menanya; mengumpulkan data; menganalisis data; menyimpulkan dan merefleksikan; mengomunikasikan hasil."
+              }
+            },
+            {
+              "fase": "F",
+              "kelas": "Kelas 11 dan 12 MA/MAK",
+              "elemen": {
+                "Pemahaman Konsep - Muamalah": "Menganalisis konsep jinayah, konsep hudud dalam Islam, konsep bughat dan riddah beserta akibat hukumnya, konsep peradilan Islam dalam kehidupan masyarakat; memecahkan berbagai masalah dalam perkawinan, talak dan rujuk yang terjadi di masyarakat, waris dan wasiat dalam kehidupan sehari-hari.",
+                "Pemahaman Konsep - Ushul Fikih": "Membandingkan konsep dasar Fikih dan Ushul Fikih sebagai dasar pelaksanaan ibadah dalam kehidupan sehari-hari; menerapkan sumber hukum Islam sebagai dasar pelaksanaan ibadah dalam kehidupan; memecahkan berbagai permasalahan melalui hasil ijtihad ulama dan pendapat mazhab; menganalisis konsep hukum syara’; menjelaskan konsep al-qawa'idul fiqhiyyah dan al-qawa'idul ushuliyyah untuk diterapkan dalam kehidupan sehari-hari.",
+                "Keterampilan Proses": "Mengamati; menanya; mengumpulkan data; menganalisis data; menyimpulkan dan merefleksikan; mengomunikasikan hasil."
+              }
+            }
+          ]
+        },
+        {
+          "nama": "Sejarah Kebudayaan Islam (SKI)",
+          "capaian_per_fase": [
+            {
+              "fase": "B",
+              "kelas": "Kelas 3 dan 4 MI",
+              "elemen": {
+                "Pemahaman Konsep": "Mengidentifikasi kehidupan masyarakat Arab sebelum Islam; menggambarkan kehidupan dan kepribadian Rasulullah saw.; mendeskripsikan peristiwa kerasulan Rasulullah saw.; menceritakan ketabahan Rasulullah saw. dan para sahabat dalam berdakwah; memahami kronologi hijrah Rasulullah saw.; menceritakan dan merefleksikan peristiwa Isra Mikraj Rasulullah saw. dalam kehidupan sehari-hari.",
+                "Keterampilan Proses": "Mengamati; mempertanyakan dan memprediksi; merencanakan dan melakukan penyelidikan; memproses, menganalisis data dan informasi; mengevaluasi dan refleksi; mengomunikasikan hasil."
+              }
+            },
+            {
+              "fase": "C",
+              "kelas": "Kelas 5 dan 6 MI",
+              "elemen": {
+                "Pemahaman Konsep": "Merefleksikan dakwah Rasulullah saw. kepada kelompok nonmuslim di Madinah; menceritakan dan merefleksikan peristiwa menjelang akhir hayat Rasulullah saw. dalam kehidupan sehari-hari; merefleksikan kisah keteladanan Abu Bakar Ash-Shiddiq, Umar bin Khattab, Usman bin Affan, dan Ali bin Abi Thalib dalam kehidupan sehari-hari; menganalisis biografi Wali Sanga dalam mengembangkan Islam di Indonesia.",
+                "Keterampilan Proses": "Mengamati; mempertanyakan dan memprediksi; merencanakan dan melakukan penyelidikan; memproses dan menganalisis informasi; mengevaluasi dan refleksi; mengomunikasikan hasil."
+              }
+            },
+            {
+              "fase": "D",
+              "kelas": "Kelas 7, 8, dan 9 MTs",
+              "elemen": {
+                "Pemahaman Konsep": "Merefleksikan sejarah dakwah Rasulullah saw. dalam menumbuhkembangkan prinsip rahmatan lil ’alamin pada periode Makkah; merefleksikan sejarah dakwah Rasulullah saw. dalam membangun peradaban masyarakat Madinah; mengapresiasi prestasi Khulafaurasyidin dalam membangun peradaban Islam; menganalisis perkembangan peradaban Islam pada masa Daulah Umayyah; menganalisis perkembangan peradaban Islam pada masa Daulah Abbasiyah; meneladan ulama/ilmuwan muslim Daulah Umayyah dan Abbasiyah; merefleksikan keteladanan kepemimpinan Umar bin Abdul Aziz; menganalisis peradaban Islam masa Daulah Ayyubiyah; menganalisis sejarah perkembangan Islam di Indonesia; meneladan Wali Sanga; menganalisis peran pesantren; mengapresiasi kearifan lokal; merefleksikan keteladanan tokoh pendiri ormas Islam Indonesia.",
+                "Keterampilan Proses": "Mengamati; menanya dan memprediksi (5W1H); mengumpulkan informasi; menganalisis informasi; menyimpulkan; mengomunikasikan; merefleksikan dan merencanakan projek."
+              }
+            },
+            {
+              "fase": "E",
+              "kelas": "Kelas 10 MA/MAK",
+              "elemen": {
+                "Pemahaman Konsep": "Menganalisis kebudayaan masyarakat Arab sebelum Islam; membandingkan substansi dan strategi dakwah Rasulullah saw. periode Makkah dan Madinah; merefleksikan nilai hijrah; menganalisis Piagam Madinah dan Fathu Makkah; mengevaluasi proses pemilihan dan strategi dakwah Khulafaurasyidin; menganalisis proses berdirinya Daulah Umayyah dan Abbasiyah; menganalisis perkembangan peradaban dan ilmu pengetahuan Daulah Umayyah dan Abbasiyah; mengevaluasi faktor kemajuan dan kemunduran Daulah Umayyah dan Abbasiyah.",
+                "Keterampilan Proses": "Mengamati; menanya dan memprediksi; mengumpulkan informasi; menganalisis informasi; menyimpulkan; mengomunikasikan; merefleksikan dan merencanakan projek."
+              }
+            },
+            {
+              "fase": "F",
+              "kelas": "Kelas 11 dan 12 MA/MAK",
+              "elemen": {
+                "Pemahaman Konsep": "Menganalisis perkembangan peradaban dan ilmu pengetahuan pada masa Daulah Usmani, Mughal, dan Safawi; membandingkan peranan Daulah Usmani, Mughal, dan Safawi terhadap peradaban Islam dan dunia; menganalisis sistem pemerintahan, sosial politik, serta perkembangan budaya pada masa Daulah Usmani, Mughal, dan Safawi; menganalisis proses awal masuknya Islam di Nusantara dan ciri khas penyebaran Islam; mengevaluasi peran kerajaan-kerajaan Islam dalam perkembangan Islam di Nusantara; meneladan semangat Wali Sanga; menganalisis peran penting umat Islam Indonesia dalam perjuangan kemerdekaan dan pembangunan bangsa; mengevaluasi organisasi pergerakan Islam.",
+                "Keterampilan Proses": "Mengamati; menanya dan memprediksi; mengumpulkan informasi; menganalisis informasi (diagram linimasa); menyimpulkan; mengomunikasikan; merefleksikan dan merencanakan projek."
+              }
+            }
+          ]
+        },
+        {
+          "nama": "Bahasa Arab",
+          "capaian_per_fase": [
+            {
+              "fase": "A",
+              "kelas": "Kelas 1 dan 2 MI",
+              "elemen": {
+                "Komponen Bahasa": "Mengenali bunyi dan kosakata tentang perkenalan, keluargaku, rumahku, madrasahku, hobiku, nama-nama buah, warna-warna, alat transportasi, pemandangan alam dengan pola kalimat dasar (isymi, man hua/hia, hadha/hadhihi, ma dhalika/tilka, dll.).",
+                "Keterampilan Bahasa": "Menerapkan keterampilan berbahasa yang meliputi kegiatan menyimak, berbicara, membaca, memirsa, menulis, dan mempresentasikan."
+              }
+            },
+            {
+              "fase": "B",
+              "kelas": "Kelas 3 dan 4 MI",
+              "elemen": {
+                "Komponen Bahasa": "Mengidentifikasi kalimat sapaan dan pertanyaan tentang materi pelajaran, nama-nama binatang, penyakit, olahraga, teman-temanku, taman, alamat, profesi, cita-citaku, di rumah, anggota keluarga, cinta Indonesia dengan pola kalimat yang sesuai.",
+                "Keterampilan Bahasa": "Menerapkan keterampilan berbahasa yang meliputi kegiatan menyimak, berbicara, membaca, memirsa, menulis, mempresentasikan."
+              }
+            },
+            {
+              "fase": "C",
+              "kelas": "Kelas 5 dan 6 MI",
+              "elemen": {
+                "Komponen Bahasa": "Mengidentifikasi informasi dan bacaan sederhana tentang anggota tubuh, kebun binatang, di ruang tamu dan ruang belajar, di perpustakaan, di kantin, jam, saya suka bahasa Arab, kegiatan liburan, piknik dengan pola kalimat yang sesuai.",
+                "Keterampilan Bahasa": "Menerapkan keterampilan berbahasa yang meliputi kegiatan menyimak, berbicara, membaca, memirsa, menulis, dan mempresentasikan."
+              }
+            },
+            {
+              "fase": "D",
+              "kelas": "Kelas 7, 8, dan 9 MTs",
+              "elemen": {
+                "Komponen Bahasa": "Menganalisis kosa kata, pola kalimat, dan wacana tentang perkenalan, fasilitas madrasah, peralatan sekolah, alamat dan jam, kegiatan sehari-hari, rumah, hobi, olahraga, profesi, kesehatan, tahun baru hijriyah, maulid nabi, nuzulul qur'an, dua hari raya, keindahan alam, pencipta alam, menjaga lingkungan.",
+                "Keterampilan Bahasa": "Menerapkan komponen bahasa melalui keterampilan menyimak, berbicara, membaca, memirsa, menulis, dan mempresentasikan."
+              }
+            },
+            {
+              "fase": "E",
+              "kelas": "Kelas 10 MA/MAK",
+              "elemen": {
+                "Komponen Bahasa": "Menganalisis kosa kata, gramatika, dan wacana tentang perkenalan (adawatul istifham, dhamair), keluarga (huruf jar, mudhakkar/mu'annath), sekolah (mufrad, muthanna, jamak, huruf 'athaf, dharaf), hobi (taqsimul kalimah, aqsamul fi'il), profesi (al-jumlatul ismiyyah & fi'liyyah), kehidupan sehari-hari (al-adad wal ma'dud).",
+                "Keterampilan Bahasa": "Menerapkan keterampilan bahasa: menyimak, berbicara, membaca, memirsa, menulis, dan mempresentasikan."
+              }
+            },
+            {
+              "fase": "F",
+              "kelas": "Kelas 11 dan 12 MA/MAK",
+              "elemen": {
+                "Komponen Bahasa": "Menganalisis kosa kata, gramatika, dan wacana tentang pariwisata (tasrif lughawi fi'il madhi), kesehatan (tasrif lughawi fi'il mudhari), haji dan umrah (tasrif lughawi fi'il amar, ahkamul munada), agama di Indonesia (al-na'at wal idhafah), teknologi informasi & komunikasi (ismu tafdhil), tokoh-tokoh Islam (al-fi'lu mabni lil ma'lum & majhul), studi di perguruan tinggi (al-fi'lu mudhari marfu', manshub, majzum).",
+                "Keterampilan Bahasa": "Menerapkan komponen bahasa melalui keterampilan menyimak, berbicara, membaca, memirsa, menulis, dan mempresentasikan."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kategori": "Mata Pelajaran PAI dan Bahasa Arab Khusus Program Keagamaan (MAPK)",
+      "mata_pelajaran": [
+        {
+          "nama": "Al-Qur'an Hadis (Tafsir)",
+          "capaian_per_fase": [
+            {
+              "fase": "E",
+              "kelas": "Kelas 10 MA Program Keagamaan",
+              "elemen": {
+                "Pemahaman Konsep": "Menganalisis teks berbahasa Arab, tafsir ayat Al-Qur’an tentang kebesaran dan kekuasaan Allah Swt., ketaatan kepada Allah dan Rasul-Nya, ikhlas dalam beribadah, cinta terhadap ilmu dan guru, disiplin dan etos kerja, kompetisi dalam kebaikan, tanggungjawab terhadap diri sendiri, berbakti kepada orang tua, dan menghindari pergaulan bebas.",
+                "Keterampilan Proses": "Mengamati; mempertanyakan dan memprediksi; merencanakan dan melakukan penelitian; memproses dan menganalisis data; mengevaluasi dan refleksi; mengomunikasikan hasil."
+              }
+            },
+            {
+              "fase": "F",
+              "kelas": "Kelas 11 dan 12 MA Program Keagamaan",
+              "elemen": {
+                "Pemahaman Konsep": "Menganalisis teks berbahasa Arab, tafsir ayat Al-Qur’an tentang mensyukuri nikmat Allah Swt., sabar dalam menghadapi ujian dan cobaan, tanggung jawab terhadap diri sendiri, keluarga, dan masyarakat, makanan minuman yang halal dan baik, makanan minuman yang haram, toleransi dan etika pergaulan, kesantunan, mencintai kedamaian, sikap peduli dan gemar berbagi, hidup gotong royong, amar ma’ruf nahi munkar, kewajiban berdakwah, sikap peduli terhadap pelestarian lingkungan hidup, musyawarah, amanah dalam menjalankan kepemimpinan, dan sikap berlaku adil serta jujur.",
+                "Keterampilan Proses": "Mengamati; mempertanyakan dan memprediksi; merencanakan dan melakukan penelitian; memproses dan menganalisis data; mengevaluasi dan refleksi; mengomunikasikan hasil."
+              }
+            }
+          ]
+        },
+        {
+          "nama": "Al-Qur'an Hadis (Hadis)",
+          "capaian_per_fase": [
+            {
+              "fase": "E",
+              "kelas": "Kelas 10 MA Program Keagamaan",
+              "elemen": {
+                "Pemahaman Konsep": "Menganalisis teks berbahasa Arab, syarah hadis tentang kebesaran dan kekuasaan Allah Swt., menaati Allah dan Rasul-Nya, ikhlas dalam beribadah, cinta terhadap ilmu dan guru, disiplin dan etos kerja, kompetisi dalam kebaikan, tanggungjawab terhadap diri sendiri, berbakti kepada orang tua, dan menghindari pergaulan bebas.",
+                "Keterampilan Proses": "Mengamati; mempertanyakan dan memprediksi; merencanakan dan melakukan penelitian; memproses dan menganalisis data; mengevaluasi dan refleksi; mengomunikasikan hasil."
+              }
+            },
+            {
+              "fase": "F",
+              "kelas": "Kelas 11 dan 12 MA Program Keagamaan",
+              "elemen": {
+                "Pemahaman Konsep": "Menganalisis teks berbahasa Arab, hadis tentang mensyukuri nikmat Allah Swt., sabar dalam menghadapi ujian dan cobaan, tanggung jawab terhadap diri sendiri, keluarga, dan masyarakat, makanan minuman yang halal dan baik, makanan minuman yang haram, toleransi dan etika pergaulan, kesantunan, mencintai kedamaian, sikap peduli dan gemar berbagi, hidup gotong royong, amar ma’ruf nahi munkar, kewajiban berdakwah, sikap peduli terhadap pelestarian lingkungan hidup, musyawarah, amanah dalam menjalankan kepemimpinan, dan sikap berlaku adil serta jujur.",
+                "Keterampilan Proses": "Mengamati; mempertanyakan dan memprediksi; merencanakan dan melakukan penelitian; memproses dan menganalisis data; mengevaluasi dan refleksi; mengomunikasikan hasil."
+              }
+            }
+          ]
+        },
+        {
+          "nama": "Ilmu Tafsir",
+          "capaian_per_fase": [
+            {
+              "fase": "F",
+              "kelas": "Kelas 11 dan 12 MA Program Keagamaan",
+              "elemen": {
+                "Pemahaman Konsep - Ilmu Al-Qur'an": "Menganalisis Al-Qur’an dan wahyu; menganalisis kemukjizatan Al-Qur’an (I’jaz al-qur’an); menganalisis isi pokok ajaran Al-Qur’an; membandingkan tafsir, ilmu tafsir, takwil dan terjemah; menganalisis periodesasi tafsir; membandingkan ayat-ayat Makkiyyah dan Madaniyyah; menganalisis munasabah ayat; menerapkan ilmu qira’at; merefleksikan asbab al-nuzul; menganalisis nasikh dan mansukh; menganalisis muhkam dan mutasyabih; menganalisis amtsal al-Qur’an; menganalisis kaidah-kaidah tafsir; merefleksikan qasas al-Qur’an; menganalisis aqsam al-Qur’an.",
+                "Pemahaman Konsep - Bentuk Tafsir": "Membandingkan tafsir bi al-ma’tsur dan tafsīr bi al-ra’yī; merefleksikan kode etik mufasir dan prosedur penafsiran (adab al-mufassir).",
+                "Pemahaman Konsep - Metode Tafsir": "Membandingkan metode tafsir tahlili, ijmali, maudu’i, dan muqarin.",
+                "Pemahaman Konsep - Corak Tafsir": "Membandingkan berbagai corak tafsir klasik dan kontemporer (lughawi-adabi, fiqhi-ahkam, i’tiqadi, falsafi, sufi-isyari, ‘asri-‘ilmi, ijtima’i).",
+                "Keterampilan Proses": "Mengamati; mempertanyakan dan memprediksi; merencanakan dan melakukan penelitian; memproses, menganalisis data dan informasi; mengevaluasi dan refleksi; mengomunikasikan hasil."
+              }
+            }
+          ]
+        },
+        {
+          "nama": "Ilmu Hadis",
+          "capaian_per_fase": [
+            {
+              "fase": "F",
+              "kelas": "Kelas 11 dan 12 MA Program Keagamaan",
+              "elemen": {
+                "Pemahaman Konsep - Ilmu Hadis Riwayah": "Menganalisis sejarah perkembangan hadis dan Ilmu Hadis, proses kodifikasi (tadwin) hadis; membandingkan berbagai metode Tahammul wa Ada' al-Hadits; merefleksikan sejarah al-muktsirun min riwayat al-hadits, al-Aimmah as-Sittah; menganalisis al-kutub al-tis’ah al-mu’tabarah; merefleksikan tokoh-tokoh hadis nusantara.",
+                "Pemahaman Konsep - Ilmu Hadis Dirayah": "Menganalisis pengertian, cabang, pembagian, pengarang dan kitab-kitab ilmu hadis; membandingkan konsep hadis, sunnah, khabar, dan atsar; mengidentifikasi unsur-unsur hadis; menganalisis kedudukan dan fungsi hadis terhadap Al-Qur’an; menganalisis pembagian hadis berdasarkan kualitas, kuantitas, sifat sanad, tempat penyandaran; menerapkan ilmu Rijalul Hadits, ilmu Jarh wa Ta’dil, metode Takhrij Hadits.",
+                "Keterampilan Proses": "Mengamati; mempertanyakan dan memprediksi; merencanakan dan melakukan penelitian; memproses dan menganalisis data; mengevaluasi dan merefleksikan; mengomunikasikan hasil."
+              }
+            }
+          ]
+        },
+        {
+          "nama": "Ilmu Kalam",
+          "capaian_per_fase": [
+            {
+              "fase": "E",
+              "kelas": "Kelas 10 MA Program Keagamaan",
+              "elemen": {
+                "Pemahaman Konsep - Akidah": "Merefleksikan sejarah dan prinsip-prinsip Akidah Islam; menganalisis sifat wajib (nafsiyyah, salbiyyah, ma'āniy, ma'nawiyyah), mustahil, dan jaiz bagi Allah Swt. dan Rasul; iman kepada malaikat, kitab-kitab Allah, rasul-rasul Allah Swt., hari akhir, dan qada dan qadar; merefleksikan pembahasan asmaulhusna.",
+                "Keterampilan Proses": "Mengamati; mengidentifikasi dan menanya; mengumpulkan informasi, menganalisis, dan memecahkan masalah; menyimpulkan; mengomunikasikan hasil; menerapkan; merefleksi dan rencana tindak lanjut."
+              }
+            },
+            {
+              "fase": "F",
+              "kelas": "Kelas 11 dan 12 MA Program Keagamaan",
+              "elemen": {
+                "Pemahaman Konsep - Aliran Pemikiran Kalam": "Menganalisis konsep Ilmu Kalam; membandingkan berbagai pemikiran aliran Ilmu Kalam tentang kejadian Isra’ Mikraj, peristiwa kiamat dan fase akhirat; menganalisis kedudukan wahyu dan akal; menganalisis pemikiran aliran Ilmu Kalam tentang pengaruh dosa besar terhadap keimanan, kehendak dan perbuatan Allah Swt., perbuatan manusia, kedudukan Kalam Allah Swt.; merefleksikan pemikiran ulama nusantara (Syaikh Muhammad Yasin Al-Fadani, Syaikh Nawawi Al-Bantani, Tuanku Zainuddin Abdul Majid, KH. Ahmad Dahlan, KH. Hasyim Asy'ari).",
+                "Keterampilan Proses": "Mengamati; mengidentifikasi dan menanya; mengumpulkan informasi, menganalisis, dan memecahkan masalah; menyimpulkan; mengomunikasikan hasil; menerapkan; merefleksi dan rencana tindak lanjut."
+              }
+            }
+          ]
+        },
+        {
+          "nama": "Akhlak Tasawuf",
+          "capaian_per_fase": [
+            {
+              "fase": "E",
+              "kelas": "Kelas 10 MA Program Keagamaan",
+              "elemen": {
+                "Pemahaman Konsep": "Menganalisis akar kata dan makna tasawuf secara bahasa dan istilah; menyimpulkan pokok pembahasan dan urgensi mempelajari ilmu tasawuf; menganalisis sumber pengambilan ilmu tasawuf; membandingkan faktor kemunculan tasawuf; menganalisis periode dan sejarah perkembangan tasawuf; menerapkan metode praktis ilmu syariat menurut para sufi; menerapkan mujahadah, khalwat, dan muzakarah; merefleksikan sosok syekh murabbi; membandingkan konsep syariat, tarekat, dan hakikat; merefleksikan sejarah Rabi'ah al-Adawiyyah.",
+                "Keterampilan Proses": "Mengamati; mempertanyakan dan memprediksi; merencanakan dan melakukan penelitian; memproses dan menganalisis data; mengevaluasi dan refleksi; mengomunikasikan hasil."
+              }
+            },
+            {
+              "fase": "F",
+              "kelas": "Kelas 11 dan 12 MA Program Keagamaan",
+              "elemen": {
+                "Pemahaman Konsep - Tazkiyat al-nufus": "Membandingkan konsep jasad, ruh, nafsu, akal, dan kalbu; menganalisis peran jasad, ruh, nafsu, akal, dan kalbu; menganalisis konsep nafsu ammarah bi al-su’, lawwamah, muthma’innah; menganalisis konsep takhalli, tahalli, tajalli; menganalisis konsep makrifat dan mahabah; menerapkan amalan-amalan tazkiyat al-nufus.",
+                "Pemahaman Konsep - Maqamat dan Ahwal": "Menganalisis konsep maqamat; membandingkan konsep maqamat menurut para sufi; menerapkan sifat-sifat ahli maqamat; menganalisis konsep ahwal; membandingkan konsep ahwal; menerapkan sifat-sifat ahli ahwal.",
+                "Pemahaman Konsep - Tarekat": "Menganalisis konsep tarekat; menganalisis sejarah perkembangan tarekat; membandingkan rukun-rukun tarekat; menyimpulkan pembagian tarekat; membandingkan ciri-ciri tarekat muktabar; menganalisis sejarah, pokok ajaran, dan tokoh penting tarekat Qadiriyah, Naqsyabandiyah, dll.",
+                "Keterampilan Proses": "Mengamati; mempertanyakan dan memprediksi; merencanakan dan melakukan penelitian; memproses dan menganalisis data; mengevaluasi dan merefleksikan; mengomunikasikan hasil."
+              }
+            }
+          ]
+        },
+        {
+          "nama": "Fikih (MAPK)",
+          "capaian_per_fase": [
+            {
+              "fase": "E",
+              "kelas": "Kelas 10 MA Program Keagamaan",
+              "elemen": {
+                "Pemahaman Konsep - Fikih Ibadah": "Menganalisis dalil dan istidlal fuqaha dalam permasalahan thaharah, haid, nifas, salat, zakat, pemulasaraan jenazah, puasa, haji dan umrah, kurban, akikah, penyembelihan hewan ternak, berburu hewan liar, dan sertifikasi halal.",
+                "Keterampilan Proses": "Mengamati; menanya; mengumpulkan data; menganalisis data; menyimpulkan; mengomunikasikan."
+              }
+            },
+            {
+              "fase": "F",
+              "kelas": "Kelas 11 dan 12 MA Program Keagamaan",
+              "elemen": {
+                "Pemahaman Konsep - Fikih Muamalah": "Menganalisis dalil dan istidlal fuqaha tentang macam-macam kepemilikan dan perpindahannya serta hal-hal yang dilarang, macam-macam kerjasama dan permodalan, perbankan syari'ah, dan transaksi online; menganalisis ketentuan jinayah, hudud, bughat, riddah dan ketentuan peradilan dalam Islam; menganalisis konsep Islam tentang perkawinan, talak, rujuk, nusyuz, wasiat, Ilmu Waris dan implementasinya.",
+                "Keterampilan Proses": "Mengamati; menanya; mengumpulkan data; menganalisis data; menyimpulkan; mengomunikasikan."
+              }
+            }
+          ]
+        },
+        {
+          "nama": "Ushul Fikih (MAPK)",
+          "capaian_per_fase": [
+            {
+              "fase": "F",
+              "kelas": "Kelas 11 dan 12 MA Program Keagamaan",
+              "elemen": {
+                "Pemahaman Konsep - Sejarah Fikih & Ushul Fikih": "Merefleksikan konsep Fikih dan Ushul Fikih, tujuan dan ruang lingkupnya, sejarah pertumbuhan dan perkembangan Fikih dan Ushul Fikih, serta mazhab dalam Fikih dan Ushul Fikih.",
+                "Pemahaman Konsep - Sumber Hukum Islam": "Menganalisis fungsi, kedudukan dan penerapan sumber hukum yang disepakati (Al-Qur’an, Hadis, ijmak, qiyas); menganalisis fungsi, kedudukan, dan penerapan sumber hukum yang diperselisihkan (istihsan, maslahah mursalah, ‘urf, istishab, syar’u man qablana, dalaalatul iqtiran, saddudz dzari’ah, madzhab shahabiy).",
+                "Pemahaman Konsep - Hukum Syar'i": "Merefleksikan konsep al-hakim, al-hukmu, al-mahkum fih, dan al-mahkum ‘alaih.",
+                "Pemahaman Konsep - Kaidah Ushul Fikih": "Menganalisis penerapan kaidah amr dan nahi, ‘aam dan khas, takhsis dan mukhassis, mujmal dan mubayyan, muradif dan musytarak, mutlaq dan muqayyad, zahir dan takwil, serta manthuq dan mafhum.",
+                "Pemahaman Konsep - Ijtihad": "Menganalisis konsep ijtihad dan mujtahid, ta’arudhul adillah, nasikh dan mansukh, tarjih, serta taqlid dan talfiq.",
+                "Pemahaman Konsep - Kaidah Fikih": "Menganalisis penerapan kaidah al-umuuru bi maqashidiha, kaidah al-yaqinu laa yuzaalu bisy-syak, kaidah al-masyaqqatu tajlibu-taysir, kaidah adh-dhararu yuzal, dan kaidah al’aadatu muhakkamah.",
+                "Keterampilan Proses": "Mengamati; menanya; mengumpulkan data; menganalisis data; menarik kesimpulan; mengomunikasikan (dalam bahasa Arab)."
+              }
+            }
+          ]
+        },
+        {
+          "nama": "Bahasa Arab (MAPK)",
+          "capaian_per_fase": [
+            {
+              "fase": "E",
+              "kelas": "Kelas 10 MA Program Keagamaan",
+              "elemen": {
+                "Pemahaman Konsep": "Menganalisis bentuk, makna, dan fungsi: al-mizan al-sharfi, al-fi'l al-sahih wal mu'tal, al-lazim wal muta'addi, al-mujarrad wal mazid wal tasrifuhu, al-tasrif al-lughawi, fi'il madhi, mudhari, amar, sifat musyabbahah, sighat mubalaghah.",
+                "Keterampilan Proses": "Menerapkan pemahaman konsep melalui pendekatan keterampilan proses dengan cara mengamati, mempertanyakan dan memprediksi, menyimpulkan, serta mengevaluasi dan merefleksi teks dengan susunan gramatika tersebut."
+              }
+            },
+            {
+              "fase": "F",
+              "kelas": "Kelas 11 dan 12 MA Program Keagamaan",
+              "elemen": {
+                "Pemahaman Konsep": "Menganalisis bentuk, makna, dan fungsi: aqsamul kalimah, al-mu'rab wal mabni, marfu'atul asma' (fa'il, na'ibul fa'il, mubtada', khabar), mansubatulasma' (maf'ul bihi, muthlaq, li ajlihi, fih, ma'ahu, mustathna, tamyiz, hal, munada), nawasikh, majruratulasma', i'rabul fi'li mudhari, tawabi', ismut tafdhil; balaghat (al-fasahah, ilmul ma'ani, ilmul bayan, ilmul badi').",
+                "Keterampilan Proses": "Menerapkan pemahaman konsep melalui pendekatan keterampilan proses dengan cara mengamati, mempertanyakan dan memprediksi, menyimpulkan, serta mengevaluasi dan merefleksi teks dengan susunan gramatika tersebut."
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

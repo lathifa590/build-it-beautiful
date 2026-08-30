@@ -755,6 +755,7 @@ export const FormSection = ({
           onChange={onInputChange}
           className={inputStyle}
         >
+          <option value="">✨ AI Auto-Select (Biarkan AI yang memilih)</option>
           {modelOptions.map((o) => (
             <option key={o} value={o}>
               {o}
@@ -766,11 +767,30 @@ export const FormSection = ({
         <div className="border-2 border-dashed border-muted-foreground/30 p-3 rounded-lg bg-secondary/50">
           <span className={labelStyle}>Metode Pembelajaran</span>
           <div className="flex flex-wrap gap-2 mt-2">
+            <label
+              className={`cursor-pointer px-2 py-1 rounded-lg border-2 text-[10px] font-bold transition-all flex items-center gap-1 ${
+                !formData.metodePembelajaran || formData.metodePembelajaran.length === 0
+                  ? 'bg-purple-100 text-purple-800 border-purple-400'
+                  : 'bg-card text-foreground border-muted-foreground/30 hover:border-foreground'
+              }`}
+            >
+              <input
+                type="checkbox"
+                className="hidden"
+                checked={!formData.metodePembelajaran || formData.metodePembelajaran.length === 0}
+                onChange={() => {
+                  if (formData.metodePembelajaran && formData.metodePembelajaran.length > 0) {
+                     formData.metodePembelajaran.forEach(m => onCheckboxChange('metodePembelajaran', m));
+                  }
+                }}
+              />
+              <Sparkles className="w-3 h-3" /> AI Auto-Select
+            </label>
             {metodeOptions.map((opt) => (
               <label
                 key={opt}
                 className={`cursor-pointer px-2 py-1 rounded-lg border-2 text-[10px] font-bold transition-all ${
-                  formData.metodePembelajaran.includes(opt)
+                  formData.metodePembelajaran?.includes(opt)
                     ? 'bg-primary text-primary-foreground border-foreground'
                     : 'bg-card text-foreground border-muted-foreground/30 hover:border-foreground'
                 }`}
@@ -778,7 +798,7 @@ export const FormSection = ({
                 <input
                   type="checkbox"
                   className="hidden"
-                  checked={formData.metodePembelajaran.includes(opt)}
+                  checked={formData.metodePembelajaran?.includes(opt) || false}
                   onChange={() => onCheckboxChange('metodePembelajaran', opt)}
                 />
                 {opt}
