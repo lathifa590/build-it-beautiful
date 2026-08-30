@@ -41,7 +41,7 @@ export const WorkspaceSettingsModal = ({ isOpen, onClose, workspace }: Workspace
   }>({
     modelPembelajaran: 'AI Auto-Select',
     metodePembelajaran: ['AI Auto-Select'],
-    soalConfig: { level: 'Dominan LOTS (C1-C3)', types: DEFAULT_SOAL_TYPE_CONFIG },
+    soalConfig: { level: 'Dominan LOTS (C1-C3)', typeConfigs: DEFAULT_SOAL_TYPE_CONFIG },
   });
 
   const [showSoalConfig, setShowSoalConfig] = useState(false);
@@ -56,7 +56,7 @@ export const WorkspaceSettingsModal = ({ isOpen, onClose, workspace }: Workspace
         metodePembelajaran: workspace.generation_settings?.metodePembelajaran && workspace.generation_settings.metodePembelajaran.length > 0 
           ? workspace.generation_settings.metodePembelajaran 
           : ['AI Auto-Select'],
-        soalConfig: workspace.generation_settings?.soalConfig || { level: 'Dominan LOTS (C1-C3)', types: DEFAULT_SOAL_TYPE_CONFIG },
+        soalConfig: workspace.generation_settings?.soalConfig || { level: 'Dominan LOTS (C1-C3)', typeConfigs: DEFAULT_SOAL_TYPE_CONFIG },
       });
     }
   }, [isOpen, workspace]);
@@ -223,8 +223,8 @@ export const WorkspaceSettingsModal = ({ isOpen, onClose, workspace }: Workspace
                       <div>
                         <p className="text-sm font-medium">Level: {genSettings.soalConfig.level}</p>
                         <p className="text-xs text-muted-foreground">
-                          {Object.values(genSettings.soalConfig.types).reduce((sum, t) => sum + (t.quantity || 0), 0)} Soal (
-                          {Object.entries(genSettings.soalConfig.types).filter(([_, t]) => t.quantity > 0).map(([k, _]) => k).join(', ')}
+                          {Object.values(genSettings.soalConfig.typeConfigs).reduce((sum, t) => sum + (t.quantity || 0), 0)} Soal (
+                          {Object.entries(genSettings.soalConfig.typeConfigs).filter(([_, t]) => t.quantity > 0).map(([k, _]) => k).join(', ')}
                           )
                         </p>
                       </div>
