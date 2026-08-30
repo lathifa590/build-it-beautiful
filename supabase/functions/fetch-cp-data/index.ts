@@ -12,6 +12,8 @@ const CP032_URL = "https://tpwathrdbvaaipjstukf.supabase.co/storage/v1/object/pu
 
 const PAI_2026_URL = "https://raw.githubusercontent.com/miztergood/cp-pai-dan-budi-pekerti-2026/main/cp%20pendidikan%20agama%20dan%20budi%20pekerti%202026.json";
 
+const KBC_MADRASAH_URL = "https://raw.githubusercontent.com/miztergood/CP-PAI-dan-Bahasa-Arab-Madrasah/main/cp_pai_bahasa_arab_madrasah_2025.json";
+
 // Cache in-memory per edge function instance
 const cpCache = new Map<string, { data: any; timestamp: number }>();
 const CACHE_TTL = 60 * 60 * 1000; // 1 hour
@@ -34,6 +36,10 @@ serve(async (req) => {
     // Route to CP032 handler if source is cp032
     if (source === "cp032") {
       return await handleCP032(slug, fase);
+    }
+
+    if (source === "kbc_madrasah") {
+      return await handleKbcMadrasah(slug, fase);
     }
 
     // Route PAI 2026 (khusus Agama Islam) ke sumber baru
@@ -229,6 +235,82 @@ async function handleCP032(slug: string, fase?: string) {
   return new Response(JSON.stringify({ data: transformed, source: "cp032" }), {
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
+}
+
+// Handle KBC Madrasah source
+async function handleKbcMadrasah(slug: string, fase?: string) {
+  const cacheKey = "kbc_madrasah_all";
+  let madrasahData: any;
+
+  const cached = cpCache.get(cacheKey);
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+    madrasahData = cached.data;
+  } else {
+    console.log("Fetching KBC Madrasah data...");
+    const response = await fetch(KBC_MADRASAH_URL);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch KBC Madrasah: ${response.status}`);
+    }
+    const rawText = await response.text();
+    madrasahData = parseLooseJson(rawText);
+    cpCache.set(cacheKey, { data: madrasahData, timestamp: Date.now() });
+  }
+
+  const mapelName = extractMapelName(slug);
+  let matchedMapel: any = null;
+
+  // madrasahData.kategori_detail is an array of objects which contain mata_pelajaran array
+  if (Array.isArray(madrasahData.kategori_detail)) {
+    for (const kategori of madrasahData.kategori_detail) {
+      if (Array.isArray(kategori.mata_pelajaran)) {
+        for (const mp of kategori.mata_pelajaran) {
+          const nama = (mp.nama || "").toLowerCase();
+          if (nama.includes(mapelName) || mapelName.includes(nama.split(" ")[0])) {
+            matchedMapel = mp;
+            break;
+          }
+        }
+      }
+      if (matchedMapel) break;
+    }
+  }
+
+  if (!matchedMapel) {
+    return new Response(
+      JSON.stringify({ error: `Mata pelajaran tidak ditemukan dalam CP Madrasah 2025`, notFound: true }),
+      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+
+  // Transform to standard format
+  const transformed = transformMadrasahToStandard(matchedMapel, fase);
+
+  return new Response(JSON.stringify({ data: transformed, source: "kbc_madrasah" }), {
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
+}
+
+function transformMadrasahToStandard(mapel: any, fase?: string) {
+  const faseData = mapel.capaian_per_fase || [];
+  
+  const capaianPerFase = faseData
+    .filter((f: any) => !fase || f.fase === fase)
+    .map((f: any) => {
+      return {
+        fase: f.fase,
+        kelas: f.kelas,
+        elemen: f.elemen || {},
+      };
+    });
+
+  return {
+    mata_pelajaran: [
+      {
+        nama: mapel.nama,
+        capaian_per_fase: capaianPerFase,
+      },
+    ],
+  };
 }
 
 // Extract a clean mapel name from the GitHub slug format
