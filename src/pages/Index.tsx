@@ -1012,7 +1012,12 @@ const Index = () => {
           ...prev,
           ...(suggestion.modelPembelajaran ? { modelPembelajaran: suggestion.modelPembelajaran } : {}),
           ...(suggestion.metodePembelajaran?.length ? { metodePembelajaran: suggestion.metodePembelajaran } : {}),
-          ...(suggestion.dimensiProfilLulusan?.length ? { dimensiProfilLulusan: suggestion.dimensiProfilLulusan } : {}),
+          ...(suggestion.dimensiProfilLulusan?.length ? { 
+            dimensiProfilLulusan: suggestion.dimensiProfilLulusan.map((d: string) => { 
+              const match = d.match(/DPL\s*\d/i); 
+              return match ? match[0].toUpperCase().replace(/\s+/, ' ') : d; 
+            }) 
+          } : {}),
           ...(suggestion.nilaiKarakter?.length ? { nilaiKarakter: suggestion.nilaiKarakter } : {}),
         }));
         const alasan = suggestion.alasan ? `\n${suggestion.alasan}` : '';
@@ -3298,7 +3303,8 @@ img{max-width:100%}
               onExit={() => { navigate(`/app/workspace/${activeWorkspace.id}`); }}
               isLocked={isWorkspaceLocked}
               onShowUpsell={() => setShowWorkspaceUpsell(true)}
-            />
+                  onEnqueuePertemuanV2={ENABLE_PERTEMUAN_DOCS_V2 && activeWorkspace ? () => pertemuanV2.enqueueMissingDocuments(activeWorkspace.id) : undefined}
+                />
           ) : appMode === 'workspace' && activeWorkspace && /^\/app\/workspace\/[a-zA-Z0-9-]+\/meeting\/[a-zA-Z0-9-]+$/.test(location.pathname) ? (
             <WorkspaceMeetingEditor
               workspace={activeWorkspace}
@@ -3306,7 +3312,8 @@ img{max-width:100%}
               onBack={() => { navigate(`/app/workspace/${activeWorkspace.id}`); }}
               isLocked={isWorkspaceLocked}
               onShowUpsell={() => setShowWorkspaceUpsell(true)}
-            />
+                  onEnqueuePertemuanV2={ENABLE_PERTEMUAN_DOCS_V2 && activeWorkspace ? () => pertemuanV2.enqueueMissingDocuments(activeWorkspace.id) : undefined}
+                />
           ) : appMode === 'workspace' && activeWorkspace && /^\/app\/workspace\/[a-zA-Z0-9-]+$/.test(location.pathname) ? (
             <div className="flex-1 overflow-y-auto h-full min-h-0 relative">
               <WorkspaceExplorerShell
@@ -3317,7 +3324,8 @@ img{max-width:100%}
                 onMeetingClick={(slot) => { navigate(`/app/workspace/${activeWorkspace.id}/meeting/${slot.id}`); }}
                 isLocked={isWorkspaceLocked}
                 onShowUpsell={() => setShowWorkspaceUpsell(true)}
-              />
+                  onEnqueuePertemuanV2={ENABLE_PERTEMUAN_DOCS_V2 && activeWorkspace ? () => pertemuanV2.enqueueMissingDocuments(activeWorkspace.id) : undefined}
+                />
             </div>
           ) : appMode === 'workspace' && activeTab === 'dashboard' ? (
             <WorkspaceDashboard
@@ -3328,7 +3336,8 @@ img{max-width:100%}
               kktpData={kktpData}
               isLocked={isWorkspaceLocked}
               onShowUpsell={() => setShowWorkspaceUpsell(true)}
-            />
+                  onEnqueuePertemuanV2={ENABLE_PERTEMUAN_DOCS_V2 && activeWorkspace ? () => pertemuanV2.enqueueMissingDocuments(activeWorkspace.id) : undefined}
+                />
           ) : appMode === 'workspace' && activeTab === 'perencanaan' ? (
 
             <div className="flex flex-col h-full">

@@ -70,7 +70,8 @@ export const SoalConfigModal = ({
   };
 
   const handleQuantityChange = (type: string, value: number) => {
-    const clamped = Math.max(1, Math.min(MAX_TOTAL, value));
+    const validValue = isNaN(value) ? 0 : value;
+    const clamped = Math.max(1, Math.min(MAX_TOTAL, validValue));
     const cfg = getConfig(type);
     // Auto-adjust stimulus count
     const newStimulusCount = cfg.useStimulus ? Math.max(1, Math.ceil(clamped / 5)) : cfg.stimulusCount;
@@ -151,7 +152,7 @@ export const SoalConfigModal = ({
                             min={1}
                             max={MAX_TOTAL}
                             value={isActive ? cfg.quantity : ''}
-                            onChange={(e) => handleQuantityChange(t, parseInt(e.target.value) || 1)}
+                            onChange={(e) => handleQuantityChange(t, parseInt(e.target.value, 10))}
                             disabled={!isActive}
                             className="w-full h-9 text-center text-sm !border-2"
                             placeholder="-"
