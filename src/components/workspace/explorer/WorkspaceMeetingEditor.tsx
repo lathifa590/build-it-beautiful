@@ -759,7 +759,7 @@ export const WorkspaceMeetingEditor: React.FC<WorkspaceMeetingEditorProps> = ({
               tindakLanjutData={
                 jenis === "refleksi" ? (dokumen as TindakLanjutData) : undefined
               }
-              bankSoalData={jenis === "soal" ? (dokumen as BankSoalData) : undefined}
+              bankSoalData={ jenis === "soal" ? (dokumen as BankSoalData) : undefined } isModulComplete={true} v2Mode={true}
               generatedImage={null}
               soalImage={null}
               letterheadUrl={null}
