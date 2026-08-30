@@ -218,7 +218,7 @@ export const CPSelectorModal = ({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Search className="w-5 h-5 text-primary" />
-            Cari CP Resmi Kemdikbud
+            {cpSource === 'kbc_madrasah' ? 'Cari CP Resmi Kemenag (Madrasah)' : 'Cari CP Resmi Kemdikbud'}
           </DialogTitle>
           <DialogDescription>
             {mataPelajaran && fase
