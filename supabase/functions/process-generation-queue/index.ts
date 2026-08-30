@@ -104,19 +104,40 @@ serve(async (req) => {
           throw new Error(`generate-content returned empty response`);
         }
         
-        // Ensure result structure - use existing generation_result or empty object
-        let currentResult: any = workspace.generation_result || {};
-        if (!currentResult.pertemuanDocs) {
-          currentResult.pertemuanDocs = {};
+        // Ensure result structure matches GenerationResultV2
+        let currentResult: any = workspace.generation_result || { version: 2, pertemuan: [] };
+        
+        // Ensure pertemuan array exists
+        if (!currentResult.pertemuan) {
+          currentResult.pertemuan = [];
         }
-        if (!currentResult.pertemuanDocs[job.pertemuan_id]) {
-          currentResult.pertemuanDocs[job.pertemuan_id] = {};
+        
+        // Find existing pertemuan object or create a new one
+        let p = currentResult.pertemuan.find((x: any) => x.id === job.pertemuan_id);
+        if (!p) {
+          p = { id: job.pertemuan_id, status: {}, dokumen: {} };
+          currentResult.pertemuan.push(p);
         }
+        
+        // Ensure status and dokumen objects exist
+        if (!p.status) p.status = {};
+        if (!p.dokumen) p.dokumen = {};
+        
+        // Extract raw data from API response
+        let rawData = generatedData.data || generatedData;
+        
+        // Modul has slightly different structure, we extract inner object
+        if (job.jenis_dokumen === 'modul') {
+          const list = rawData.pertemuan;
+          const inner = (Array.isArray(list) ? list[0] : undefined) ?? rawData;
+          rawData = { ...inner };
+        }
+        
+        // Update document status and data
+        p.status[job.jenis_dokumen] = 'ok';
+        p.dokumen[job.jenis_dokumen] = rawData;
 
-        // Merge generated document back into workspace JSON
-        currentResult.pertemuanDocs[job.pertemuan_id][job.jenis_dokumen] = generatedData;
-
-        // Save back to workspace - if column doesn't exist, this will fail gracefully
+        // Save back to workspace
         const { error: updateWsError } = await supabase
           .from("workspaces")
           .update({ generation_result: currentResult })
@@ -125,6 +146,19 @@ serve(async (req) => {
         if (updateWsError) {
           console.error("Failed to update workspace:", updateWsError.message);
           throw updateWsError;
+        }
+
+        // Check if all core documents (modul, lkpd, asesmen) are completed
+        const hasModul = p.status['modul'] === 'ok';
+        const hasLkpd = p.status['lkpd'] === 'ok';
+        const hasAsesmen = p.status['asesmen'] === 'ok';
+        
+        if (hasModul && hasLkpd && hasAsesmen) {
+          // Update meeting_slots status to 'completed' so UI reflects the progress
+          await supabase
+            .from("meeting_slots")
+            .update({ status: "completed" })
+            .eq("id", job.pertemuan_id);
         }
 
         // Mark job as completed
