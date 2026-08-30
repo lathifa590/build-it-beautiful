@@ -10,6 +10,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@/components/ui/dialog';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 interface IdentifikasiData {
   namaPenyusun: string;
@@ -20,6 +21,7 @@ interface IdentifikasiData {
   mataPelajaran: string;
   fase: string;
   kelas: string;
+  kurikulum?: 'merdeka' | 'kbc';
 }
 
 interface SaveProfileModalProps {
@@ -232,6 +234,29 @@ export const SaveProfileModal = ({
                       ))}
                     </select>
                   </div>
+                </div>
+
+                {/* Kurikulum */}
+                <div className="space-y-2 mt-4 pt-4 border-t">
+                  <Label className="text-xs font-semibold">Pilihan Kurikulum <span className="text-destructive">*</span></Label>
+                  <RadioGroup
+                    value={identifikasiData.kurikulum || 'merdeka'}
+                    onValueChange={(val: 'merdeka' | 'kbc') => onIdentifikasiChange('kurikulum', val)}
+                    className="flex flex-col gap-3 mt-2"
+                  >
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="merdeka" id="kurikulum-merdeka" />
+                      <Label htmlFor="kurikulum-merdeka" className="text-sm font-normal cursor-pointer">
+                        Kurikulum Merdeka (RPM)
+                      </Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="kbc" id="kurikulum-kbc" />
+                      <Label htmlFor="kurikulum-kbc" className="text-sm font-normal cursor-pointer">
+                        KBC (Kurikulum Berbasis Cinta - Kemenag)
+                      </Label>
+                    </div>
+                  </RadioGroup>
                 </div>
               </div>
             </>

@@ -741,6 +741,7 @@ const Index = () => {
       mataPelajaran: '',
       fase: 'A',
       kelas: '',
+      kurikulum: 'merdeka' as 'merdeka' | 'kbc',
     });
     setIsCreatingNew(true);
     setShowSaveModal(true);
