@@ -39,7 +39,7 @@ serve(async (req) => {
     }
 
     if (source === "kbc_madrasah") {
-      return await handleKbcMadrasah(slug, fase);
+      return await handleKbcMadrasah(slug, fase, typeof filterNama === 'string' ? filterNama : undefined);
     }
 
     // Route PAI 2026 (khusus Agama Islam) ke sumber baru
@@ -238,7 +238,7 @@ async function handleCP032(slug: string, fase?: string) {
 }
 
 // Handle KBC Madrasah source
-async function handleKbcMadrasah(slug: string, fase?: string) {
+async function handleKbcMadrasah(slug: string, fase?: string, filterNama?: string) {
   const cacheKey = "kbc_madrasah_all";
   let madrasahData: any;
 
@@ -265,9 +265,19 @@ async function handleKbcMadrasah(slug: string, fase?: string) {
       if (Array.isArray(kategori.mata_pelajaran)) {
         for (const mp of kategori.mata_pelajaran) {
           const nama = (mp.nama || "").toLowerCase();
-          if (nama.includes(mapelName) || mapelName.includes(nama.split(" ")[0])) {
+          
+          if (filterNama && nama === filterNama.toLowerCase()) {
             matchedMapel = mp;
             break;
+          }
+          
+          if (!filterNama) {
+            const cleanNama = nama.replace(/[()]/g, '');
+            const cleanMapelName = mapelName.replace(/[()]/g, '');
+            if (cleanNama.includes(cleanMapelName) || cleanMapelName.includes(cleanNama.split(" ")[0])) {
+              matchedMapel = mp;
+              break;
+            }
           }
         }
       }
