@@ -17,6 +17,7 @@ import { useV2Export } from "@/hooks/useV2Export";
 import { useConfirm } from "@/contexts/ConfirmContext";
 import { V2ExportDialog } from "@/components/modul/V2ExportDialog";
 import type { V2ExportScope, V2ExportFormat } from "@/lib/pertemuan-export";
+import { MobileNavigation } from "@/components/modul/MobileNavigation";
 
 interface WorkspaceMeetingEditorProps {
   workspace: Workspace;
@@ -42,6 +43,7 @@ export const WorkspaceMeetingEditor: React.FC<WorkspaceMeetingEditorProps> = ({
 
   const [activeJenis, setActiveJenis] = useState<JenisDokumenPertemuan>("modul");
   const [isPreviewFullscreen, setIsPreviewFullscreen] = useState(false);
+  const [mobileTab, setMobileTab] = useState<'form' | 'result'>('form');
   const { toast } = useToast();
   const { confirm } = useConfirm();
   const [isSuggestingDesain, setIsSuggestingDesain] = useState(false);
@@ -567,7 +569,7 @@ export const WorkspaceMeetingEditor: React.FC<WorkspaceMeetingEditorProps> = ({
   }
 
   return (
-    <div className={`flex flex-col h-full bg-secondary ${isPreviewFullscreen ? "fixed inset-0 z-50" : ""}`}>
+    <div className={`flex-1 w-full flex flex-col min-h-0 bg-secondary ${isPreviewFullscreen ? "fixed inset-0 z-50" : ""}`}>
       {/* Editor Header */}
       {!isPreviewFullscreen && (
         <div className="flex items-center justify-between p-4 bg-card border-b-2 border-foreground">
@@ -627,9 +629,9 @@ export const WorkspaceMeetingEditor: React.FC<WorkspaceMeetingEditorProps> = ({
       )}
 
       {/* Editor Main Content */}
-      <div className="flex-1 flex flex-col lg:flex-row min-h-0 overflow-hidden relative">
+      <div className="flex-1 flex flex-col md:flex-row min-h-0 overflow-hidden relative">
         {!isPreviewFullscreen && (
-          <div className="w-full md:w-[360px] xl:w-[400px] shrink-0 border-r-2 border-foreground overflow-y-auto bg-card p-4 md:p-6 z-20 shadow-[4px_0_0_rgba(0,0,0,1)]">
+          <div className={`w-full md:w-[360px] xl:w-[400px] shrink-0 border-r-2 border-foreground overflow-y-auto bg-card p-4 pb-24 md:p-6 md:pb-6 z-20 shadow-[4px_0_0_rgba(0,0,0,1)] ${mobileTab === 'result' ? 'hidden md:block' : 'block'}`}>
             <FormSection
               formData={formData}
               onInputChange={handleInputChange}
@@ -684,7 +686,7 @@ export const WorkspaceMeetingEditor: React.FC<WorkspaceMeetingEditorProps> = ({
         )}
         
         <PertemuanResultNavigator
-          className="flex-1 flex flex-col min-h-0 w-full"
+          className={`flex-1 flex-col min-h-0 w-full ${mobileTab === 'form' ? 'hidden md:flex' : 'flex'}`}
           headerClassName="flex-none p-3 border-b-2 border-foreground bg-card space-y-2 relative z-10"
           bodyClassName="flex-1 overflow-y-auto p-4 md:p-8 pb-24 md:pb-8 relative z-0"
           result={pertemuanV2.result}
@@ -744,6 +746,12 @@ export const WorkspaceMeetingEditor: React.FC<WorkspaceMeetingEditorProps> = ({
           )}
           onGenerateMissing={() => pertemuanV2.generateMissing()}
           isGenerating={pertemuanV2.isGenerating}
+        />
+        
+        <MobileNavigation
+          mobileTab={mobileTab}
+          setMobileTab={setMobileTab}
+          hasGeneratedSteps={true}
         />
       </div>
 
