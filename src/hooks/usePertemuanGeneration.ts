@@ -504,10 +504,9 @@ export const usePertemuanGeneration = ({
               : undefined,
         });
 
-        const usePreface = shouldUsePrefaceFlow(resultRef.current, task);
-        const payload = usePreface
-          ? { type: `generate_${task.jenis}_v2_preface`, data: base }
-          : { type: `generate_${task.jenis}_v2`, data: base };
+        // Use base directly - generate-content recognizes types from BACKEND_TYPE_MAP
+        // (e.g. 'lkpd', 'asesmen', 'tindakLanjut'), NOT 'generate_lkpd_v2' wrappers
+        const payload = base;
 
         return {
           workspace_id: workspaceId,

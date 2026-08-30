@@ -69,9 +69,10 @@ serve(async (req) => {
           throw new Error(`Workspace not found: ${wsError?.message || 'no data returned'}`);
         }
 
-        // Add admin_override_user_id to payload so generate-content knows whose quota to use
-        const payload = job.payload || {};
-        payload.data = payload.data || {};
+        // Add admin_override_user_id to data so generate-content knows whose quota to use
+        // payload format from queue: { type: 'lkpd', data: {...actual data...} }
+        const payload = { ...(job.payload || {}) } as any;
+        if (!payload.data) payload.data = {};
         payload.data.admin_override_user_id = workspace.user_id;
 
         // Call generate-content Edge Function
@@ -92,6 +93,16 @@ serve(async (req) => {
         }
 
         const generatedData = await response.json();
+        
+        // Check if the response body itself contains an error
+        if (generatedData && generatedData.error) {
+          throw new Error(`generate-content returned error: ${JSON.stringify(generatedData.error)}`);
+        }
+        
+        // Validate that we actually got content (not empty)
+        if (!generatedData || Object.keys(generatedData).length === 0) {
+          throw new Error(`generate-content returned empty response`);
+        }
         
         // Ensure result structure - use existing generation_result or empty object
         let currentResult: any = workspace.generation_result || {};
