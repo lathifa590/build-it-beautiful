@@ -26,14 +26,16 @@ BEGIN
         body := '{}'::jsonb
     ) INTO v_request_id;
     
-    RETURN NEW;
+    -- When returning from a FOR EACH STATEMENT trigger, we return NULL
+    RETURN NULL;
 END;
 $$;
 
 -- Attach the trigger to the generation_queue table
+-- Menggunakan FOR EACH STATEMENT agar tidak DDOS / membuat server AI crash karena terlalu banyak request bersamaan
 DROP TRIGGER IF EXISTS on_generation_queue_insert ON public.generation_queue;
 
 CREATE TRIGGER on_generation_queue_insert
     AFTER INSERT ON public.generation_queue
-    FOR EACH ROW
+    FOR EACH STATEMENT
     EXECUTE FUNCTION public.trigger_process_generation_queue();
