@@ -3,6 +3,7 @@ export interface MapelMapping {
   nama: string;
   aliases: string[];
   filterNama?: string;
+  isMadrasah?: boolean;
 }
 
 export const MAPEL_LIST: MapelMapping[] = [
@@ -26,20 +27,20 @@ export const MAPEL_LIST: MapelMapping[] = [
   // Entry generik tanpa filter (tampilkan semua agama)
   { slug: 'pendidikan-agama-dan-budi-pekerti', nama: 'Pendidikan Agama dan Budi Pekerti', aliases: ['agama', 'pabp'] },
   // Madrasah Subjects
-  { slug: 'bahasa-arab', nama: 'Bahasa Arab', aliases: ['arab'] },
-  { slug: 'al-quran-hadis', nama: "Al-Qur'an Hadis", aliases: ['alquran', 'hadis', 'quran hadis'] },
-  { slug: 'akidah-akhlak', nama: 'Akidah Akhlak', aliases: ['akidah', 'akhlak'] },
-  { slug: 'fikih', nama: 'Fikih', aliases: ['fiqih', 'fikih'] },
-  { slug: 'sejarah-kebudayaan-islam', nama: 'Sejarah Kebudayaan Islam (SKI)', aliases: ['ski', 'sejarah kebudayaan islam'] },
-  { slug: 'al-quran-hadis-tafsir', nama: "Al-Qur'an Hadis (Tafsir)", aliases: ['quran hadis tafsir'], filterNama: "Al-Qur'an Hadis (Tafsir)" },
-  { slug: 'al-quran-hadis-hadis', nama: "Al-Qur'an Hadis (Hadis)", aliases: ['quran hadis hadis'], filterNama: "Al-Qur'an Hadis (Hadis)" },
-  { slug: 'ilmu-tafsir', nama: 'Ilmu Tafsir', aliases: ['tafsir'], filterNama: 'Ilmu Tafsir' },
-  { slug: 'ilmu-hadis', nama: 'Ilmu Hadis', aliases: ['ilmu hadis'], filterNama: 'Ilmu Hadis' },
-  { slug: 'ilmu-kalam', nama: 'Ilmu Kalam', aliases: ['kalam'], filterNama: 'Ilmu Kalam' },
-  { slug: 'akhlak-tasawuf', nama: 'Akhlak Tasawuf', aliases: ['tasawuf'], filterNama: 'Akhlak Tasawuf' },
-  { slug: 'fikih-mapk', nama: 'Fikih (MAPK)', aliases: ['fikih mapk', 'fiqih mapk'], filterNama: 'Fikih (MAPK)' },
-  { slug: 'ushul-fikih-mapk', nama: 'Ushul Fikih (MAPK)', aliases: ['ushul fikih', 'ushul fiqih'], filterNama: 'Ushul Fikih (MAPK)' },
-  { slug: 'bahasa-arab-mapk', nama: 'Bahasa Arab (MAPK)', aliases: ['arab mapk'], filterNama: 'Bahasa Arab (MAPK)' },
+  { slug: 'bahasa-arab', nama: 'Bahasa Arab', aliases: ['arab'], isMadrasah: true },
+  { slug: 'al-quran-hadis', nama: "Al-Qur'an Hadis", aliases: ['alquran', 'hadis', 'quran hadis'], isMadrasah: true },
+  { slug: 'akidah-akhlak', nama: 'Akidah Akhlak', aliases: ['akidah', 'akhlak'], isMadrasah: true },
+  { slug: 'fikih', nama: 'Fikih', aliases: ['fiqih', 'fikih'], isMadrasah: true },
+  { slug: 'sejarah-kebudayaan-islam', nama: 'Sejarah Kebudayaan Islam (SKI)', aliases: ['ski', 'sejarah kebudayaan islam'], isMadrasah: true },
+  { slug: 'al-quran-hadis-tafsir', nama: "Al-Qur'an Hadis (Tafsir)", aliases: ['quran hadis tafsir'], filterNama: "Al-Qur'an Hadis (Tafsir)", isMadrasah: true },
+  { slug: 'al-quran-hadis-hadis', nama: "Al-Qur'an Hadis (Hadis)", aliases: ['quran hadis hadis'], filterNama: "Al-Qur'an Hadis (Hadis)", isMadrasah: true },
+  { slug: 'ilmu-tafsir', nama: 'Ilmu Tafsir', aliases: ['tafsir'], filterNama: 'Ilmu Tafsir', isMadrasah: true },
+  { slug: 'ilmu-hadis', nama: 'Ilmu Hadis', aliases: ['ilmu hadis'], filterNama: 'Ilmu Hadis', isMadrasah: true },
+  { slug: 'ilmu-kalam', nama: 'Ilmu Kalam', aliases: ['kalam'], filterNama: 'Ilmu Kalam', isMadrasah: true },
+  { slug: 'akhlak-tasawuf', nama: 'Akhlak Tasawuf', aliases: ['tasawuf'], filterNama: 'Akhlak Tasawuf', isMadrasah: true },
+  { slug: 'fikih-mapk', nama: 'Fikih (MAPK)', aliases: ['fikih mapk', 'fiqih mapk'], filterNama: 'Fikih (MAPK)', isMadrasah: true },
+  { slug: 'ushul-fikih-mapk', nama: 'Ushul Fikih (MAPK)', aliases: ['ushul fikih', 'ushul fiqih'], filterNama: 'Ushul Fikih (MAPK)', isMadrasah: true },
+  { slug: 'bahasa-arab-mapk', nama: 'Bahasa Arab (MAPK)', aliases: ['arab mapk'], filterNama: 'Bahasa Arab (MAPK)', isMadrasah: true },
   { slug: 'pendidikan-jasmani-olahraga-dan-kesehatan-pjok', nama: 'PJOK (Pendidikan Jasmani Olahraga dan Kesehatan)', aliases: ['pjok', 'penjas', 'olahraga'] },
   { slug: 'informatika', nama: 'Informatika', aliases: ['info', 'tik'] },
   { slug: 'koding-dan-kecerdasan-artifisial', nama: 'Koding dan Kecerdasan Artifisial', aliases: ['koding', 'ai', 'coding'] },

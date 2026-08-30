@@ -68,13 +68,14 @@ export const CPSelectorModal = ({
 
   useEffect(() => {
     if (open) {
-      if (kurikulum === 'kbc') {
+      const match = findMapelSlug(mataPelajaran);
+      if (kurikulum === 'kbc' || match?.isMadrasah) {
         setCpSource('kbc_madrasah');
       } else if (cpSource === 'kbc_madrasah') {
         setCpSource('github');
       }
     }
-  }, [open, kurikulum]);
+  }, [open, kurikulum, mataPelajaran]);
 
   useEffect(() => {
     if (open && mataPelajaran) {
