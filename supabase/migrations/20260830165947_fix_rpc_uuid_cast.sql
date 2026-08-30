@@ -42,6 +42,26 @@ BEGIN
             v_pertemuan_array || v_pertemuan_obj
         );
     ELSE
+        -- Fix 1: Pastikan object 'status' ada sebelum diset (karena jsonb_set gagal buat parent key)
+        IF NOT (v_current_result->'pertemuan'->v_index ? 'status') THEN
+            v_current_result := jsonb_set(
+                v_current_result,
+                ARRAY['pertemuan', v_index::TEXT, 'status'],
+                '{}'::jsonb,
+                true
+            );
+        END IF;
+
+        -- Fix 2: Pastikan object 'dokumen' ada
+        IF NOT (v_current_result->'pertemuan'->v_index ? 'dokumen') THEN
+            v_current_result := jsonb_set(
+                v_current_result,
+                ARRAY['pertemuan', v_index::TEXT, 'dokumen'],
+                '{}'::jsonb,
+                true
+            );
+        END IF;
+
         v_current_result := jsonb_set(
             v_current_result,
             ARRAY['pertemuan', v_index::TEXT, 'status', p_jenis_dokumen],
@@ -55,9 +75,16 @@ BEGIN
             true
         );
         
+        -- Fix 3: Handle pilihanDokumen yang tidak tercentang (opsional)
         IF (v_current_result->'pertemuan'->v_index->'status'->>'modul' = 'ok') AND
-           (v_current_result->'pertemuan'->v_index->'status'->>'lkpd' = 'ok') AND
-           (v_current_result->'pertemuan'->v_index->'status'->>'asesmen' = 'ok') THEN
+           (
+               COALESCE((v_current_result->'pertemuan'->v_index->'pilihanDokumen'->>'lkpd')::BOOLEAN, false) = false OR 
+               (v_current_result->'pertemuan'->v_index->'status'->>'lkpd' = 'ok')
+           ) AND
+           (
+               COALESCE((v_current_result->'pertemuan'->v_index->'pilihanDokumen'->>'asesmen')::BOOLEAN, false) = false OR 
+               (v_current_result->'pertemuan'->v_index->'status'->>'asesmen' = 'ok')
+           ) THEN
             UPDATE meeting_slots SET status = 'completed' WHERE id = p_pertemuan_id::UUID;
         END IF;
     END IF;
