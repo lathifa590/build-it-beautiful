@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Workspace } from "@/types/workspace";
 import type { ProtaData, KalenderPendidikan, ProsemData } from "@/types/modul";
 import { exportProsemToWord } from "@/lib/export-word";
+import { exportProtaProsemToExcel } from "@/lib/export-excel";
 interface StepProsemProps {
   workspace: Workspace;
   onNext: () => void;
@@ -212,6 +213,9 @@ export const StepProsem: React.FC<StepProsemProps> = ({ workspace, onNext, isLoc
                     } as any, semester);
                   }
                 }} 
+                onExportExcel={() => {
+                  exportProtaProsemToExcel(workspace, protaData, prosemSem1, prosemSem2);
+                }}
               />
             </div>
           </div>
