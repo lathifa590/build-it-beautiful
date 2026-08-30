@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { Button } from '@/components/ui/button';
 import { BookOpen, Calendar, CheckCircle2, AlertTriangle, FileText, BarChart3, Settings, MoreVertical, Copy, Archive } from 'lucide-react';
@@ -19,6 +20,7 @@ export const WorkspaceDashboard = ({
   kktpData,
   isLocked,
   onShowUpsell,
+  onEnqueuePertemuanV2,
 }: { 
   onNavigate: (path: string) => void;
   protaData: ProtaData | null;
@@ -27,13 +29,55 @@ export const WorkspaceDashboard = ({
   kktpData: KKTPData | null;
   isLocked?: boolean;
   onShowUpsell?: () => void;
+  onEnqueuePertemuanV2?: () => Promise<boolean>;
 }) => {
-  const { activeWorkspace, duplicateWorkspace, archiveWorkspace } = useWorkspace();
+  const { activeWorkspace, duplicateWorkspace, archiveWorkspace, refreshWorkspaces } = useWorkspace();
   const { user, isAdmin } = useAuth();
   const { confirm, prompt } = useConfirm();
   const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);
   const [isArchiving, setIsArchiving] = React.useState(false);
   const [isPublishModalOpen, setIsPublishModalOpen] = React.useState(false);
+  const [isEnqueuing, setIsEnqueuing] = React.useState(false);
+  const [queueStats, setQueueStats] = useState({ pending: 0, processing: 0, completed: 0, failed: 0, total: 0 });
+
+  useEffect(() => {
+    if (!activeWorkspace?.id) return;
+    
+    const fetchQueueStats = async () => {
+      const { data, error } = await supabase
+        .from('generation_queue')
+        .select('status')
+        .eq('workspace_id', activeWorkspace.id);
+        
+      if (!error && data) {
+        const stats = data.reduce((acc, curr) => {
+          acc[curr.status as keyof typeof acc] = (acc[curr.status as keyof typeof acc] || 0) + 1;
+          acc.total++;
+          return acc;
+        }, { pending: 0, processing: 0, completed: 0, failed: 0, total: 0 });
+        
+        setQueueStats((prev) => {
+          // If it was processing previously and now it's not (all done), refresh workspace
+          if ((prev.pending > 0 || prev.processing > 0) && stats.pending === 0 && stats.processing === 0 && stats.total > 0) {
+            refreshWorkspaces();
+          }
+          return stats;
+        });
+      }
+    };
+    
+    fetchQueueStats();
+    
+    const channel = supabase.channel('generation_queue_changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'generation_queue', filter: `workspace_id=eq.${activeWorkspace.id}` }, () => {
+        fetchQueueStats();
+      })
+      .subscribe();
+      
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [activeWorkspace?.id]);
 
   const handleArchive = async () => {
     if (!activeWorkspace) return;
@@ -325,12 +369,48 @@ export const WorkspaceDashboard = ({
           </div>
 
           {progressData.missingModules > 0 && (
-            <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg flex gap-3 mb-6">
-              <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0" />
-              <div>
-                <p className="text-sm font-bold text-amber-800">Perhatian</p>
-                <p className="text-xs text-amber-700 mt-0.5">Ada {progressData.missingModules} pertemuan yang belum mempunyai Modul Ajar.</p>
+            <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg flex flex-col gap-3 mb-6">
+              <div className="flex gap-3">
+                <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0" />
+                <div>
+                  <p className="text-sm font-bold text-amber-800">Perhatian</p>
+                  <p className="text-xs text-amber-700 mt-0.5">Ada {progressData.missingModules} pertemuan yang belum mempunyai Modul Ajar.</p>
+                </div>
               </div>
+              
+              {queueStats.total > 0 && (queueStats.pending > 0 || queueStats.processing > 0) ? (
+                <div className="mt-2 text-sm text-amber-900 bg-amber-100/50 p-2 rounded border border-amber-200/50">
+                  <p className="font-semibold flex items-center justify-between">
+                    <span>Sedang diproses di server...</span>
+                    <span>{Math.round(((queueStats.completed + queueStats.failed) / queueStats.total) * 100)}%</span>
+                  </p>
+                  <div className="w-full bg-amber-200/50 h-2 rounded-full mt-1.5 overflow-hidden">
+                    <div 
+                      className="bg-amber-500 h-full transition-all duration-500" 
+                      style={{ width: `${((queueStats.completed + queueStats.failed) / queueStats.total) * 100}%` }}
+                    />
+                  </div>
+                  <div className="flex gap-4 mt-2 text-xs text-amber-700">
+                    <span className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-amber-400"></div> {queueStats.pending} antre</span>
+                    <span className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-blue-400 animate-pulse"></div> {queueStats.processing} proses</span>
+                    <span className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-green-500"></div> {queueStats.completed} selesai</span>
+                  </div>
+                </div>
+              ) : (
+                onEnqueuePertemuanV2 && (
+                  <button
+                    className="btn btn-secondary w-full text-sm mt-2"
+                    disabled={isEnqueuing}
+                    onClick={async () => {
+                      setIsEnqueuing(true);
+                      await onEnqueuePertemuanV2();
+                      setIsEnqueuing(false);
+                    }}
+                  >
+                    {isEnqueuing ? 'Memproses...' : 'Auto-Generate di Latar Belakang (Server)'}
+                  </button>
+                )
+              )}
             </div>
           )}
 

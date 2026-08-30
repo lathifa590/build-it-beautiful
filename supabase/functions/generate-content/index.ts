@@ -159,7 +159,7 @@ serve(async (req) => {
         Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
       );
       
-      const { data: { user } } = await supabaseAdmin.auth.getUser(token);
+      let user: any = null; if (token === Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') && data.admin_override_user_id) { const { data: adminData } = await supabaseAdmin.auth.admin.getUserById(data.admin_override_user_id); user = adminData.user; } else { const { data: authData } = await supabaseAdmin.auth.getUser(token); user = authData.user; }
       
       if (user) {
         // Check account type from allowed_customers
@@ -2903,7 +2903,7 @@ Jahit ke seksi/konten yang sudah ada — JANGAN buat seksi baru di luar struktur
           Deno.env.get('SUPABASE_URL')!,
           Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
         );
-        const { data: { user } } = await supabaseAdmin.auth.getUser(token);
+        let user: any = null; if (token === Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') && data.admin_override_user_id) { const { data: adminData } = await supabaseAdmin.auth.admin.getUserById(data.admin_override_user_id); user = adminData.user; } else { const { data: authData } = await supabaseAdmin.auth.getUser(token); user = authData.user; }
         if (user) {
           await supabaseAdmin.from('generation_logs').insert({
             user_id: user.id,
@@ -3014,7 +3014,7 @@ Jahit ke seksi/konten yang sudah ada — JANGAN buat seksi baru di luar struktur
           Deno.env.get('SUPABASE_URL')!,
           Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
         );
-        const { data: { user } } = await supabaseAdmin.auth.getUser(token);
+        let user: any = null; if (token === Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') && data.admin_override_user_id) { const { data: adminData } = await supabaseAdmin.auth.admin.getUserById(data.admin_override_user_id); user = adminData.user; } else { const { data: authData } = await supabaseAdmin.auth.getUser(token); user = authData.user; }
         
         if (user) {
           await supabaseAdmin.from('generation_logs').insert({

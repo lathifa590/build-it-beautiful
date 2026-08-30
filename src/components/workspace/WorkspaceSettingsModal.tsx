@@ -11,7 +11,7 @@ import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { Workspace } from '@/types/workspace';
 import { toast } from 'sonner';
-import { modelOptions, metodeOptions, DEFAULT_SOAL_TYPE_CONFIG } from '@/lib/constants';
+import { modelOptions, metodeOptions, DEFAULT_SOAL_CONFIG } from '@/lib/constants';
 import { Sparkles, Settings2, FileQuestion } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SoalConfigModal } from '@/components/modul/SoalConfigModal';
@@ -41,7 +41,7 @@ export const WorkspaceSettingsModal = ({ isOpen, onClose, workspace }: Workspace
   }>({
     modelPembelajaran: 'AI Auto-Select',
     metodePembelajaran: ['AI Auto-Select'],
-    soalConfig: { level: 'Dominan LOTS (C1-C3)', typeConfigs: DEFAULT_SOAL_TYPE_CONFIG },
+    soalConfig: DEFAULT_SOAL_CONFIG,
   });
 
   const [showSoalConfig, setShowSoalConfig] = useState(false);
@@ -56,7 +56,7 @@ export const WorkspaceSettingsModal = ({ isOpen, onClose, workspace }: Workspace
         metodePembelajaran: workspace.generation_settings?.metodePembelajaran && workspace.generation_settings.metodePembelajaran.length > 0 
           ? workspace.generation_settings.metodePembelajaran 
           : ['AI Auto-Select'],
-        soalConfig: workspace.generation_settings?.soalConfig || { level: 'Dominan LOTS (C1-C3)', typeConfigs: DEFAULT_SOAL_TYPE_CONFIG },
+        soalConfig: workspace.generation_settings?.soalConfig || DEFAULT_SOAL_CONFIG,
       });
     }
   }, [isOpen, workspace]);
@@ -121,7 +121,7 @@ export const WorkspaceSettingsModal = ({ isOpen, onClose, workspace }: Workspace
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[550px] border-2 border-foreground shadow-brutal max-h-[90vh] overflow-y-auto">
+      <DialogContent className={`sm:max-w-[550px] border-2 border-foreground shadow-brutal max-h-[90vh] overflow-y-auto ${showSoalConfig ? 'hidden' : ''}`}>
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle>Pengaturan Workspace</DialogTitle>
