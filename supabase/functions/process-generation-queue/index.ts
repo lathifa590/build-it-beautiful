@@ -104,25 +104,6 @@ serve(async (req) => {
           throw new Error(`generate-content returned empty response`);
         }
         
-        // Ensure result structure matches GenerationResultV2
-        let currentResult: any = workspace.generation_result || { version: 2, pertemuan: [] };
-        
-        // Ensure pertemuan array exists
-        if (!currentResult.pertemuan) {
-          currentResult.pertemuan = [];
-        }
-        
-        // Find existing pertemuan object or create a new one
-        let p = currentResult.pertemuan.find((x: any) => x.id === job.pertemuan_id);
-        if (!p) {
-          p = { id: job.pertemuan_id, status: {}, dokumen: {} };
-          currentResult.pertemuan.push(p);
-        }
-        
-        // Ensure status and dokumen objects exist
-        if (!p.status) p.status = {};
-        if (!p.dokumen) p.dokumen = {};
-        
         // Extract raw data from API response
         let rawData = generatedData.data || generatedData;
         
@@ -133,32 +114,17 @@ serve(async (req) => {
           rawData = { ...inner };
         }
         
-        // Update document status and data
-        p.status[job.jenis_dokumen] = 'ok';
-        p.dokumen[job.jenis_dokumen] = rawData;
+        // Call RPC to atomically update the JSON and check for completion
+        const { error: rpcError } = await supabase.rpc('append_generation_result', {
+          p_workspace_id: job.workspace_id,
+          p_pertemuan_id: job.pertemuan_id,
+          p_jenis_dokumen: job.jenis_dokumen,
+          p_generated_data: rawData
+        });
 
-        // Save back to workspace
-        const { error: updateWsError } = await supabase
-          .from("workspaces")
-          .update({ generation_result: currentResult })
-          .eq("id", job.workspace_id);
-
-        if (updateWsError) {
-          console.error("Failed to update workspace:", updateWsError.message);
-          throw updateWsError;
-        }
-
-        // Check if all core documents (modul, lkpd, asesmen) are completed
-        const hasModul = p.status['modul'] === 'ok';
-        const hasLkpd = p.status['lkpd'] === 'ok';
-        const hasAsesmen = p.status['asesmen'] === 'ok';
-        
-        if (hasModul && hasLkpd && hasAsesmen) {
-          // Update meeting_slots status to 'completed' so UI reflects the progress
-          await supabase
-            .from("meeting_slots")
-            .update({ status: "completed" })
-            .eq("id", job.pertemuan_id);
+        if (rpcError) {
+          console.error("Failed to append generation result:", rpcError.message);
+          throw rpcError;
         }
 
         // Mark job as completed
