@@ -101,6 +101,18 @@ export const WorkspaceExplorerShell: React.FC<WorkspaceExplorerShellProps> = ({
     };
   }, [workspace?.id, refreshWorkspaces, refresh]);
 
+  // Auto-resume stuck queue
+  useEffect(() => {
+    // Jika ada antrean tapi tidak ada yang diproses, asumsikan webhook terhenti dan trigger manual
+    if (queueStats.pending > 0 && queueStats.processing === 0 && canAccessAutoGenerate) {
+      const timer = setTimeout(() => {
+        console.log("Memicu ulang process-generation-queue karena antrean terhenti...");
+        supabase.functions.invoke('process-generation-queue').catch(console.error);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [queueStats.pending, queueStats.processing, canAccessAutoGenerate]);
+
   const totalTopics = Object.values(prosemItems).reduce((s, items) => s + items.length, 0);
   const totalJp = Object.values(prosemItems).reduce(
     (s, items) => s + items.reduce((ss, i) => ss + i.allocated_jp, 0),
