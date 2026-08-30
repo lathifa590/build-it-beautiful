@@ -97,8 +97,9 @@ export const WorkspaceMeetingEditor: React.FC<WorkspaceMeetingEditorProps> = ({
 
         const jpDuration = workspace.jp_duration_minutes || (workspace.phase === 'F' || workspace.phase === 'E' ? 45 : workspace.phase === 'D' ? 40 : 35);
         const totalMinutes = (data.planned_jp || 2) * jpDuration;
-
+        
         // Build synthetic formData as the base
+        const genSettings = workspace.generation_settings || {};
         const syntheticFormData: FormData = {
           ...DEFAULT_FORM_DATA,
           mataPelajaran: workspace.subject,
@@ -114,7 +115,13 @@ export const WorkspaceMeetingEditor: React.FC<WorkspaceMeetingEditorProps> = ({
             })
             .join("\n"),
           pertemuan: [{ id: meetingId, nomorPertemuan: data.sequence, durasi: totalMinutes.toString() }],
+          ...(genSettings.modelPembelajaran && genSettings.modelPembelajaran !== 'AI Auto-Select' ? { modelPembelajaran: genSettings.modelPembelajaran } : {}),
+          ...(genSettings.metodePembelajaran && !genSettings.metodePembelajaran.includes('AI Auto-Select') ? { metodePembelajaran: genSettings.metodePembelajaran } : {}),
         };
+
+        if (genSettings.soalConfig) {
+          setSoalConfig(genSettings.soalConfig);
+        }
 
         // STEP 3: Load saved documents from DB
         const docsMap = await loadDocuments();
@@ -325,13 +332,17 @@ export const WorkspaceMeetingEditor: React.FC<WorkspaceMeetingEditorProps> = ({
     });
   };
 
-  const handleSuggestDesain = async () => {
+  const handleSuggestDesain = async (silent = false) => {
     if (!formData || !formData.capaianPembelajaran || !formData.tujuanPembelajaran) {
-      toast({ variant: 'destructive', description: 'Isi CP dan Tujuan Pembelajaran terlebih dahulu' });
-      return;
+      if (!silent) toast({ variant: 'destructive', description: 'Isi CP dan Tujuan Pembelajaran terlebih dahulu' });
+      return false;
     }
 
     setIsSuggestingDesain(true);
+    if (silent) {
+      toast({ description: 'Sedang memilih Model & Metode Pembelajaran secara otomatis...' });
+    }
+    
     try {
       const { data, error } = await supabase.functions.invoke('generate-content', {
         body: { type: 'suggest-desain-pembelajaran', data: formData },
@@ -339,8 +350,8 @@ export const WorkspaceMeetingEditor: React.FC<WorkspaceMeetingEditorProps> = ({
 
       if (error) throw error;
       if (data?.error) {
-        toast({ variant: 'destructive', description: data.error });
-        return;
+        if (!silent) toast({ variant: 'destructive', description: data.error });
+        return false;
       }
 
       const suggestion = data?.data;
@@ -351,21 +362,48 @@ export const WorkspaceMeetingEditor: React.FC<WorkspaceMeetingEditorProps> = ({
             ...prev,
             ...(suggestion.modelPembelajaran ? { modelPembelajaran: suggestion.modelPembelajaran } : {}),
             ...(suggestion.metodePembelajaran?.length ? { metodePembelajaran: suggestion.metodePembelajaran } : {}),
-            ...(suggestion.dimensiProfilLulusan?.length ? { dimensiProfilLulusan: suggestion.dimensiProfilLulusan } : {}),
+            ...(suggestion.dimensiProfilPelajarPancasila?.length ? { dimensiProfilPelajarPancasila: suggestion.dimensiProfilPelajarPancasila } : {}),
             ...(suggestion.nilaiKarakter?.length ? { nilaiKarakter: suggestion.nilaiKarakter } : {}),
           };
         });
-        const alasan = suggestion.alasan ? `\n${suggestion.alasan}` : '';
-        toast({ description: `Desain pembelajaran disarankan oleh AI!${alasan}` });
-      } else {
-        toast({ variant: 'destructive', description: 'Format response tidak valid' });
+        if (!silent) toast({ description: 'Berhasil menganalisis dan menyarankan desain pembelajaran' });
+        return true;
       }
-    } catch (err) {
+      return false;
+    } catch (err: any) {
       console.error('Error suggest desain:', err);
-      toast({ variant: 'destructive', description: 'Terjadi kesalahan saat menyarankan desain pembelajaran.' });
+      if (!silent) toast({ variant: 'destructive', description: err.message || 'Gagal menyarankan desain' });
+      return false;
     } finally {
       setIsSuggestingDesain(false);
     }
+  };
+
+  const handleGenerateWithAutoSelect = async (type: 'missing' | 'all') => {
+    if (isLocked && onShowUpsell) {
+      onShowUpsell();
+      return;
+    }
+
+    // Check if AI Auto-Select is active
+    if (!formData?.modelPembelajaran || !formData?.metodePembelajaran?.length) {
+      const success = await handleSuggestDesain(true);
+      if (success) {
+        // Wait briefly for state to settle before generation
+        setTimeout(() => {
+          if (type === 'missing') pertemuanV2.generateMissing();
+          else pertemuanV2.regenerate();
+        }, 100);
+        return;
+      } else {
+        // If it failed, don't proceed to generation
+        return;
+      }
+    }
+
+    // If no auto-select needed, proceed normally
+    if (type === 'missing') pertemuanV2.generateMissing();
+    else pertemuanV2.regenerate();
   };
 
   const handleKontekstualisasiCP = async () => {
@@ -665,7 +703,7 @@ export const WorkspaceMeetingEditor: React.FC<WorkspaceMeetingEditorProps> = ({
                 if (isLocked && onShowUpsell) {
                   onShowUpsell();
                 } else {
-                  pertemuanV2.generateMissing();
+                  handleGenerateWithAutoSelect('missing');
                 }
               }}
               isGeneratingPertemuanV2={pertemuanV2.isGenerating}
@@ -744,7 +782,7 @@ export const WorkspaceMeetingEditor: React.FC<WorkspaceMeetingEditorProps> = ({
             />
             </>
           )}
-          onGenerateMissing={() => pertemuanV2.generateMissing()}
+          onGenerateMissing={() => handleGenerateWithAutoSelect('missing')}
           isGenerating={pertemuanV2.isGenerating}
         />
         

@@ -30,6 +30,7 @@ interface SoalConfigModalProps {
   soalConfig: SoalConfig;
   setSoalConfig: React.Dispatch<React.SetStateAction<SoalConfig>>;
   onGenerate: () => void;
+  actionLabel?: string;
 }
 
 export const SoalConfigModal = ({
@@ -38,6 +39,7 @@ export const SoalConfigModal = ({
   soalConfig,
   setSoalConfig,
   onGenerate,
+  actionLabel = 'Generate Bank Soal',
 }: SoalConfigModalProps) => {
   if (!isOpen) return null;
 
@@ -240,7 +242,7 @@ export const SoalConfigModal = ({
               className="shadow-sm"
               disabled={isEmpty || isOverLimit}
             >
-              Generate Bank Soal
+              {actionLabel}
             </Button>
           </div>
         </div>

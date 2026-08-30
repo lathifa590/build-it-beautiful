@@ -1,3 +1,9 @@
+export interface WorkspaceGenerationSettings {
+  modelPembelajaran?: string;
+  metodePembelajaran?: string[];
+  soalConfig?: any;
+}
+
 export interface Workspace {
   id: string;
   user_id: string;
@@ -13,6 +19,7 @@ export interface Workspace {
   updated_at: string;
   is_archived: boolean;
   archived_at?: string | null;
+  generation_settings?: WorkspaceGenerationSettings;
 }
 
 export interface CurriculumPlan {
