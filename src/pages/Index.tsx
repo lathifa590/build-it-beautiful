@@ -3244,7 +3244,7 @@ img{max-width:100%}
             isPreviewFullscreen
               ? 'fixed inset-0 z-[60] bg-secondary'
               : 'w-full md:flex-1 md:min-w-0 border-l-2 border-foreground relative'
-          } flex flex-col h-full bg-secondary ${
+          } flex flex-col h-full min-h-0 bg-secondary ${
             !isPreviewFullscreen && mobileTab !== 'result' && appMode !== 'workspace' ? 'hidden' : 'block'
           } md:block`}
         >
