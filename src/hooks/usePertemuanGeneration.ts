@@ -446,9 +446,16 @@ export const usePertemuanGeneration = ({
         runningRef.current = false;
         setIsGenerating(false);
         setProgress(null);
+      }
+    },
+    [enabled, invoke, setResult],
+  );
+
+  /** Memasukkan dokumen yang belum ada / gagal ke dalam queue di backend (Cron Job). */
   const enqueueMissingDocuments = useCallback(
     async (workspaceId: string, pertemuanIds?: string[]) => {
       if (!enabled) return false;
+
       const tasks = buildGenerateQueue(resultRef.current, { mode: 'missing', pertemuanIds });
       if (tasks.length === 0) return false;
 
