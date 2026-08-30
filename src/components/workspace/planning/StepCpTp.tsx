@@ -455,6 +455,7 @@ export const StepCpTp: React.FC<StepCpTpProps> = ({ workspace, onNext, isLocked,
         mataPelajaran={workspace.subject}
         fase={workspace.phase}
         onSelectCP={handleCpSelect}
+        kurikulum={workspace.curriculum}
       />
     </>
   );

@@ -21,6 +21,7 @@ interface CPSelectorModalProps {
   mataPelajaran: string;
   fase: string;
   onSelectCP: (cpText: string) => void;
+  kurikulum?: string;
 }
 
 interface CPElemen {
@@ -50,6 +51,7 @@ export const CPSelectorModal = ({
   mataPelajaran,
   fase,
   onSelectCP,
+  kurikulum,
 }: CPSelectorModalProps) => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
@@ -60,9 +62,19 @@ export const CPSelectorModal = ({
   const [matchedSlug, setMatchedSlug] = useState<string | null>(null);
   const [filterNama, setFilterNama] = useState<string | undefined>(undefined);
   const [kelas, setKelas] = useState<string>('');
-  const [cpSource, setCpSource] = useState<'github' | 'cp032'>('github');
+  const [cpSource, setCpSource] = useState<'github' | 'cp032' | 'kbc_madrasah'>('github');
 
   const isSpecialUser = user?.email === SPECIAL_EMAIL;
+
+  useEffect(() => {
+    if (open) {
+      if (kurikulum === 'kbc') {
+        setCpSource('kbc_madrasah');
+      } else if (cpSource === 'kbc_madrasah') {
+        setCpSource('github');
+      }
+    }
+  }, [open, kurikulum]);
 
   useEffect(() => {
     if (open && mataPelajaran) {
@@ -234,6 +246,16 @@ export const CPSelectorModal = ({
             >
               CP SK 032/2024
             </Button>
+            {kurikulum === 'kbc' && (
+              <Button
+                variant={cpSource === 'kbc_madrasah' ? 'default' : 'outline'}
+                size="sm"
+                className="text-xs h-7 px-3"
+                onClick={() => setCpSource('kbc_madrasah')}
+              >
+                CP Madrasah (2025)
+              </Button>
+            )}
           </div>
         )}
 

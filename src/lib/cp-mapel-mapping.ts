@@ -25,6 +25,12 @@ export const MAPEL_LIST: MapelMapping[] = [
   { slug: 'pendidikan-agama-dan-budi-pekerti', nama: 'Pendidikan Agama Konghucu dan Budi Pekerti', aliases: ['agama konghucu', 'konghucu', 'khonghucu'], filterNama: 'Pendidikan Agama Konghucu' },
   // Entry generik tanpa filter (tampilkan semua agama)
   { slug: 'pendidikan-agama-dan-budi-pekerti', nama: 'Pendidikan Agama dan Budi Pekerti', aliases: ['agama', 'pabp'] },
+  // Madrasah Subjects
+  { slug: 'bahasa-arab', nama: 'Bahasa Arab', aliases: ['arab'] },
+  { slug: 'al-quran-hadis', nama: "Al-Qur'an Hadis", aliases: ['alquran', 'hadis', 'quran hadis'] },
+  { slug: 'akidah-akhlak', nama: 'Akidah Akhlak', aliases: ['akidah', 'akhlak'] },
+  { slug: 'fikih', nama: 'Fikih', aliases: ['fiqih', 'fikih'] },
+  { slug: 'sejarah-kebudayaan-islam', nama: 'Sejarah Kebudayaan Islam (SKI)', aliases: ['ski', 'sejarah kebudayaan islam'] },
   { slug: 'pendidikan-jasmani-olahraga-dan-kesehatan-pjok', nama: 'PJOK (Pendidikan Jasmani Olahraga dan Kesehatan)', aliases: ['pjok', 'penjas', 'olahraga'] },
   { slug: 'informatika', nama: 'Informatika', aliases: ['info', 'tik'] },
   { slug: 'koding-dan-kecerdasan-artifisial', nama: 'Koding dan Kecerdasan Artifisial', aliases: ['koding', 'ai', 'coding'] },

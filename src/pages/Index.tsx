@@ -3232,6 +3232,7 @@ img{max-width:100%}
             mataPelajaran={formData.mataPelajaran}
             fase={formData.fase}
             onSelectCP={handleSelectCP}
+            kurikulum={formData.kurikulum}
           />
         </div>
         )}
