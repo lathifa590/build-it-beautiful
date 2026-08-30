@@ -3245,8 +3245,8 @@ img{max-width:100%}
               ? 'fixed inset-0 z-[60] bg-secondary'
               : 'w-full md:flex-1 md:min-w-0 border-l-2 border-foreground relative'
           } flex flex-col h-full min-h-0 bg-secondary ${
-            !isPreviewFullscreen && mobileTab !== 'result' && appMode !== 'workspace' ? 'hidden' : 'block'
-          } md:block`}
+            !isPreviewFullscreen && mobileTab !== 'result' && appMode !== 'workspace' ? 'hidden' : 'flex'
+          } md:flex`}
         >
           {/* Mini topbar — only visible in mobile fullscreen mode. Lets user switch
               between content tabs and exit fullscreen without losing access. */}
