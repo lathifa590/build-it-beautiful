@@ -442,6 +442,8 @@ const Index = () => {
 
   // Helper to update quota info from response
   const updateQuotaFromResponse = useCallback((responseData: Record<string, unknown>) => {
+    const isProUser = isAdmin || (subStatus && subStatus.isPro);
+    
     if (responseData.remaining !== undefined && responseData.limit !== undefined) {
       setQuotaInfo({
         remaining: responseData.remaining as number,
@@ -449,8 +451,10 @@ const Index = () => {
         isTrial: !!responseData.isTrial,
       });
       if ((responseData.remaining as number) === 0 && responseData.isTrial) {
-        setTrialCTAReason('quota');
-        setShowTrialCTA(true);
+        if (!isProUser) {
+          setTrialCTAReason('quota');
+          setShowTrialCTA(true);
+        }
       }
     }
     if (responseData.errorCode === 'rate_limit_exceeded' && responseData.isTrial) {
@@ -459,14 +463,20 @@ const Index = () => {
         limit: (responseData.limit as number) || 10,
         isTrial: true,
       });
-      setTrialCTAReason('quota');
-      setShowTrialCTA(true);
+      if (!isProUser) {
+        setTrialCTAReason('quota');
+        setShowTrialCTA(true);
+      }
     }
     if (responseData.errorCode === 'demo_server_busy') {
-      setTrialCTAReason('busy');
-      setShowTrialCTA(true);
+      if (isProUser) {
+        showNotificationMessage('Server AI bawaan sedang penuh antrian. Tambahkan API Key pribadi Anda di menu Pengaturan agar tidak perlu mengantri.', 'error');
+      } else {
+        setTrialCTAReason('busy');
+        setShowTrialCTA(true);
+      }
     }
-  }, []);
+  }, [isAdmin, subStatus, showNotificationMessage]);
 
   // === Dokumen per Pertemuan V2 (Fase 3) — hanya aktif saat feature flag ON ===
   const v2ContextKey = useMemo(() => buildContextKey(formData), [formData]);
