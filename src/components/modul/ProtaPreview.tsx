@@ -9,6 +9,7 @@ interface ProtaPreviewProps {
   protaData: ProtaData;
   formData: FormData;
   onExportWord: () => void;
+  onExportExcel?: () => void;
   isExporting?: boolean;
   onDataChange?: (data: ProtaData) => void;
   onCreateModul?: (item: ProtaItem) => void;
@@ -17,7 +18,7 @@ interface ProtaPreviewProps {
 
 type EditingCell = { row: number; field: string } | null;
 
-export const ProtaPreview = ({ protaData, formData, onExportWord, isExporting, onDataChange, onCreateModul, kurikulum }: ProtaPreviewProps) => {
+export const ProtaPreview = ({ protaData, formData, onExportWord, onExportExcel, isExporting, onDataChange, onCreateModul, kurikulum }: ProtaPreviewProps) => {
   const [editMode, setEditMode] = useState(false);
   const [editingCell, setEditingCell] = useState<EditingCell>(null);
 
@@ -267,6 +268,22 @@ export const ProtaPreview = ({ protaData, formData, onExportWord, isExporting, o
             >
               <PenLine className="w-4 h-4 mr-1" />
               {editMode ? 'Selesai Edit' : 'Edit'}
+            </Button>
+          )}
+          {onExportExcel && (
+            <Button
+              onClick={onExportExcel}
+              disabled={isExporting}
+              className="border-2 border-foreground shadow-brutal-sm text-xs"
+              variant="outline"
+              size="sm"
+            >
+              {isExporting ? (
+                <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+              ) : (
+                <FileDown className="w-4 h-4 mr-1" />
+              )}
+              Download Excel (.xlsx)
             </Button>
           )}
           <Button

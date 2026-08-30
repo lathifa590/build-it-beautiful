@@ -10,6 +10,7 @@ interface ProsemPreviewProps {
   prosemSem2: ProsemData | null;
   formData: FormData;
   onExportWord: (semester: 1 | 2) => void;
+  onExportExcel?: (semester: 1 | 2) => void;
   isExporting?: boolean;
 }
 
@@ -18,6 +19,7 @@ export const ProsemPreview = ({
   prosemSem2,
   formData,
   onExportWord,
+  onExportExcel,
   isExporting,
 }: ProsemPreviewProps) => {
   const [activeSem, setActiveSem] = useState<1 | 2>(1);
@@ -34,15 +36,28 @@ export const ProsemPreview = ({
         <p className="text-xs text-muted-foreground mt-1">
           Tabel Program Semester terlalu lebar untuk layar mobile. Buka di desktop untuk tampilan optimal.
         </p>
-        <Button
-          onClick={() => onExportWord(activeSem)}
-          disabled={isExporting}
-          variant="outline"
-          className="mt-4 text-xs border-2 border-foreground"
-        >
-          {isExporting ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <Download className="w-3 h-3 mr-1" />}
-          Download Word Saja
-        </Button>
+        <div className="flex justify-center gap-2 mt-4">
+          <Button
+            onClick={() => onExportWord(activeSem)}
+            disabled={isExporting}
+            variant="outline"
+            className="text-xs border-2 border-foreground"
+          >
+            {isExporting ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <Download className="w-3 h-3 mr-1" />}
+            Download Word Saja
+          </Button>
+          {onExportExcel && (
+            <Button
+              onClick={() => onExportExcel(activeSem)}
+              disabled={isExporting}
+              variant="outline"
+              className="text-xs border-2 border-foreground"
+            >
+              {isExporting ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <Download className="w-3 h-3 mr-1" />}
+              Download Excel
+            </Button>
+          )}
+        </div>
       </div>
     );
   }
@@ -91,15 +106,28 @@ export const ProsemPreview = ({
             Semester 2
           </button>
         </div>
-        <Button
-          onClick={() => onExportWord(activeSem)}
-          disabled={isExporting}
-          variant="outline"
-          className="text-xs border-2 border-foreground shadow-brutal-sm"
-        >
-          {isExporting ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <Download className="w-3 h-3 mr-1" />}
-          Download Word
-        </Button>
+        <div className="flex gap-2">
+          {onExportExcel && (
+            <Button
+              onClick={() => onExportExcel(activeSem)}
+              disabled={isExporting}
+              variant="outline"
+              className="text-xs border-2 border-foreground shadow-brutal-sm"
+            >
+              {isExporting ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <Download className="w-3 h-3 mr-1" />}
+              Download Excel
+            </Button>
+          )}
+          <Button
+            onClick={() => onExportWord(activeSem)}
+            disabled={isExporting}
+            variant="outline"
+            className="text-xs border-2 border-foreground shadow-brutal-sm"
+          >
+            {isExporting ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <Download className="w-3 h-3 mr-1" />}
+            Download Word
+          </Button>
+        </div>
       </div>
 
       {/* Grid Table */}

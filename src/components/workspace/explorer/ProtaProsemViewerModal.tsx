@@ -152,6 +152,7 @@ export const ProtaProsemViewerModal: React.FC<ProtaProsemViewerModalProps> = ({
                     fase: workspace.grade, 
                     kelas: workspace.grade 
                   } as any)}
+                  onExportExcel={handleExport}
                   kurikulum={workspace.curriculum}
                 />
               )}
@@ -177,6 +178,7 @@ export const ProtaProsemViewerModal: React.FC<ProtaProsemViewerModalProps> = ({
                       } as any, semester);
                     }
                   }}
+                  onExportExcel={handleExport}
                 />
               )}
             </div>
