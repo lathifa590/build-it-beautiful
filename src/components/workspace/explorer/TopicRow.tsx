@@ -8,9 +8,10 @@ interface TopicRowProps {
   globalMeetingStart: number;
   onMeetingClick?: (slot: MeetingSlotDB) => void;
   onEditProsem?: (step?: number) => void;
+  onGenerateClick?: (slot: MeetingSlotDB) => Promise<void>;
 }
 
-export const TopicRow: React.FC<TopicRowProps> = ({ item, globalMeetingStart, onMeetingClick, onEditProsem }) => {
+export const TopicRow: React.FC<TopicRowProps> = ({ item, globalMeetingStart, onMeetingClick, onEditProsem, onGenerateClick }) => {
   const [open, setOpen] = useState(false);
 
   const completedSlots = item.meeting_slots.filter(s => s.status === "completed").length;
@@ -110,6 +111,7 @@ export const TopicRow: React.FC<TopicRowProps> = ({ item, globalMeetingStart, on
                   slot={slot}
                   meetingIndex={globalMeetingStart + idx}
                   onClick={onMeetingClick}
+                  onGenerateClick={onGenerateClick}
                 />
               ))
           )}

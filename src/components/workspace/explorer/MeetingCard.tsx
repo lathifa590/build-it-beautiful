@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { CheckCircle2, Circle, BookOpen, PlayCircle, ChevronRight, Edit2, Check, X } from "lucide-react";
+import { CheckCircle2, Circle, BookOpen, PlayCircle, ChevronRight, Edit2, Check, X, Wand2, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import type { MeetingSlotDB } from "@/hooks/useProsemData";
 
@@ -14,15 +14,28 @@ interface MeetingCardProps {
   slot: MeetingSlotDB;
   meetingIndex: number;
   onClick?: (slot: MeetingSlotDB) => void;
+  onGenerateClick?: (slot: MeetingSlotDB) => Promise<void>;
 }
 
-export const MeetingCard: React.FC<MeetingCardProps> = ({ slot, meetingIndex, onClick }) => {
+export const MeetingCard: React.FC<MeetingCardProps> = ({ slot, meetingIndex, onClick, onGenerateClick }) => {
   const cfg = STATUS_CONFIG[slot.status] ?? STATUS_CONFIG.planned;
   const Icon = cfg.icon;
 
   const [isEditing, setIsEditing] = useState(false);
   const [title, setTitle] = useState(slot.title || "");
   const [isSaving, setIsSaving] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  const handleGenerate = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!onGenerateClick) return;
+    setIsGenerating(true);
+    try {
+      await onGenerateClick(slot);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   const handleSave = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -114,8 +127,23 @@ export const MeetingCard: React.FC<MeetingCardProps> = ({ slot, meetingIndex, on
         <p className="text-xs text-muted-foreground">{slot.planned_jp} JP</p>
       </div>
 
-      <span className={`text-xs font-medium ${cfg.color} hidden sm:block`}>{cfg.label}</span>
-      <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0" />
+      <div className="flex items-center gap-2">
+        <span className={`text-xs font-medium ${cfg.color} hidden sm:block`}>{cfg.label}</span>
+        
+        {slot.status === "planned" && onGenerateClick && (
+          <button
+            onClick={handleGenerate}
+            disabled={isGenerating}
+            className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold text-amber-700 bg-amber-100 hover:bg-amber-200 border border-amber-300 rounded-md transition-colors"
+            title="Generate modul otomatis"
+          >
+            {isGenerating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Wand2 className="w-3.5 h-3.5" />}
+            Generate
+          </button>
+        )}
+        
+        <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0" />
+      </div>
     </div>
   );
 };
