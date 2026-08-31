@@ -1,14 +1,17 @@
 import React, { useState } from "react";
-import { BookOpen, PlusCircle, ChevronDown, Layers, BarChart3 } from "lucide-react";
+import { BookOpen, PlusCircle, ChevronDown, Layers, BarChart3, Store } from "lucide-react";
 import type { CurriculumPlanDB, ProsemItemDB, MeetingSlotDB } from "@/hooks/useProsemData";
 import { TopicRow } from "./TopicRow";
+import { StoreBundleModal } from "@/components/store/StoreBundleModal";
+import type { Workspace } from "@/types/workspace";
 
 interface SemesterPlanViewProps {
   plan: CurriculumPlanDB;
   items: ProsemItemDB[];
+  workspace: Workspace;
   onMeetingClick?: (slot: MeetingSlotDB) => void;
   onAddItem?: (step?: number) => void;
-  onGenerateClick?: (slot: MeetingSlotDB) => Promise<void>;
+  onGenerateClick?: (slot: MeetingSlotDB, onProgress: (msg: string) => void) => Promise<void>;
 }
 
 export const SemesterPlanView: React.FC<SemesterPlanViewProps> = ({
@@ -17,8 +20,10 @@ export const SemesterPlanView: React.FC<SemesterPlanViewProps> = ({
   onMeetingClick,
   onAddItem,
   onGenerateClick,
+  workspace,
 }) => {
   const [collapsed, setCollapsed] = useState(false);
+  const [isBundleModalOpen, setIsBundleModalOpen] = useState(false);
 
   const totalJp = items.reduce((s, i) => s + i.allocated_jp, 0);
   const totalMeetings = items.reduce((s, i) => s + i.meeting_slots.length, 0);
@@ -66,6 +71,17 @@ export const SemesterPlanView: React.FC<SemesterPlanViewProps> = ({
           <div className="semester-progress-badge">
             {progress}%
           </div>
+
+          {completedMeetings > 0 && (
+            <button
+              onClick={() => setIsBundleModalOpen(true)}
+              className="p-2 rounded-lg bg-orange-100 hover:bg-orange-200 text-orange-600 border-2 border-orange-200 transition-colors flex items-center gap-1 text-sm font-bold shadow-sm"
+              title="Publish Semester ini ke Toko"
+            >
+              <Store className="w-4 h-4" />
+              <span className="hidden sm:inline">Ke Toko</span>
+            </button>
+          )}
 
           <button
             onClick={() => setCollapsed(c => !c)}
@@ -125,6 +141,15 @@ export const SemesterPlanView: React.FC<SemesterPlanViewProps> = ({
           )}
         </div>
       )}
+
+      {/* Store Bundle Modal */}
+      <StoreBundleModal
+        isOpen={isBundleModalOpen}
+        onClose={() => setIsBundleModalOpen(false)}
+        workspace={workspace}
+        semesterPlan={plan}
+        prosemItems={items}
+      />
     </section>
   );
 };

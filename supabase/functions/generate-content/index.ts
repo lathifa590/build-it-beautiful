@@ -286,16 +286,15 @@ serve(async (req) => {
     
     // Determine endpoint based on which key we're using
     // Native Gemini API for user keys, Lovable AI gateway for default
-    // Multi-model chain: prioritaskan model dengan RPD lebih besar untuk key Gemini format baru.
     const GEMINI_MODEL_CHAIN = [
-      "gemini-3.1-flash-lite", // Utama: kuota tinggi, cocok untuk LKPD/output JSON panjang
-      "gemini-2.5-flash",      // Cadangan
-      "gemini-2.5-flash-lite", // Cadangan cepat
-      "gemini-3-flash"         // Cadangan terbaru
+      "gemini-2.5-flash",
+      "gemini-3.0-flash",
+      "gemini-3.5-flash",
+      "gemini-2.5-flash-lite"
     ];
     
-    const getGeminiEndpoint = (model: string) => 
-      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
+    const getGeminiEndpoint = (model: string, key: string) => 
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`;
     
     // Helper: Parse Gemini error untuk pesan yang lebih akurat
     const parseGeminiError = (statusCode: number, errorText: string): { errorCode: string; message: string; isModelNotFound?: boolean } => {
@@ -308,7 +307,7 @@ serve(async (req) => {
         if (statusCode === 404 || errorStatus === "NOT_FOUND") {
           return {
             errorCode: "model_not_found",
-            message: "Model tidak tersedia. Sistem akan mencoba model alternatif...",
+            message: `Model tidak tersedia (404). Detail API: ${errorText.substring(0, 300)}`,
             isModelNotFound: true
           };
         }
@@ -381,11 +380,10 @@ serve(async (req) => {
           triedModels.push(`gemini/${model}/...${currentKey.slice(-4)}`);
           console.log(`Trying model: ${model} with key ending ...${currentKey.slice(-4)}`);
           
-          const response = await fetch(getGeminiEndpoint(model), {
+          const response = await fetch(getGeminiEndpoint(model, currentKey), {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              "x-goog-api-key": currentKey,
             },
             body: JSON.stringify(requestBody),
           });
@@ -695,11 +693,10 @@ serve(async (req) => {
           for (const model of GEMINI_MODEL_CHAIN) {
             const modelLabel = `gemini/${model}/...${entry.key.slice(-4)}`;
             triedAll.push(modelLabel);
-            const resp = await fetch(getGeminiEndpoint(model), {
+            const resp = await fetch(getGeminiEndpoint(model, entry.key), {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
-                "x-goog-api-key": entry.key,
               },
               body: JSON.stringify({
                 contents: [{ role: "user", parts: [{ text: `${strictSystemText}\n\n${strictUserText}` }] }],
@@ -800,7 +797,7 @@ serve(async (req) => {
       } else if (useGeminiDirect) {
         // Native Gemini API test with multi-model fallback
         const testBody = {
-          contents: [{ parts: [{ text: "Say 'test successful' in 2 words" }] }],
+          contents: [{ role: "user", parts: [{ text: "Say 'test successful' in 2 words" }] }],
           generationConfig: { maxOutputTokens: 10 }
         };
         
@@ -838,9 +835,7 @@ serve(async (req) => {
         const isAllQuotaExhausted = testResponse.status === 429 || testResponse.status === 404;
         
         return new Response(JSON.stringify({
-          error: isAllQuotaExhausted 
-            ? `Semua key/model yang aktif belum bisa dipakai saat ini. Coba lagi besok atau tambahkan API Key lain.`
-            : message,
+          error: message,
           errorCode: isAllQuotaExhausted ? "all_quota_exceeded" : errorCode,
           triedModels: triedModels,
           success: false
@@ -1442,6 +1437,49 @@ ${distribusiInfo}
     "materi_integrasi_kbc": "- **Cinta kepada Ilmu**: [deskripsi integrasi]\\n- **Cinta kepada Diri dan Sesama Manusia**: [deskripsi integrasi]"` : ''}
   }
 }`;
+
+        const autoFillInstructionPertemuan = `
+INSTRUKSI AUTO-FILL (PENTING!):
+Karena beberapa field Identifikasi Murid atau Jenis Pengetahuan materi masih kosong, WAJIB hasilkan field 'auto_generated' secara cerdas berdasarkan konteks pembelajaran:
+
+1. IDENTIFIKASI MURID:
+   - aspekPengetahuanAwal: Analisis prerequisite knowledge
+   - aspekMinat: Kaitkan dengan minat umum anak
+   - aspekLatarBelakang: Karakteristik umum murid
+   - aspekKebutuhanBelajar: Kebutuhan berdasarkan CP dan model
+
+2. JENIS PENGETAHUAN MATERI:
+   - faktual: Data, fakta, terminologi terkait topik
+   - konseptual: Konsep, prinsip, teori yang mendasari
+   - prosedural: Langkah-langkah, cara, metode yang dipelajari
+   - metakognitif: Strategi berpikir dan refleksi diri
+
+3. DIMENSI PROFIL LULUSAN & NILAI KARAKTER:
+   - Pilih 2-4 DPL dan 3-5 nilai karakter
+
+PENTING: Karena ini adalah pembuatan SATU pertemuan, sisipkan key "auto_generated" SEJAJAR dengan "nomorPertemuan" dan "tahap_awal" di root level output JSON:
+{
+  "nomorPertemuan": ${data.pertemuanIndex ? data.pertemuanIndex + 1 : 1},
+  "durasi": "...",
+  "auto_generated": {
+    "identifikasi_murid": {
+      "aspek_pengetahuan_awal": "...",
+      "aspek_minat": "...",
+      "aspek_latar_belakang": "...",
+      "aspek_kebutuhan_belajar": "..."
+    },
+    "materi_pengetahuan": {
+      "faktual": "...",
+      "konseptual": "...",
+      "prosedural": "...",
+      "metakognitif": "..."
+    },
+    "dimensi_profil_lulusan": ["DPL 3", "DPL 5"],
+    "nilai_karakter": ["Kritis dan Kreatif"]
+  },
+  "tahap_awal": { ... },
+  ...
+}`;
         break;
 
       case "modul-pertemuan": {
@@ -1617,9 +1655,9 @@ FORMAT OUTPUT JSON (WAJIB persis struktur nested berikut, JANGAN disederhanakan)
 }
 
 PENTING - STRUKTUR OUTPUT:
-- Kembalikan SATU OBJECT pertemuan langsung. JANGAN bungkus dengan { "pertemuan": [...] }.
+- Kembalikan SATU OBJECT pertemuan langsung di level teratas (kecuali jika ada instruksi khusus untuk menambahkan field lain).
 - Output JSON HARUS dimulai dengan { "nomorPertemuan": ${pPertemuanIndex + 1}, ... }
-- JANGAN tambahkan field "pemahaman_bermakna" atau "auto_generated" — hanya pertemuan saja.
+- JANGAN tambahkan field "pemahaman_bermakna" atau "auto_generated" (KECUALI jika diinstruksikan secara eksplisit di bagian Instruksi Auto-Fill).
 
 ATURAN STRUKTUR (WAJIB):
 1. WAJIB gunakan 3 fase pada TAHAP INTI: MEMAHAMI, MENGAPLIKASI, MEREFLEKSI.
@@ -1631,6 +1669,51 @@ ATURAN STRUKTUR (WAJIB):
 7. Total durasi semua tahap harus = ${pPertemuanTarget.durasi || '90'} menit.
 8. ${pIsKBC ? 'Gunakan istilah "peserta didik".' : 'Gunakan istilah "murid" bukan "siswa".'}
 9. Pastikan kesinambungan dengan pertemuan sebelumnya, JANGAN mengulang materi.`;
+
+        const pHasEmptyFields = !pData.aspekPengetahuanAwal || !pData.aspekMinat || !pData.materiPengetahuan?.faktual || !pData.dimensiProfilLulusan || pData.dimensiProfilLulusan.length === 0;
+
+        const pAutoFillInstructionPertemuan = `
+INSTRUKSI AUTO-FILL (PENTING!):
+Karena beberapa field Identifikasi Murid atau Jenis Pengetahuan materi masih kosong, WAJIB hasilkan field 'auto_generated' secara cerdas berdasarkan konteks pembelajaran:
+
+1. IDENTIFIKASI MURID:
+   - aspekPengetahuanAwal: Analisis prerequisite knowledge
+   - aspekMinat: Kaitkan dengan minat umum anak
+   - aspekLatarBelakang: Karakteristik umum murid
+   - aspekKebutuhanBelajar: Kebutuhan berdasarkan CP dan model
+
+2. JENIS PENGETAHUAN MATERI:
+   - faktual: Data, fakta, terminologi terkait topik
+   - konseptual: Konsep, prinsip, teori yang mendasari
+   - prosedural: Langkah-langkah, cara, metode yang dipelajari
+   - metakognitif: Strategi berpikir dan refleksi diri
+
+3. DIMENSI PROFIL LULUSAN & NILAI KARAKTER:
+   - Pilih 2-4 DPL dan 3-5 nilai karakter
+
+PENTING: Karena ini adalah pembuatan SATU pertemuan, sisipkan key "auto_generated" SEJAJAR dengan "nomorPertemuan" dan "tahap_awal" di root level output JSON:
+{
+  "nomorPertemuan": ${pData.pertemuanIndex ? pData.pertemuanIndex + 1 : 1},
+  "durasi": "...",
+  "auto_generated": {
+    "identifikasi_murid": {
+      "aspek_pengetahuan_awal": "...",
+      "aspek_minat": "...",
+      "aspek_latar_belakang": "...",
+      "aspek_kebutuhan_belajar": "..."
+    },
+    "materi_pengetahuan": {
+      "faktual": "...",
+      "konseptual": "...",
+      "prosedural": "...",
+      "metakognitif": "..."
+    },
+    "dimensi_profil_lulusan": ["DPL 3", "DPL 5"],
+    "nilai_karakter": ["Kritis dan Kreatif"]
+  },
+  "tahap_awal": { ... },
+  ...
+}`;
 
         userPrompt = `Buatkan langkah pembelajaran untuk PERTEMUAN KE-${pPertemuanIndex + 1} dari total ${pTotalPertemuan} pertemuan:
 
@@ -1644,6 +1727,8 @@ INFORMASI:
 - Durasi Pertemuan Ini: ${pPertemuanTarget.durasi || '90'} menit
 
 ${pPreviousSummary ? `RINGKASAN PERTEMUAN SEBELUMNYA (untuk kesinambungan):\n${pPreviousSummary}\n\nPastikan pertemuan ini melanjutkan dan memperdalam topik dari pertemuan sebelumnya, TIDAK mengulang materi yang sama.` : ''}
+
+${pHasEmptyFields ? pAutoFillInstructionPertemuan : ''}
 
 INSTRUKSI:
 - Buat HANYA 1 pertemuan (ke-${pPertemuanIndex + 1})
@@ -2577,12 +2662,28 @@ Ekstrak bagian CP yang relevan dengan materi di atas, lalu reformulasi menjadi S
 4. Integrasi Nilai & Karakter (pilih 2-4 dari list berikut):
    - Tanggung Jawab, Peduli Diri dan Sesama, Kritis dan Kreatif, Kolaborasi, Komunikatif, Religius, Nasionalis, Mandiri, Gotong Royong, Integritas
 
+5. Identifikasi Murid & Jenis Pengetahuan:
+   - Berikan deskripsi singkat (1 kalimat) untuk 4 aspek identifikasi murid
+   - Berikan deskripsi singkat (1 kalimat) untuk 4 jenis materi pengetahuan
+
 FORMAT OUTPUT JSON:
 {
   "modelPembelajaran": "nama model dari list",
   "metodePembelajaran": ["metode1", "metode2"],
   "dimensiProfilLulusan": ["DPL 3", "DPL 4"],
   "nilaiKarakter": ["Tanggung Jawab", "Kritis dan Kreatif"],
+  "identifikasiMurid": {
+    "pengetahuanAwal": "1 kalimat",
+    "minat": "1 kalimat",
+    "latarBelakang": "1 kalimat",
+    "kebutuhanBelajar": "1 kalimat"
+  },
+  "jenisPengetahuan": {
+    "faktual": "1 kalimat",
+    "konseptual": "1 kalimat",
+    "prosedural": "1 kalimat",
+    "metakognitif": "1 kalimat"
+  },
   "alasan": "Penjelasan singkat mengapa pilihan ini cocok (1-2 kalimat)"
 }
 
@@ -2836,9 +2937,7 @@ Jahit ke seksi/konten yang sudah ada — JANGAN buat seksi baru di luar struktur
         
         return new Response(
           JSON.stringify({ 
-            error: isAllQuotaExhausted 
-              ? `Semua key/model yang aktif belum bisa dipakai saat ini. Coba lagi besok atau tambahkan API Key lain.`
-              : message, 
+            error: message, 
             errorCode: isAllQuotaExhausted ? "all_quota_exceeded" : errorCode,
             triedModels: triedModels,
             needApiKey: errorCode === "invalid_key" || errorCode === "quota_unavailable"

@@ -124,7 +124,7 @@ export const defaultPilihanDokumen = (): PilihanDokumenPertemuan => ({
   modul: true,
   lkpd: true,
   asesmen: true,
-  soal: false,   // Soal membutuhkan konfigurasi manual (tipe, jumlah, dll.)
+  soal: true,    // Generate soal secara default karena sudah memiliki fallback soalConfig
   materi: true,
   refleksi: true,
 });

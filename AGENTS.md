@@ -74,3 +74,6 @@ Be pragmatic. Be reliable. Self-anneal.
 
 
 
+
+# Istilah Khusus
+- **Deploy Terbatas**: Merujuk pada pembatasan akses fitur/deploy hanya untuk Admin dan akun dengan email `jagofeed@gmail.com`.

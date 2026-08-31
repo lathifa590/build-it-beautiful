@@ -94,29 +94,36 @@ export const WorkspaceSettingsModal = ({ isOpen, onClose, workspace }: Workspace
     });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSave = async (currentGenSettings = genSettings) => {
     setIsSubmitting(true);
     try {
       const success = await updateWorkspace(workspace.id, {
         ...formData,
         generation_settings: {
           ...workspace.generation_settings,
-          ...genSettings
+          ...currentGenSettings
         }
       });
       if (success) {
         toast.success('Pengaturan Workspace berhasil disimpan.');
-        onClose();
+        return true;
       } else {
         toast.error('Gagal menyimpan pengaturan Workspace.');
+        return false;
       }
     } catch (error) {
       console.error(error);
       toast.error('Gagal menyimpan pengaturan Workspace.');
+      return false;
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const success = await handleSave();
+    if (success) onClose();
   };
 
   return (
@@ -266,7 +273,10 @@ export const WorkspaceSettingsModal = ({ isOpen, onClose, workspace }: Workspace
             const nextCfg = typeof newCfg === 'function' ? newCfg(genSettings.soalConfig) : newCfg;
             setGenSettings({ ...genSettings, soalConfig: nextCfg });
           }}
-          onGenerate={() => setShowSoalConfig(false)}
+          onGenerate={async () => {
+            await handleSave(genSettings);
+            setShowSoalConfig(false);
+          }}
           actionLabel="Terapkan"
         />
       )}

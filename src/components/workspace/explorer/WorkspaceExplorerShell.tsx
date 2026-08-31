@@ -12,6 +12,7 @@ import { useWorkspace } from "@/contexts/WorkspaceContext";
 import { AutoGenerateConfirmModal } from "./AutoGenerateConfirmModal";
 import { useAuth } from "@/contexts/AuthContext";
 import { generateWorkspaceModul } from "./generateWorkspaceModul";
+import { generateWorkspaceMeetingDirect } from "./generateWorkspaceMeetingDirect";
 
 interface WorkspaceExplorerShellProps {
   workspace: Workspace;
@@ -224,23 +225,16 @@ export const WorkspaceExplorerShell: React.FC<WorkspaceExplorerShellProps> = ({
               <p className="text-sm font-bold text-amber-800">Perhatian</p>
               <p className="text-sm text-amber-700 mt-0.5">Ada {totalMeetings - completedMeetings} pertemuan yang belum mempunyai Modul Ajar.</p>
               
-              {/* Show progress bar if queue is loading OR if there are active/completed items */}
-              {(isQueueLoading || (queueStats.total > 0 && (queueStats.pending > 0 || queueStats.processing > 0))) ? (
+              {/* Show progress indicator if queue is loading OR if there are active items */}
+              {(isQueueLoading || queueStats.pending > 0 || queueStats.processing > 0) ? (
                 <div className="mt-3 text-sm text-amber-900 bg-amber-100/50 p-3 rounded-lg border border-amber-200/50">
-                  <p className="font-semibold flex items-center justify-between">
-                    <span>Sedang diproses di server...</span>
-                    <span>{Math.round(((queueStats.completed + queueStats.failed) / queueStats.total) * 100)}%</span>
+                  <p className="font-semibold flex items-center gap-2">
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                    <span>Memproses antrean dokumen...</span>
                   </p>
-                  <div className="w-full bg-amber-200/50 h-2.5 rounded-full mt-2 overflow-hidden">
-                    <div 
-                      className="bg-amber-500 h-full transition-all duration-500" 
-                      style={{ width: `${((queueStats.completed + queueStats.failed) / queueStats.total) * 100}%` }}
-                    />
-                  </div>
                   <div className="flex gap-4 mt-3 text-xs font-medium text-amber-800">
-                    <span className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-amber-400"></div> {queueStats.pending} antre</span>
-                    <span className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-blue-400 animate-pulse"></div> {queueStats.processing} proses</span>
-                    <span className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-green-500"></div> {queueStats.completed} selesai</span>
+                    <span className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-amber-400"></div> {queueStats.pending} menunggu</span>
+                    <span className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-blue-400 animate-pulse"></div> {queueStats.processing} diproses</span>
                   </div>
                 </div>
               ) : (
@@ -315,15 +309,20 @@ export const WorkspaceExplorerShell: React.FC<WorkspaceExplorerShellProps> = ({
       {!isLoading && !error && prosemPlans.map((plan) => (
         <SemesterPlanView
           key={plan.id}
+          workspace={workspace}
           plan={plan}
           items={prosemItems[plan.id] || []}
           onMeetingClick={onMeetingClick}
           onAddItem={(step?: number) => onStartPlanning?.(step)}
-          onGenerateClick={async (slot) => {
-            setIsEnqueuing(true);
-            await generateWorkspaceModul(workspace, prosemItems, slot);
-            setIsEnqueuing(false);
-          }}
+          onGenerateClick={canAccessAutoGenerate ? async (slot, onProgress) => {
+            const item = (prosemItems[plan.id] || []).find(i => i.id === slot.prosem_item_id);
+            if (item) {
+              const success = await generateWorkspaceMeetingDirect(workspace, item, slot, onProgress);
+              if (success) {
+                refresh();
+              }
+            }
+          } : undefined}
         />
       ))}
 
