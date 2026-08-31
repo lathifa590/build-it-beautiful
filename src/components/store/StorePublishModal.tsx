@@ -31,7 +31,7 @@ export const StorePublishModal = ({
   const [listingData, setListingData] = useState<Partial<StoreListing>>({
     title: `Paket Lengkap ${formData.mataPelajaran || ''} Kelas ${formData.kelas || ''}`,
     description: `Paket dokumen perencanaan pembelajaran lengkap berisi Program Tahunan dan Program Semester untuk ${formData.mataPelajaran || ''} Kelas ${formData.kelas || ''} Fase ${formData.fase || ''}.`,
-    price: 50000,
+    price_amount: 50000,
     category: 'UMUM', // default
     status: 'PUBLISHED',
   });
@@ -116,6 +116,16 @@ export const StorePublishModal = ({
           </div>
           
           <div className="field-group">
+            <label>URL Gambar Thumbnail (4:3)</label>
+            <input 
+              type="url" 
+              placeholder="https://..."
+              value={listingData.preview_image_url || ''}
+              onChange={e => setListingData({...listingData, preview_image_url: e.target.value})}
+            />
+          </div>
+          
+          <div className="field-group">
             <label>Deskripsi</label>
             <textarea 
               rows={3}
@@ -141,8 +151,8 @@ export const StorePublishModal = ({
               <label>Harga (Rp)</label>
               <input 
                 type="number" 
-                value={listingData.price || 0}
-                onChange={e => setListingData({...listingData, price: Number(e.target.value)})}
+                value={listingData.price_amount || 0}
+                onChange={e => setListingData({...listingData, price_amount: Number(e.target.value)})}
               />
             </div>
           </div>

@@ -32,6 +32,7 @@ export interface StoreListing {
   normal_price_amount: number;
   status: ListingStatus;
   preview_image_url?: string;
+  url_modul_ajar?: string;
   created_at: string;
   updated_at: string;
   published_at?: string;

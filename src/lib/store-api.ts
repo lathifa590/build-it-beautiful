@@ -119,6 +119,19 @@ export const storeApi = {
     return data as StoreListing;
   },
 
+  async deleteListing(listingId: string): Promise<boolean> {
+    const { error } = await supabase
+      .from('modul_store_listings')
+      .delete()
+      .eq('listing_id', listingId);
+
+    if (error) {
+      console.error('Error deleting listing:', error);
+      throw error;
+    }
+    return true;
+  },
+
   // --- Orders ---
   async createOrder(order: Omit<StoreOrder, 'order_id' | 'created_at' | 'updated_at'>): Promise<StoreOrder | null> {
     const { data, error } = await supabase

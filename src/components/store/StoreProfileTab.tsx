@@ -4,15 +4,14 @@ import { storeApi } from '@/lib/store-api';
 import { StoreProfile } from '@/types/store';
 import { toast } from 'sonner';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Upload } from 'lucide-react';
+import { Upload, Link, ExternalLink } from 'lucide-react';
 
 const StoreProfileTab = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [editingProfile, setEditingProfile] = useState<Partial<StoreProfile> | null>(null);
   
-  const [avatarFile, setAvatarFile] = useState<File | null>(null);
-  const [bannerFile, setBannerFile] = useState<File | null>(null);
+
 
   // Queries
   const { data: profile, isLoading } = useQuery({
@@ -40,19 +39,7 @@ const StoreProfileTab = () => {
       let finalAvatarUrl = updatedProfile.avatar_url;
       let finalBannerUrl = updatedProfile.banner_desktop_url;
 
-      // Handle avatar upload
-      if (avatarFile && user?.id) {
-        const filePath = `${user.id}/avatar_${Date.now()}`;
-        const url = await storeApi.uploadStoreAsset(filePath, avatarFile);
-        if (url) finalAvatarUrl = url;
-      }
 
-      // Handle banner upload
-      if (bannerFile && user?.id) {
-        const filePath = `${user.id}/banner_${Date.now()}`;
-        const url = await storeApi.uploadStoreAsset(filePath, bannerFile);
-        if (url) finalBannerUrl = url;
-      }
 
       const dataToSave = { 
         ...updatedProfile, 
@@ -65,8 +52,6 @@ const StoreProfileTab = () => {
     onSuccess: (data) => {
       queryClient.setQueryData(['storeProfile', user?.id], data);
       setEditingProfile(data);
-      setAvatarFile(null);
-      setBannerFile(null);
       toast.success('Profil toko berhasil disimpan');
     },
     onError: (error: any) => {
@@ -93,7 +78,7 @@ const StoreProfileTab = () => {
           <div className="stat-value">{profile?.metrics?.views || 0}</div>
         </div>
         <div className="stat-card">
-          <div className="stat-label">Dilihat produk</div>
+          <div className="stat-label">Dilihat modul ajar</div>
           <div className="stat-value">{profile?.metrics?.clicks || 0}</div>
         </div>
         <div className="stat-card">
@@ -107,9 +92,44 @@ const StoreProfileTab = () => {
       </div>
 
       <div className="card">
-        <div className="card-head flex-col items-start gap-1">
-          <h4 className="text-lg font-black text-[#111]">Profil & Identitas Toko</h4>
-          <p className="text-sm font-semibold text-muted-foreground">Bangun identitas toko yang memiliki alamat publik sendiri di ModulAjar.</p>
+        <div className="card-head flex-col items-start gap-3 md:flex-row md:items-center justify-between">
+          <div>
+            <h4 className="text-lg font-black text-[#111]">Profil & Identitas Toko</h4>
+            <p className="text-sm font-semibold text-muted-foreground mt-1">Bangun identitas toko yang memiliki alamat publik sendiri di ModulAjar.</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <button 
+              onClick={() => {
+                const baseUrl = window.location.origin;
+                const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+                const storeUrl = isLocalhost 
+                  ? `${baseUrl}/store/${editingProfile.store_slug || ''}`
+                  : `https://modulajar.id/store/${editingProfile.store_slug || ''}`;
+                  
+                window.open(storeUrl, '_blank');
+              }}
+              title="Kunjungi Toko"
+              className="flex items-center justify-center p-1.5 bg-[#f5f0e8] border-2 border-[#111] rounded-md hover:bg-[#e8e0d0] transition-colors"
+            >
+              <ExternalLink className="w-4 h-4" />
+            </button>
+            <button 
+              onClick={() => {
+                const baseUrl = window.location.origin;
+                const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+                const storeUrl = isLocalhost 
+                  ? `${baseUrl}/store/${editingProfile.store_slug || ''}`
+                  : `https://modulajar.id/store/${editingProfile.store_slug || ''}`;
+                  
+                navigator.clipboard.writeText(storeUrl);
+                toast.success('Link toko berhasil disalin!');
+              }}
+              className="flex items-center gap-2 px-3 py-1.5 text-sm font-bold bg-[#f5f0e8] border-2 border-[#111] rounded-md hover:bg-[#e8e0d0] transition-colors whitespace-nowrap"
+            >
+              <Link className="w-4 h-4" />
+              Bagikan Toko
+            </button>
+          </div>
         </div>
         <div className="card-body space-y-4 pt-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -195,54 +215,54 @@ const StoreProfileTab = () => {
           </div>
 
           <div className="field-group pt-4">
-            <label>Avatar Toko (1:1)</label>
+            <label>URL Gambar Avatar Toko (1:1)</label>
             <div className="flex items-center gap-4 mt-1">
-              {(avatarFile || editingProfile.avatar_url) && (
+              {editingProfile.avatar_url && (
                 <div className="w-16 h-16 rounded-full border-2 border-[#111] overflow-hidden bg-gray-100 flex-shrink-0">
                   <img 
-                    src={avatarFile ? URL.createObjectURL(avatarFile) : editingProfile.avatar_url} 
+                    src={editingProfile.avatar_url} 
                     alt="Avatar" 
                     className="w-full h-full object-cover"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = 'https://placehold.co/100x100?text=Avatar';
+                    }}
                   />
                 </div>
               )}
               <div className="flex-1">
-                <label className="flex items-center gap-2 px-4 py-2 border-2 border-[#111] rounded-md bg-white hover:bg-gray-50 cursor-pointer w-max font-bold text-sm">
-                  <Upload className="w-4 h-4" />
-                  Pilih Gambar Avatar
-                  <input 
-                    type="file" 
-                    accept="image/*" 
-                    className="hidden" 
-                    onChange={(e) => e.target.files && setAvatarFile(e.target.files[0])}
-                  />
-                </label>
+                <input 
+                  type="url"
+                  placeholder="Masukkan URL gambar avatar..."
+                  value={editingProfile.avatar_url || ''}
+                  onChange={(e) => setEditingProfile({...editingProfile, avatar_url: e.target.value})}
+                  className="w-full"
+                />
               </div>
             </div>
           </div>
 
           <div className="field-group">
-            <label>Banner Desktop (3:1)</label>
+            <label>URL Banner Desktop (3:1)</label>
             <div className="mt-1 space-y-3">
-              {(bannerFile || editingProfile.banner_desktop_url) && (
+              {editingProfile.banner_desktop_url && (
                 <div className="w-full h-32 rounded-lg border-2 border-[#111] overflow-hidden bg-gray-100">
                   <img 
-                    src={bannerFile ? URL.createObjectURL(bannerFile) : editingProfile.banner_desktop_url} 
+                    src={editingProfile.banner_desktop_url} 
                     alt="Banner" 
                     className="w-full h-full object-cover"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = 'https://placehold.co/900x300?text=Banner';
+                    }}
                   />
                 </div>
               )}
-              <label className="flex items-center gap-2 px-4 py-2 border-2 border-[#111] rounded-md bg-white hover:bg-gray-50 cursor-pointer w-max font-bold text-sm">
-                <Upload className="w-4 h-4" />
-                Pilih Gambar Banner
-                <input 
-                  type="file" 
-                  accept="image/*" 
-                  className="hidden" 
-                  onChange={(e) => e.target.files && setBannerFile(e.target.files[0])}
-                />
-              </label>
+              <input 
+                type="url"
+                placeholder="Masukkan URL gambar banner..."
+                value={editingProfile.banner_desktop_url || ''}
+                onChange={(e) => setEditingProfile({...editingProfile, banner_desktop_url: e.target.value})}
+                className="w-full"
+              />
             </div>
           </div>
           
