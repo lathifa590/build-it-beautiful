@@ -8,6 +8,7 @@ interface SemesterPlanViewProps {
   items: ProsemItemDB[];
   onMeetingClick?: (slot: MeetingSlotDB) => void;
   onAddItem?: (step?: number) => void;
+  onGenerateClick?: (slot: MeetingSlotDB) => Promise<void>;
 }
 
 export const SemesterPlanView: React.FC<SemesterPlanViewProps> = ({
@@ -15,6 +16,7 @@ export const SemesterPlanView: React.FC<SemesterPlanViewProps> = ({
   items,
   onMeetingClick,
   onAddItem,
+  onGenerateClick,
 }) => {
   const [collapsed, setCollapsed] = useState(false);
 
@@ -117,6 +119,7 @@ export const SemesterPlanView: React.FC<SemesterPlanViewProps> = ({
                 globalMeetingStart={meetingStarts[idx]}
                 onMeetingClick={onMeetingClick}
                 onEditProsem={onAddItem}
+                onGenerateClick={onGenerateClick}
               />
             ))
           )}

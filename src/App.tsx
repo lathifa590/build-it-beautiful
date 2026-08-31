@@ -9,6 +9,7 @@ import { ConfirmProvider } from "@/contexts/ConfirmContext";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { AdminRoute } from "@/components/auth/AdminRoute";
 import { AgencyRoute } from "@/components/auth/AgencyRoute";
+import { StoreGate } from "@/components/auth/StoreGate";
 import AgencyDashboard from "./pages/agency/Dashboard";
 import Landing from "./pages/Landing";
 import Index from "./pages/Index";
@@ -48,11 +49,11 @@ const App = () => (
                 {/* Auth routes */}
                 <Route path="/auth" element={<Auth />} />
 
-                {/* Public Store routes */}
-                <Route path="/store" element={<StoreIndex />} />
-                <Route path="/store/:storeSlug" element={<StoreProfile />} />
-                <Route path="/store/item/:listingId" element={<StoreDetail />} />
-                <Route path="/checkout/:orderId" element={<StoreCheckout />} />
+                {/* Public Store routes (Temporarily Gated) */}
+                <Route path="/store" element={<StoreGate><StoreIndex /></StoreGate>} />
+                <Route path="/store/:storeSlug" element={<StoreGate><StoreProfile /></StoreGate>} />
+                <Route path="/store/item/:listingId" element={<StoreGate><StoreDetail /></StoreGate>} />
+                <Route path="/checkout/:orderId" element={<StoreGate><StoreCheckout /></StoreGate>} />
                 
                 {/* Protected App routes */}
                 <Route
@@ -73,14 +74,16 @@ const App = () => (
                 />
                 
                 {/* Protected Store Management */}
-                <Route
-                  path="/app/store-management"
-                  element={
-                    <ProtectedRoute>
-                      <StoreManagement />
-                    </ProtectedRoute>
-                  }
-                />
+                  <Route 
+                    path="/app/store-management" 
+                    element={
+                      <ProtectedRoute>
+                        <StoreGate>
+                          <StoreManagement />
+                        </StoreGate>
+                      </ProtectedRoute>
+                    } 
+                  />
 
                 {/* Admin routes */}
                 <Route

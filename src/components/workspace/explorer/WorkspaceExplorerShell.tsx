@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/contexts/WorkspaceContext";
 import { AutoGenerateConfirmModal } from "./AutoGenerateConfirmModal";
 import { useAuth } from "@/contexts/AuthContext";
+import { generateWorkspaceModul } from "./generateWorkspaceModul";
 
 interface WorkspaceExplorerShellProps {
   workspace: Workspace;
@@ -318,6 +319,11 @@ export const WorkspaceExplorerShell: React.FC<WorkspaceExplorerShellProps> = ({
           items={prosemItems[plan.id] || []}
           onMeetingClick={onMeetingClick}
           onAddItem={(step?: number) => onStartPlanning?.(step)}
+          onGenerateClick={async (slot) => {
+            setIsEnqueuing(true);
+            await generateWorkspaceModul(workspace, prosemItems, slot);
+            setIsEnqueuing(false);
+          }}
         />
       ))}
 
@@ -342,7 +348,7 @@ export const WorkspaceExplorerShell: React.FC<WorkspaceExplorerShellProps> = ({
         onClose={() => setIsAutoGenerateModalOpen(false)}
         onConfirm={async () => {
           setIsEnqueuing(true);
-          await onEnqueuePertemuanV2?.();
+          await generateWorkspaceModul(workspace, prosemItems);
           setIsEnqueuing(false);
         }}
         missingMeetingsCount={totalMeetings - completedMeetings}

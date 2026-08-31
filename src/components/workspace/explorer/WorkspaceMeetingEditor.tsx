@@ -362,7 +362,12 @@ export const WorkspaceMeetingEditor: React.FC<WorkspaceMeetingEditorProps> = ({
             ...prev,
             ...(suggestion.modelPembelajaran ? { modelPembelajaran: suggestion.modelPembelajaran } : {}),
             ...(suggestion.metodePembelajaran?.length ? { metodePembelajaran: suggestion.metodePembelajaran } : {}),
-            ...(suggestion.dimensiProfilPelajarPancasila?.length ? { dimensiProfilPelajarPancasila: suggestion.dimensiProfilPelajarPancasila } : {}),
+            ...((suggestion.dimensiProfilLulusan?.length || suggestion.dimensiProfilPelajarPancasila?.length) ? { 
+              dimensiProfilLulusan: (suggestion.dimensiProfilLulusan || suggestion.dimensiProfilPelajarPancasila).map((d: string) => { 
+                const match = d.match(/DPL\s*\d/i); 
+                return match ? match[0].toUpperCase().replace(/\s+/, ' ') : d; 
+              }) 
+            } : {}),
             ...(suggestion.nilaiKarakter?.length ? { nilaiKarakter: suggestion.nilaiKarakter } : {}),
           };
         });
