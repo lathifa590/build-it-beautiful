@@ -2,6 +2,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { DEFAULT_FORM_DATA } from "@/lib/constants";
 import type { Workspace } from "@/types/workspace";
 import type { ProsemItemDB, MeetingSlotDB } from "@/hooks/useProsemData";
+import { buildPertemuanPayload } from "@/lib/pertemuan-generation";
 import { toast } from "sonner";
 
 export const generateWorkspaceModul = async (
@@ -125,9 +126,9 @@ export const generateWorkspaceModul = async (
       }
 
       // Prepare payloads for 5 documents
-      const jenisDocs = ['modul', 'lkpd', 'asesmen', 'materi', 'tindakLanjut'] as const;
+      const jenisDocs = ['modul', 'lkpd', 'asesmen', 'materi', 'soal'] as const;
       const insertData = jenisDocs.map(jenis => {
-        const payload = {
+        const payload = buildPertemuanPayload({
           formData: baseFormData,
           pertemuan: {
             id: slot.id,
@@ -139,10 +140,7 @@ export const generateWorkspaceModul = async (
           jenis,
           totalPertemuan: 1, // We generate them individually
           extra: jenis === 'soal' && genSettings.soalConfig ? { config: genSettings.soalConfig } : undefined,
-          pertemuanId: slot.id,
-          nomorPertemuan: slot.sequence,
-          durasiMenit: totalMinutes,
-        };
+        });
 
         return {
           workspace_id: workspace.id,
@@ -152,6 +150,15 @@ export const generateWorkspaceModul = async (
           status: 'pending'
         };
       });
+
+      // Persist the contextualized formData to generation_result so the editor can load it
+      await supabase.from('generation_result').upsert({
+        workspace_id: workspace.id,
+        pertemuan_id: slot.id,
+        jenis_dokumen: 'form_data',
+        content_json: baseFormData as any,
+        status: 'ok',
+      }, { onConflict: 'workspace_id, pertemuan_id, jenis_dokumen' });
 
       const { error } = await supabase.from('generation_queue').insert(insertData);
       if (!error) {

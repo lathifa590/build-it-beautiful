@@ -8,7 +8,7 @@ interface TopicRowProps {
   globalMeetingStart: number;
   onMeetingClick?: (slot: MeetingSlotDB) => void;
   onEditProsem?: (step?: number) => void;
-  onGenerateClick?: (slot: MeetingSlotDB) => Promise<void>;
+  onGenerateClick?: (slot: MeetingSlotDB, onProgress: (msg: string) => void) => Promise<void>;
 }
 
 export const TopicRow: React.FC<TopicRowProps> = ({ item, globalMeetingStart, onMeetingClick, onEditProsem, onGenerateClick }) => {

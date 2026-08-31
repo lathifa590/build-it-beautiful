@@ -328,8 +328,27 @@ export const usePertemuanGeneration = ({
           );
           const usePreface = shouldUsePrefaceFlow(snapshot, task);
 
+          let activeFormData = formDataRef.current;
+
+          // Auto-kontekstualisasi CP jika masih mentah (panjang > 200 karakter) saat generate modul
+          if (task.jenis === 'modul' && activeFormData?.capaianPembelajaran && activeFormData.capaianPembelajaran.length > 200) {
+            try {
+              setProgress({ current: done, total: tasks.length, message: `Meringkas CP — Pertemuan ${task.nomor}` });
+              const resp = await invoke({ type: 'kontekstualisasi-cp', data: activeFormData } as any);
+              const cpK = (resp?.data as any)?.cp_kontekstual;
+              if (cpK && cpK.length > 20) {
+                activeFormData = { ...activeFormData, capaianPembelajaran: cpK } as any;
+                cbRef.current?.onAutoFill?.({ capaianPembelajaran: cpK });
+              }
+            } catch (e) {
+              console.warn("Auto kontekstualisasi CP gagal", e);
+            }
+            // Kembalikan progress message ke semula
+            setProgress({ current: done, total: tasks.length, message: `${LABEL_DOKUMEN[task.jenis]} — Pertemuan ${task.nomor}` });
+          }
+
           const base = buildPertemuanPayload({
-            formData: formDataRef.current,
+            formData: activeFormData,
             pertemuan: target,
             totalPertemuan,
             jenis: task.jenis,
@@ -414,9 +433,10 @@ export const usePertemuanGeneration = ({
               if (prefacePatch) next = setModulPreface(next, prefacePatch);
               return applyDokumenResult(next, task.pertemuanId, task.jenis, dokumen);
             });
-            // Jika preface mengandung auto_generated atau berisi identifikasi_murid → isi kolom form yang kosong.
-            if (prefacePatch) {
-              const autoGenData = prefacePatch.auto_generated ? prefacePatch.auto_generated : prefacePatch;
+            // Selalu periksa auto_generated dari raw response, bahkan jika bukan preface (pertemuan > 1)
+            const autoGenPatch = raw.auto_generated || prefacePatch?.auto_generated || prefacePatch;
+            if (autoGenPatch) {
+              const autoGenData = (autoGenPatch as any).auto_generated ? (autoGenPatch as any).auto_generated : autoGenPatch;
               cbRef.current?.onAutoFill?.(autoGenData as Record<string, unknown>);
             }
             cbRef.current?.onNotify?.(
