@@ -172,7 +172,7 @@ export const WorkspaceExplorerShell: React.FC<WorkspaceExplorerShellProps> = ({
               className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold bg-primary/10 text-primary hover:bg-primary/20 border-2 border-transparent hover:border-primary/30 rounded-md transition-colors"
             >
               <BookOpen className="w-3.5 h-3.5" />
-              Lihat Prota & Prosem
+              Lihat Prota, Prosem & KKTP
             </button>
             <button
               onClick={() => setIsSettingsOpen(true)}

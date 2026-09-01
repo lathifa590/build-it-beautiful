@@ -1,29 +1,41 @@
-import { createClient } from '@supabase/supabase-js';
-import dotenv from 'dotenv';
-dotenv.config();
 
-const supabase = createClient(
-  process.env.VITE_SUPABASE_URL,
-  process.env.VITE_SUPABASE_ANON_KEY
-);
+
+const SUPABASE_URL = "https://jjgfpcedibgkkodydrci.supabase.co/functions/v1/generate-content";
 
 async function test() {
-  const { data: userResp } = await supabase.auth.signInWithPassword({
-    email: 'admin@lovable.dev', // Assuming this or some test user
-    password: 'password' // or whatever
-  });
-  
-  // We'll just try to insert without auth if RLS allows or we can just see the schema error
-  const { data, error } = await supabase.from('workspaces').insert({
-    user_id: '00000000-0000-0000-0000-000000000000',
-    subject: 'Test',
-    grade: 'X',
-    phase: 'E',
-    academic_year: '2024/2025',
-    jp_duration_minutes: 45
-  });
-  
-  console.log('Error:', error);
+  const payload = {
+    type: "tujuan-pembelajaran",
+    data: {
+      capaianPembelajaran: "Peserta didik memiliki kemampuan berbahasa untuk berkomunikasi dan bernalar, sesuai dengan tujuan, kepada teman sebaya dan orang dewasa di sekitar tentang diri dan lingkungannya.",
+      mataPelajaran: "Bahasa Indonesia",
+      fase: "B",
+      kelas: "IV",
+      kalender: {
+        mingguEfektifSem1: "18",
+        mingguEfektifSem2: "18",
+        jpPerMinggu: "4"
+      },
+      ruangLingkupMateri: ""
+    }
+  };
+
+  try {
+    const res = await fetch(SUPABASE_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await res.json();
+    console.log("Response:", JSON.stringify(data, null, 2));
+    if (data.rawPreview) {
+      console.log("\n\nRAW PREVIEW (up to 500 chars):\n" + data.rawPreview);
+    }
+  } catch (err) {
+    console.error("Fetch failed:", err);
+  }
 }
 
 test();

@@ -231,12 +231,12 @@ export const StepCpTp: React.FC<StepCpTpProps> = ({ workspace, onNext, isLocked,
   return (
     <>
       {/* Two-panel layout: Left panel fixed, Right panel scrolls */}
-      <div className="flex-1 flex h-full w-full">
+      <div className="flex-1 flex flex-col md:flex-row h-full w-full md:overflow-hidden">
 
         {/* ===== LEFT PANEL ===== */}
         <div
-          className="shrink-0 overflow-y-auto flex flex-col gap-5 p-6"
-          style={{ width: '280px', backgroundColor: '#f5f0e8', borderRight: '2.5px solid #1a1a1a' }}
+          className="w-full md:w-[280px] shrink-0 md:overflow-y-auto flex flex-col gap-5 p-4 md:p-6"
+          style={{ backgroundColor: '#f5f0e8', borderRight: '2.5px solid #1a1a1a' }}
         >
           {/* Title */}
           <div>
@@ -292,7 +292,7 @@ export const StepCpTp: React.FC<StepCpTpProps> = ({ workspace, onNext, isLocked,
         </div>
 
         {/* ===== RIGHT PANEL ===== */}
-        <div className="flex-1 overflow-y-auto p-6 bg-white">
+        <div className="flex-1 md:overflow-y-auto p-4 md:p-6 bg-white">
 
           {/* Tab: Capaian Pembelajaran */}
           {activeTab === 'cp' && (
@@ -432,22 +432,27 @@ export const StepCpTp: React.FC<StepCpTpProps> = ({ workspace, onNext, isLocked,
                 </div>
               )}
 
-              <div className="pt-4 border-t border-slate-100 flex flex-col items-end gap-2">
-                <p className="footer-instruction">Lengkapi data di atas lalu klik "Simpan &amp; Lanjut"</p>
-                <Button
-                  onClick={handleSave}
-                  disabled={isSaving || !cpContent || tpItems.length === 0}
-                  className="min-w-[160px]"
-                  size="lg"
-                >
-                  {isSaving ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Menyimpan...</> : "Simpan & Lanjut (Step 2)"}
-                </Button>
+              <div className="pt-4 border-t border-slate-100">
+                <p className="footer-instruction text-right">Lengkapi data di atas lalu klik "Simpan &amp; Lanjut"</p>
               </div>
             </div>
           )}
 
         </div>{/* end right panel */}
       </div>{/* end two-panel */}
+
+      {/* Sticky footer with Save button — always visible on all screen sizes */}
+      <div className="shrink-0 border-t-2 border-black px-4 py-3 bg-white flex items-center justify-between gap-3">
+        <p className="text-sm text-muted-foreground hidden sm:block">Lengkapi data di atas lalu klik "Simpan &amp; Lanjut"</p>
+        <Button
+          onClick={handleSave}
+          disabled={isSaving || !cpContent || tpItems.length === 0}
+          className="w-full sm:w-auto min-w-[160px]"
+          size="lg"
+        >
+          {isSaving ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Menyimpan...</> : "Simpan & Lanjut (Step 2)"}
+        </Button>
+      </div>
 
       <CPSelectorModal
         open={showCpModal}
