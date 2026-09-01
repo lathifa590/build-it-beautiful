@@ -581,11 +581,18 @@ serve(async (req) => {
       // Fix illegal backslash escapes (e.g. \pi, \frac, \times from LaTeX)
       // JSON only allows: \", \\, \/, \b, \f, \n, \r, \t, \uXXXX
       cleaned = cleaned.replace(/\\(?!["\\/bfnrtu])/g, "\\\\");
+
+      // Replace all LITERAL control characters (bare newlines, CRs, tabs) inside the raw string
+      // These are invalid inside JSON string values and cause "Bad control character" parse errors.
+      // We do a smart replacement: only replace bare \n/\r/\t that are INSIDE a JSON string,
+      // meaning not at the structural level. Since the text is a flat pre-parsed string from AI,
+      // we replace ALL literal newlines with a space — JSON structural whitespace is irrelevant here
+      // because we will re-extract the JSON after this.
+      cleaned = cleaned.replace(/[\n\r\t]+/g, ' ');
       
       return cleaned;
     };
     
-    // Helper: Extract JSON dari response yang mungkin memiliki wrapper atau teks tambahan
     const extractJsonFromResponse = (text: string): string => {
       let cleaned = sanitizeJsonResponse(text);
       
@@ -595,35 +602,11 @@ serve(async (req) => {
       const start = starts.length ? Math.min(...starts) : -1;
 
       if (start >= 0) {
-        const opener = cleaned[start];
-        const closer = opener === '{' ? '}' : ']';
-        let depth = 0;
-        let inString = false;
-        let escaped = false;
-
-        for (let i = start; i < cleaned.length; i++) {
-          const ch = cleaned[i];
-
-          if (escaped) {
-            escaped = false;
-            continue;
-          }
-          if (ch === '\\') {
-            escaped = true;
-            continue;
-          }
-          if (ch === '"') {
-            inString = !inString;
-            continue;
-          }
-          if (inString) continue;
-
-          if (ch === opener) depth++;
-          if (ch === closer) depth--;
-
-          if (depth === 0) {
-            return cleaned.slice(start, i + 1).trim();
-          }
+        const isObject = cleaned[start] === '{';
+        const end = isObject ? cleaned.lastIndexOf('}') : cleaned.lastIndexOf(']');
+        
+        if (end > start) {
+          return cleaned.substring(start, end + 1);
         }
       }
       
@@ -2531,7 +2514,6 @@ ${imageTargetsLines}
         const ruangLingkup = data.ruangLingkupMateri;
         let jpInstruction = "Buat 3-5 TP yang progresif dari level rendah ke tinggi";
         let jpUserInstruction = "Buatkan 3-5 Tujuan Pembelajaran yang sesuai dengan CP di atas. Pastikan TP progresif dari level kognitif rendah ke tinggi.";
-        
         if (kalender) {
           const m1 = parseInt(kalender.mingguEfektifSem1) || 0;
           const m2 = parseInt(kalender.mingguEfektifSem2) || 0;
@@ -2539,20 +2521,28 @@ ${imageTargetsLines}
           const totalJp = (m1 + m2) * jp;
           
           if (totalJp > 0) {
-            const minTp = Math.max(5, Math.floor(totalJp / 6)); // Asumsi 1 TP untuk 4-6 JP
-            const maxTp = Math.min(25, Math.ceil(totalJp / 3)); // Maks 25 TP biar ga overload
+            const topicCount = ruangLingkup
+              ? ruangLingkup.split(/[,\n]/).map((s: string) => s.trim()).filter((s: string) => s.length > 0).length
+              : 0;
+            
+            const fromJp = Math.floor(totalJp / 8);
+            const fromTopics = topicCount > 0 ? topicCount : fromJp;
+            
+            const minTp = Math.max(fromTopics, Math.max(5, fromJp));
+            const maxTp = Math.max(minTp + 5, topicCount > 0 ? topicCount * 2 : fromJp + 10);
             
             if (ruangLingkup) {
-              jpInstruction = `Pecah Capaian Pembelajaran untuk masing-masing topik/materi yang diberikan guru. Buat sekitar ${minTp} hingga ${maxTp} TP secara total yang proporsional untuk diajarkan selama ${totalJp} Jam Pelajaran (${m1 + m2} minggu efektif). Pastikan setiap topik mendapatkan porsi TP yang merata dan progresif.`;
-              jpUserInstruction = `Guru akan mengajarkan topik/ruang lingkup materi berikut:\n\nTOPIK / RUANG LINGKUP MATERI:\n${ruangLingkup}\n\nBuatkan sekitar ${minTp} hingga ${maxTp} Tujuan Pembelajaran secara total (terdistribusi ke masing-masing topik di atas). Pastikan TP yang dibuat mengacu pada CP, mencakup semua topik yang disebutkan, progresif dari level kognitif rendah ke tinggi, dan memadai untuk durasi ${totalJp} Jam Pelajaran.`;
+              jpInstruction = `Ada ${topicCount} topik/materi yang harus diajarkan guru. Buat MINIMAL ${minTp} hingga ${maxTp} TP, dimana SETIAP topik harus mendapatkan MINIMAL 1 TP. Topik yang lebih besar/kompleks boleh mendapatkan 2-3 TP. Total durasi: ${totalJp} JP selama ${m1 + m2} minggu efektif.`;
+              jpUserInstruction = `Guru akan mengajarkan ${topicCount} topik/materi berikut:\n\nTOPIK / RUANG LINGKUP MATERI:\n${ruangLingkup}\n\nATURAN PENTING:\n- Buat MINIMAL ${minTp} Tujuan Pembelajaran (idealnya hingga ${maxTp} TP)\n- SETIAP topik di atas WAJIB mendapatkan MINIMAL 1 TP yang spesifik\n- Jangan menggabungkan banyak topik dalam 1 TP — setiap TP harus fokus pada 1 topik\n- TP harus progresif dari level kognitif rendah ke tinggi\n- Total durasi: ${totalJp} JP (${m1 + m2} minggu efektif)`;
             } else {
               jpInstruction = `Buat sekitar ${minTp} hingga ${maxTp} TP yang progresif dan proporsional untuk diajarkan selama total ${totalJp} Jam Pelajaran (${m1 + m2} minggu efektif).`;
               jpUserInstruction = `Buatkan sekitar ${minTp} hingga ${maxTp} Tujuan Pembelajaran yang sesuai dengan CP di atas secara komprehensif agar memadai untuk durasi ${totalJp} Jam Pelajaran selama 1 tahun ajaran. Pastikan TP progresif dari level kognitif rendah ke tinggi dan cakupannya merata.`;
             }
           }
         } else if (ruangLingkup) {
-          jpInstruction = `Pecah Capaian Pembelajaran untuk masing-masing topik/materi yang diberikan guru. Buat beberapa TP progresif untuk SETIAP topik yang disebutkan.`;
-          jpUserInstruction = `Guru akan mengajarkan topik/ruang lingkup materi berikut:\n\nTOPIK / RUANG LINGKUP MATERI:\n${ruangLingkup}\n\nBuatkan Tujuan Pembelajaran yang didistribusikan ke masing-masing topik di atas. Pastikan TP yang dibuat mengacu pada CP dan progresif dari level kognitif rendah ke tinggi.`;
+          const topicCount = ruangLingkup.split(/[,\n]/).map((s: string) => s.trim()).filter((s: string) => s.length > 0).length;
+          jpInstruction = `Ada ${topicCount} topik yang harus diajarkan guru. Buat MINIMAL ${topicCount} TP, satu untuk SETIAP topik yang disebutkan. Topik besar boleh dapat 2 TP.`;
+          jpUserInstruction = `Guru akan mengajarkan ${topicCount} topik/materi berikut:\n\nTOPIK / RUANG LINGKUP MATERI:\n${ruangLingkup}\n\nATURAN PENTING:\n- Buat MINIMAL ${topicCount} Tujuan Pembelajaran (SETIAP topik WAJIB punya minimal 1 TP)\n- Jangan menggabungkan banyak topik ke dalam 1 TP\n- TP harus progresif dari level kognitif rendah ke tinggi`;
         }
 
         systemPrompt = `Kamu adalah ahli pendidikan Indonesia yang membuat Tujuan Pembelajaran (TP) berdasarkan Capaian Pembelajaran (CP) resmi Kemdikbud.
@@ -2569,6 +2559,8 @@ ATURAN PEMBUATAN TP:
 3. Format: Setiap TP diawali "Peserta didik mampu..." atau "Murid mampu..."
 4. ${jpInstruction}
 5. Pastikan TP dapat diukur dan diamati
+6. JANGAN gunakan tanda kutip ganda (") di dalam nilai teks, gunakan kutip tunggal (') sebagai gantinya.
+7. PENTING: Anda WAJIB membuat Tujuan Pembelajaran SEJUMLAH yang diinstruksikan. Jangan hanya membuat 1 atau 2 TP jika diminta membuat belasan/puluhan TP! Pecah materinya menjadi sub-topik yang lebih spesifik jika perlu.
 
 FORMAT OUTPUT JSON:
 {
@@ -2819,7 +2811,7 @@ Jahit ke seksi/konten yang sudah ada — JANGAN buat seksi baru di luar struktur
       materi: 10000,
       bankSoal: 9000,
       tindakLanjut: 5000,
-      'tujuan-pembelajaran': 3000,
+      'tujuan-pembelajaran': 10000,
       'kontekstualisasi-cp': 1000,
       'suggest-desain-pembelajaran': 2000,
       'edit-section': 4000
@@ -3032,7 +3024,7 @@ Jahit ke seksi/konten yang sudah ada — JANGAN buat seksi baru di luar struktur
         return new Response(JSON.stringify({
           error: type === 'lkpd'
             ? "Response AI untuk LKPD belum valid. Semua fallback sudah dicoba, silakan coba lagi atau tambahkan API Key lain."
-            : "Response AI tidak dapat diproses. Coba generate ulang.",
+            : `Gagal memproses JSON dari AI. Error: ${(parsed.error as any)?.message || 'Unknown'}. Preview: ${content.substring(0, 150)}...`,
           errorCode: "parse_error",
           triedModels,
           rawPreview: content.substring(0, 500)

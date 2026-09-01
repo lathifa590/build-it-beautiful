@@ -686,7 +686,7 @@ export const WorkspaceMeetingEditor: React.FC<WorkspaceMeetingEditorProps> = ({
       {/* Editor Main Content */}
       <div className="flex-1 flex flex-col md:flex-row min-h-0 overflow-hidden relative">
         {!isPreviewFullscreen && (
-          <div className={`w-full md:w-[360px] xl:w-[400px] shrink-0 border-r-2 border-foreground overflow-y-auto bg-card p-4 pb-24 md:p-6 md:pb-6 z-20 shadow-[4px_0_0_rgba(0,0,0,1)] ${mobileTab === 'result' ? 'hidden md:block' : 'block'}`}>
+          <div className={`flex-1 w-full md:w-[360px] xl:w-[400px] md:flex-none md:shrink-0 border-r-2 border-foreground overflow-y-auto bg-card p-4 pb-24 md:p-6 md:pb-6 z-20 shadow-[4px_0_0_rgba(0,0,0,1)] ${mobileTab === 'result' ? 'hidden md:block' : 'flex flex-col'}`}>
             <FormSection
               formData={formData}
               onInputChange={handleInputChange}

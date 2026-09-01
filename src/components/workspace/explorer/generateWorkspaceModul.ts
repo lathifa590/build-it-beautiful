@@ -151,14 +151,7 @@ export const generateWorkspaceModul = async (
         };
       });
 
-      // Persist the contextualized formData to generation_result so the editor can load it
-      await supabase.from('generation_result').upsert({
-        workspace_id: workspace.id,
-        pertemuan_id: slot.id,
-        jenis_dokumen: 'form_data',
-        content_json: baseFormData as any,
-        status: 'ok',
-      }, { onConflict: 'workspace_id, pertemuan_id, jenis_dokumen' });
+      // NOTE: Removed generation_result upsert which is deprecated and causes 404 error
 
       const { error } = await supabase.from('generation_queue').insert(insertData);
       if (!error) {

@@ -2692,7 +2692,7 @@ img{max-width:100%}
 
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden">
+    <div className="h-[100dvh] md:h-screen flex flex-col overflow-hidden">
       {/* Notification */}
       <NotificationToast notification={notification} />
 

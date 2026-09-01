@@ -116,7 +116,7 @@ export const generateWorkspaceMeetingDirect = async (
     // 2. Ambil CP & Profil guru secara paralel
     onProgress?.("Mengambil data kurikulum...");
     const [cpResult, profileResult] = await Promise.all([
-      supabase.from('curriculum_plans').select('content').eq('workspace_id', workspace.id).eq('type', 'cp').maybeSingle(),
+      supabase.from('curriculum_plans').select('content').eq('workspace_id', workspace.id).eq('type', 'tp').maybeSingle(),
       supabase.from('profiles').select('*').eq('id', user.id).maybeSingle()
     ]);
 
@@ -217,18 +217,19 @@ export const generateWorkspaceMeetingDirect = async (
       modul: 'Modul Ajar', lkpd: 'LKPD', asesmen: 'Asesmen', materi: 'Materi', soal: 'Bank Soal'
     };
 
-    // Gunakan soalConfig dari pengaturan, atau gunakan default (15 PG, 5 Isian, 5 Uraian) jika kosong
+    // Gunakan soalConfig dari pengaturan, atau gunakan default (10 soal) jika kosong
+    // Kurangi jumlah default agar tidak terpotong oleh token limit AI
     const soalConfig = (!!genSettings.soalConfig && Object.keys(genSettings.soalConfig).length > 0)
       ? genSettings.soalConfig
       : {
           level: 'Seimbang (LOTS & HOTS)',
           typeConfigs: {
-            'Pilihan Ganda': { quantity: 15, useStimulus: true, stimulusCount: 5, useImages: false, imageCount: 0 },
+            'Pilihan Ganda': { quantity: 5, useStimulus: true, stimulusCount: 2, useImages: false, imageCount: 0 },
             'PG Kategori Benar/Salah': { quantity: 0, useStimulus: false, stimulusCount: 0, useImages: false, imageCount: 0 },
             'PG Multiple Choice Multiple Answer': { quantity: 0, useStimulus: false, stimulusCount: 0, useImages: false, imageCount: 0 },
             'Menjodohkan': { quantity: 0, useStimulus: false, stimulusCount: 0, useImages: false, imageCount: 0 },
-            'Isian Singkat': { quantity: 5, useStimulus: false, stimulusCount: 0, useImages: false, imageCount: 0 },
-            'Uraian': { quantity: 5, useStimulus: false, stimulusCount: 0, useImages: false, imageCount: 0 },
+            'Isian Singkat': { quantity: 3, useStimulus: false, stimulusCount: 0, useImages: false, imageCount: 0 },
+            'Uraian': { quantity: 2, useStimulus: false, stimulusCount: 0, useImages: false, imageCount: 0 },
           }
         };
 
@@ -248,13 +249,23 @@ export const generateWorkspaceMeetingDirect = async (
         extra: jenis === 'soal' ? { config: soalConfig } : undefined,
       });
 
-      const { data: resData, error: err } = await supabase.functions.invoke('generate-content', {
-        body: payload
-      });
-
-      if (err) throw new Error(`generate-content error (${jenis}): ${err.message}`);
-      if (resData?.error) throw new Error(`Server error (${jenis}): ${JSON.stringify(resData.error)}`);
-      if (!resData?.data) throw new Error(`Data kosong dari server untuk ${jenis}`);
+      let resData: any = null;
+      let generateErr: any = null;
+      try {
+        const result = await supabase.functions.invoke('generate-content', {
+          body: payload
+        });
+        resData = result.data;
+        generateErr = result.error;
+        
+        if (generateErr) throw new Error(generateErr.message);
+        if (resData?.error) throw new Error(typeof resData.error === 'string' ? resData.error : JSON.stringify(resData.error));
+        if (!resData?.data) throw new Error(`Data kosong dari server`);
+      } catch (docErr: any) {
+        console.error(`Gagal membuat ${jenis}:`, docErr);
+        toast.error(`Gagal membuat ${docLabels[jenis]}: ${docErr.message || 'Kesalahan tidak diketahui'}`);
+        continue; // Lanjut ke dokumen berikutnya
+      }
 
       // Setelah modul selesai, perkaya formData dengan auto_generated
       // agar dokumen berikutnya (LKPD, Asesmen, dll) bisa pakai data yang konsisten
@@ -279,15 +290,6 @@ export const generateWorkspaceMeetingDirect = async (
             }
           })
           .eq('id', workspace.id);
-
-        // ALSO persist to generation_result so WorkspaceMeetingEditor can load it
-        await supabase.from('generation_result').upsert({
-          workspace_id: workspace.id,
-          pertemuan_id: slot.id,
-          jenis_dokumen: 'form_data',
-          content_json: enrichedFormData as any,
-          status: 'ok',
-        }, { onConflict: 'workspace_id, pertemuan_id, jenis_dokumen' });
       }
 
       // Simpan ke result

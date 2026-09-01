@@ -30,6 +30,7 @@ export const StepProta: React.FC<StepProtaProps> = ({ workspace, onNext, isLocke
   const [isSaving, setIsSaving] = useState(false);
   const [cpData, setCpData] = useState<any>(null);
   const [tpList, setTpList] = useState<string[]>([]);
+  const [profile, setProfile] = useState<{namaPenyusun?: string; nipPenyusun?: string; kepalaSekolah?: string; nipKepalaSekolah?: string; sekolah?: string} | null>(null);
 
   const { generate, isLoading: isGenerating, error: genError } = useProtaGenerator();
 
@@ -92,6 +93,29 @@ export const StepProta: React.FC<StepProtaProps> = ({ workspace, onNext, isLocke
     
     if (workspace.id) loadData();
   }, [workspace.id]);
+
+  // Fetch user profile for signature fields
+  useEffect(() => {
+    const fetchProfile = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('nama_guru, nip, nama_kepala_sekolah, nip_kepala_sekolah, nama_sekolah')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      if (profileData) {
+        setProfile({
+          namaPenyusun: profileData.nama_guru || '',
+          nipPenyusun: profileData.nip || '',
+          kepalaSekolah: profileData.nama_kepala_sekolah || '',
+          nipKepalaSekolah: profileData.nip_kepala_sekolah || '',
+          sekolah: profileData.nama_sekolah || '',
+        });
+      }
+    };
+    fetchProfile();
+  }, []);
 
   const handleGenerate = async () => {
     if (!cpData?.cp) {
@@ -201,7 +225,8 @@ export const StepProta: React.FC<StepProtaProps> = ({ workspace, onNext, isLocke
                   onExportWord={() => exportProtaToWord(protaData, { 
                     mataPelajaran: cpData?.mataPelajaran, 
                     fase: cpData?.fase, 
-                    kelas: cpData?.kelas 
+                    kelas: cpData?.kelas,
+                    ...(profile || {})
                   } as any)}
                   onExportExcel={() => exportProtaProsemToExcel(workspace, protaData, null, null)}
                   kurikulum={workspace.curriculum}

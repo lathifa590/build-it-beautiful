@@ -1,4 +1,4 @@
-import type { FormData, ProtaData, ProsemData } from "@/types/modul";
+import type { FormData, ProtaData, ProsemData, KKTPData } from "@/types/modul";
 import { generateExportFilename } from '@/lib/export-filename';
 import { BULAN_NAMES } from "./constants";
 
@@ -236,4 +236,89 @@ h1{font-size:14pt;font-weight:bold;margin:10px 0}
     console.error('Prosem export error:', err);
     throw err;
   }
+};
+
+export const exportKktpToWord = (
+  kktpData: KKTPData,
+  formData: { mataPelajaran?: string; fase?: string; kelas?: string; namaPenyusun?: string; nipPenyusun?: string; kepalaSekolah?: string; nipKepalaSekolah?: string }
+): void => {
+  if (!kktpData?.kktp?.length) return;
+
+  const hs = 'background:#0D7C8F;color:white;font-weight:bold;padding:8px;border:1px solid #333;text-align:center;font-size:9.5pt';
+  const cs = 'border:1px solid #ccc;padding:7px;vertical-align:top;font-size:9pt;line-height:1.4';
+
+  const buildTpBlock = (item: KKTPData['kktp'][0]) => `
+    <div style="margin-bottom:28px;page-break-inside:avoid">
+      <div style="background:#1a1a1a;color:white;font-weight:bold;padding:8px 12px;font-size:10pt;border-radius:4px 4px 0 0">
+        TP ${item.no}
+      </div>
+      <div style="background:#f5f5f5;padding:8px 12px;border:1px solid #ccc;border-top:none;font-size:9.5pt;margin-bottom:6px">
+        ${item.tujuan_pembelajaran}
+      </div>
+      <table style="width:100%;border-collapse:collapse;margin-top:0">
+        <tr>
+          <th style="${hs};width:22%">Indikator</th>
+          <th style="${hs};width:19.5%">Belum Berkembang</th>
+          <th style="${hs};width:19.5%">Mulai Berkembang</th>
+          <th style="${hs};width:19.5%">Berkembang Sesuai Harapan</th>
+          <th style="${hs};width:19.5%;background:#1a8a3c">Sangat Berkembang</th>
+        </tr>
+        ${(item.indikator || []).map(ind => `
+          <tr>
+            <td style="${cs};font-weight:500">${ind.no_indikator}. ${ind.indikator}</td>
+            <td style="${cs}">${ind.belum_berkembang || '-'}</td>
+            <td style="${cs}">${ind.mulai_berkembang || '-'}</td>
+            <td style="${cs}">${ind.berkembang_sesuai_harapan || '-'}</td>
+            <td style="${cs}">${ind.sangat_berkembang || '-'}</td>
+          </tr>
+        `).join('')}
+      </table>
+    </div>
+  `;
+
+  const signature = `
+    <br/><br/>
+    <table style="width:100%;border:none">
+      <tr>
+        <td style="border:none;width:50%">
+          <p><b>Penyusun,</b></p>
+          <br/><br/><br/>
+          <p><b>${formData.namaPenyusun || '_______________'}</b></p>
+          ${formData.nipPenyusun ? `<p>NIP. ${formData.nipPenyusun}</p>` : ''}
+        </td>
+        <td style="border:none;width:50%;text-align:right">
+          <p><b>Mengetahui,</b></p>
+          <p>Kepala Sekolah</p>
+          <br/><br/><br/>
+          <p><b>${formData.kepalaSekolah || '_______________'}</b></p>
+          ${formData.nipKepalaSekolah ? `<p>NIP. ${formData.nipKepalaSekolah}</p>` : ''}
+        </td>
+      </tr>
+    </table>
+  `;
+
+  const contentHTML = `
+    <h1 style="text-align:center;font-size:15pt;margin-bottom:4px">KRITERIA KETERCAPAIAN TUJUAN PEMBELAJARAN (KKTP)</h1>
+    <p style="text-align:center;font-size:10pt;margin-bottom:16px">
+      ${formData.mataPelajaran || ''} | Kelas ${formData.kelas || ''} | Fase ${formData.fase || ''}
+    </p>
+    ${kktpData.kktp.map(buildTpBlock).join('')}
+    ${signature}
+  `;
+
+  const preHtml = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>KKTP</title><style>
+body{font-family:'Arial',sans-serif;font-size:10pt;line-height:1.4}
+table{width:100%;border-collapse:collapse;margin-bottom:8px}
+td,th{border:1px solid #ccc;padding:7px;vertical-align:top}
+h1{font-size:15pt;font-weight:bold;margin:8px 0}
+</style></head><body>`;
+
+  const blob = new Blob(['\ufeff', preHtml + contentHTML + '</body></html>'], {
+    type: 'application/msword',
+  });
+
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = `KKTP_${(formData.mataPelajaran || 'Mapel').replace(/\s+/g, '_')}_Kelas${formData.kelas || ''}.doc`;
+  link.click();
 };

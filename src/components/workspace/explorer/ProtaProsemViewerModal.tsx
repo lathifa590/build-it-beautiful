@@ -6,8 +6,9 @@ import { exportProtaProsemToExcel } from "@/lib/export-excel";
 import { supabase } from "@/integrations/supabase/client";
 import { ProtaPreview } from "@/components/modul/ProtaPreview";
 import { ProsemPreview } from "@/components/modul/ProsemPreview";
-import { exportProtaToWord, exportProsemToWord } from "@/lib/export-word";
-import type { ProsemData } from "@/types/modul";
+import { KKTPPreview } from "@/components/modul/KKTPPreview";
+import { exportProtaToWord, exportProsemToWord, exportKktpToWord } from "@/lib/export-word";
+import type { ProsemData, KKTPData } from "@/types/modul";
 
 interface ProtaProsemViewerModalProps {
   isOpen: boolean;
@@ -20,41 +21,51 @@ export const ProtaProsemViewerModal: React.FC<ProtaProsemViewerModalProps> = ({
   onClose,
   workspace,
 }) => {
-  const [activeTab, setActiveTab] = useState<"prota" | "prosem">("prota");
+  const [activeTab, setActiveTab] = useState<"prota" | "prosem" | "kktp">("prota");
   const { protaData, isLoading: isProtaLoading } = useProtaData(isOpen ? workspace.id : null);
 
   const [prosemSem1, setProsemSem1] = useState<ProsemData | null>(null);
   const [prosemSem2, setProsemSem2] = useState<ProsemData | null>(null);
+  const [kktpData, setKktpData] = useState<KKTPData | null>(null);
+  const [profile, setProfile] = useState<{namaPenyusun?: string; nipPenyusun?: string; kepalaSekolah?: string; nipKepalaSekolah?: string} | null>(null);
   const [isProsemLoading, setIsProsemLoading] = useState(false);
 
   React.useEffect(() => {
     if (!isOpen || !workspace.id) return;
     
-    const loadProsem = async () => {
+    const loadData = async () => {
       setIsProsemLoading(true);
       try {
-        const { data: ps1 } = await supabase
-          .from("curriculum_plans")
-          .select("*")
-          .eq("workspace_id", workspace.id)
-          .eq("type", "prosem")
-          .eq("semester", 1)
-          .limit(1);
-          
-        if (ps1 && ps1.length > 0 && ps1[0].content) {
-          setProsemSem1(ps1[0].content as ProsemData);
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const { data: p } = await supabase
+            .from('profiles')
+            .select('nama_guru, nip, nama_kepala_sekolah, nip_kepala_sekolah')
+            .eq('user_id', user.id)
+            .maybeSingle();
+          if (p) setProfile({
+            namaPenyusun: p.nama_guru || '',
+            nipPenyusun: p.nip || '',
+            kepalaSekolah: p.nama_kepala_sekolah || '',
+            nipKepalaSekolah: p.nip_kepala_sekolah || '',
+          });
         }
 
-        const { data: ps2 } = await supabase
+        const { data: plans } = await supabase
           .from("curriculum_plans")
           .select("*")
           .eq("workspace_id", workspace.id)
-          .eq("type", "prosem")
-          .eq("semester", 2)
-          .limit(1);
+          .in("type", ["prosem", "kktp"]);
           
-        if (ps2 && ps2.length > 0 && ps2[0].content) {
-          setProsemSem2(ps2[0].content as ProsemData);
+        if (plans) {
+          const ps1 = plans.find(p => p.type === 'prosem' && p.semester === 1);
+          if (ps1?.content) setProsemSem1(ps1.content as ProsemData);
+          
+          const ps2 = plans.find(p => p.type === 'prosem' && p.semester === 2);
+          if (ps2?.content) setProsemSem2(ps2.content as ProsemData);
+          
+          const kktp = plans.find(p => p.type === 'kktp');
+          if (kktp?.content) setKktpData(kktp.content as KKTPData);
         }
       } catch (err) {
         console.error(err);
@@ -63,7 +74,7 @@ export const ProtaProsemViewerModal: React.FC<ProtaProsemViewerModalProps> = ({
       }
     };
     
-    loadProsem();
+    loadData();
   }, [isOpen, workspace.id]);
 
   if (!isOpen) return null;
@@ -84,7 +95,7 @@ export const ProtaProsemViewerModal: React.FC<ProtaProsemViewerModalProps> = ({
               <FileText className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="font-bold font-heading text-lg leading-tight">Program Tahunan & Semester</h2>
+              <h2 className="font-bold font-heading text-lg leading-tight">Perencanaan (Prota, Prosem, KKTP)</h2>
               <p className="text-xs text-muted-foreground">{workspace.subject} • Kelas {workspace.grade}</p>
             </div>
           </div>
@@ -107,7 +118,7 @@ export const ProtaProsemViewerModal: React.FC<ProtaProsemViewerModalProps> = ({
         </div>
 
         {/* Tabs */}
-        <div className="flex px-4 border-b-2 border-foreground bg-muted/10">
+        <div className="flex px-4 border-b-2 border-foreground bg-muted/10 overflow-x-auto whitespace-nowrap">
           <button
             onClick={() => setActiveTab("prota")}
             className={`px-4 py-3 text-sm font-bold border-b-2 transition-colors ${
@@ -127,6 +138,16 @@ export const ProtaProsemViewerModal: React.FC<ProtaProsemViewerModalProps> = ({
             }`}
           >
             Program Semester (Prosem)
+          </button>
+          <button
+            onClick={() => setActiveTab("kktp")}
+            className={`px-4 py-3 text-sm font-bold border-b-2 transition-colors ${
+              activeTab === "kktp" 
+                ? "border-primary text-primary" 
+                : "border-transparent text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            KKTP
           </button>
         </div>
 
@@ -150,14 +171,15 @@ export const ProtaProsemViewerModal: React.FC<ProtaProsemViewerModalProps> = ({
                   onExportWord={() => exportProtaToWord(protaData, { 
                     mataPelajaran: workspace.subject, 
                     fase: workspace.grade, 
-                    kelas: workspace.grade 
+                    kelas: workspace.grade,
+                    ...(profile || {})
                   } as any)}
                   onExportExcel={handleExport}
                   kurikulum={workspace.curriculum}
                 />
               )}
             </div>
-          ) : (
+          ) : activeTab === "prosem" ? (
             <div className="space-y-4 animate-in slide-in-from-bottom-2 h-full">
               {!prosemSem1 && !prosemSem2 ? (
                 <div className="text-center py-10 text-muted-foreground text-sm">
@@ -174,11 +196,32 @@ export const ProtaProsemViewerModal: React.FC<ProtaProsemViewerModalProps> = ({
                       exportProsemToWord(data, { 
                         mataPelajaran: workspace.subject, 
                         fase: workspace.grade, 
-                        kelas: workspace.grade 
+                        kelas: workspace.grade,
+                        ...(profile || {})
                       } as any, semester);
                     }
                   }}
                   onExportExcel={handleExport}
+                />
+              )}
+            </div>
+          ) : (
+            <div className="space-y-4 animate-in slide-in-from-bottom-2 h-full">
+              {!kktpData?.kktp?.length ? (
+                <div className="text-center py-10 text-muted-foreground text-sm">
+                  Belum ada data KKTP.
+                </div>
+              ) : (
+                <KKTPPreview 
+                  kktpData={kktpData} 
+                  formData={{ cp: '', mataPelajaran: workspace.subject, fase: workspace.grade, kelas: workspace.grade, sekolah: workspace.name } as any}
+                  onExportWord={() => exportKktpToWord(kktpData, { 
+                    mataPelajaran: workspace.subject, 
+                    fase: workspace.grade, 
+                    kelas: workspace.grade,
+                    ...(profile || {})
+                  })}
+                  onDataChange={(newData) => setKktpData(newData)}
                 />
               )}
             </div>
