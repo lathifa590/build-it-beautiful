@@ -92,7 +92,7 @@ export const ProtaProsemViewerModal: React.FC<ProtaProsemViewerModalProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-in fade-in duration-200">
       <div className="bg-card w-full max-w-5xl max-h-[90vh] rounded-2xl border-2 border-foreground shadow-brutal flex flex-col overflow-hidden">
         {/* Header */}
-        <div className="p-4 border-b-2 border-foreground flex items-center justify-between bg-muted/30">
+        <div className="p-4 border-b-2 border-foreground flex items-center justify-between bg-muted/30 shrink-0">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-primary/20 text-primary rounded-lg border border-primary/30">
               <FileText className="w-5 h-5" />
@@ -121,10 +121,10 @@ export const ProtaProsemViewerModal: React.FC<ProtaProsemViewerModalProps> = ({
         </div>
 
         {/* Tabs */}
-        <div className="flex px-4 border-b-2 border-foreground bg-muted/10 overflow-x-auto whitespace-nowrap">
+        <div className="flex px-4 border-b-2 border-foreground bg-muted/10 overflow-x-auto whitespace-nowrap shrink-0">
           <button
             onClick={() => setActiveTab("prota")}
-            className={`px-4 py-3 text-base font-bold border-b-2 transition-colors ${
+            className={`px-4 py-3 text-base font-bold border-b-2 -mb-[2px] transition-colors ${
               activeTab === "prota" 
                 ? "border-primary text-primary" 
                 : "border-transparent text-muted-foreground hover:text-foreground"
@@ -134,7 +134,7 @@ export const ProtaProsemViewerModal: React.FC<ProtaProsemViewerModalProps> = ({
           </button>
           <button
             onClick={() => setActiveTab("prosem")}
-            className={`px-4 py-3 text-base font-bold border-b-2 transition-colors ${
+            className={`px-4 py-3 text-base font-bold border-b-2 -mb-[2px] transition-colors ${
               activeTab === "prosem" 
                 ? "border-primary text-primary" 
                 : "border-transparent text-muted-foreground hover:text-foreground"
@@ -144,7 +144,7 @@ export const ProtaProsemViewerModal: React.FC<ProtaProsemViewerModalProps> = ({
           </button>
           <button
             onClick={() => setActiveTab("kktp")}
-            className={`px-4 py-3 text-base font-bold border-b-2 transition-colors ${
+            className={`px-4 py-3 text-base font-bold border-b-2 -mb-[2px] transition-colors ${
               activeTab === "kktp" 
                 ? "border-primary text-primary" 
                 : "border-transparent text-muted-foreground hover:text-foreground"
