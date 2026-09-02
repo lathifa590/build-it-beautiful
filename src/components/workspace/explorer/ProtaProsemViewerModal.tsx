@@ -8,6 +8,7 @@ import { ProtaPreview } from "@/components/modul/ProtaPreview";
 import { ProsemPreview } from "@/components/modul/ProsemPreview";
 import { KKTPPreview } from "@/components/modul/KKTPPreview";
 import { exportProtaToWord, exportProsemToWord, exportKktpToWord } from "@/lib/export-word";
+import { useKktpGenerator } from "@/hooks/useKktpGenerator";
 import type { ProsemData, KKTPData } from "@/types/modul";
 
 interface ProtaProsemViewerModalProps {
@@ -23,6 +24,8 @@ export const ProtaProsemViewerModal: React.FC<ProtaProsemViewerModalProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<"prota" | "prosem" | "kktp">("prota");
   const { protaData, isLoading: isProtaLoading } = useProtaData(isOpen ? workspace.id : null);
+  const { generate, isLoading: isGenerating, error: genError } = useKktpGenerator();
+  const [isSavingKktp, setIsSavingKktp] = useState(false);
 
   const [prosemSem1, setProsemSem1] = useState<ProsemData | null>(null);
   const [prosemSem2, setProsemSem2] = useState<ProsemData | null>(null);
@@ -121,7 +124,7 @@ export const ProtaProsemViewerModal: React.FC<ProtaProsemViewerModalProps> = ({
         <div className="flex px-4 border-b-2 border-foreground bg-muted/10 overflow-x-auto whitespace-nowrap">
           <button
             onClick={() => setActiveTab("prota")}
-            className={`px-4 py-3 text-sm font-bold border-b-2 transition-colors ${
+            className={`px-4 py-3 text-base font-bold border-b-2 transition-colors ${
               activeTab === "prota" 
                 ? "border-primary text-primary" 
                 : "border-transparent text-muted-foreground hover:text-foreground"
@@ -131,7 +134,7 @@ export const ProtaProsemViewerModal: React.FC<ProtaProsemViewerModalProps> = ({
           </button>
           <button
             onClick={() => setActiveTab("prosem")}
-            className={`px-4 py-3 text-sm font-bold border-b-2 transition-colors ${
+            className={`px-4 py-3 text-base font-bold border-b-2 transition-colors ${
               activeTab === "prosem" 
                 ? "border-primary text-primary" 
                 : "border-transparent text-muted-foreground hover:text-foreground"
@@ -141,7 +144,7 @@ export const ProtaProsemViewerModal: React.FC<ProtaProsemViewerModalProps> = ({
           </button>
           <button
             onClick={() => setActiveTab("kktp")}
-            className={`px-4 py-3 text-sm font-bold border-b-2 transition-colors ${
+            className={`px-4 py-3 text-base font-bold border-b-2 transition-colors ${
               activeTab === "kktp" 
                 ? "border-primary text-primary" 
                 : "border-transparent text-muted-foreground hover:text-foreground"
@@ -208,8 +211,48 @@ export const ProtaProsemViewerModal: React.FC<ProtaProsemViewerModalProps> = ({
           ) : (
             <div className="space-y-4 animate-in slide-in-from-bottom-2 h-full">
               {!kktpData?.kktp?.length ? (
-                <div className="text-center py-10 text-muted-foreground text-sm">
-                  Belum ada data KKTP.
+                <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
+                  <p className="text-base mb-4">Belum ada data KKTP.</p>
+                  <button
+                    onClick={async () => {
+                      if (!protaData?.prota || protaData.prota.length === 0) {
+                        alert("Program Tahunan belum tersedia. Tidak bisa membuat KKTP.");
+                        return;
+                      }
+                      const tpList = protaData.prota.map(p => p.tujuan_pembelajaran);
+                      const result = await generate({
+                        tpList,
+                        mataPelajaran: workspace.subject,
+                        fase: workspace.grade,
+                        kelas: workspace.grade,
+                      });
+                      if (result) {
+                        setKktpData(result);
+                        setIsSavingKktp(true);
+                        try {
+                          await supabase.rpc("upsert_curriculum_plan", {
+                            p_workspace_id: workspace.id,
+                            p_type: "kktp",
+                            p_semester: null,
+                            p_content: result
+                          });
+                        } catch (err) {
+                          console.error("Error saving KKTP:", err);
+                        } finally {
+                          setIsSavingKktp(false);
+                        }
+                      }
+                    }}
+                    disabled={isGenerating || isSavingKktp}
+                    className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground font-medium rounded-md hover:bg-primary/90 disabled:opacity-50 transition-all"
+                  >
+                    {isGenerating || isSavingKktp ? (
+                      <><Loader2 className="w-4 h-4 animate-spin" /> Sedang Membuat...</>
+                    ) : (
+                      "Buat KKTP Sekarang"
+                    )}
+                  </button>
+                  {genError && <p className="text-sm text-red-500 mt-2">{genError}</p>}
                 </div>
               ) : (
                 <KKTPPreview 
