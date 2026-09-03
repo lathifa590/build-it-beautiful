@@ -39,10 +39,17 @@ export const StepMeeting: React.FC<StepMeetingProps> = ({ workspace, onNext, isL
   const [isSaving, setIsSaving] = useState(false);
   const [isGeneratingTitles, setIsGeneratingTitles] = useState<Record<number, boolean>>({});
 
-  // Beban JP per pertemuan default dari workspace settings (biasanya 2 JP atau 3 JP)
-  // Untuk sementara hardcode 2 JP
-  const defaultJpPerMeeting = 2;
-  const menitPerJp = 45; // SMP/SMA biasanya 40-45 menit
+  const defaultJpPerMeeting = workspace.default_jp_per_meeting || 2;
+  const menitPerJp = workspace.jp_duration_minutes || 45;
+
+  // Helper to parse weekly_jp_pattern (e.g. "3, 2" -> [3, 2])
+  const parseWeeklyJpPattern = (pattern?: string): number[] => {
+    if (!pattern || !pattern.trim()) return [defaultJpPerMeeting];
+    const parsed = pattern.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n) && n > 0);
+    return parsed.length > 0 ? parsed : [defaultJpPerMeeting];
+  };
+
+  const jpPattern = parseWeeklyJpPattern(workspace.weekly_jp_pattern);
 
   useEffect(() => {
     const loadData = async () => {
@@ -109,34 +116,46 @@ export const StepMeeting: React.FC<StepMeetingProps> = ({ workspace, onNext, isL
         const newItems = [...prevItems];
         const item = { ...newItems[itemIndex] };
         
-        const numMeetings = Math.ceil(item.allocated_jp / defaultJpPerMeeting);
         const newSlots: MeetingSlot[] = [];
         let remainingJp = item.allocated_jp;
+        let jpForThisSlot = 0;
+        let i = 0;
         
-        for (let i = 0; i < numMeetings; i++) {
-          const jpForThisSlot = Math.min(remainingJp, defaultJpPerMeeting);
+        while (remainingJp > 0) {
+          // get the desired JP from the pattern for this meeting sequence
+          const desiredJp = jpPattern[i % jpPattern.length];
+          // don't allocate more than remaining
+          jpForThisSlot = Math.min(remainingJp, desiredJp);
           
           let title = `Pertemuan ${i + 1}`;
-          if (numMeetings === 1) {
-            title = "Eksplorasi konsep, praktik, dan evaluasi";
-          } else if (numMeetings === 2) {
-            title = i === 0 ? PROGRESSION[0] : PROGRESSION[3];
-          } else if (numMeetings === 3) {
-            title = i === 0 ? PROGRESSION[0] : (i === 1 ? PROGRESSION[1] : PROGRESSION[3]);
-          } else if (i < 3) {
-            title = PROGRESSION[i];
-          } else if (i === numMeetings - 1) {
-            title = PROGRESSION[3];
-          } else {
-            title = PROGRESSION[2];
-          }
-
+          
           newSlots.push({
             sequence: i + 1,
             title,
             planned_jp: jpForThisSlot
           });
           remainingJp -= jpForThisSlot;
+          i++;
+        }
+        
+        // Update titles based on progression if needed
+        const numMeetings = newSlots.length;
+        for (let j = 0; j < numMeetings; j++) {
+          let title = `Pertemuan ${j + 1}`;
+          if (numMeetings === 1) {
+            title = "Eksplorasi konsep, praktik, dan evaluasi";
+          } else if (numMeetings === 2) {
+            title = j === 0 ? PROGRESSION[0] : PROGRESSION[3];
+          } else if (numMeetings === 3) {
+            title = j === 0 ? PROGRESSION[0] : (j === 1 ? PROGRESSION[1] : PROGRESSION[3]);
+          } else if (j < 3) {
+            title = PROGRESSION[j];
+          } else if (j === numMeetings - 1) {
+            title = PROGRESSION[3];
+          } else {
+            title = PROGRESSION[2];
+          }
+          newSlots[j].title = title;
         }
         
         item.slots = newSlots;
@@ -147,7 +166,14 @@ export const StepMeeting: React.FC<StepMeetingProps> = ({ workspace, onNext, isL
 
     try {
       const item = items[itemIndex];
-      const numMeetings = Math.ceil(item.allocated_jp / defaultJpPerMeeting);
+      // Simulate distribution to calculate number of meetings
+      let tempRemainingJp = item.allocated_jp;
+      let calculatedNumMeetings = 0;
+      while (tempRemainingJp > 0) {
+        const desiredJp = jpPattern[calculatedNumMeetings % jpPattern.length];
+        tempRemainingJp -= Math.min(tempRemainingJp, desiredJp);
+        calculatedNumMeetings++;
+      }
       
       const { data, error } = await supabase.functions.invoke("generate-content", {
         body: {
@@ -159,8 +185,9 @@ export const StepMeeting: React.FC<StepMeetingProps> = ({ workspace, onNext, isL
             fase: workspace.phase || '',
             judulTopik: item.materi_pokok,
             totalJP: item.allocated_jp,
-            jumlahPertemuan: numMeetings,
+            jumlahPertemuan: calculatedNumMeetings,
             jpPerPertemuan: defaultJpPerMeeting,
+            polaJpMingguan: workspace.weekly_jp_pattern,
             menit: defaultJpPerMeeting * menitPerJp
           }
         }
@@ -178,9 +205,12 @@ export const StepMeeting: React.FC<StepMeetingProps> = ({ workspace, onNext, isL
           
           const newSlots: MeetingSlot[] = [];
           let remainingJp = newItem.allocated_jp;
+          let i = 0;
           
-          for (let i = 0; i < numMeetings; i++) {
-            const jpForThisSlot = Math.min(remainingJp, defaultJpPerMeeting);
+          while (remainingJp > 0) {
+            const desiredJp = jpPattern[i % jpPattern.length];
+            const jpForThisSlot = Math.min(remainingJp, desiredJp);
+            
             // Use AI title if available, otherwise fallback to string
             const aiTitle = data.titles[i];
             
@@ -190,6 +220,7 @@ export const StepMeeting: React.FC<StepMeetingProps> = ({ workspace, onNext, isL
               planned_jp: jpForThisSlot
             });
             remainingJp -= jpForThisSlot;
+            i++;
           }
           
           newItem.slots = newSlots;

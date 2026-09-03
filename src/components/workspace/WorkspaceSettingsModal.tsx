@@ -32,6 +32,7 @@ export const WorkspaceSettingsModal = ({ isOpen, onClose, workspace }: Workspace
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     jp_duration_minutes: workspace.jp_duration_minutes || 45,
+    weekly_jp_pattern: workspace.weekly_jp_pattern || '',
   });
 
   const [genSettings, setGenSettings] = useState<{
@@ -50,6 +51,7 @@ export const WorkspaceSettingsModal = ({ isOpen, onClose, workspace }: Workspace
     if (isOpen) {
       setFormData({
         jp_duration_minutes: workspace.jp_duration_minutes || 45,
+        weekly_jp_pattern: workspace.weekly_jp_pattern || '',
       });
       setGenSettings({
         modelPembelajaran: workspace.generation_settings?.modelPembelajaran || 'AI Auto-Select',
@@ -62,7 +64,8 @@ export const WorkspaceSettingsModal = ({ isOpen, onClose, workspace }: Workspace
   }, [isOpen, workspace]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: Number(e.target.value) });
+    const value = e.target.type === 'number' ? Number(e.target.value) : e.target.value;
+    setFormData({ ...formData, [e.target.name]: value });
   };
   
   const handleGenSettingsChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -152,6 +155,20 @@ export const WorkspaceSettingsModal = ({ isOpen, onClose, workspace }: Workspace
                 className="input-field"
               />
               <p className="text-xs text-muted-foreground mt-1">Digunakan untuk menghitung estimasi waktu pertemuan di Modul Ajar.</p>
+            </div>
+            
+            <div className="field-group">
+              <label htmlFor="weekly_jp_pattern">Pola JP per Minggu (Opsional)</label>
+              <input
+                type="text"
+                id="weekly_jp_pattern"
+                name="weekly_jp_pattern"
+                value={formData.weekly_jp_pattern}
+                onChange={handleChange}
+                placeholder="Contoh: 3, 2 (untuk 2x pertemuan, 3 JP dan 2 JP)"
+                className="input-field"
+              />
+              <p className="text-xs text-muted-foreground mt-1">Sistem akan otomatis memecah topik sesuai pola JP ini.</p>
             </div>
             
             <div className="border-t-2 border-dashed border-muted-foreground/30 pt-4">
