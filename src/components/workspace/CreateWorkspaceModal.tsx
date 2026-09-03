@@ -30,6 +30,7 @@ export const CreateWorkspaceModal = ({ isOpen, onClose }: CreateWorkspaceModalPr
     profile_id: '',
     jp_duration_minutes: 45,
     default_jp_per_meeting: 2,
+    weekly_jp_pattern: '',
   });
 
   // Auto-select first profile if none is selected
@@ -87,6 +88,7 @@ export const CreateWorkspaceModal = ({ isOpen, onClose }: CreateWorkspaceModalPr
         profile_id: cloudProfiles.length > 0 ? cloudProfiles[0].id : '',
         jp_duration_minutes: 45,
         default_jp_per_meeting: 2,
+        weekly_jp_pattern: '',
       });
     } catch (error) {
       console.error(error);
@@ -197,6 +199,18 @@ export const CreateWorkspaceModal = ({ isOpen, onClose }: CreateWorkspaceModalPr
                 required
               />
               <p className="text-xs text-muted-foreground mt-1">Digunakan untuk menghitung estimasi waktu pertemuan di Modul Ajar.</p>
+            </div>
+            <div className="field-group">
+              <label htmlFor="weekly_jp_pattern">Pola JP per Minggu (Opsional)</label>
+              <input
+                type="text"
+                id="weekly_jp_pattern"
+                name="weekly_jp_pattern"
+                value={formData.weekly_jp_pattern}
+                onChange={handleChange}
+                placeholder="Contoh: 3, 2 (untuk 2x pertemuan, 3 JP dan 2 JP)"
+              />
+              <p className="text-xs text-muted-foreground mt-1">Sistem akan otomatis memecah topik sesuai pola JP ini.</p>
             </div>
           </div>
           <DialogFooter>
