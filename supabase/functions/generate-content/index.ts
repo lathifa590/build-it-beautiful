@@ -2698,6 +2698,55 @@ KELAS: ${data.kelas || '(tidak diisi)'}
 Berikan saran model, metode, DPL, dan nilai karakter yang paling sesuai.`;
         break;
 
+      case "auto-fill": {
+        systemPrompt = `Kamu adalah asisten ahli pendidikan Indonesia yang membantu melengkapi data identifikasi murid, jenis pengetahuan, dimensi profil lulusan, nilai karakter, serta kaitan materi dengan kehidupan dan pemahaman bermakna untuk RPP/Modul Ajar.
+        
+FORMAT OUTPUT JSON (WAJIB persis struktur berikut, tanpa tambahan/pengurangan struktur):
+{
+  "auto_generated": {
+    "identifikasi_murid": {
+      "aspek_pengetahuan_awal": "Analisis prerequisite knowledge singkat",
+      "aspek_minat": "Minat murid terkait topik",
+      "aspek_latar_belakang": "Karakteristik latar belakang murid",
+      "aspek_kebutuhan_belajar": "Kebutuhan belajar murid"
+    },
+    "materi_pengetahuan": {
+      "faktual": "Data, fakta, istilah terkait",
+      "konseptual": "Konsep, prinsip, definisi",
+      "prosedural": "Langkah-langkah, cara, urutan",
+      "metakognitif": "Refleksi, strategi kognitif"
+    },
+    "dimensi_profil_lulusan": ["DPL 1", "DPL 2"],
+    "dpl_deskripsi": "Deskripsi singkat bagaimana DPL di atas dikembangkan dalam pembelajaran ini",
+    "nilai_karakter": ["Nilai 1", "Nilai 2"],
+    "kaitan_kehidupan": "Kaitan kontekstual materi dengan kehidupan sehari-hari murid",
+    "pemahaman_bermakna": "Pemahaman bermakna (enduring understanding) yang akan didapat murid",
+    "topik_panca_cinta": ["Cinta 1", "Cinta 2"],
+    "panca_cinta_deskripsi": "Deskripsi singkat integrasi panca cinta (hanya jika KBC)",
+    "materi_integrasi_kbc": "Penjelasan integrasi materi dengan nilai KBC (hanya jika KBC)",
+    "lintas_disiplin": {},
+    "kemitraan": {},
+    "lingkungan": {},
+    "pemanfaatan_digital": {}
+  }
+}
+
+Pilih 2-4 DPL dan 3-5 nilai karakter.`;
+
+        userPrompt = `Buatkan kelengkapan data (auto-fill) untuk RPP berikut:
+Kurikulum: ${data.kurikulum === 'kbc' ? 'Kurikulum Berbasis Cinta (KBC)' : 'Kurikulum Merdeka'}
+Mata Pelajaran: ${data.mataPelajaran || '-'}
+Materi: ${data.materi || '-'}
+Sub Materi: ${data.subMateri || '-'}
+Fase: ${data.fase || '-'}
+Kelas: ${data.kelas || '-'}
+Tujuan Pembelajaran: ${data.tujuanPembelajaran || '-'}
+Model Pembelajaran: ${data.modelPembelajaran || '-'}
+
+Catatan: Jika kurikulum bukan KBC, biarkan field KBC (topik_panca_cinta, panca_cinta_deskripsi, materi_integrasi_kbc) kosong atau diisi dengan array kosong.`;
+        break;
+      }
+
       default:
         throw new Error("Unknown generation type");
     }

@@ -139,9 +139,40 @@ serve(async (req) => {
             });
             if (autoFillRes.ok) {
               const afData = await autoFillRes.json();
-              const autoGen = afData?.data?.auto_generated || afData?.auto_generated;
-              if (autoGen) {
-                baseFormData.auto_generated = autoGen;
+              const ag = afData?.data?.auto_generated || afData?.auto_generated;
+              if (ag) {
+                if (ag.identifikasi_murid) {
+                  if (!baseFormData.aspekPengetahuanAwal) baseFormData.aspekPengetahuanAwal = ag.identifikasi_murid.aspek_pengetahuan_awal || '';
+                  if (!baseFormData.aspekMinat) baseFormData.aspekMinat = ag.identifikasi_murid.aspek_minat || '';
+                  if (!baseFormData.aspekLatarBelakang) baseFormData.aspekLatarBelakang = ag.identifikasi_murid.aspek_latar_belakang || '';
+                  if (!baseFormData.aspekKebutuhanBelajar) baseFormData.aspekKebutuhanBelajar = ag.identifikasi_murid.aspek_kebutuhan_belajar || '';
+                }
+                
+                if (ag.materi_pengetahuan) {
+                  baseFormData.materiPengetahuan = {
+                    faktual: baseFormData.materiPengetahuan?.faktual || ag.materi_pengetahuan.faktual || '',
+                    konseptual: baseFormData.materiPengetahuan?.konseptual || ag.materi_pengetahuan.konseptual || '',
+                    prosedural: baseFormData.materiPengetahuan?.prosedural || ag.materi_pengetahuan.prosedural || '',
+                    metakognitif: baseFormData.materiPengetahuan?.metakognitif || ag.materi_pengetahuan.metakognitif || '',
+                  };
+                }
+                
+                baseFormData.dimensiProfilLulusan = baseFormData.dimensiProfilLulusan?.length ? baseFormData.dimensiProfilLulusan : (ag.dimensi_profil_lulusan || []);
+                baseFormData.dimensiProfilLulusanDeskripsi = ag.dpl_deskripsi || '';
+                baseFormData.nilaiKarakter = baseFormData.nilaiKarakter?.length ? baseFormData.nilaiKarakter : (ag.nilai_karakter || []);
+                baseFormData.kaitanKehidupan = ag.kaitan_kehidupan || '';
+                baseFormData.pemahamanBermakna = ag.pemahaman_bermakna || '';
+                baseFormData.topikPancaCinta = ag.topik_panca_cinta || [];
+                baseFormData.topikPancaCintaDeskripsi = ag.panca_cinta_deskripsi || '';
+                baseFormData.materiIntegrasiKBC = ag.materi_integrasi_kbc || '';
+                
+                baseFormData.lintasDisiplinIlmu = ag.lintas_disiplin || {};
+                baseFormData.kemitraanPembelajaran = ag.kemitraan || {};
+                baseFormData.lingkunganPembelajaranDetail = ag.lingkungan || {};
+                baseFormData.pemanfaatanDigitalDetail = ag.pemanfaatan_digital || {};
+                
+                // Keep the raw auto_generated just in case
+                baseFormData.auto_generated = ag;
               }
             }
           } catch (e) {
