@@ -82,76 +82,24 @@ export const generateWorkspaceModul = async (
         pertemuan: [{ id: slot.id, nomorPertemuan: slot.sequence, durasi: totalMinutes.toString() }],
       };
 
-      // Kontekstualisasi CP per meeting (using its TP)
-      try {
-        const { data: cpRes } = await supabase.functions.invoke('generate-content', { 
-          body: { type: 'kontekstualisasi-cp', data: baseFormData }
-        });
-        if (cpRes?.data?.cp_kontekstual) {
-          baseFormData.capaianPembelajaran = cpRes.data.cp_kontekstual;
-        }
-      } catch (e) {
-        console.warn("Kontekstualisasi CP gagal", e);
-      }
+      // Instead of calling AI and queuing 5 documents from the client, we queue a single "prepare_pertemuan" job.
+      // The Edge Function will handle kontekstualisasi-cp, suggest-desain, auto-fill, and queuing the 5 documents.
+      const payload = {
+        baseFormData,
+        item,
+        slot,
+        totalMinutes,
+        tps,
+        genSettings,
+      };
 
-      // Apply Global Settings
-      if (genSettings.modelPembelajaran && genSettings.modelPembelajaran !== 'AI Auto-Select') {
-        baseFormData.modelPembelajaran = genSettings.modelPembelajaran;
-      }
-      if (genSettings.metodePembelajaran && !genSettings.metodePembelajaran.includes('AI Auto-Select')) {
-        baseFormData.metodePembelajaran = genSettings.metodePembelajaran;
-      }
-
-      // Suggest Design if AI Auto-Select
-      if (!baseFormData.modelPembelajaran || baseFormData.modelPembelajaran === 'AI Auto-Select' || !baseFormData.metodePembelajaran || baseFormData.metodePembelajaran.length === 0) {
-        try {
-          const { data: suggestRes } = await supabase.functions.invoke('generate-content', { 
-            body: { type: 'suggest-desain-pembelajaran', data: baseFormData }
-          });
-          const suggestion = suggestRes?.data;
-          if (suggestion) {
-            if (suggestion.modelPembelajaran) baseFormData.modelPembelajaran = suggestion.modelPembelajaran;
-            if (suggestion.metodePembelajaran) baseFormData.metodePembelajaran = suggestion.metodePembelajaran;
-            if (suggestion.dimensiProfilLulusan || suggestion.dimensiProfilPelajarPancasila) {
-              baseFormData.dimensiProfilLulusan = (suggestion.dimensiProfilLulusan || suggestion.dimensiProfilPelajarPancasila).map((d: string) => { 
-                  const match = d.match(/DPL\s*\d/i); 
-                  return match ? match[0].toUpperCase().replace(/\s+/, ' ') : d; 
-              });
-            }
-            if (suggestion.nilaiKarakter) baseFormData.nilaiKarakter = suggestion.nilaiKarakter;
-          }
-        } catch (e) {
-          console.warn("Suggest desain gagal", e);
-        }
-      }
-
-      // Prepare payloads for 5 documents
-      const jenisDocs = ['modul', 'lkpd', 'asesmen', 'materi', 'soal'] as const;
-      const insertData = jenisDocs.map(jenis => {
-        const payload = buildPertemuanPayload({
-          formData: baseFormData,
-          pertemuan: {
-            id: slot.id,
-            nomor: slot.sequence,
-            durasiMenit: totalMinutes,
-            materiPokok: item.materi_pokok,
-            tujuanPertemuan: tps,
-          },
-          jenis,
-          totalPertemuan: 1, // We generate them individually
-          extra: jenis === 'soal' && genSettings.soalConfig ? { config: genSettings.soalConfig } : undefined,
-        });
-
-        return {
-          workspace_id: workspace.id,
-          pertemuan_id: slot.id,
-          jenis_dokumen: jenis,
-          payload,
-          status: 'pending'
-        };
-      });
-
-      // NOTE: Removed generation_result upsert which is deprecated and causes 404 error
+      const insertData = [{
+        workspace_id: workspace.id,
+        pertemuan_id: slot.id,
+        jenis_dokumen: 'prepare_pertemuan',
+        payload,
+        status: 'pending'
+      }];
 
       const { error } = await supabase.from('generation_queue').insert(insertData);
       if (!error) {
