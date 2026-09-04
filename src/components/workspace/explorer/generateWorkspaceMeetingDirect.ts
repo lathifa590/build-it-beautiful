@@ -207,12 +207,14 @@ export const generateWorkspaceMeetingDirect = async (
 
     // 4b. AI Auto-fill (Identifikasi Murid, DPL, Nilai Karakter, Kaitan Kehidupan)
     onProgress?.("Melengkapi identifikasi murid & nilai karakter...");
+    let agData: any = null;
     try {
       const { data: autoFillRes } = await supabase.functions.invoke('generate-content', {
         body: { type: 'auto-fill', data: baseFormData }
       });
       const ag = autoFillRes?.data?.auto_generated || autoFillRes?.auto_generated;
       if (ag) {
+        agData = ag;
         if (ag.identifikasi_murid) {
           if (!baseFormData.aspekPengetahuanAwal) baseFormData.aspekPengetahuanAwal = ag.identifikasi_murid.aspek_pengetahuan_awal || '';
           if (!baseFormData.aspekMinat) baseFormData.aspekMinat = ag.identifikasi_murid.aspek_minat || '';
@@ -317,6 +319,27 @@ export const generateWorkspaceMeetingDirect = async (
       if (jenis === 'modul') {
         if (resData.data.modulPreface) {
           currentResult.modulPreface = resData.data.modulPreface;
+        } else if (agData) {
+          currentResult.modulPreface = {
+            identifikasi_murid: agData.identifikasi_murid || {
+              aspek_pengetahuan_awal: baseFormData.aspekPengetahuanAwal,
+              aspek_minat: baseFormData.aspekMinat,
+              aspek_latar_belakang: baseFormData.aspekLatarBelakang,
+              aspek_kebutuhan_belajar: baseFormData.aspekKebutuhanBelajar,
+            },
+            materi_pengetahuan: agData.materi_pengetahuan || baseFormData.materiPengetahuan,
+            dimensi_profil_lulusan: baseFormData.dimensiProfilLulusan || [],
+            nilai_karakter: baseFormData.nilaiKarakter || [],
+            kaitan_kehidupan: baseFormData.kaitanKehidupan || '',
+            pemahaman_bermakna: baseFormData.pemahamanBermakna || '',
+            lintas_disiplin: agData.lintas_disiplin || {},
+            kemitraan: agData.kemitraan || {},
+            lingkungan: agData.lingkungan || {},
+            pemanfaatan_digital: agData.pemanfaatan_digital || {},
+            topik_panca_cinta: baseFormData.topikPancaCinta || [],
+            panca_cinta_deskripsi: baseFormData.topikPancaCintaDeskripsi || '',
+            materi_integrasi_kbc: baseFormData.materiIntegrasiKBC || ''
+          };
         }
 
         // Simpan autoFields ke generation_settings di tabel workspaces agar persisten dan tampil di editor

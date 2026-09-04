@@ -2639,9 +2639,11 @@ ATURAN PENTING:
 - TIDAK menambahkan informasi di luar CP resmi
 
 CONTOH OUTPUT IDEAL:
-"Murid mampu menganalisis konsep pertumbuhan dan perkembangan hewan, mengidentifikasi jenis reproduksi dan tahapan metamorfosis, serta mengaplikasikan pengetahuan tersebut melalui observasi siklus hidup hewan."
+{
+  "cp_kontekstual": "Murid mampu menganalisis konsep pertumbuhan dan perkembangan hewan, mengidentifikasi jenis reproduksi dan tahapan metamorfosis, serta mengaplikasikan pengetahuan tersebut melalui observasi siklus hidup hewan."
+}
 
-OUTPUT: Langsung tulis kalimatnya saja. Tanpa wrapper JSON, tanpa label, tanpa penjelasan. Cukup 1 kalimat dimulai "Murid mampu...".`;
+OUTPUT: WAJIB dalam format JSON yang valid. Jangan gunakan markdown, penjelasan, atau teks lainnya di luar JSON.`;
 
         userPrompt = `Kontekstualisasikan CP berikut sesuai dengan materi:
 
@@ -3062,11 +3064,35 @@ Jahit ke seksi/konten yang sudah ada — JANGAN buat seksi baru di luar struktur
     console.log("Raw AI content length:", content.length);
     console.log("Sanitized content preview:", sanitizedContent.substring(0, 500));
 
-    // Untuk kontekstualisasi-cp, response adalah plain text — langsung wrap
+    if (!preParsedContentReady) {
+      const parsed = parseGeneratedJson(content);
+      if (parsed.parsed) {
+        parsedContent = parsed.parsed;
+        sanitizedContent = parsed.sanitized;
+        console.log("Parse success:", typeof parsedContent === 'object');
+        console.log("Has auto_generated:", !!parsedContent?.auto_generated);
+        console.log("Has pertemuan:", !!parsedContent?.pertemuan);
+      } else {
+        console.error("JSON parse failed (all methods):", parsed.error);
+        console.error("Raw content (first 1500 chars):", content.substring(0, 1500));
+        
+        return new Response(JSON.stringify({
+          error: type === 'lkpd'
+            ? "Response AI untuk LKPD belum valid. Semua fallback sudah dicoba, silakan coba lagi atau tambahkan API Key lain."
+            : `Gagal memproses JSON dari AI. Error: ${(parsed.error as any)?.message || 'Unknown'}. Preview: ${content.substring(0, 150)}...`,
+          errorCode: "parse_error",
+          triedModels,
+          contentPreview: content.substring(0, 100),
+        }), {
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    }
+
+    // Log generation
     if (type === 'kontekstualisasi-cp') {
-      const plainText = content.trim().replace(/^```[\s\S]*?```$/gm, '').replace(/^["']|["']$/g, '').trim();
-      const parsedContent = { cp_kontekstual: plainText };
-      console.log("kontekstualisasi-cp: wrapped plain text, length:", plainText.length);
+      console.log("kontekstualisasi-cp: parsed JSON:", JSON.stringify(parsedContent));
       
       // Log generation
       if (authHeader) {
@@ -3089,31 +3115,6 @@ Jahit ke seksi/konten yang sudah ada — JANGAN buat seksi baru di luar struktur
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
-
-    if (!preParsedContentReady) {
-      const parsed = parseGeneratedJson(content);
-      if (parsed.parsed) {
-        parsedContent = parsed.parsed;
-        sanitizedContent = parsed.sanitized;
-        console.log("Parse success:", typeof parsedContent === 'object');
-        console.log("Has auto_generated:", !!parsedContent?.auto_generated);
-        console.log("Has pertemuan:", !!parsedContent?.pertemuan);
-      } else {
-        console.error("JSON parse failed (all methods):", parsed.error);
-        console.error("Raw content (first 1500 chars):", content.substring(0, 1500));
-        
-        return new Response(JSON.stringify({
-          error: type === 'lkpd'
-            ? "Response AI untuk LKPD belum valid. Semua fallback sudah dicoba, silakan coba lagi atau tambahkan API Key lain."
-            : `Gagal memproses JSON dari AI. Error: ${(parsed.error as any)?.message || 'Unknown'}. Preview: ${content.substring(0, 150)}...`,
-          errorCode: "parse_error",
-          triedModels,
-          rawPreview: content.substring(0, 500)
-        }), {
-          status: 200,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
     } else {
       console.log("LKPD pre-parse success:", typeof parsedContent === 'object');
     }
