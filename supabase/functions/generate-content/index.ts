@@ -2303,9 +2303,10 @@ ${activeTypes.reduce((acc: string[], [tipe, cfg], idx: number) => {
 8. PENTING - STIMULUS/TEKS BACAAN:
 ${useStimulus 
   ? `   - Total soal: ${jumlahSoal} soal
-   - Setiap stimulus/bacaan MAKSIMAL untuk ${soalPerStimulus} soal
-   - Jadi perlu ${jumlahStimulus} teks bacaan yang BERBEDA
-   - Setiap bacaan dengan topik/fokus yang berbeda tapi masih dalam materi yang sama
+   - Total stimulus yang dibutuhkan: ${jumlahStimulus} teks bacaan BERBEDA
+   - ATURAN SANGAT KRITIKAL: JANGAN PERNAH MENCAMPUR TIPE SOAL DALAM SATU STIMULUS!
+   - 1 Stimulus HANYA BOLEH digunakan untuk soal-soal dalam 1 Tipe/Blok yang sama.
+   - Misalnya: Teks 1 KHUSUS untuk soal Pilihan Ganda. Teks 2 KHUSUS untuk soal Menjodohkan.
 ${stimulusLengthGuide}
    - Gunakan field "stimulus_list" (array) untuk menyimpan multiple stimulus:
      [{"id": 1, "teks": "Bacaan 1..."}, {"id": 2, "teks": "Bacaan 2..."}]
@@ -2477,7 +2478,7 @@ KONFIGURASI:
 
 DISTRIBUSI STIMULUS & GAMBAR PER TIPE:
 ${perTypeDistribusi}
-${useStimulus ? `- Total stimulus yang dibutuhkan: ${jumlahStimulus} bacaan (masing-masing untuk maks ${soalPerStimulus} soal)\n${stimulusLengthGuide}` : '- Tidak ada tipe soal yang menggunakan stimulus'}
+${useStimulus ? `- Total stimulus: ${jumlahStimulus} bacaan\n- SANGAT PENTING: Tiap stimulus HANYA untuk satu tipe soal. JANGAN mencampur PG, Uraian, Menjodohkan di bawah 1 stimulus yang sama!\n${stimulusLengthGuide}` : '- Tidak ada tipe soal yang menggunakan stimulus'}
 
 DISTRIBUSI TIPE SOAL & URUTAN PENOMORAN (WAJIB DIIKUTI TEPAT):
 ${activeTypes.reduce((lines: string[], [tipe, cfg]: [string, any], idx: number) => {
