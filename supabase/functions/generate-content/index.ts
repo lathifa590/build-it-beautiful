@@ -596,6 +596,10 @@ serve(async (req) => {
     const extractJsonFromResponse = (text: string): string => {
       let cleaned = sanitizeJsonResponse(text);
       
+      // Hapus ellipsis JavaScript (... yang dihasilkan AI sebagai placeholder)
+      // Contoh: "opsi": [...], "pernyataan": "..." → bersihkan
+      cleaned = cleaned.replace(/\.\.\.(?!["\w])/g, ''); // hapus ... yang tidak diikuti huruf/kutip
+      
       const objectStart = cleaned.indexOf('{');
       const arrayStart = cleaned.indexOf('[');
       const starts = [objectStart, arrayStart].filter((idx) => idx >= 0);
@@ -2243,6 +2247,15 @@ PRINSIP PENYUSUNAN SOAL YANG BAIK DAN BENAR:
    - ${distribusiTipe}
    - TOTAL: ${jumlahSoal} soal
 
+   URUTAN PENOMORAN SOAL (WAJIB IKUTI):
+${activeTypes.reduce((acc: string[], [tipe, cfg], idx: number) => {
+  const start = activeTypes.slice(0, idx).reduce((s, [_, c]) => s + c.quantity, 1);
+  const end = start + cfg.quantity - 1;
+  acc.push(`   - No. ${start}–${end}: Tipe "${tipe}" (${cfg.quantity} soal)`);
+  return acc;
+}, []).join('\n')}
+   - JANGAN mengubah urutan ini. Soal no. 1 HARUS bertipe sesuai di atas, begitu seterusnya.
+
 6. FORMAT TIPE SOAL (SESUAI JENJANG: ${kelasNum <= 9 ? 'SD/SMP - 4 opsi (A-D)' : 'SMA - 5 opsi (A-E)'}):
 
    a) Pilihan Ganda: 
@@ -2466,9 +2479,15 @@ DISTRIBUSI STIMULUS & GAMBAR PER TIPE:
 ${perTypeDistribusi}
 ${useStimulus ? `- Total stimulus yang dibutuhkan: ${jumlahStimulus} bacaan (masing-masing untuk maks ${soalPerStimulus} soal)\n${stimulusLengthGuide}` : '- Tidak ada tipe soal yang menggunakan stimulus'}
 
-DISTRIBUSI TIPE SOAL (WAJIB DIIKUTI PERSIS):
-- ${distribusiTipe}
+DISTRIBUSI TIPE SOAL & URUTAN PENOMORAN (WAJIB DIIKUTI TEPAT):
+${activeTypes.reduce((lines: string[], [tipe, cfg]: [string, any], idx: number) => {
+  const start = activeTypes.slice(0, idx).reduce((s: number, [_, c]: [string, any]) => s + c.quantity, 1);
+  const end = start + cfg.quantity - 1;
+  lines.push(`- Soal no. ${start} s.d. ${end}: Tipe "${tipe}" (${cfg.quantity} soal)`);
+  return lines;
+}, []).join('\n')}
 - TOTAL: ${jumlahSoal} soal
+- JANGAN mengubah urutan atau tipe soal dari ketentuan di atas!
 
 DISTRIBUSI LEVEL KOGNITIF:
 ${distribusiLevel}
@@ -2858,7 +2877,7 @@ Jahit ke seksi/konten yang sudah ada — JANGAN buat seksi baru di luar struktur
       lkpd: 7000,
       asesmen: 11000,
       materi: 10000,
-      bankSoal: 9000,
+      bankSoal: 16000,
       tindakLanjut: 5000,
       'tujuan-pembelajaran': 10000,
       'kontekstualisasi-cp': 1000,
