@@ -596,10 +596,6 @@ serve(async (req) => {
     const extractJsonFromResponse = (text: string): string => {
       let cleaned = sanitizeJsonResponse(text);
       
-      // Hapus ellipsis JavaScript (... yang dihasilkan AI sebagai placeholder)
-      // Contoh: "opsi": [...], "pernyataan": "..." → bersihkan
-      cleaned = cleaned.replace(/\.\.\.(?!["\w])/g, ''); // hapus ... yang tidak diikuti huruf/kutip
-      
       const objectStart = cleaned.indexOf('{');
       const arrayStart = cleaned.indexOf('[');
       const starts = [objectStart, arrayStart].filter((idx) => idx >= 0);
@@ -629,6 +625,18 @@ serve(async (req) => {
           try {
             let repaired = sanitizeJsonResponse(text);
             repaired = extractJsonFromResponse(repaired);
+            
+            // Perbaiki ellipsis yang sering dihasilkan Gemini
+            // Contoh 1: [ ..., { } ] -> hapus koma dan ...
+            repaired = repaired.replace(/,\s*\.\.\./g, '');
+            repaired = repaired.replace(/\.\.\.\s*,/g, '');
+            // Contoh 2: [ ... ] -> hapus ...
+            repaired = repaired.replace(/\[\s*\.\.\.\s*\]/g, '[]');
+            // Contoh 3: { ... } -> hapus ...
+            repaired = repaired.replace(/\{\s*\.\.\.\s*\}/g, '{}');
+            // Jika masih ada ... yang nyasar di luar string, ganti jadi null
+            repaired = repaired.replace(/(?<!["\w])\.\.\.(?!["\w])/g, 'null');
+
             const openBraces = (repaired.match(/\{/g) || []).length;
             const closeBraces = (repaired.match(/\}/g) || []).length;
             const openBrackets = (repaired.match(/\[/g) || []).length;
@@ -2526,7 +2534,11 @@ ${imageTargetsLines}
    - Pertimbangkan CP, Tujuan Pembelajaran, materi, indikator, level kognitif, dan manfaat pedagogis gambar.
    - KUALITAS SOAL TIDAK BOLEH TURUN karena adanya gambar. Pertanyaan tetap lengkap, kontekstual, dan sesuai level kognitif yang diminta. Gambar adalah STIMULUS VISUAL PENDUKUNG, BUKAN pengganti informasi penting dalam stem.
    - Soal bergambar TIDAK harus punya teks stimulus terpisah — gambar sendiri sudah bisa jadi stimulus visual.
-` : ''}`;
+` : ''}
+13. SANGAT KRITIKAL (ANTI-LAZY):
+   - JANGAN PERNAH menggunakan tanda titik-titik/ellipsis (...) sebagai placeholder untuk mempersingkat respons!
+   - JANGAN PERNAH melewati atau melompati soal (misal loncat dari soal 2 langsung ke 25).
+   - TULIS LENGKAP SEMUA FIELD DAN OPSI untuk SEMUA ${jumlahSoal} soal tanpa ada yang disingkat!`;
         break;
 
       case "tujuan-pembelajaran":
