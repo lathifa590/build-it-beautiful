@@ -127,21 +127,42 @@ export const WorkspaceMeetingEditor: React.FC<WorkspaceMeetingEditorProps> = ({
         const docsMap = await loadDocuments();
 
         // STEP 4: Merge formData — DB form_data always wins over synthetic
+        let finalFormData: FormData;
         if (docsMap?.['form_data']?.content_json) {
           const savedFormData = docsMap['form_data'].content_json as FormData;
           // Merge synthetic (base) + saved (wins), but keep synthetic pertemuan array if saved lacks it
-          setFormData({
+          finalFormData = {
             ...syntheticFormData,
             ...savedFormData,
             // Always keep correct pertemuan array from current meeting context
             pertemuan: syntheticFormData.pertemuan,
-          });
+          };
         } else {
-          setFormData(syntheticFormData);
+          finalFormData = syntheticFormData;
+        }
+
+        setFormData(finalFormData);
+
+        // STEP 4b: Auto-kontekstualisasi CP jika CP masih panjang (raw CP dari Kemdikbud)
+        // Ini berjalan secara asinkron (fire & forget) agar tidak memblokir rendering
+        const cpToCheck = finalFormData.capaianPembelajaran || '';
+        const cpIsRaw = cpToCheck.length > 200 || cpToCheck.includes('[Menyimak]') || cpToCheck.includes('[Membaca') || cpToCheck.includes('[Berbicara') || cpToCheck.includes('[Menulis') || cpToCheck.includes('[Elemen');
+        if (cpIsRaw && finalFormData.materi) {
+          supabase.functions.invoke('generate-content', {
+            body: { type: 'kontekstualisasi-cp', data: finalFormData }
+          }).then(({ data: cpRes }) => {
+            const cpKontekstual = cpRes?.data?.cp_kontekstual;
+            if (cpKontekstual && cpKontekstual.length > 20) {
+              setFormData((prev) => prev ? { ...prev, capaianPembelajaran: cpKontekstual } : prev);
+            }
+          }).catch((e) => {
+            console.warn('Auto-kontekstualisasi CP gagal:', e);
+          });
         }
 
         // STEP 5: Store docs map for document injection
         if (docsMap) setLoadedDocsMap(docsMap);
+
 
       } catch (err: any) {
         console.error("Error initializing meeting editor:", err);
