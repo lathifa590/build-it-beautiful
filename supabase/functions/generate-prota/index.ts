@@ -156,7 +156,7 @@ Kembalikan HANYA JSON valid (tanpa markdown, tanpa teks lain) dengan format:
 
     if (useGeminiDirect) {
       // Native Gemini API
-      const models = ["gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-3.1-flash-lite", "gemini-3-flash"];
+      const models = ["gemini-3.5-flash", "gemini-3.5-flash-lite", "gemini-2.5-flash"];
       let response: Response | null = null;
       let usedModel = models[0];
 

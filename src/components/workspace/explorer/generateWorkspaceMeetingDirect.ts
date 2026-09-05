@@ -6,7 +6,7 @@ import { buildPertemuanPayload, emptyResultV2 } from "@/lib/pertemuan-generation
 import type { GenerationResultV2 } from "@/types/modul";
 import { toast } from "sonner";
 
-type JenisDoc = 'modul' | 'lkpd' | 'asesmen' | 'materi' | 'soal';
+type JenisDoc = 'modul' | 'lkpd' | 'asesmen' | 'materi' | 'soal' | 'refleksi';
 
 // Simpan dokumen ke DB menggunakan schema yang benar:
 // documents -> document_versions (via RPC) -> meeting_document_links
@@ -267,19 +267,33 @@ export const generateWorkspaceMeetingDirect = async (
 
     // Gunakan soalConfig dari pengaturan, atau gunakan default (10 soal) jika kosong
     // Kurangi jumlah default agar tidak terpotong oleh token limit AI
-    const soalConfig = (!!genSettings.soalConfig && Object.keys(genSettings.soalConfig).length > 0)
-      ? genSettings.soalConfig
-      : {
-          level: 'Seimbang (LOTS & HOTS)',
-          typeConfigs: {
-            'Pilihan Ganda': { quantity: 5, useStimulus: true, stimulusCount: 2, useImages: false, imageCount: 0 },
-            'PG Kategori Benar/Salah': { quantity: 0, useStimulus: false, stimulusCount: 0, useImages: false, imageCount: 0 },
-            'PG Multiple Choice Multiple Answer': { quantity: 0, useStimulus: false, stimulusCount: 0, useImages: false, imageCount: 0 },
-            'Menjodohkan': { quantity: 0, useStimulus: false, stimulusCount: 0, useImages: false, imageCount: 0 },
-            'Isian Singkat': { quantity: 3, useStimulus: false, stimulusCount: 0, useImages: false, imageCount: 0 },
-            'Uraian': { quantity: 2, useStimulus: false, stimulusCount: 0, useImages: false, imageCount: 0 },
+    const defaultSoalConfig = {
+      level: 'Seimbang (LOTS & HOTS)',
+      typeConfigs: {
+        'Pilihan Ganda': { quantity: 5, useStimulus: true, stimulusCount: 2, useImages: false, imageCount: 0 },
+        'PG Kategori Benar/Salah': { quantity: 0, useStimulus: false, stimulusCount: 0, useImages: false, imageCount: 0 },
+        'PG Multiple Choice Multiple Answer': { quantity: 0, useStimulus: false, stimulusCount: 0, useImages: false, imageCount: 0 },
+        'Menjodohkan': { quantity: 0, useStimulus: false, stimulusCount: 0, useImages: false, imageCount: 0 },
+        'Isian Singkat': { quantity: 3, useStimulus: false, stimulusCount: 0, useImages: false, imageCount: 0 },
+        'Uraian': { quantity: 2, useStimulus: false, stimulusCount: 0, useImages: false, imageCount: 0 },
+      }
+    };
+
+    let soalConfig = defaultSoalConfig;
+    if (genSettings.soalConfig && Object.keys(genSettings.soalConfig).length > 0) {
+      if ('typeConfigs' in genSettings.soalConfig) {
+        soalConfig = genSettings.soalConfig as any;
+      } else {
+        const legacy = genSettings.soalConfig as any;
+        const newTypeConfigs: any = { ...defaultSoalConfig.typeConfigs };
+        for (const [key, val] of Object.entries(legacy)) {
+          if (typeof val === 'number') {
+            newTypeConfigs[key] = { quantity: val, useStimulus: false, stimulusCount: 0, useImages: false, imageCount: 0 };
           }
-        };
+        }
+        soalConfig = { level: defaultSoalConfig.level, typeConfigs: newTypeConfigs };
+      }
+    }
 
     const docsToGenerate = jenisDocs; // Selalu generate semua dokumen termasuk soal
 
@@ -321,25 +335,33 @@ export const generateWorkspaceMeetingDirect = async (
           currentResult.modulPreface = resData.data.modulPreface;
         } else if (agData) {
           currentResult.modulPreface = {
-            identifikasi_murid: agData.identifikasi_murid || {
-              aspek_pengetahuan_awal: baseFormData.aspekPengetahuanAwal,
-              aspek_minat: baseFormData.aspekMinat,
-              aspek_latar_belakang: baseFormData.aspekLatarBelakang,
-              aspek_kebutuhan_belajar: baseFormData.aspekKebutuhanBelajar,
-            },
-            materi_pengetahuan: agData.materi_pengetahuan || baseFormData.materiPengetahuan,
-            dimensi_profil_lulusan: baseFormData.dimensiProfilLulusan || [],
-            nilai_karakter: baseFormData.nilaiKarakter || [],
-            kaitan_kehidupan: baseFormData.kaitanKehidupan || '',
             pemahaman_bermakna: baseFormData.pemahamanBermakna || '',
-            lintas_disiplin: agData.lintas_disiplin || {},
-            kemitraan: agData.kemitraan || {},
-            lingkungan: agData.lingkungan || {},
-            pemanfaatan_digital: agData.pemanfaatan_digital || {},
-            topik_panca_cinta: baseFormData.topikPancaCinta || [],
-            panca_cinta_deskripsi: baseFormData.topikPancaCintaDeskripsi || '',
-            materi_integrasi_kbc: baseFormData.materiIntegrasiKBC || ''
+            auto_generated: {
+              identifikasi_murid: agData.identifikasi_murid || {
+                aspek_pengetahuan_awal: baseFormData.aspekPengetahuanAwal,
+                aspek_minat: baseFormData.aspekMinat,
+                aspek_latar_belakang: baseFormData.aspekLatarBelakang,
+                aspek_kebutuhan_belajar: baseFormData.aspekKebutuhanBelajar,
+              },
+              materi_pengetahuan: agData.materi_pengetahuan || baseFormData.materiPengetahuan,
+              dimensi_profil_lulusan: baseFormData.dimensiProfilLulusan || [],
+              nilai_karakter: baseFormData.nilaiKarakter || [],
+              kaitan_kehidupan: baseFormData.kaitanKehidupan || '',
+              lintas_disiplin: agData.lintas_disiplin || {},
+              kemitraan: agData.kemitraan || {},
+              lingkungan: agData.lingkungan || {},
+              pemanfaatan_digital: agData.pemanfaatan_digital || {},
+              topik_panca_cinta: baseFormData.topikPancaCinta || [],
+              panca_cinta_deskripsi: baseFormData.topikPancaCintaDeskripsi || '',
+              materi_integrasi_kbc: baseFormData.materiIntegrasiKBC || ''
+            }
           };
+        }
+        
+        // Inject auto_generated data into the modul content so it gets saved to curriculum_documents
+        // and can be read by WorkspaceMeetingEditor
+        if (currentResult.modulPreface?.auto_generated) {
+          resData.data.auto_generated = currentResult.modulPreface.auto_generated;
         }
 
         // Simpan autoFields ke generation_settings di tabel workspaces agar persisten dan tampil di editor
@@ -355,8 +377,8 @@ export const generateWorkspaceMeetingDirect = async (
       }
 
       // Simpan ke result
-      const keyMap: Record<JenisDoc, string> = {
-        modul: 'modul', lkpd: 'lkpd', asesmen: 'asesmen', materi: 'materi', soal: 'bankSoal'
+      const keyMap: Record<string, string> = {
+        modul: 'modul', lkpd: 'lkpd', asesmen: 'asesmen', materi: 'materi', soal: 'bankSoal', refleksi: 'refleksi'
       };
       (currentResult.pertemuan[0] as any)[keyMap[jenis]] = resData.data;
       (currentResult.pertemuan[0].status as any)[jenis] = 'ok';

@@ -287,10 +287,10 @@ serve(async (req) => {
     // Determine endpoint based on which key we're using
     // Native Gemini API for user keys, Lovable AI gateway for default
     const GEMINI_MODEL_CHAIN = [
-      "gemini-2.5-flash",
-      "gemini-3.0-flash",
       "gemini-3.5-flash",
-      "gemini-2.5-flash-lite"
+      "gemini-3.0-flash",
+      "gemini-3.5-flash-lite",
+      "gemini-2.5-flash"
     ];
     
     const getGeminiEndpoint = (model: string, key: string) => 
@@ -2911,7 +2911,11 @@ Jahit ke seksi/konten yang sudah ada — JANGAN buat seksi baru di luar struktur
     let preParsedSanitizedContent = "";
     
     const userPool = userKeyPool;
-    const isJsonMode = type !== 'kontekstualisasi-cp';
+    const isJsonMode = true;
+    
+    if (isJsonMode) {
+      userPrompt += "\n\nOUTPUT WAJIB berupa JSON murni yang valid tanpa tambahan markdown atau teks percakapan apa pun.";
+    }
     
     if (useGeminiDirect && userPool.length > 0 && type === 'lkpd' && isJsonMode) {
       const result = await executeCrossProviderParsedJson(systemPrompt, userPrompt, maxTokens);
@@ -3088,6 +3092,8 @@ Jahit ke seksi/konten yang sudah ada — JANGAN buat seksi baru di luar struktur
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
+    } else {
+      console.log("LKPD pre-parse success:", typeof parsedContent === 'object');
     }
 
     // Log generation
@@ -3114,9 +3120,6 @@ Jahit ke seksi/konten yang sudah ada — JANGAN buat seksi baru di luar struktur
       return new Response(JSON.stringify({ data: parsedContent, model: usedModel, ...(pertemuanMeta ? { meta: { type, ...pertemuanMeta } } : {}) }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
-    }
-    } else {
-      console.log("LKPD pre-parse success:", typeof parsedContent === 'object');
     }
 
     // Untuk type 'modul-pertemuan', normalisasi & validasi single pertemuan object
