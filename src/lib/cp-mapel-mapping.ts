@@ -62,6 +62,7 @@ export const MAPEL_LIST: MapelMapping[] = [
 export interface MapelMatch {
   slug: string;
   filterNama?: string;
+  isMadrasah?: boolean;
 }
 
 /**
@@ -74,6 +75,7 @@ export function findMapelSlug(input: string): MapelMatch | null {
   const toResult = (m: MapelMapping): MapelMatch => ({
     slug: m.slug,
     filterNama: m.filterNama,
+    isMadrasah: m.isMadrasah,
   });
 
   // Exact match on nama

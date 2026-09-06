@@ -64,30 +64,35 @@ export const CPSelectorModal = ({
   const [kelas, setKelas] = useState<string>('');
   const [cpSource, setCpSource] = useState<'github' | 'cp032' | 'kbc_madrasah'>('github');
 
+  // Compute effective source synchronously (avoids race condition with setCpSource)
+  const getEffectiveSource = (): 'github' | 'cp032' | 'kbc_madrasah' => {
+    const match = findMapelSlug(mataPelajaran);
+    if (kurikulum === 'kbc' || kurikulum === 'kbc_madrasah' || match?.isMadrasah) {
+      return 'kbc_madrasah';
+    }
+    return cpSource === 'kbc_madrasah' ? 'github' : cpSource;
+  };
+
   const isSpecialUser = user?.email === SPECIAL_EMAIL;
 
-  useEffect(() => {
-    if (open) {
-      const match = findMapelSlug(mataPelajaran);
-      if (kurikulum === 'kbc' || match?.isMadrasah) {
-        setCpSource('kbc_madrasah');
-      } else if (cpSource === 'kbc_madrasah') {
-        setCpSource('github');
-      }
-    }
-  }, [open, kurikulum, mataPelajaran]);
-
+  // Single unified effect: determine source then fetch (avoids race condition)
   useEffect(() => {
     if (open && mataPelajaran) {
-      fetchCP();
+      const effectiveSource = getEffectiveSource();
+      // Sync state for UI display
+      if (effectiveSource !== cpSource) {
+        setCpSource(effectiveSource);
+      }
+      fetchCP(effectiveSource);
     }
     if (!open) {
       setSelectedElements(new Set());
       setError(null);
     }
-  }, [open, mataPelajaran, fase, cpSource]);
+  }, [open, mataPelajaran, fase, kurikulum, cpSource]);
 
-  const fetchCP = async () => {
+  const fetchCP = async (effectiveSource?: 'github' | 'cp032' | 'kbc_madrasah') => {
+    const source = effectiveSource ?? cpSource;
     setLoading(true);
     setError(null);
     setAllElements([]);
@@ -106,7 +111,7 @@ export const CPSelectorModal = ({
     const slug = match.slug;
 
     // Check session cache
-    const cacheKey = `${slug}_${fase}_${cpSource}_${match?.filterNama ?? ''}`;
+    const cacheKey = `${slug}_${fase}_${source}_${match?.filterNama ?? ''}`;
     if (cpSessionCache.has(cacheKey)) {
       const cached = cpSessionCache.get(cacheKey);
       processData(cached);
@@ -116,7 +121,7 @@ export const CPSelectorModal = ({
 
     try {
       const { data, error: fnError } = await supabase.functions.invoke('fetch-cp-data', {
-        body: { slug, fase, source: cpSource, filterNama: match?.filterNama },
+        body: { slug, fase, source, filterNama: match?.filterNama },
       });
 
       if (fnError) throw fnError;
@@ -139,7 +144,7 @@ export const CPSelectorModal = ({
     } catch (err) {
       console.error('Error fetching CP:', err);
       setError(
-        cpSource === 'cp032'
+        source === 'cp032'
           ? 'Gagal mengambil data CP SK 032/2024. Sumber data sedang tidak tersedia, coba lagi nanti.'
           : 'Gagal mengambil data CP. Periksa koneksi internet Anda.'
       );
