@@ -228,18 +228,14 @@ export const WorkspaceDashboard = ({
                 Duplikasi Workspace
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              {(isAdmin || user?.email === 'jagofeed@gmail.com') && (
-                <>
-                  <DropdownMenuItem
-                    onClick={() => setIsPublishModalOpen(true)}
-                    className="cursor-pointer py-2 text-green-700 focus:text-green-800 focus:bg-green-50"
-                  >
-                    <Store className="w-4 h-4 mr-2" />
-                    Publish ke Toko
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                </>
-              )}
+              <DropdownMenuItem
+                onClick={() => setIsPublishModalOpen(true)}
+                className="cursor-pointer py-2 text-green-700 focus:text-green-800 focus:bg-green-50"
+              >
+                <Store className="w-4 h-4 mr-2" />
+                Publish ke Toko
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={handleArchive}
                 disabled={isArchiving}

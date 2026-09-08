@@ -103,8 +103,8 @@ export const StepProsem: React.FC<StepProsemProps> = ({ workspace, onNext, isLoc
       return;
     }
 
-    const res1 = await generate(protaData, 1, kalenderData.mingguEfektifSem1, kalenderData.tanggalMulaiSem1, kalenderData.kegiatanNonPembelajaran || []);
-    const res2 = await generate(protaData, 2, kalenderData.mingguEfektifSem2, kalenderData.tanggalMulaiSem2, kalenderData.kegiatanNonPembelajaran || []);
+    const res1 = await generate(protaData, 1, kalenderData.mingguEfektifSem1, kalenderData.tanggalMulaiSem1, kalenderData.kegiatanNonPembelajaran || [], kalenderData.mingguPerBulan);
+    const res2 = await generate(protaData, 2, kalenderData.mingguEfektifSem2, kalenderData.tanggalMulaiSem2, kalenderData.kegiatanNonPembelajaran || [], kalenderData.mingguPerBulan);
 
     if (res1) setProsemSem1(res1);
     if (res2) setProsemSem2(res2);

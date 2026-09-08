@@ -10,7 +10,8 @@ export function useProsemGenerator() {
     semester: 1 | 2, 
     mingguEfektif: number,
     tanggalMulai: string,
-    kegiatanNonPembelajaran: ProsemEvent[] = []
+    kegiatanNonPembelajaran: ProsemEvent[] = [],
+    mingguPerBulan: Record<string, number> = {}
   ): Promise<ProsemData | null> => {
     setIsLoading(true);
     setError(null);
@@ -39,9 +40,12 @@ export function useProsemGenerator() {
         const bulan = currentDate.getMonth() + 1;
         const tahun = currentDate.getFullYear();
 
-        // Calculate weeks in this month (roughly 4-5)
-        const daysInMonth = new Date(tahun, bulan, 0).getDate();
-        const mingguCount = Math.ceil(daysInMonth / 7);
+        // Use manual weeks if configured, else fallback to standard calculation
+        let mingguCount = mingguPerBulan[`${tahun}-${bulan}`];
+        if (mingguCount === undefined) {
+          const daysInMonth = new Date(tahun, bulan, 0).getDate();
+          mingguCount = Math.ceil(daysInMonth / 7);
+        }
 
         months.push({ bulan, tahun, mingguCount });
         for (let w = 1; w <= mingguCount; w++) {

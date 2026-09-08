@@ -157,11 +157,56 @@ export const exportProsemToWord = (data: ProsemData, formData: Partial<FormData>
       </tr>`;
     }).join('');
 
+    // Summary Table (Perhitungan Minggu Efektif)
+    const summaryRows = data.months.map((m, i) => {
+      const eventsInMonth = data.events.filter(e => e.bulan === m.bulan);
+      const nonEfektif = eventsInMonth.length;
+      const efektif = Math.max(0, m.mingguCount - nonEfektif);
+      const keterangan = eventsInMonth.map(e => `${e.nama} (Mg ke-${e.mingguKe})`).join(', ');
+
+      return `<tr>
+        <td style="${cellStyle};text-align:center">${i + 1}</td>
+        <td style="${cellStyle}">${BULAN_NAMES[m.bulan]} ${m.tahun}</td>
+        <td style="${cellStyle};text-align:center">${m.mingguCount}</td>
+        <td style="${cellStyle};text-align:center"><b>${efektif}</b></td>
+        <td style="${cellStyle}">${keterangan}</td>
+      </tr>`;
+    }).join('');
+
+    const totalMinggu = data.months.reduce((acc, m) => acc + m.mingguCount, 0);
+    const totalEfektif = data.months.reduce((acc, m) => {
+      const nonEfektif = data.events.filter(e => e.bulan === m.bulan).length;
+      return acc + Math.max(0, m.mingguCount - nonEfektif);
+    }, 0);
+    const totalNonEfektif = data.months.reduce((acc, m) => acc + data.events.filter(e => e.bulan === m.bulan).length, 0);
+
+    const summaryHTML = `
+      <h3 style="font-size:12pt;font-weight:bold;margin:10px 0">A. Perhitungan Minggu Efektif</h3>
+      <table style="width:75%;border-collapse:collapse;margin-bottom:20px">
+        <tr>
+          <th style="${headerStyle};width:5%">No</th>
+          <th style="${headerStyle};width:25%">Bulan</th>
+          <th style="${headerStyle};width:15%">Jml Minggu</th>
+          <th style="${headerStyle};width:15%">M. Efektif</th>
+          <th style="${headerStyle};width:40%">Keterangan</th>
+        </tr>
+        ${summaryRows}
+        <tr style="background:#f0f0f0;font-weight:bold">
+          <td colspan="2" style="${cellStyle};text-align:center">Jumlah</td>
+          <td style="${cellStyle};text-align:center">${totalMinggu}</td>
+          <td style="${cellStyle};text-align:center;color:#0D7C8F">${totalEfektif}</td>
+          <td style="${cellStyle};text-align:center">${totalNonEfektif} Mg Tdk Efektif</td>
+        </tr>
+      </table>
+      <h3 style="font-size:12pt;font-weight:bold;margin:10px 0">B. Distribusi Alokasi Waktu</h3>
+    `;
+
     const contentHTML = `
       <h1 style="text-align:center;font-size:16pt">PROGRAM SEMESTER ${semester}</h1>
       <p style="text-align:center">${formData.sekolah || ''}</p>
       <p style="text-align:center">${formData.mataPelajaran || ''} | ${formData.kelas || ''} | Fase ${formData.fase || ''}</p>
       <br/>
+      ${summaryHTML}
       <table style="width:100%;border-collapse:collapse">
         <tr>
           <th rowspan="2" style="${headerStyle};width:3%">No</th>
