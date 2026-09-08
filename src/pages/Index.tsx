@@ -2892,16 +2892,14 @@ img{max-width:100%}
                 <span>Reseller</span>
               </Link>
             )}
-            {(isAdmin || user?.email === 'jagofeed@gmail.com') && (
-              <Link
-                to="/app/store-management"
-                className="flex items-center gap-2 px-3 py-2 text-sm font-medium bg-blue-50 text-blue-700 border-2 border-blue-200 rounded-lg hover:bg-blue-100 transition-colors"
-                title="Kelola Toko & Karya"
-              >
-                <ShoppingBag className="w-4 h-4" />
-                <span className="hidden sm:inline">Toko Saya</span>
-              </Link>
-            )}
+            <Link
+              to="/app/store-management"
+              className="flex items-center gap-2 px-3 py-2 text-sm font-medium bg-blue-50 text-blue-700 border-2 border-blue-200 rounded-lg hover:bg-blue-100 transition-colors"
+              title="Kelola Toko & Karya"
+            >
+              <ShoppingBag className="w-4 h-4" />
+              <span className="hidden sm:inline">Toko Saya</span>
+            </Link>
 
             {isAdmin && (
               <Link
@@ -2963,14 +2961,12 @@ img{max-width:100%}
                     </Link>
                   </HeaderMoreMenuItem>
                 )}
-                {(isAdmin || user?.email === 'jagofeed@gmail.com') && (
-                  <HeaderMoreMenuItem asChild>
-                    <Link to="/app/store-management" className="flex items-center gap-2 cursor-pointer">
-                      <ShoppingBag className="w-4 h-4 text-blue-600" />
-                      <span>Toko Saya</span>
-                    </Link>
-                  </HeaderMoreMenuItem>
-                )}
+                <HeaderMoreMenuItem asChild>
+                  <Link to="/app/store-management" className="flex items-center gap-2 cursor-pointer">
+                    <ShoppingBag className="w-4 h-4 text-blue-600" />
+                    <span>Toko Saya</span>
+                  </Link>
+                </HeaderMoreMenuItem>
                 {isAdmin && (
                   <HeaderMoreMenuItem asChild>
                     <Link to="/admin" className="flex items-center gap-2 cursor-pointer">
