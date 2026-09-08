@@ -104,7 +104,7 @@ const StoreProfileTab = () => {
                 const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
                 const storeUrl = isLocalhost 
                   ? `${baseUrl}/store/${editingProfile.store_slug || ''}`
-                  : `https://modulajar.id/store/${editingProfile.store_slug || ''}`;
+                  : `https://modulajar.online/store/${editingProfile.store_slug || ''}`;
                   
                 window.open(storeUrl, '_blank');
               }}
@@ -119,7 +119,7 @@ const StoreProfileTab = () => {
                 const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
                 const storeUrl = isLocalhost 
                   ? `${baseUrl}/store/${editingProfile.store_slug || ''}`
-                  : `https://modulajar.id/store/${editingProfile.store_slug || ''}`;
+                  : `https://modulajar.online/store/${editingProfile.store_slug || ''}`;
                   
                 navigator.clipboard.writeText(storeUrl);
                 toast.success('Link toko berhasil disalin!');
@@ -147,7 +147,7 @@ const StoreProfileTab = () => {
               <label htmlFor="store_slug">Alamat Publik (URL Slug)</label>
               <div className="flex">
                 <span className="inline-flex items-center px-3 rounded-l-md border-2 border-r-0 border-[#111] bg-muted text-muted-foreground text-sm font-semibold h-[44px]">
-                  modulajar.id/store/
+                  modulajar.online/store/
                 </span>
                 <input 
                   id="store_slug" 

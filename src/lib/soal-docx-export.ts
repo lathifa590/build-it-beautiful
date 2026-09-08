@@ -355,7 +355,8 @@ export async function exportSoalToDocx(
   const LETTERS = ['A', 'B', 'C', 'D', 'E', 'F'];
 
   let prevStimulusId: number | undefined;
-  for (const soal of soalList) {
+  for (let idx = 0; idx < soalList.length; idx++) {
+    const soal = soalList[idx];
     // Per-soal stimulus (multi-stimulus)
     if (bank.stimulus_list && soal.stimulus_id && soal.stimulus_id !== prevStimulusId) {
       const st = bank.stimulus_list.find((x) => x.id === soal.stimulus_id);
@@ -365,7 +366,7 @@ export async function exportSoalToDocx(
             keepNext: true,
             children: [
               new TextRun({
-                text: getStimulusInstruction(isEnglishSubject(formData.mataPelajaran), getQuestionRange(soalList, soal.stimulus_id)),
+                text: getStimulusInstruction(isEnglishSubject(formData.mataPelajaran), getQuestionRange(soalList, idx)),
                 bold: true,
               }),
             ],
