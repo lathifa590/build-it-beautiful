@@ -14,12 +14,10 @@ const StoreManagement = () => {
   const { user, isAdmin, isLoading } = useAuth();
 
   useEffect(() => {
-    if (!isLoading && !isAdmin && user?.email !== 'jagofeed@gmail.com') {
-      navigate('/app', { replace: true });
-    }
+    // Fitur toko sekarang terbuka untuk publik
   }, [user, isAdmin, isLoading, navigate]);
 
-  if (isLoading || (!isAdmin && user?.email !== 'jagofeed@gmail.com')) {
+  if (isLoading) {
     return null;
   }
 

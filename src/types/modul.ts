@@ -441,6 +441,7 @@ export interface KalenderPendidikan {
   tanggalMulaiSem1: string;
   tanggalMulaiSem2: string;
   kegiatanNonPembelajaran?: ProsemEvent[];
+  mingguPerBulan?: Record<string, number>; // key: "YYYY-M" (e.g., "2026-7"), value: jumlah minggu
 }
 
 // === KKTP (Kriteria Ketercapaian Tujuan Pembelajaran) ===

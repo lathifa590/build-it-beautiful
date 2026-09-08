@@ -130,8 +130,58 @@ export const ProsemPreview = ({
         </div>
       </div>
 
+      {/* Perhitungan Minggu Efektif Table */}
+      <div className="overflow-x-auto p-4 border-b border-foreground/10 bg-slate-50/50">
+        <h3 className="font-bold text-sm mb-3">A. Perhitungan Minggu Efektif</h3>
+        <table className="w-full sm:w-2/3 lg:w-3/4 border-collapse text-xs shadow-sm">
+          <thead>
+            <tr>
+              <th className="border border-foreground/30 bg-[#0D7C8F] text-white p-2 w-10 text-center">No</th>
+              <th className="border border-foreground/30 bg-[#0D7C8F] text-white p-2">Bulan</th>
+              <th className="border border-foreground/30 bg-[#0D7C8F] text-white p-2 text-center w-24">Jml Minggu</th>
+              <th className="border border-foreground/30 bg-[#0D7C8F] text-white p-2 text-center w-24">M. Efektif</th>
+              <th className="border border-foreground/30 bg-[#0D7C8F] text-white p-2">Keterangan</th>
+            </tr>
+          </thead>
+          <tbody className="bg-white">
+            {data.months.map((m, i) => {
+              const eventsInMonth = data.events.filter(e => e.bulan === m.bulan);
+              const nonEfektif = eventsInMonth.length;
+              const efektif = Math.max(0, m.mingguCount - nonEfektif);
+              const keterangan = eventsInMonth.map(e => `${e.nama} (Mg ke-${e.mingguKe})`).join(', ');
+              
+              return (
+                <tr key={`${m.tahun}-${m.bulan}`}>
+                  <td className="border border-foreground/20 p-2 text-center">{i + 1}</td>
+                  <td className="border border-foreground/20 p-2">{BULAN_NAMES[m.bulan]} {m.tahun}</td>
+                  <td className="border border-foreground/20 p-2 text-center">{m.mingguCount}</td>
+                  <td className="border border-foreground/20 p-2 text-center font-bold">{efektif}</td>
+                  <td className="border border-foreground/20 p-2 text-muted-foreground">{keterangan}</td>
+                </tr>
+              );
+            })}
+            <tr className="bg-muted/30 font-bold">
+              <td colSpan={2} className="border border-foreground/20 p-2 text-center">Jumlah</td>
+              <td className="border border-foreground/20 p-2 text-center">
+                {data.months.reduce((acc, m) => acc + m.mingguCount, 0)}
+              </td>
+              <td className="border border-foreground/20 p-2 text-center text-primary">
+                {data.months.reduce((acc, m) => {
+                  const nonEfektif = data.events.filter(e => e.bulan === m.bulan).length;
+                  return acc + Math.max(0, m.mingguCount - nonEfektif);
+                }, 0)}
+              </td>
+              <td className="border border-foreground/20 p-2 text-center text-amber-600">
+                {data.months.reduce((acc, m) => acc + data.events.filter(e => e.bulan === m.bulan).length, 0)} Mg Tdk Efektif
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
       {/* Grid Table */}
       <div className="overflow-x-auto p-4">
+        <h3 className="font-bold text-sm mb-3">B. Distribusi Alokasi Waktu</h3>
         <table className="w-full border-collapse text-[10px] min-w-[800px]">
           <thead>
             {/* Month header row */}

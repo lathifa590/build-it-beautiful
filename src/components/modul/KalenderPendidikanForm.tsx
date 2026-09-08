@@ -1,8 +1,9 @@
-import { useEffect } from 'react';
-import { Calendar, Clock, Trash2, Plus, AlertCircle } from 'lucide-react';
+import { useEffect, useMemo } from 'react';
+import { Calendar, Clock, Trash2, Plus, AlertCircle, Calculator } from 'lucide-react';
 import type { KalenderPendidikan, ProsemEvent } from '@/types/modul';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { BULAN_NAMES } from '@/lib/constants';
 
 interface KalenderPendidikanFormProps {
   kalender: KalenderPendidikan;
@@ -35,14 +36,82 @@ export const KalenderPendidikanForm = ({ kalender, onChange }: KalenderPendidika
     }
   }, [kalender]);
 
-  const handleChange = (field: keyof KalenderPendidikan, value: string | number) => {
+  const handleChange = (field: keyof KalenderPendidikan, value: any) => {
     onChange({ ...kalender, [field]: value });
   };
 
-  const totalJPSem1 = kalender.jpPerMinggu * kalender.mingguEfektifSem1;
-  const totalJPSem2 = kalender.jpPerMinggu * kalender.mingguEfektifSem2;
+  const handleUpdateMingguCount = (tahun: number, bulan: number, count: number) => {
+    const key = `${tahun}-${bulan}`;
+    const baru = { ...(kalender.mingguPerBulan || {}) };
+    baru[key] = count;
+    
+    // We should also recalculate total mingguEfektif when this changes, 
+    // but for now we let the derived values show it.
+    onChange({ ...kalender, mingguPerBulan: baru });
+  };
 
+  const getMonthsForSemester = (startDateStr: string) => {
+    if (!startDateStr) return [];
+    const startDate = new Date(startDateStr);
+    const months = [];
+    let currentDate = new Date(startDate);
+    for (let i = 0; i < 6; i++) {
+      months.push({
+        bulan: currentDate.getMonth() + 1,
+        tahun: currentDate.getFullYear()
+      });
+      currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1);
+    }
+    return months;
+  };
+
+  const sem1Months = getMonthsForSemester(kalender.tanggalMulaiSem1);
+  const sem2Months = getMonthsForSemester(kalender.tanggalMulaiSem2);
   const events = kalender.kegiatanNonPembelajaran || [];
+
+  const getMingguCount = (tahun: number, bulan: number) => {
+    const key = `${tahun}-${bulan}`;
+    if (kalender.mingguPerBulan?.[key] !== undefined) {
+      return kalender.mingguPerBulan[key];
+    }
+    const daysInMonth = new Date(tahun, bulan, 0).getDate();
+    return Math.ceil(daysInMonth / 7);
+  };
+
+  const getNonEffectiveCount = (semester: 1 | 2, bulan: number) => {
+    return events.filter(e => e.semester === semester && e.bulan === bulan).length;
+  };
+
+  // Calculate totals
+  const derivedMingguEfektifSem1 = useMemo(() => {
+    return sem1Months.reduce((total, m) => {
+      const w = getMingguCount(m.tahun, m.bulan);
+      const ne = getNonEffectiveCount(1, m.bulan);
+      return total + Math.max(0, w - ne);
+    }, 0);
+  }, [sem1Months, kalender.mingguPerBulan, events]);
+
+  const derivedMingguEfektifSem2 = useMemo(() => {
+    return sem2Months.reduce((total, m) => {
+      const w = getMingguCount(m.tahun, m.bulan);
+      const ne = getNonEffectiveCount(2, m.bulan);
+      return total + Math.max(0, w - ne);
+    }, 0);
+  }, [sem2Months, kalender.mingguPerBulan, events]);
+
+  // Sync derived values back to kalender to ensure prosem/prota generation uses the correct total
+  useEffect(() => {
+    if (derivedMingguEfektifSem1 !== kalender.mingguEfektifSem1 || derivedMingguEfektifSem2 !== kalender.mingguEfektifSem2) {
+      onChange({
+        ...kalender,
+        mingguEfektifSem1: derivedMingguEfektifSem1,
+        mingguEfektifSem2: derivedMingguEfektifSem2
+      });
+    }
+  }, [derivedMingguEfektifSem1, derivedMingguEfektifSem2, kalender.mingguEfektifSem1, kalender.mingguEfektifSem2]);
+
+  const totalJPSem1 = kalender.jpPerMinggu * derivedMingguEfektifSem1;
+  const totalJPSem2 = kalender.jpPerMinggu * derivedMingguEfektifSem2;
 
   const handleAddEvent = () => {
     const newEvent: ProsemEvent = {
@@ -66,6 +135,64 @@ export const KalenderPendidikanForm = ({ kalender, onChange }: KalenderPendidika
     onChange({ ...kalender, kegiatanNonPembelajaran: newEvents });
   };
 
+  const renderMonthTable = (semester: 1 | 2, months: {bulan: number, tahun: number}[]) => {
+    if (months.length === 0) return null;
+    let totalMinggu = 0;
+    let totalEfektif = 0;
+    
+    return (
+      <div className="border border-border rounded-lg overflow-hidden mb-4 bg-card shadow-sm">
+        <div className="bg-muted/50 px-3 py-2 border-b border-border flex items-center justify-between">
+          <h4 className="text-xs font-bold">Rincian Semester {semester}</h4>
+        </div>
+        <table className="w-full text-[10px] sm:text-xs text-left border-collapse">
+          <thead>
+            <tr className="bg-muted/30">
+              <th className="p-2 border-b font-medium w-1/3">Bulan</th>
+              <th className="p-2 border-b font-medium text-center">Jml Minggu</th>
+              <th className="p-2 border-b font-medium text-center">Tdk Efektif</th>
+              <th className="p-2 border-b font-medium text-center">Efektif</th>
+            </tr>
+          </thead>
+          <tbody>
+            {months.map(m => {
+              const count = getMingguCount(m.tahun, m.bulan);
+              const nonEffective = getNonEffectiveCount(semester, m.bulan);
+              const effective = Math.max(0, count - nonEffective);
+              totalMinggu += count;
+              totalEfektif += effective;
+              
+              return (
+                <tr key={`${m.tahun}-${m.bulan}`} className="border-b last:border-0 hover:bg-muted/20">
+                  <td className="p-2">{BULAN_NAMES[m.bulan]} {m.tahun}</td>
+                  <td className="p-1 text-center">
+                    <Input 
+                      type="number" 
+                      min={1} max={6}
+                      value={count}
+                      onChange={(e) => handleUpdateMingguCount(m.tahun, m.bulan, parseInt(e.target.value) || 0)}
+                      className="h-6 w-12 text-center mx-auto text-[10px] p-0"
+                    />
+                  </td>
+                  <td className="p-2 text-center text-amber-600 font-medium">{nonEffective}</td>
+                  <td className="p-2 text-center text-primary font-bold">{effective}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+          <tfoot>
+            <tr className="bg-muted/50 font-bold border-t border-border">
+              <td className="p-2 text-right">Total:</td>
+              <td className="p-2 text-center">{totalMinggu}</td>
+              <td className="p-2 text-center text-amber-600">{totalMinggu - totalEfektif}</td>
+              <td className="p-2 text-center text-primary">{totalEfektif}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2 mb-3">
@@ -73,53 +200,22 @@ export const KalenderPendidikanForm = ({ kalender, onChange }: KalenderPendidika
         <h3 className="font-bold text-sm">Kalender Pendidikan</h3>
       </div>
 
-      {/* JP per Minggu */}
-      <div>
-        <label className="field-label mb-1 block">
-          JP per Minggu
-        </label>
-        <Input
-          type="number"
-          min={1}
-          max={12}
-          value={kalender.jpPerMinggu}
-          onChange={(e) => handleChange('jpPerMinggu', parseInt(e.target.value) || 1)}
-          className="border-2 border-foreground/20 font-medium"
-        />
-      </div>
-
-      {/* Minggu Efektif */}
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-3 gap-3">
+        {/* JP per Minggu */}
         <div>
           <label className="field-label mb-1 block">
-            Minggu Efektif Sem 1
+            JP per Minggu
           </label>
           <Input
             type="number"
             min={1}
-            max={26}
-            value={kalender.mingguEfektifSem1}
-            onChange={(e) => handleChange('mingguEfektifSem1', parseInt(e.target.value) || 1)}
+            max={12}
+            value={kalender.jpPerMinggu}
+            onChange={(e) => handleChange('jpPerMinggu', parseInt(e.target.value) || 1)}
             className="border-2 border-foreground/20 font-medium"
           />
         </div>
-        <div>
-          <label className="field-label mb-1 block">
-            Minggu Efektif Sem 2
-          </label>
-          <Input
-            type="number"
-            min={1}
-            max={26}
-            value={kalender.mingguEfektifSem2}
-            onChange={(e) => handleChange('mingguEfektifSem2', parseInt(e.target.value) || 1)}
-            className="border-2 border-foreground/20 font-medium"
-          />
-        </div>
-      </div>
-
-      {/* Tanggal Mulai */}
-      <div className="grid grid-cols-2 gap-3">
+        {/* Tanggal Mulai */}
         <div>
           <label className="field-label mb-1 block">
             Mulai Sem 1
@@ -151,19 +247,19 @@ export const KalenderPendidikanForm = ({ kalender, onChange }: KalenderPendidika
           <span className="text-xs font-bold text-primary">Total JP Tersedia</span>
         </div>
         <div className="grid grid-cols-2 gap-2 text-xs">
-          <div className="bg-card rounded-md p-2 border border-foreground/10">
+          <div className="bg-card rounded-md p-2 border border-foreground/10 flex justify-between">
             <span className="text-muted-foreground">Semester 1:</span>
-            <span className="font-bold ml-1">{totalJPSem1} JP</span>
+            <span className="font-bold">{totalJPSem1} JP <span className="text-[10px] font-normal opacity-70">({derivedMingguEfektifSem1} mg)</span></span>
           </div>
-          <div className="bg-card rounded-md p-2 border border-foreground/10">
+          <div className="bg-card rounded-md p-2 border border-foreground/10 flex justify-between">
             <span className="text-muted-foreground">Semester 2:</span>
-            <span className="font-bold ml-1">{totalJPSem2} JP</span>
+            <span className="font-bold">{totalJPSem2} JP <span className="text-[10px] font-normal opacity-70">({derivedMingguEfektifSem2} mg)</span></span>
           </div>
         </div>
       </div>
 
       {/* Kegiatan Non Pembelajaran */}
-      <div className="pt-4 border-t border-border mt-4">
+      <div className="pt-2 border-t border-border mt-2">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <AlertCircle className="w-4 h-4 text-amber-500" />
@@ -174,15 +270,15 @@ export const KalenderPendidikanForm = ({ kalender, onChange }: KalenderPendidika
           </Button>
         </div>
         <p className="text-[10px] text-muted-foreground mb-3">
-          Tambahkan minggu-minggu khusus seperti PTS, PAS, atau Libur. AI tidak akan mengalokasikan JP/Materi pada minggu tersebut di Program Semester.
+          Tambahkan minggu khusus seperti PTS, PAS, atau Libur. Ini akan memotong jumlah Minggu Efektif.
         </p>
 
         {events.length === 0 ? (
-          <div className="text-center p-4 border border-dashed rounded-lg bg-muted/20 text-xs text-muted-foreground">
+          <div className="text-center p-4 border border-dashed rounded-lg bg-muted/20 text-xs text-muted-foreground mb-4">
             Belum ada kegiatan non-pembelajaran.
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-3 mb-4 max-h-[300px] overflow-y-auto pr-1">
             {events.map((ev, idx) => (
               <div key={idx} className="border border-border bg-card p-3 rounded-lg relative group">
                 <button
@@ -258,6 +354,22 @@ export const KalenderPendidikanForm = ({ kalender, onChange }: KalenderPendidika
             ))}
           </div>
         )}
+      </div>
+
+      {/* Rincian Minggu per Bulan */}
+      <div className="pt-2 border-t border-border mt-2">
+        <div className="flex items-center gap-2 mb-3">
+          <Calculator className="w-4 h-4 text-primary" />
+          <h3 className="font-bold text-sm">Perhitungan Minggu Efektif</h3>
+        </div>
+        <p className="text-[10px] text-muted-foreground mb-3">
+          Sesuaikan "Jumlah Minggu" jika ada bulan yang dihitung 4 atau 5 minggu. Minggu Efektif akan otomatis dikurangi dengan kegiatan non-pembelajaran di atas.
+        </p>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {renderMonthTable(1, sem1Months)}
+          {renderMonthTable(2, sem2Months)}
+        </div>
       </div>
     </div>
   );

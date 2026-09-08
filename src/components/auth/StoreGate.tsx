@@ -15,11 +15,10 @@ export const StoreGate = ({ children }: StoreGateProps) => {
     if (!isLoading) {
       if (!user) {
         toast.error("Silakan login untuk mengakses Toko");
-      } else if (!isAdmin && user.email !== 'jagofeed@gmail.com') {
-        toast.error("Fitur Toko sedang dalam tahap Beta dan sementara dibatasi.");
       }
+      // Fitur Toko sekarang publik, tidak perlu batasan beta
     }
-  }, [user, isAdmin, isLoading]);
+  }, [user, isLoading]);
 
   if (isLoading) {
     return (
@@ -34,10 +33,6 @@ export const StoreGate = ({ children }: StoreGateProps) => {
 
   if (!user) {
     return <Navigate to="/" replace />;
-  }
-
-  if (!isAdmin && user.email !== 'jagofeed@gmail.com') {
-    return <Navigate to="/app" replace />;
   }
 
   return <>{children}</>;
