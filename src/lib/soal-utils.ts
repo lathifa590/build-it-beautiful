@@ -8,22 +8,38 @@ export function isEnglishSubject(mapel?: string | null): boolean {
  * Mendapatkan rentang indeks soal (1-based) untuk stimulus tertentu.
  * Jika stimulusId undefined, asumsikan stimulus global yang mencakup semua soal.
  */
-export function getQuestionRange(soalList: SoalItem[], stimulusId?: number | string | null): { start: number; end: number } | null {
+export function getQuestionRange(soalList: SoalItem[], currentIndex: number | null): { start: number; end: number } | null {
   if (!soalList || soalList.length === 0) return null;
 
-  const indices = soalList
-    .map((s, idx) => {
-      // Cocokkan jika sama-sama null (Teks Global) ATAU jika stimulus_id cocok
-      const isMatch = (stimulusId == null && s.stimulus_id == null) || (s.stimulus_id == stimulusId);
-      return isMatch ? idx + 1 : -1;
-    })
-    .filter((idx) => idx !== -1);
+  if (currentIndex === null) {
+    // Global stimulus: find all questions that don't have a specific stimulus_id
+    const indices = soalList
+      .map((s, idx) => (s.stimulus_id == null ? idx + 1 : -1))
+      .filter((idx) => idx !== -1);
+    
+    if (indices.length === 0) return null;
+    return { start: Math.min(...indices), end: Math.max(...indices) };
+  }
 
-  if (indices.length === 0) return null;
+  const targetId = soalList[currentIndex]?.stimulus_id;
+  if (targetId == null) return null;
+
+  let startIdx = currentIndex;
+  let endIdx = currentIndex;
+
+  // Scan backwards for contiguous block
+  while (startIdx > 0 && soalList[startIdx - 1].stimulus_id === targetId) {
+    startIdx--;
+  }
+
+  // Scan forwards for contiguous block
+  while (endIdx < soalList.length - 1 && soalList[endIdx + 1].stimulus_id === targetId) {
+    endIdx++;
+  }
 
   return {
-    start: Math.min(...indices),
-    end: Math.max(...indices),
+    start: startIdx + 1, // 1-based numbering
+    end: endIdx + 1,
   };
 }
 

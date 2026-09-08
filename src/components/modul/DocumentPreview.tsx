@@ -2259,7 +2259,7 @@ export const DocumentPreview = ({
                     stimulusBlock = (
                       <div style={{ marginBottom: '12px', ...blockKeep }}>
                         <p style={{ fontWeight: 'bold', marginBottom: '8px' }}>
-                          {getStimulusInstruction(isEnglishSubject(formData.mataPelajaran), getQuestionRange(soalList, s.stimulus_id))}
+                          {getStimulusInstruction(isEnglishSubject(formData.mataPelajaran), getQuestionRange(soalList, i))}
                         </p>
                         {onUpdateStimulusImage && includeImages ? (
                           <StimulusImageGenerator
