@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, BookOpen, Loader2, AlertCircle, Check } from 'lucide-react';
+import { Search, BookOpen, Loader2, AlertCircle, Check, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -12,7 +12,7 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import { Skeleton } from '@/components/ui/skeleton';
 import { supabase } from '@/integrations/supabase/client';
-import { findMapelSlug, MAPEL_LIST } from '@/lib/cp-mapel-mapping';
+import { findMapelSlug, resolveMapelCP, FallbackInfo, MAPEL_LIST } from '@/lib/cp-mapel-mapping';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface CPSelectorModalProps {
@@ -63,11 +63,12 @@ export const CPSelectorModal = ({
   const [filterNama, setFilterNama] = useState<string | undefined>(undefined);
   const [kelas, setKelas] = useState<string>('');
   const [cpSource, setCpSource] = useState<'github' | 'cp032' | 'kbc_madrasah'>('github');
+  const [fallbackInfo, setFallbackInfo] = useState<FallbackInfo | null>(null);
 
   // Compute effective source synchronously (avoids race condition with setCpSource)
   const getEffectiveSource = (): 'github' | 'cp032' | 'kbc_madrasah' => {
-    const match = findMapelSlug(mataPelajaran);
-    if (kurikulum === 'kbc' || kurikulum === 'kbc_madrasah' || match?.isMadrasah) {
+    const resolution = resolveMapelCP(mataPelajaran, fase);
+    if (kurikulum === 'kbc' || kurikulum === 'kbc_madrasah' || resolution?.isMadrasah) {
       return 'kbc_madrasah';
     }
     return cpSource === 'kbc_madrasah' ? 'github' : cpSource;
@@ -88,6 +89,7 @@ export const CPSelectorModal = ({
     if (!open) {
       setSelectedElements(new Set());
       setError(null);
+      setFallbackInfo(null);
     }
   }, [open, mataPelajaran, fase, kurikulum, cpSource]);
 
@@ -98,20 +100,21 @@ export const CPSelectorModal = ({
     setAllElements([]);
     setMapelList([]);
 
-    const match = findMapelSlug(mataPelajaran);
-    setMatchedSlug(match ? match.slug : null);
-    setFilterNama(match?.filterNama);
+    const resolution = resolveMapelCP(mataPelajaran, fase);
+    setMatchedSlug(resolution ? resolution.slug : null);
+    setFilterNama(resolution?.filterNama);
+    setFallbackInfo(resolution?.fallbackInfo || null);
 
-    if (!match) {
+    if (!resolution) {
       setError(`Mata pelajaran "${mataPelajaran}" tidak ditemukan dalam database CP resmi. Coba gunakan nama lengkap, misalnya "Matematika", "Bahasa Indonesia", "IPA", dll.`);
       setLoading(false);
       return;
     }
 
-    const slug = match.slug;
+    const slug = resolution.slug;
 
     // Check session cache
-    const cacheKey = `${slug}_${fase}_${source}_${match?.filterNama ?? ''}`;
+    const cacheKey = `${slug}_${fase}_${source}_${resolution.filterNama ?? ''}`;
     if (cpSessionCache.has(cacheKey)) {
       const cached = cpSessionCache.get(cacheKey);
       processData(cached);
@@ -121,7 +124,7 @@ export const CPSelectorModal = ({
 
     try {
       const { data, error: fnError } = await supabase.functions.invoke('fetch-cp-data', {
-        body: { slug, fase, source, filterNama: match?.filterNama },
+        body: { slug, fase, source, filterNama: resolution.filterNama },
       });
 
       if (fnError) throw fnError;
@@ -271,6 +274,23 @@ export const CPSelectorModal = ({
               <Skeleton className="h-20 w-full" />
               <Skeleton className="h-20 w-full" />
               <Skeleton className="h-20 w-full" />
+            </div>
+          )}
+
+          {fallbackInfo && !loading && !error && (
+            <div className="flex items-start gap-3 p-3.5 rounded-lg bg-blue-50/90 dark:bg-blue-950/40 border border-blue-200/80 dark:border-blue-800/60 text-blue-950 dark:text-blue-200">
+              <Info className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+              <div className="text-xs leading-relaxed space-y-1">
+                <div className="font-semibold text-blue-900 dark:text-blue-100 flex items-center gap-1.5 flex-wrap">
+                  <span>Informasi Kurikulum Merdeka (Fase {fase})</span>
+                  <span className="text-[10px] font-medium bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded-full">
+                    Terintegrasi dalam {fallbackInfo.parentMapelName}
+                  </span>
+                </div>
+                <p className="text-blue-800/90 dark:text-blue-200/90">
+                  {fallbackInfo.description}
+                </p>
+              </div>
             </div>
           )}
 
