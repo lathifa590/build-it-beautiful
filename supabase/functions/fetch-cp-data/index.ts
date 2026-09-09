@@ -51,18 +51,30 @@ serve(async (req) => {
       return await handlePAI2026(fase);
     }
 
+    // Resolve phase fallback for integrated subjects in Fase E (e.g., Fisika, Kimia, Biologi -> IPA)
+    const phaseFallbackMap: Record<string, Record<string, string>> = {
+      fisika: { E: "ilmu-pengetahuan-alam-ipa" },
+      kimia: { E: "ilmu-pengetahuan-alam-ipa" },
+      biologi: { E: "ilmu-pengetahuan-alam-ipa" },
+      ekonomi: { E: "ilmu-pengetahuan-sosial-ips" },
+      sosiologi: { E: "ilmu-pengetahuan-sosial-ips" },
+      geografi: { E: "ilmu-pengetahuan-sosial-ips" },
+    };
+    const normFase = typeof fase === "string" ? fase.trim().toUpperCase().replace(/^FASE\s*/i, "") : "";
+    const effectiveSlug = (normFase && phaseFallbackMap[slug]?.[normFase]) || slug;
+
     // Default: GitHub flow (unchanged)
-    const cacheKey = `github_${slug}`;
+    const cacheKey = `github_${effectiveSlug}`;
     const cached = cpCache.get(cacheKey);
     if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
-      console.log(`Cache hit for ${slug}`);
+      console.log(`Cache hit for ${effectiveSlug}`);
       const filtered = filterByFase(cached.data, fase);
       return new Response(JSON.stringify({ data: filtered, cached: true }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    const url = `${GITHUB_BASE}/${slug}`;
+    const url = `${GITHUB_BASE}/${effectiveSlug}`;
     console.log(`Fetching CP from: ${url}`);
     
     const response = await fetch(url);

@@ -100,3 +100,100 @@ export function findMapelSlug(input: string): MapelMatch | null {
 
   return null;
 }
+
+export interface FallbackInfo {
+  parentMapelName: string;
+  description: string;
+  originalMapel: string;
+}
+
+export interface ResolvedMapelCP {
+  slug: string;
+  filterNama?: string;
+  isMadrasah?: boolean;
+  isFallback: boolean;
+  fallbackInfo?: FallbackInfo;
+}
+
+export const PHASE_FALLBACK_MAPEL: Record<
+  string,
+  Record<string, { targetSlug: string; parentMapelName: string; description: string }>
+> = {
+  fisika: {
+    E: {
+      targetSlug: 'ilmu-pengetahuan-alam-ipa',
+      parentMapelName: 'IPA (Ilmu Pengetahuan Alam)',
+      description:
+        'Sesuai regulasi resmi Kemdikbudristek (BSKAP No. 032/2024), mata pelajaran Fisika pada Fase E (Kelas X) terintegrasi dalam Capaian Pembelajaran (CP) IPA. Di bawah ini disajikan CP resmi IPA Fase E yang mencakup kompetensi pengukuran ilmiah, gerak, dan energi alternatif untuk digunakan pada modul ajar Fisika Anda.',
+    },
+  },
+  kimia: {
+    E: {
+      targetSlug: 'ilmu-pengetahuan-alam-ipa',
+      parentMapelName: 'IPA (Ilmu Pengetahuan Alam)',
+      description:
+        'Sesuai regulasi resmi Kemdikbudristek (BSKAP No. 032/2024), mata pelajaran Kimia pada Fase E (Kelas X) terintegrasi dalam Capaian Pembelajaran (CP) IPA. Di bawah ini disajikan CP resmi IPA Fase E yang mencakup kompetensi partikel materi dan stoikiometri reaksi kimia untuk modul ajar Kimia Anda.',
+    },
+  },
+  biologi: {
+    E: {
+      targetSlug: 'ilmu-pengetahuan-alam-ipa',
+      parentMapelName: 'IPA (Ilmu Pengetahuan Alam)',
+      description:
+        'Sesuai regulasi resmi Kemdikbudristek (BSKAP No. 032/2024), mata pelajaran Biologi pada Fase E (Kelas X) terintegrasi dalam Capaian Pembelajaran (CP) IPA. Di bawah ini disajikan CP resmi IPA Fase E yang mencakup kompetensi keanekaragaman hayati, mikroorganisme, dan ekosistem untuk modul ajar Biologi Anda.',
+    },
+  },
+  ekonomi: {
+    E: {
+      targetSlug: 'ilmu-pengetahuan-sosial-ips',
+      parentMapelName: 'IPS (Ilmu Pengetahuan Sosial)',
+      description:
+        'Sesuai regulasi resmi Kemdikbudristek (BSKAP No. 032/2024), mata pelajaran Ekonomi pada Fase E (Kelas X) terintegrasi dalam Capaian Pembelajaran (CP) IPS. Di bawah ini disajikan CP resmi IPS Fase E yang mencakup konsep kebutuhan manusia, kelangkaan, dan sistem keuangan untuk modul ajar Ekonomi Anda.',
+    },
+  },
+  sosiologi: {
+    E: {
+      targetSlug: 'ilmu-pengetahuan-sosial-ips',
+      parentMapelName: 'IPS (Ilmu Pengetahuan Sosial)',
+      description:
+        'Sesuai regulasi resmi Kemdikbudristek (BSKAP No. 032/2024), mata pelajaran Sosiologi pada Fase E (Kelas X) terintegrasi dalam Capaian Pembelajaran (CP) IPS. Di bawah ini disajikan CP resmi IPS Fase E yang mencakup fungsi sosiologi, interaksi sosial, dan gejala sosial di masyarakat untuk modul ajar Sosiologi Anda.',
+    },
+  },
+  geografi: {
+    E: {
+      targetSlug: 'ilmu-pengetahuan-sosial-ips',
+      parentMapelName: 'IPS (Ilmu Pengetahuan Sosial)',
+      description:
+        'Sesuai regulasi resmi Kemdikbudristek (BSKAP No. 032/2024), mata pelajaran Geografi pada Fase E (Kelas X) terintegrasi dalam Capaian Pembelajaran (CP) IPS. Di bawah ini disajikan CP resmi IPS Fase E yang mencakup konsep dasar geografi, litosfer, atmosfer, hidrosfer, dan SIG untuk modul ajar Geografi Anda.',
+    },
+  },
+};
+
+export function resolveMapelCP(mataPelajaran: string, fase?: string): ResolvedMapelCP | null {
+  const match = findMapelSlug(mataPelajaran);
+  if (!match) return null;
+
+  const normalizedFase = (fase || '').trim().toUpperCase().replace(/^FASE\s*/i, '');
+  const fallbackEntry = normalizedFase ? PHASE_FALLBACK_MAPEL[match.slug]?.[normalizedFase] : undefined;
+
+  if (fallbackEntry) {
+    return {
+      slug: fallbackEntry.targetSlug,
+      filterNama: match.filterNama,
+      isMadrasah: match.isMadrasah,
+      isFallback: true,
+      fallbackInfo: {
+        parentMapelName: fallbackEntry.parentMapelName,
+        description: fallbackEntry.description,
+        originalMapel: mataPelajaran,
+      },
+    };
+  }
+
+  return {
+    slug: match.slug,
+    filterNama: match.filterNama,
+    isMadrasah: match.isMadrasah,
+    isFallback: false,
+  };
+}
