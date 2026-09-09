@@ -1,5 +1,5 @@
 import React from 'react';
-import { Package, Check, Eye, Clock, Receipt } from 'lucide-react';
+import { Package, Check, Eye, Clock, Receipt, MessageCircle } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { storeApi } from '@/lib/store-api';
 import { useAuth } from '@/contexts/AuthContext';
@@ -59,11 +59,23 @@ const StoreOrdersTab = () => {
             <tbody>
               {orders.map((order) => (
                 <tr key={order.order_id} className="border-b border-gray-200 hover:bg-gray-50">
-                  <td className="p-4 font-bold text-sm">{order.invoice_number}</td>
+                  <td className="p-4 font-bold text-sm font-mono">{order.invoice_number}</td>
                   <td className="p-4 text-sm font-semibold">{order.listing?.title}</td>
                   <td className="p-4">
                     <p className="font-bold text-sm">{order.buyer_name}</p>
                     <p className="text-xs text-gray-500">{order.buyer_email}</p>
+                    {order.buyer_whatsapp && (
+                      <a
+                        href={`https://wa.me/${order.buyer_whatsapp.replace(/\D/g, '').replace(/^0/, '62')}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-xs text-emerald-700 font-semibold hover:underline mt-1 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200"
+                        title="Chat Pembeli di WhatsApp"
+                      >
+                        <MessageCircle className="w-3 h-3" />
+                        {order.buyer_whatsapp}
+                      </a>
+                    )}
                   </td>
                   <td className="p-4 font-bold text-[#c04a1a]">
                     {order.total_amount === 0 ? 'Gratis' : `Rp${order.total_amount.toLocaleString('id-ID')}`}
@@ -93,15 +105,16 @@ const StoreOrdersTab = () => {
                         <Eye className="w-4 h-4" />
                       </button>
                     )}
-                    {order.status === 'PENDING_REVIEW' && (
+                    {order.status !== 'SELESAI' && (
                       <button 
                         onClick={() => {
-                          if (confirm('Konfirmasi pembayaran ini? Pembeli akan langsung bisa mengunduh modul.')) {
+                          if (confirm(`Konfirmasi pembayaran untuk invoice ${order.invoice_number}? Pembeli akan langsung bisa mengunduh modul.`)) {
                             confirmMutation.mutate(order.order_id);
                           }
                         }}
                         className="p-2 bg-green-50 hover:bg-green-100 border border-green-800 rounded text-green-800 transition-colors font-bold text-xs flex items-center gap-1"
                         disabled={confirmMutation.isPending}
+                        title="Setujui Pembayaran"
                       >
                         <Check className="w-4 h-4" /> Konfirmasi
                       </button>

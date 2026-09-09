@@ -16,6 +16,10 @@ export interface StoreProfile {
   banner_mobile_url?: string;
   primary_color: string;
   status: StoreStatus;
+  bank_name?: string;
+  bank_account_number?: string;
+  bank_account_name?: string;
+  whatsapp_number?: string;
   created_at: string;
   updated_at: string;
 }

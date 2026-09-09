@@ -23,12 +23,22 @@ const StoreProfileTab = () => {
   // Effect to sync remote profile to local edit state
   React.useEffect(() => {
     if (profile && !editingProfile) {
-      setEditingProfile(profile);
+      setEditingProfile({
+        ...profile,
+        bank_name: profile.bank_name || 'Bank BRI',
+        bank_account_number: profile.bank_account_number || '364401036953533',
+        bank_account_name: profile.bank_account_name || 'HUSNUL KHULUQ',
+        whatsapp_number: profile.whatsapp_number || '6288228511309',
+      });
     } else if (!profile && !isLoading && !editingProfile) {
       setEditingProfile({
         owner_user_id: user?.id,
         status: 'ACTIVE',
-        primary_color: '#c04a1a'
+        primary_color: '#c04a1a',
+        bank_name: 'Bank BRI',
+        bank_account_number: '364401036953533',
+        bank_account_name: 'HUSNUL KHULUQ',
+        whatsapp_number: '6288228511309',
       });
     }
   }, [profile, isLoading, editingProfile, user?.id]);
@@ -39,10 +49,12 @@ const StoreProfileTab = () => {
       let finalAvatarUrl = updatedProfile.avatar_url;
       let finalBannerUrl = updatedProfile.banner_desktop_url;
 
-
-
       const dataToSave = { 
         ...updatedProfile, 
+        bank_name: updatedProfile.bank_name || 'Bank BRI',
+        bank_account_number: updatedProfile.bank_account_number || '364401036953533',
+        bank_account_name: updatedProfile.bank_account_name || 'HUSNUL KHULUQ',
+        whatsapp_number: updatedProfile.whatsapp_number || '6288228511309',
         avatar_url: finalAvatarUrl,
         banner_desktop_url: finalBannerUrl
       };
@@ -266,7 +278,68 @@ const StoreProfileTab = () => {
             </div>
           </div>
           
-          <div className="field-group">
+          {/* --- INFORMASI PEMBAYARAN & KONTAK --- */}
+          <div className="pt-6 border-t-2 border-[#111] space-y-4">
+            <div>
+              <h5 className="font-black text-[#111] text-base flex items-center gap-2">
+                <span>💳 Rekening Pembayaran & WhatsApp Konfirmasi</span>
+              </h5>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Data ini akan ditampilkan kepada pembeli pada halaman checkout saat melakukan transfer manual.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="field-group">
+                <label htmlFor="bank_name">Nama Bank</label>
+                <input 
+                  id="bank_name" 
+                  type="text"
+                  placeholder="Misal: Bank BRI / Bank BCA" 
+                  value={editingProfile.bank_name || ''} 
+                  onChange={(e) => setEditingProfile({...editingProfile, bank_name: e.target.value})}
+                />
+              </div>
+
+              <div className="field-group">
+                <label htmlFor="bank_account_number">Nomor Rekening</label>
+                <input 
+                  id="bank_account_number" 
+                  type="text"
+                  placeholder="Misal: 364401036953533" 
+                  value={editingProfile.bank_account_number || ''} 
+                  onChange={(e) => setEditingProfile({...editingProfile, bank_account_number: e.target.value})}
+                />
+              </div>
+
+              <div className="field-group">
+                <label htmlFor="bank_account_name">Atas Nama Rekening</label>
+                <input 
+                  id="bank_account_name" 
+                  type="text"
+                  placeholder="Misal: HUSNUL KHULUQ" 
+                  value={editingProfile.bank_account_name || ''} 
+                  onChange={(e) => setEditingProfile({...editingProfile, bank_account_name: e.target.value})}
+                />
+              </div>
+            </div>
+
+            <div className="field-group">
+              <label htmlFor="whatsapp_number">Nomor WhatsApp Admin/Penjual (Untuk Konfirmasi Pembayaran)</label>
+              <input 
+                id="whatsapp_number" 
+                type="text"
+                placeholder="Misal: 088228511309 atau 6288228511309" 
+                value={editingProfile.whatsapp_number || ''} 
+                onChange={(e) => setEditingProfile({...editingProfile, whatsapp_number: e.target.value})}
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                Tombol &quot;Konfirmasi Transfer&quot; pembeli akan langsung membuka chat WhatsApp ke nomor ini dengan pesan invoice otomatis.
+              </p>
+            </div>
+          </div>
+          
+          <div className="field-group pt-2">
             <label>Status Toko</label>
             <select value={editingProfile.status || 'ACTIVE'} onChange={(e) => setEditingProfile({...editingProfile, status: e.target.value as any})}>
               <option value="ACTIVE">Publik (Dapat diakses)</option>
