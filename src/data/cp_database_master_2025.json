@@ -1,0 +1,867 @@
+[
+  {
+    "kategori": "Pendidikan Anak Usia Dini (PAUD)",
+    "mata_pelajaran": [
+      {
+        "nama": "Capaian Pembelajaran PAUD (Fase Fondasi)",
+        "capaian_per_fase": [
+          {
+            "fase": "Fondasi",
+            "kelas": "TK/RA/KB/TPA/Sederajat",
+            "elemen": {
+              "Nilai Agama dan Budi Pekerti": "Murid percaya kepada Tuhan Yang Maha Esa sebagai pencipta dirinya, makhluk lain dan alam, serta mulai mengenal dan mempraktikkan ajaran pokok sesuai dengan agama dan kepercayaannya; menghargai diri sendiri dan memiliki rasa syukur terhadap Tuhan YME sehingga dapat berpartisipasi aktif dalam menjaga kebersihan, kesehatan, dan keselamatan dirinya; menghargai sesama manusia dengan berbagai perbedaannya sehingga mempraktikkan perilaku baik dan berakhlak mulia; dan menghargai alam dan seluruh makhluk hidup ciptaan Tuhan Yang Maha Esa.",
+              "Jati Diri": "Murid mengenali identitas dirinya yang terbentuk oleh karakteristik fisik dan gender, minat, kebutuhan, agama, dan sosial budaya; mengenali kebiasaan-kebiasaan di lingkungan keluarga, satuan pendidikan, dan masyarakat; mengenali, mengekspresikan, dan mengelola emosi diri, serta membangun hubungan sosial secara sehat; mengenali perannya sebagai bagian dari keluarga, satuan pendidikan, masyarakat dan warga negara Indonesia sehingga dapat menyesuaikan diri dengan lingkungan, aturan dan norma yang berlaku; serta memiliki fungsi gerak (motorik kasar, halus, dan taktil) untuk merawat dirinya, membangun kemandirian dan berkegiatan.",
+              "Dasar-dasar Literasi, Matematika, Sains, Teknologi, Rekayasa, dan Seni": "Murid mengenali dan memahami berbagai informasi, mengomunikasikan perasaan dan pikiran secara lisan, tulisan, atau menggunakan berbagai media serta membangun percakapan, menunjukkan minat, dan berpartisipasi dalam kegiatan pramembaca; memiliki kepekaan bilangan, mengidentifikasi pola, memiliki kesadaran tentang bentuk, posisi, dan ruang, mampu melakukan pengukuran dengan satuan tidak baku, dan memiliki kesadaran mengenai waktu; mampu mengamati, menyebutkan alasan, pilihan atau keputusannya, memecahkan masalah sederhana, serta mengetahui hubungan sebab akibat; menunjukkan kemampuan awal menggunakan dan merekayasa teknologi secara aman dan bertanggung jawab; serta mengeksplorasi berbagai proses seni, mengekspresikannya, dan mengapresiasi karya seni."
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "kategori": "Mata Pelajaran Umum Utama (SD/MI, SMP/MTs, SMA/MA)",
+    "mata_pelajaran": [
+      {
+        "nama": "Pendidikan Pancasila",
+        "capaian_per_fase": [
+          {
+            "fase": "A",
+            "kelas": "I dan II SD/MI/Program Paket A",
+            "elemen": {
+              "Pancasila": "Mengenal bendera negara, lagu kebangsaan, simbol dan sila-sila Pancasila dalam lambang negara Garuda Pancasila; menerapkan nilai-nilai Pancasila di lingkungan keluarga.",
+              "Undang-Undang Dasar Negara Republik Indonesia Tahun 1945": "Mengenal aturan di lingkungan keluarga; menceritakan contoh sikap mematuhi dan tidak mematuhi aturan di keluarga; menyuarakan pendapatnya di lingkungan keluarga."
+            }
+          },
+          {
+            "fase": "B",
+            "kelas": "III dan IV SD/MI/Program Paket A",
+            "elemen": {
+              "Pancasila": "Mengidentifikasi makna sila-sila Pancasila, dan penerapannya dalam kehidupan sehari-hari; mengenal karakter para perumus Pancasila; menunjukkan sikap bangga menjadi anak Indonesia yang memiliki bahasa Indonesia sebagai bahasa persatuan di lingkungan sekitar.",
+              "Undang-Undang Dasar Negara Republik Indonesia Tahun 1945": "Mengidentifikasi dan melaksanakan aturan di lingkungan sekolah dan keluarga; menceritakan hak dan kewajiban sebagai anggota keluarga dan peserta didik."
+            }
+          },
+          {
+            "fase": "C",
+            "kelas": "V dan VI SD/MI/Program Paket A",
+            "elemen": {
+              "Pancasila": "Memahami kronologi sejarah kelahiran Pancasila; meneladani sikap para perumus Pancasila dan menerapkan di lingkungan masyarakat; menghubungkan sila-sila dalam Pancasila sebagai suatu kesatuan yang utuh.",
+              "Negara Kesatuan Republik Indonesia": "Mengenal wilayahnya dalam konteks kabupaten/kota, dan provinsi sebagai bagian dari wilayah Negara Kesatuan Republik Indonesia; menunjukkan perilaku gotong royong untuk menjaga persatuan di lingkungan sekolah dan sekitar sebagai wujud bela negara."
+            }
+          },
+          {
+            "fase": "D",
+            "kelas": "VII, VIII, dan IX SMP/MTs/Program Paket B",
+            "elemen": {
+              "Pancasila": "Menganalisis kronologi perumusan dan pengesahan Pancasila; menganalisis fungsi dan kedudukan Pancasila sebagai dasar negara, pandangan hidup bangsa, dan ideologi negara.",
+              "Bhinneka Tunggal Ika": "Mengidentifikasi keberagaman suku, agama, ras, dan antargolongan dalam bingkai Bhinneka Tunggal Ika; menunjukkan sikap toleransi dan menghargai keragaman."
+            }
+          },
+          {
+            "fase": "E",
+            "kelas": "X SMA/MA/SMK/MAK/Program Paket C",
+            "elemen": {
+              "Pancasila": "Menganalisis cara pandang para perumus Pancasila tentang dasar negara; menganalisis kedudukan Pancasila sebagai dasar negara, pandangan hidup bangsa, dan ideologi negara.",
+              "Bhinneka Tunggal Ika": "Menyajikan makna semboyan Bhinneka Tunggal Ika sebagai modal sosial; dan memahami prinsip gotong royong sebagai perwujudan sistem ekonomi Pancasila yang inklusif dan berkeadilan."
+            }
+          },
+          {
+            "fase": "F",
+            "kelas": "XI dan XII SMA/MA/SMK/MAK/Program Paket C",
+            "elemen": {
+              "Pancasila": "Mendeskripsikan rumusan dan keterkaitan sila-sila dalam Pancasila; menganalisis peluang dan tantangan penerapan nilai-nilai Pancasila dalam kehidupan global.",
+              "Negara Kesatuan Republik Indonesia": "Mendemonstrasikan praktik demokrasi berlandaskan Pancasila dalam kehidupan berbangsa dan bernegara; menganalisis dan merumuskan solusi terkait ancaman, tantangan, hambatan, dan gangguan (ATHG)."
+            }
+          }
+        ]
+      },
+      {
+        "nama": "Bahasa Indonesia",
+        "capaian_per_fase": [
+          {
+            "fase": "A",
+            "kelas": "I dan II SD/MI/Program Paket A",
+            "elemen": {
+              "Menyimak": "Memahami informasi dari teks nonsastra berbentuk teks aural berupa percakapan yang berkaitan dengan diri, keluarga, dan/atau lingkungan sekitar; dan memahami pesan teks sastra berbentuk teks aural.",
+              "Membaca dan Memirsa": "Membaca kata-kata sederhana dengan fasih dari bacaan dan/atau tayangan yang dipirsa tentang diri, keluarga, kesehatan, dan/atau lingkungan sekitar; dan memahami isi bacaan/tayangan.",
+              "Berbicara dan Mempresentasikan": "Merespons dengan bertanya tentang sesuatu, menjawab, dan menanggapi komentar orang lain dengan baik dan santun; mengungkapkan perasaan dan gagasan secara lisan; dan menceritakan kembali isi teks.",
+              "Menulis": "Menulis permulaan dengan benar di atas kertas dan/atau melalui media digital; mengembangkan tulisan tangan yang semakin baik; dan menulis berbagai tipe teks sederhana tentang diri, keluarga, dan lingkungan sekitar."
+            }
+          },
+          {
+            "fase": "B",
+            "kelas": "III dan IV SD/MI/Program Paket A",
+            "elemen": {
+              "Menyimak": "Memahami ide pokok suatu informasi dari teks nonsastra berbentuk teks aural; dan memahami isi teks sastra berbentuk teks aural.",
+              "Membaca dan Memirsa": "Membaca kata-kata baru dengan fasih dari bacaan dan/atau tayangan yang dipirsa; dan memahami ide pokok, ide pendukung, pesan, dan informasi dalam teks sastra dan nonsastra.",
+              "Berbicara dan Mempresentasikan": "Menyajikan pendapat dengan pilihan kata dan gestur yang sesuai, menggunakan volume dan intonasi yang tepat; menanggapi diskusi sesuai tata cara; dan menceritakan kembali isi teks.",
+              "Menulis": "Menulis berbagai tipe teks sederhana dengan rangkaian kalimat yang beragam; dan menggunakan kaidah kebahasaan dan kosakata baru ber-makna denotatif sesuai konteks."
+            }
+          },
+          {
+            "fase": "C",
+            "kelas": "V dan VI SD/MI/Program Paket A",
+            "elemen": {
+              "Menyimak": "Menganalisis informasi dari teks nonsastra berbentuk teks aural; dan menganalisis isi teks sastra berbentuk teks aural.",
+              "Membaca dan Memirsa": "Membaca kata-kata dengan berbagai pola kombinasi huruf dengan fasih; dan menganalisis informasi serta nilai-nilai dalam teks sastra dan nonsastra visual/audiovisual.",
+              "Berbicara dan Mempresentasikan": "Mempresentasikan gagasan dari berbagai tipe teks dengan efektif dan santun; menyampaikan perasaan berdasarkan fakta dan imajinasi dalam bentuk teks sastra.",
+              "Menulis": "Menulis berbagai tipe teks sederhana berdasarkan gagasan, pengamatan, pengalaman, atau imajinasi dengan rangkaian kalimat kompleks; menggunakan kaidah kebahasaan dan kosakata baru."
+            }
+          },
+          {
+            "fase": "D",
+            "kelas": "VII, VIII, dan IX SMP/MTs/Program Paket B",
+            "elemen": {
+              "Menyimak": "Menganalisis gagasan, pandangan, arahan, dan/atau pesan dari teks nonsastra aural; dan menganalisis unsur intrinsik teks sastra aural.",
+              "Membaca dan Memirsa": "Menganalisis informasi berupa gagasan, pandangan, arahan, dan/atau pesan dari berbagai tipe teks visual/audiovisual untuk menemukan makna tersurat dan tersirat.",
+              "Berbicara dan Mempresentasikan": "Mempresentasikan gagasan, pandangan, arahan, dan/atau pesan untuk pengajuan usul dan solusi dalam bentuk monolog/dialog logis; menyajikan ungkapan kepedulian.",
+              "Menulis": "Menulis gagasan, pandangan, arahan, pesan, atau imajinasi dalam berbagai tipe teks secara logis, kritis, kreatif, menarik, dan/atau indah; menulis pendapat pro/kontra."
+            }
+          },
+          {
+            "fase": "E",
+            "kelas": "X SMA/MA/SMK/MAK/Program Paket C",
+            "elemen": {
+              "Menyimak": "Mengevaluasi gagasan, pandangan, arahan, dan/atau pesan dari teks nonsastra aural; dan mengevaluasi unsur intrinsik dan ekstrinsik teks sastra aural.",
+              "Membaca dan Memirsa": "Mengevaluasi informasi dari berbagai tipe teks visual/audiovisual untuk menemukan makna tersurat dan tersirat; mengevaluasi kualitas dan kredibilitas teks.",
+              "Berbicara dan Mempresentasikan": "Mempresentasikan gagasan, pandangan, arahan, dan/atau pesan berbagai tipe teks berbentuk monolog, dialog, dan/atau gelar wicara secara sistematis, kritis, dan kreatif.",
+              "Menulis": "Menulis gagasan, pandangan, arahan, pesan, dan/atau imajinasi dalam berbagai tipe teks secara logis, kritis, dan kreatif; dan memublikasikan hasil karya di berbagai media."
+            }
+          },
+          {
+            "fase": "F",
+            "kelas": "XI dan XII SMA/MA/SMK/MAK/Program Paket C",
+            "elemen": {
+              "Menyimak": "Mengevaluasi gagasan, perasaan, pandangan, arahan, dan/atau pesan dari teks nonsastra aural; dan mengapresiasi teks sastra aural.",
+              "Membaca dan Memirsa": "Mengevaluasi informasi dari berbagai tipe teks visual/audiovisual berdasarkan kaidah logika berpikir; merefleksi gagasan dan pandangan; mengapresiasi karya sastra.",
+              "Berbicara dan Mempresentasikan": "Mempresentasikan gagasan, perasaan, pandangan, arahan, pesan, dan kreativitas berbahasa secara logis, sistematis, kritis, dan kreatif; menyajikan karya sastra.",
+              "Menulis": "Menulis gagasan, pandangan, imajinasi, dan pengetahuan metakognisi dalam berbagai tipe teks secara logis, kritis, dan kreatif; memublikasikan hasil karya."
+            }
+          }
+        ]
+      },
+      {
+        "nama": "Matematika",
+        "capaian_per_fase": [
+          {
+            "fase": "A",
+            "kelas": "I dan II SD/MI/Program Paket A",
+            "elemen": {
+              "Bilangan": "Menunjukkan pemahaman dan memiliki intuisi bilangan (number sense) pada bilangan cacah sampai 100; membaca, menulis, menentukan nilai tempat, membandingkan, mengurutkan, serta melakukan komposisi dan dekomposisi bilangan; melakukan operasi penjumlahan dan pengurangan menggunakan benda-benda konkret.",
+              "Aljabar": "Menunjukkan pemahaman makna simbol '=' dalam kalimat matematika penjumlahan dan pengurangan sampai 20; mengenali, meniru, dan melanjutkan pola bukan bilangan.",
+              "Pengukuran": "Membandingkan panjang dan berat benda secara langsung, serta membandingkan durasi waktu; mengukur dan mengestimasi panjang dan berat menggunakan satuan tidak baku.",
+              "Geometri": "Mengenal berbagai bangun datar dan bangun ruang; melakukan komposisi dan dekomposisi bangun datar; menentukan posisi benda terhadap benda lain.",
+              "Analisis Data dan Peluang": "Mengurutkan, menyortir, mengelompokkan, membandingkan, dan menyajikan data dari banyak benda dengan menggunakan turus dan piktogram paling banyak 4 kategori."
+            }
+          },
+          {
+            "fase": "B",
+            "kelas": "III dan IV SD/MI/Program Paket A",
+            "elemen": {
+              "Bilangan": "Memiliki pemahaman dan intuisi bilangan pada bilangan cacah sampai 10.000; melakukan operasi penjumlahan/pengurangan sampai 1.000, perkalian/pembagian sampai 100; mengenal pecahan, desimal, dan persen.",
+              "Aljabar": "Menemukan nilai yang tidak diketahui dalam kalimat matematika penjumlahan dan pengurangan sampai 100; mengidentifikasi dan mengembangkan pola gambar dan pola bilangan.",
+              "Pengukuran": "Mengukur panjang dan berat menggunakan satuan baku; menentukan hubungan antar-satuan baku; mengukur luas dan volume menggunakan satuan baku/tidak baku.",
+              "Geometri": "Mendeskripsikan ciri berbagai bentuk bangun datar; menyusun dan mengurai berbagai bangun datar.",
+              "Analisis Data dan Peluang": "Mengurutkan, membandingkan, menyajikan, menganalisis, dan menginterpretasi data dalam bentuk tabel, piktogram, dan diagram batang."
+            }
+          },
+          {
+            "fase": "C",
+            "kelas": "V dan VI SD/MI/Program Paket A",
+            "elemen": {
+              "Bilangan": "Menunjukkan pemahaman bilangan cacah sampai 1.000.000; melakukan operasi hitung, KPK, FPB, pecahan campuran, desimal, dan persen.",
+              "Aljabar": "Menemukan nilai yang belum diketahui dalam kalimat matematika hingga 1.000; bernalar secara proporsional untuk menyelesaikan masalah rasio.",
+              "Pengukuran": "Menentukan keliling dan luas berbagai bentuk bangun datar dan gabungannya; menghitung durasi waktu dan mengukur besar sudut.",
+              "Geometri": "Mengkonstruksi dan mengurai bangun ruang; membandingkan karakteristik bangun datar dan ruang; menentukan lokasi pada peta berpetak.",
+              "Analisis Data dan Peluang": "Mengurutkan, membandingkan, menyajikan, dan menganalisis data dalam bentuk diagram batang dan tabel frekuensi; menentukan peluang kejadian sederhana."
+            }
+          },
+          {
+            "fase": "D",
+            "kelas": "VII, VIII, dan IX SMP/MTs/Program Paket B",
+            "elemen": {
+              "Bilangan": "Membaca, menulis, membandingkan bilangan bulat, rasional, desimal, berpangkat; menerapkan operasi aritmatika dan memberikan estimasi; menggunakan rasio.",
+              "Aljabar": "Mengenali dan menggeneralisasi pola; menyatakan situasi ke dalam bentuk aljabar; memahami relasi dan fungsi; menyelesaikan SPLDV dan pertidaksamaan linear satu variabel.",
+              "Pengukuran": "Menentukan keliling, luas lingkaran, panjang busur, luas juring; menentukan luas permukaan dan volume bangun ruang prisma, tabung, limas, kerucut, bola.",
+              "Geometri": "Membuat jaring-jaring bangun ruang; menggunakan hubungan antar-sudut; membuktikan teorema Pythagoras; melakukan transformasi geometri (refleksi, translasi, rotasi, dilatasi).",
+              "Analisis Data dan Peluang": "Merumuskan pertanyaan, mengumpulkan, menganalisis data; menentukan mean, median, modus, jangkauan; menjelaskan dan menggunakan peluang frekuensi relatif."
+            }
+          },
+          {
+            "fase": "E",
+            "kelas": "X SMA/MA/SMK/MAK/Program Paket C",
+            "elemen": {
+              "Bilangan": "Menggeneralisasi sifat-sifat bilangan berpangkat (termasuk pangkat pecahan), dan menggunakannya untuk menyelesaikan masalah.",
+              "Aljabar dan Fungsi": "Menyelesaikan masalah yang berkaitan dengan sistem pertidaksamaan linear dua variabel, persamaan dan fungsi kuadrat, serta persamaan dan fungsi eksponensial.",
+              "Geometri": "Mengaplikasikan perbandingan trigonometri (sinus, cosinus, tangen) dari sudut lancip.",
+              "Analisis Data dan Peluang": "Merepresentasikan dan menginterpretasi data dengan jangkauan kuartil, box plot, histogram, dot plot, dan diagram pencar; mengevaluasi laporan statistika."
+            }
+          },
+          {
+            "fase": "F",
+            "kelas": "XI dan XII SMA/MA/SMK/MAK/Program Paket C",
+            "elemen": {
+              "Bilangan": "Menjelaskan barisan dan deret (aritmetika dan geometri), menerapkannya pada masalah bunga tunggal, bunga majemuk, dan anuitas.",
+              "Aljabar dan Fungsi": "Menentukan fungsi invers, komposisi fungsi, dan transformasi fungsi untuk memodelkan situasi dunia nyata.",
+              "Geometri": "Menerapkan dan menjelaskan hubungan antara unsur-unsur lingkaran untuk menyelesaikan masalah.",
+              "Analisis Data dan Peluang": "Melakukan proses penyelidikan statistika dua variabel; memperkirakan model linear terbaik (best fit); menjelaskan peluang kejadian majemuk, saling bebas, saling lepas, dan bersyarat."
+            }
+          }
+        ]
+      },
+      {
+        "nama": "Ilmu Pengetahuan Alam (IPA) / IPAS",
+        "capaian_per_fase": [
+          {
+            "fase": "B (IPAS)",
+            "kelas": "III dan IV SD/MI/Program Paket A",
+            "elemen": {
+              "Pemahaman IPAS": "Menjelaskan bentuk dan fungsi pancaindra; menganalisis siklus hidup makhluk hidup; menyimpulkan proses perubahan wujud zat; menjelaskan sumber dan bentuk energi; membedakan jenis gaya; mengenali peta dan bentang alam; menganalisis sejarah dan pengelolaan keuangan sederhana.",
+              "Keterampilan Proses": "Mengamati fenomena sederhana; mengajukan pertanyaan dan prediksi; merencanakan dan melakukan penyelidikan; mengolah dan menganalisis data; mengevaluasi, merefleksi, dan mengomunikasikan hasil."
+            }
+          },
+          {
+            "fase": "C (IPAS)",
+            "kelas": "V dan VI SD/MI/Program Paket A",
+            "elemen": {
+              "Pemahaman IPAS": "Merefleksikan sistem organ tubuh manusia; menganalisis hubungan komponen ekosistem; menjelaskan fenomena bunyi dan cahaya; menghasilkan upaya penghematan energi; menjelaskan sistem tata surya dan gerakan bumi.",
+              "Keterampilan Proses": "Mengamati, mempertanyakan, merencanakan penyelidikan, memproses data dalam tabel/grafik, mengevaluasi, dan mengomunikasikan hasil dengan argumen."
+            }
+          },
+          {
+            "fase": "D (IPA Terpadu)",
+            "kelas": "VII, VIII, dan IX SMP/MTs/Program Paket B",
+            "elemen": {
+              "Pemahaman IPA": "Menelaah klasifikasi makhluk hidup dan materi; menganalisis sistem organisasi kehidupan, organ tubuh, ekosistem, pewarisan sifat, bioteknologi; menerapkan pengukuran, gerak, gaya, tekanan, usaha, energi, kalor, gelombang, kelistrikan, kemagnetan, tata surya, dan zat aditif/adiktif.",
+              "Keterampilan Proses": "Menerapkan keterampilan proses ilmiah: mengamati, mempertanyakan & memprediksi, merencanakan & melakukan penyelidikan, memproses & menganalisis data, mengevaluasi & refleksi, mengomunikasikan hasil."
+            }
+          },
+          {
+            "fase": "E (IPA)",
+            "kelas": "X SMA/MA/Program Paket C",
+            "elemen": {
+              "Pemahaman IPA": "Menerapkan prinsip klasifikasi dan keanekaragaman hayati; mendeskripsikan peran virus, bakteri, jamur; menganalisis ekosistem; menggunakan sistem pengukuran; menganalisis gerak 2D, energi alternatif, partikel materi, stoikiometri, dan perubahan iklim.",
+              "Keterampilan Proses": "Melakukan pengamatan ilmiah, merumuskan masalah, merencanakan penyelidikan, mengolah data, mengevaluasi kesimpulan, dan mengomunikasikan hasil secara sistematis."
+            }
+          }
+        ]
+      },
+      {
+        "nama": "Fisika",
+        "capaian_per_fase": [
+          {
+            "fase": "F",
+            "kelas": "XI dan XII SMA/MA/Program Paket C",
+            "elemen": {
+              "Pemahaman Fisika": "Menganalisis hubungan gerak dan gaya serta pemanfaatannya untuk menjelaskan fenomena alam, desain, atau rekayasa struktur; membuat karya yang menunjukkan penerapan hukum fluida dalam kehidupan sehari-hari; menganalisis konsep kalor dan termodinamika serta penerapannya untuk mengidentifikasi fenomena perubahan iklim; menganalisis gejala gelombang dan penerapannya dalam kehidupan sehari-hari; mengevaluasi rangkaian listrik; menganalisis fenomena elektromagnetik; menganalisis teori dasar fisika modern dan pengaruhnya terhadap perkembangan teknologi; serta menerapkan teori dasar digital dalam kehidupan sehari-hari.",
+              "Keterampilan Proses": "Menerapkan keterampilan proses yang mencakup: Mengamati, Mempertanyakan dan Memprediksi, Merencanakan dan Melakukan Penyelidikan, Memproses dan Menganalisis Data, Mengevaluasi dan Refleksi, serta Mengomunikasikan Hasil penyelidikan secara sistematis dan utuh."
+            }
+          }
+        ]
+      },
+      {
+        "nama": "Kimia",
+        "capaian_per_fase": [
+          {
+            "fase": "F",
+            "kelas": "XI dan XII SMA/MA/Program Paket C",
+            "elemen": {
+              "Pemahaman Kimia": "Menganalisis hubungan struktur atom dengan sistem periodik unsur; membandingkan jenis ikatan kimia serta kaitannya dengan bentuk molekul dan gaya intermolekuler; mengaitkan perubahan entalpi standar reaksi kimia dengan sumber energi; menganalisis faktor-faktor yang mempengaruhi laju reaksi, kesetimbangan kimia, sel elektrokimia, serta struktur dan reaksi senyawa karbon dan makromolekul.",
+              "Keterampilan Proses": "Menerapkan keterampilan proses ilmiah mencakup pengamatan, perumusan pertanyaan & hipotesis, perencanaan & pelaksanaan eksperimen laboratorium, analisis data kuantitatif/kualitatif, evaluasi, dan komunikasi hasil ilmiah."
+            }
+          }
+        ]
+      },
+      {
+        "nama": "Biologi",
+        "capaian_per_fase": [
+          {
+            "fase": "F",
+            "kelas": "XI dan XII SMA/MA/Program Paket C",
+            "elemen": {
+              "Pemahaman Biologi": "Mengaitkan hubungan antara struktur dan fungsi organel sel; menerapkan prinsip bioproses di dalam sel; menganalisis keterkaitan antar sistem organ tubuh manusia; menerapkan prinsip pewarisan sifat; mengaitkan mekanisme evolusi dengan keanekaragaman hayati; menerapkan prinsip pertumbuhan dan perkembangan; serta menganalisis proses bioteknologi modern.",
+              "Keterampilan Proses": "Menerapkan keterampilan proses ilmiah biologis mencakup pengamatan mikroskopis & makroskopis, merumuskan hipotesis, merencanakan penyelidikan, menganalisis data bioproses, mengevaluasi sumber ketidakpastian, dan mengomunikasikan argumen ilmiah."
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "kategori": "Pendidikan Agama dan Budi Pekerti",
+    "mata_pelajaran": [
+      {
+        "nama": "Pendidikan Agama Islam dan Budi Pekerti",
+        "capaian_per_fase": [
+          {
+            "fase": "A",
+            "kelas": "I dan II SD/MI/Program Paket A",
+            "elemen": {
+              "Al-Qur'an dan Hadis": "Mengenal huruf hijaiyah dan harakatnya, huruf hijaiyah bersambung, dan beberapa surah pendek Al-Qur'an serta hadis tentang kebersihan dan kasih sayang.",
+              "Akidah": "Mengenal rukun iman, asmaulhusna, dan ciptaan Allah Swt. melalui pengamatan di lingkungan sekitar.",
+              "Akhlak": "Mengenal akhlak terpuji kepada Allah Swt., diri sendiri, sesama manusia, dan lingkungan sekitar.",
+              "Fikih": "Mengenal rukun Islam, bersuci (taharah), salat fardu, serta azan dan ikamah.",
+              "Sejarah Peradaban Islam": "Mengenal kisah nabi dan rasul sebagai teladan dalam kehidupan sehari-hari."
+            }
+          },
+          {
+            "fase": "D",
+            "kelas": "VII, VIII, dan IX SMP/MTs/Program Paket B",
+            "elemen": {
+              "Al-Qur'an dan Hadis": "Memahami dan menganalisis ayat Al-Qur'an dan hadis tentang pentingnya menuntut ilmu, toleransi, pemeliharaan lingkungan, serta tajwid dasar.",
+              "Akidah": "Memahami dan meyakini sifat-sifat Allah Swt., malaikat, kitab-kitab Allah, rasul-rasul Allah, hari akhir, serta qada dan qadar.",
+              "Akhlak": "Memahami dan menerapkan hakikat ikhlas, tobat, zuhud, tawakal, empati, pemaaf, dan amanah dalam kehidupan bermasyarakat.",
+              "Fikih": "Memahami ketentuan ibadah salat sunah, sujud, zakat, puasa, haji, umrah, serta hukum makanan/minuman halal dan haram.",
+              "Sejarah Peradaban Islam": "Menganalisis sejarah peradaban Islam periode Khulafaurrasyidin, Daulah Umayyah, Daulah Abbasiyah, dan perkembangan Islam di Nusantara."
+            }
+          },
+          {
+            "fase": "E",
+            "kelas": "X SMA/MA/SMK/MAK/Program Paket C",
+            "elemen": {
+              "Al-Qur'an dan Hadis": "Menganalisis ayat Al-Qur'an dan hadis tentang perintah berkompetisi dalam kebaikan, etos kerja, serta larangan pergaulan bebas dan zina.",
+              "Akidah": "Menganalisis cabang-cabang iman (syu'abul iman) serta dampaknya terhadap pembentukan karakter peserta didik.",
+              "Akhlak": "Menganalisis bahaya sifat riya, sum'ah, hasad, takabur, dan ujub serta cara menghindarinya.",
+              "Fikih": "Menganalisis prinsip-prinsip fiqh muamalah, asuransi syariah, perbankan syariah, dan koperasi syariah.",
+              "Sejarah Peradaban Islam": "Menganalisis peran tokoh Ulama/Wali Sanga dalam menyebarkan ajaran Islam di Indonesia."
+            }
+          }
+        ]
+      },
+      {
+        "nama": "Pendidikan Agama Kristen dan Budi Pekerti",
+        "capaian_per_fase": [
+          {
+            "fase": "A",
+            "kelas": "I dan II SD/MI/Program Paket A",
+            "elemen": {
+              "Allah Karya-Nya": "Mengenali dirinya sebagai ciptaan Allah yang istimewa dan bersyukur atas anggota tubuh serta keluarga yang diberikan Tuhan.",
+              "Manusia dan Nilai-nilai Kristiani": "Menunjukkan pemahaman tentang kasih, kebaikan, dan kepedulian terhadap sesama di lingkungan keluarga dan sekolah.",
+              "Gereja dan Masyarakat Majemuk": "Mengenal lingkungan gereja, teman bermain yang berbeda agama, serta belajar hidup rukun dalam keberagaman.",
+              "Alam dan Lingkungan Hidup": "Mengenal alam ciptaan Allah dan melakukan tindakan sederhana untuk menjaga kebersihan dan kelestarian lingkungan."
+            }
+          },
+          {
+            "fase": "E",
+            "kelas": "X SMA/MA/SMK/MAK/Program Paket C",
+            "elemen": {
+              "Allah Karya-Nya": "Menganalisis bertumbuh menjadi dewasa secara jasmani, rohani, emosional, intelektual, dan sosial dalam terang firman Allah.",
+              "Manusia dan Nilai-nilai Kristiani": "Penerapan nilai-nilai Kristiani seperti keadilan, kebenaran, kejujuran, dan kesetiaan dalam kehidupan bermasyarakat.",
+              "Gereja dan Masyarakat Majemuk": "Menganalisis peran aktif remaja Kristen dalam mewujudkan persatuan dan perdamaian di masyarakat majemuk.",
+              "Alam dan Lingkungan Hidup": "Memahami peran manusia sebagai pemelihara ciptaan Allah serta merespons isu-isu krisis lingkungan hidup."
+            }
+          }
+        ]
+      },
+      {
+        "nama": "Pendidikan Agama Katolik dan Budi Pekerti",
+        "capaian_per_fase": [
+          {
+            "fase": "A",
+            "kelas": "I dan II SD/MI/Program Paket A",
+            "elemen": {
+              "Pribadi Peserta Didik": "Mengenal diri sebagai pribadi yang unik dan dicintai Allah, serta bersyukur atas keluarga dan teman.",
+              "Yesus Kristus": "Mengenal sosok Yesus Kristus melalui kisah-kisah Kitab Suci anak dan meneladani sikap-Nya.",
+              "Gereja": "Mengenal doa-doa harian Katolik dan terlibat dalam perayaan liturgi di gereja/paroki.",
+              "Masyarakat": "Mengenal kebiasaan hidup baik dan santun terhadap sesama di lingkungan tempat tinggal."
+            }
+          },
+          {
+            "fase": "E",
+            "kelas": "X SMA/MA/SMK/MAK/Program Paket C",
+            "elemen": {
+              "Pribadi Peserta Didik": "Memahami keunikan dan kesederajatan sebagai pria dan wanita yang diciptakan sesuai Citra Allah (Imago Dei).",
+              "Yesus Kristus": "Memahami Kerajaan Allah yang diwartakan oleh Yesus Kristus melalui kata dan tindakan.",
+              "Gereja": "Memahami sifat-sifat Gereja (Satu, Kudus, Katolik, Apostolik) dan perannya dalam dunia modern.",
+              "Masyarakat": "Menganalisis Hak Asasi Manusia, keadilan, serta kesetaraan gender dalam perspektif Ajaran Sosial Gereja."
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "kategori": "Pendidikan Jasmani, Olahraga, dan Kesehatan (PJOK)",
+    "mata_pelajaran": [
+      {
+        "nama": "Pendidikan Jasmani, Olahraga, dan Kesehatan",
+        "capaian_per_fase": [
+          {
+            "fase": "A",
+            "kelas": "I dan II SD/MI/Program Paket A",
+            "elemen": {
+              "Keterampilan Gerak": "Menerapkan variasi pola gerak dasar lokomotor, non-lokomotor, dan manipulatif sesuai potensi diri.",
+              "Pengetahuan Gerak": "Memahami konsep variasi pola gerak dasar lokomotor, non-lokomotor, dan manipulatif.",
+              "Pemanfaatan Gerak": "Mengenal aktivitas jasmani untuk kesehatan, menjaga kebersihan diri dan lingkungan, serta pola tidur dan istirahat.",
+              "Pengembangan Karakter dan Internal nilai": "Menunjukkan perilaku bertanggung jawab, menghargai instruksi, serta bekerja sama dalam permainan sederhana."
+            }
+          },
+          {
+            "fase": "D",
+            "kelas": "VII, VIII, dan IX SMP/MTs/Program Paket B",
+            "elemen": {
+              "Keterampilan Gerak": "Mempraktikkan variasi dan kombinasi keterampilan gerak spesifik dalam berbagai permainan invasi, net, lapangan, beladiri, atletik, dan senam.",
+              "Pengetahuan Gerak": "Menganalisis variasi dan kombinasi gerak spesifik berbagai olahraga dan aktivitas kebugaran.",
+              "Pemanfaatan Gerak": "Menganalisis konsep dan prinsip kebugaran jasmani yang terkait dengan kesehatan dan keterampilan, serta pencegahan bahaya pergaulan bebas dan obat terlarang.",
+              "Pengembangan Karakter dan Internal nilai": "Menunjukkan sikap suportif, sportif, kepemimpinan, dan regulasi emosi dalam berolahraga."
+            }
+          },
+          {
+            "fase": "E",
+            "kelas": "X SMA/MA/SMK/MAK/Program Paket C",
+            "elemen": {
+              "Keterampilan Gerak": "Mengevaluasi dan mempraktikkan hasil analisis keterampilan gerak dalam permainan olahraga bertim, perorangan, dan olahraga tradisional.",
+              "Pengetahuan Gerak": "Menganalisis taktik dan strategi dalam berbagai olahraga permainan dan cabang olahraga pilihan.",
+              "Pemanfaatan Gerak": "Mengevaluasi derajat kebugaran jasmani pribadi, merancang program latihan sederhana, dan menganalisis penanganan pertama pada cedera olahraga.",
+              "Pengembangan Karakter dan Internal nilai": "Menunjukkan integritas, kejujuran, menghargai perbedaan, dan kepemimpinan dalam kelompok."
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "kategori": "Seni dan Prakarya",
+    "mata_pelajaran": [
+      {
+        "nama": "Seni Musik",
+        "capaian_per_fase": [
+          {
+            "fase": "A",
+            "kelas": "I dan II SD/MI/Program Paket A",
+            "elemen": {
+              "Mengalami (Experiencing)": "Mengenali dan membedakan bunyi-bunyian alam, vokal, dan alat musik sederhana.",
+              "Merekfleksikan (Reflecting)": "Mengenali diri sendiri dan memberi tanggapan sederhana terhadap pertunjukan musik.",
+              "Berpikir dan Bekerja Secara Artistik (Thinking and Working Artistically)": "Mencoba memainkan ritme dan melodi sederhana dengan suara atau instrumen perkusif.",
+              "Menciptakan (Creating)": "Membuat pola irama sederhana menggunakan tepuk tangan atau instrumen dapur/alat musik perkusi.",
+              "Berdampak (Impacting)": "Menunjukkan rasa senang dan percaya diri saat menyanyi dan bermusik."
+            }
+          },
+          {
+            "fase": "E",
+            "kelas": "X SMA/MA/SMK/MAK/Program Paket C",
+            "elemen": {
+              "Mengalami (Experiencing)": "Menyimak, mendokumentasikan, dan menganalisis keanekaragaman karya musik dari berbagai tradisi dan zaman.",
+              "Merekfleksikan (Reflecting)": "Memberikan penilaian kritis terhadap estetika musik dan penyajian pertunjukan musik.",
+              "Berpikir dan Bekerja Secara Artistik": "Memainkan instrumen atau bernyanyi dengan menerapkan teknik musik dasar hingga menengah secara konsisten.",
+              "Menciptakan (Creating)": "Menghasilkan karya musik kreasi baru/aransemen sederhana dengan memanfaatkan teknologi vokal/instrumen.",
+              "Berdampak (Impacting)": "Menghasilkan penyajian musik yang memberikan dampak emosional dan apresiatif bagi pendengar."
+            }
+          }
+        ]
+      },
+      {
+        "nama": "Seni Rupa",
+        "capaian_per_fase": [
+          {
+            "fase": "A",
+            "kelas": "I dan II SD/MI/Program Paket A",
+            "elemen": {
+              "Mengalami": "Mengenali dan menggunakan garis, bentuk, warna, dan tekstur dalam karya seni rupa 2D dan 3D.",
+              "Merekfleksikan": "Menjelaskan karya rupa yang dibuat sendiri atau teman dengan bahasa sederhana.",
+              "Berpikir dan Bekerja Secara Artistik": "Menggunakan bahan dan alat rupa dasar dengan aman dan bertanggung jawab.",
+              "Menciptakan": "Membuat karya seni rupa eksploratif berdasarkan garis, bentuk, dan warna pilihan.",
+              "Berdampak": "Mengekspresikan imajinasi dan ide kreatif melalui aktivitas menggambar dan membentuk."
+            }
+          },
+          {
+            "fase": "E",
+            "kelas": "X SMA/MA/SMK/MAK/Program Paket C",
+            "elemen": {
+              "Mengalami": "Menganalisis prinsip desain, unsur seni rupa, serta teknik berkarya dari karya seni rupa modern/kontemporer.",
+              "Merekfleksikan": "Mengevaluasi efektivitas pesan visual dan estetika dalam karya seni rupa.",
+              "Berpikir dan Bekerja Secara Artistik": "Menerapkan eksperimen medium, bahan, dan teknologi digital dalam proses pemuatan karya.",
+              "Menciptakan": "Membuat karya seni rupa 2D/3D visual dengan tema sosial atau konseptual.",
+              "Berdampak": "Menciptakan karya rupa yang berdampak pada kesadaran sosial atau lingkungan."
+            }
+          }
+        ]
+      },
+      {
+        "nama": "Seni Tari",
+        "capaian_per_fase": [
+          {
+            "fase": "A",
+            "kelas": "I dan II SD/MI/Program Paket A",
+            "elemen": {
+              "Mengalami": "Mengenal unsur dasar tari (gerak, ruang, waktu, dan tenaga) berdasarkan rangsangan audio/visual.",
+              "Merekfleksikan": "Menceritakan perasaan saat bergerak menari.",
+              "Berpikir dan Bekerja Secara Artistik": "Meragakan gerak tari sederhana berpasangan atau berkelompok.",
+              "Menciptakan": "Membuat gerak tari sederhana yang meniru gerak alam atau hewan.",
+              "Berdampak": "Menunjukkan rasa percaya diri dan menghargai gerak tari teman."
+            }
+          }
+        ]
+      },
+      {
+        "nama": "Prakarya (Kerajinan, Pengolahan, Rekayasa, Budi Daya)",
+        "capaian_per_fase": [
+          {
+            "fase": "D",
+            "kelas": "VII, VIII, dan IX SMP/MTs/Program Paket B",
+            "elemen": {
+              "Observasi dan Eksplorasi": "Mengamati dan mengidentifikasi bahan, alat, serta teknik pembuatan produk prakarya setempat.",
+              "Desain/Perancangan": "Merancang produk prakarya berdasarkan analisis kebutuhan dan nilai ekonomis/estetis.",
+              "Produksi": "Membuat produk prakarya yang higienis, berfungsi, dan aman menggunakan bahan lokal.",
+              "Refleksi dan Evaluasi": "Mengevaluasi hasil produk prakarya dari segi fungsi, estetika, dan potensi kewirausahaan."
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "kategori": "Informatika, Koding, dan Kecerdasan Artifisial",
+    "mata_pelajaran": [
+      {
+        "nama": "Informatika",
+        "capaian_per_fase": [
+          {
+            "fase": "D",
+            "kelas": "VII, VIII, dan IX SMP/MTs/Program Paket B",
+            "elemen": {
+              "Berpikir Komputasional (BK)": "Menerapkan algoritma, dekomposisi, pengenalan pola, dan abstraksi untuk menyelesaikan masalah secara komputasional.",
+              "Teknologi Informasi dan Komunikasi (TIK)": "Memanfaaatkan perkakas digital untuk komunikasi, pengolahan data dokumen, lembar kerja, dan presentasi.",
+              "Sistem Komputer (SK)": "Memahami komponen perangkat keras (hardware), perangkat lunak (software), dan interaksinya.",
+              "Jaringan Komputer dan Internet (JKI)": "Memahami konsep dasar jaringan komputer, internet, konektivitas, serta enkripsi data sederhana.",
+              "Analisis Data (AD)": "Mengelola, mengolah, dan memvisualisasikan data menggunakan perangkat lunak lembar kerja.",
+              "Algoritma dan Pemrograman (AP)": "Mengembangkan program visual (block programming) untuk menyelesaikan masalah tertentu.",
+              "Dampak Sosial Informatika (DSI)": "Memahami etika berinternet (netiket), hak cipta, rekam jejak digital, dan keamanan informasi.",
+              "Praktik Lintas Bidang (PLB)": "Merancang dan menyelesaikan proyek komputasional berpasangan atau berkelompok."
+            }
+          },
+          {
+            "fase": "E",
+            "kelas": "X SMA/MA/SMK/MAK/Program Paket C",
+            "elemen": {
+              "Berpikir Komputasional": "Menerapkan berpikir komputasional pada persoalan yang lebih kompleks yang melibatkan struktur data abstrak dan optimasi.",
+              "Teknologi Informasi dan Komunikasi": "Mengintegrasikan berbagai aplikasi perkantoran secara efektif untuk pembuatan laporan dan publikasi digital.",
+              "Sistem Komputer": "Memahami mekanisme internal sistem operasi, memori, dan arsitektur komputer dasar.",
+              "Jaringan Komputer dan Internet": "Memahami arsitektur jaringan, protokol TCP/IP, serta isu keamanan jaringan dan kriptografi.",
+              "Analisis Data": "Melakukan pemrosesan data, pembersihan data (data cleaning), dan visualisasi data berskala menengah.",
+              "Algoritma dan Pemrograman": "Menulis kode program dengan bahasa pemrograman tekstual (seperti Python/C++) menggunakan konsep fungsi, larik, dan perulangan.",
+              "Dampak Sosial Informatika": "Menganalisis dampak hukum, ekonomi, dan sosial budaya dari perkembangan teknologi informatika.",
+              "Praktik Lintas Bidang": "Mengembangkan artefak komputasional melalui siklus rekayasa perangkat lunak sederhana."
+            }
+          }
+        ]
+      },
+      {
+        "nama": "Koding dan Kecerdasan Artifisial (KA)",
+        "capaian_per_fase": [
+          {
+            "fase": "F",
+            "kelas": "XI dan XII SMA/MA/Program Paket C",
+            "elemen": {
+              "Prinsip Pemrograman dan Koding Advance": "Mengembangkan aplikasi berbasis objek, berorientasi layanan, atau mobile app menggunakan kerangka kerja (framework) populer.",
+              "Konsep Kecerdasan Artifisial": "Memahami prinsip dasar Pembelajaran Mesin (Machine Learning), Pengolahan Bahasa Alami (NLP), dan Visi Komputer (Computer Vision).",
+              "Etika dan Dampak AI": "Menganalisis bias data, privasi data, dan implikasi etis dari penerappan model generative AI di masyarakat."
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "kategori": "Bahasa Asing",
+    "mata_pelajaran": [
+      {
+        "nama": "Bahasa Inggris",
+        "capaian_per_fase": [
+          {
+            "fase": "A",
+            "kelas": "I dan II SD/MI/Program Paket A",
+            "elemen": {
+              "Menyimak - Berbicara (Listening - Speaking)": "Menggunakan bahasa Inggris sederhana untuk berinteraksi dalam situasi sosial sehari-hari (salam, perkenalan diri, instruksi kelas dasar).",
+              "Membaca - Memirsa (Reading - Viewing)": "Mengenali dan memahami kata-kata bermakna sederhana serta kosakata bergambar.",
+              "Menulis - Mempresentasikan (Writing - Presenting)": "Menuliskan kata/frasa sangat sederhana dengan bantuan visual."
+            }
+          },
+          {
+            "fase": "D",
+            "kelas": "VII, VIII, dan IX SMP/MTs/Program Paket B",
+            "elemen": {
+              "Menyimak - Berbicara": "Menggunakan bahasa Inggris untuk berinteraksi, bertukar ide, dan menyampaikan pendapat tentang topik familiar secara lisan.",
+              "Membaca - Memirsa": "Membaca dan merespons teks deskriptif, naratif, dan prosedur sederhana untuk menemukan informasi spesifik dan tersirat.",
+              "Menulis - Mempresentasikan": "Mengomunikasikan gagasan melalui teks terstruktur pendek dengan menggunakan kosa kata dan tata bahasa yang tepat."
+            }
+          },
+          {
+            "fase": "E",
+            "kelas": "X SMA/MA/SMK/MAK/Program Paket C",
+            "elemen": {
+              "Menyimak - Berbicara": "Menggunakan bahasa Inggris untuk berdiskusi, menyampaikan argumen, dan merespons ide kompleks dari lawan tutur.",
+              "Membaca - Memirsa": "Mengevaluasi rincian, tujuan penulis, dan pandangan dalam berbagai teks autentik seperti eksposisi, narasi, dan penjelasan.",
+              "Menulis - Mempresentasikan": "Menulis berbagai jenis teks akademik/fungsional yang runtut dan menyajikannya secara lisan dengan bantuan teknologi multimedia."
+            }
+          }
+        ]
+      },
+      {
+        "nama": "Bahasa Jepang",
+        "capaian_per_fase": [
+          {
+            "fase": "F",
+            "kelas": "XI dan XII SMA/MA/Program Paket C",
+            "elemen": {
+              "Menyimak": "Memahami informasi lisan, instruksi, dan percakapan sehari-hari dalam konteks lingkungan sekolah dan keluarga.",
+              "Berbicara": "Melakukan interaksi lisan sederhana (salam, perkenalan, menyatakan suka/tidak suka, jadwal kegiatan).",
+              "Membaca": "Membaca dan memahami teks sederhana berpola huruf Kana (Hiragana/Katakana) dan Kanji dasar.",
+              "Menulis": "Menulis kalimat dan teks pendek sederhana menggunakan Kana dan Kanji dasar."
+            }
+          }
+        ]
+      },
+      {
+        "nama": "Bahasa Arab",
+        "capaian_per_fase": [
+          {
+            "fase": "E",
+            "kelas": "X SMA/MA/SMK/MAK/Program Paket C",
+            "elemen": {
+              "Menyimak (Istima')": "Memahami gagasan utama dan perincian dari paparan lisan bahasa Arab tentang topik perkenalan, sekolah, dan keluarga.",
+              "Berbicara (Kalam)": "Mengungkapkan ide dan pikiran secara lisan dalam bahasa Arab sederhana sesuai dengan struktur tata bahasa dasar (Nahwu/Shorof).",
+              "Membaca (Qira'ah)": "Membaca dan memahami isi kandungan teks deskriptif dan naratif bahasa Arab.",
+              "Menulis (Kitabah)": "Menyusun kalimat dan paragraf pendek bahasa Arab dengan kaidah penulisan yang benar."
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "kategori": "SMK/MAK (Sekolah Menengah Kejuruan/Madrasah Aliyah Kejuruan)",
+    "mata_pelajaran": [
+      {
+        "nama": "Projek IPAS (Ilmu Pengetahuan Alam dan Sosial)",
+        "capaian_per_fase": [
+          {
+            "fase": "E",
+            "kelas": "X SMK/MAK",
+            "elemen": {
+              "Menjelaskan Fenomena secara Ilmiah": "Peserta didik mampu menjelaskan fenomena ilmiah secara ilmiah yang terkait dengan aspek makhluk hidup dan lingkungannya; zat dan perubahannya; energi dan perubahannya; bumi dan antariksa; keruangan dan konektivitas antar ruang dan waktu; interaksi, komunikasi, sosialisasi, institusi sosial dan dinamika sosial; serta perilaku ekonomi dan kesejahteraan dalam konteks dunia kerja.",
+              "Mendesain dan Evaluasi Penyelidikan Ilmiah": "Peserta didik mampu menentukan dan mengikuti prosedur yang tepat untuk melakukan penyelidikan ilmiah, menjelaskan cara penyelidikan yang dapat dipastikan kebenarannya, serta mengevaluasi cara penyelidikan ilmiah untuk menyelesaikan masalah pekerjaan.",
+              "Menerjemahkan Data dan Bukti secara Ilmiah": "Peserta didik mampu menerjemahkan data dan bukti dari berbagai sumber untuk membuat kesimpulan ilmiah, mengevaluasi argumen, serta merancang tindakan tindak lanjut berdasarkan hasil analisis data ilmiah."
+            }
+          }
+        ]
+      },
+      {
+        "nama": "Sejarah SMK",
+        "capaian_per_fase": [
+          {
+            "fase": "E",
+            "kelas": "X SMK/MAK",
+            "elemen": {
+              "Pemahaman Konsep Sejarah": "Peserta didik mampu memahami konsep dasar ilmu sejarah dan sejarah Indonesia yang mencakup jalur rempah, kerajaan Hindu-Buddha, kerajaan Islam, kolonialisme dan perlawanan bangsa Indonesia, pergerakan nasional, proklamasi kemerdekaan, hingga mempertahankan kemerdekaan dan perkembangan teknologi terapan di Indonesia.",
+              "Keterampilan Proses Sejarah": "Peserta didik mampu melakukan penelitian sejarah lokal sederhana, menganalisis sumber sejarah primer dan sekunder, serta mengomunikasikan hasil penelitian sejarah secara lisan, tertulis, dan/atau menggunakan media digital."
+            }
+          }
+        ]
+      },
+      {
+        "nama": "Koding dan Kecerdasan Artifisial SMK",
+        "capaian_per_fase": [
+          {
+            "fase": "F",
+            "kelas": "XI dan XII SMK/MAK",
+            "elemen": {
+              "Pemrograman Terapan dan Algoritma": "Peserta didik mampu menerapkan algoritma kompleks, struktur data terapan, serta bahasa pemrograman untuk memecahkan masalah dalam domain keahlian kejuruan.",
+              "Penerapan Kecerdasan Artifisial Kejuruan": "Peserta didik mampu mengintegrasikan model machine learning, computer vision, atau natural language processing ke dalam aplikasi terapan industri atau wirausaha kejuruan.",
+              "Etika dan Keamanan Siber Terapan": "Peserta didik mampu menganalisis etika kecerdasan artifisial, keamanan data industri, serta implikasi sosial-ekonomi penerapan otomatisasi cerdas pada dunia kerja."
+            }
+          }
+        ]
+      },
+      {
+        "nama": "Dasar-Dasar Teknik Otomotif",
+        "capaian_per_fase": [
+          {
+            "fase": "E",
+            "kelas": "X SMK/MAK",
+            "elemen": {
+              "Proses Bisnis Bidang Otomotif": "Peserta didik mampu memahami proses bisnis bidang otomotif secara menyeluruh pada berbagai jenis industri dan manufaktur otomotif, penerimaan komponen, perakitan, penjaminan mutu (quality control), hingga layanan purna jual.",
+              "Perkembangan Teknologi Otomotif": "Peserta didik mampu memahami perkembangan teknologi otomotif dan dunia kerja serta isu-isu global terkait teknologi kendaraan listrik (EV), kendaraan otonom, dan sistem ramah lingkungan.",
+              "Profesi dan Kewirausahaan (Job Profile)": "Peserta didik mampu memahami profesi dan kewirausahaan (job profile dan technopreneurship) serta peluang usaha di bidang otomotif.",
+              "K3LH dan Budaya Kerja Industri": "Peserta didik mampu menerapkan Kesehatan, Keselamatan Kerja, dan Lingkungan Hidup (K3LH) serta budaya kerja industri (5S/5R) pada tempat kerja.",
+              "Teknik Dasar Pemeliharaan dan Perbaikan Otomotif": "Peserta didik mampu menerapkan teknik dasar pemeliharaan dan perbaikan otomotif, penggunaan alat ukur, pembacaan gambar teknik, serta dasar-dasar kelistrikan dan mekanika kendaraan."
+            }
+          }
+        ]
+      },
+      {
+        "nama": "Dasar-Dasar Pengembangan Perangkat Lunak dan GIM (PPLG)",
+        "capaian_per_fase": [
+          {
+            "fase": "E",
+            "kelas": "X SMK/MAK",
+            "elemen": {
+              "Proses Bisnis Industri PPLG": "Peserta didik mampu memahami proses bisnis perencanaan, analisis, desain, implementasi, pengujian, dan perawatan perangkat lunak dan GIM.",
+              "Perkembangan Teknologi Industri PPLG": "Peserta didik mampu memahami perkembangan teknologi industri PPLG termasuk cloud computing, IoT, AI, dan arsitektur microservices.",
+              "Profesi dan Kewirausahaan Industri PPLG": "Peserta didik mampu memahami job profile, profesi (software engineer, UI/UX designer, game developer), dan potensi kewirausahaan di bidang PPLG.",
+              "Pemrograman Terstruktur": "Peserta didik mampu menerapkan konsep dasar algoritma, tipe data, variabel, kontrol alur pemrograman, serta fungsi dalam penyelesaian masalah.",
+              "Pemrograman Berorientasi Objek": "Peserta didik mampu menerapkan konsep pemrograman berorientasi objek (class, object, inheritance, polymorphism, encapsulation)."
+            }
+          }
+        ]
+      },
+      {
+        "nama": "Dasar-Dasar Akuntansi dan Keuangan Lembaga",
+        "capaian_per_fase": [
+          {
+            "fase": "E",
+            "kelas": "X SMK/MAK",
+            "elemen": {
+              "Proses Bisnis di Bidang Akuntansi": "Peserta didik mampu memahami tahapan proses bisnis akuntansi pada perusahaan jasa, dagang, dan manufaktur secara akurat.",
+              "Perkembangan Teknologi Akuntansi": "Peserta didik mampu memahami perkembangan teknologi di industri dan dunia kerja serta penerapan aplikasi akuntansi berbasis spreadsheet dan software akuntansi digital.",
+              "Etika Profesi dan K3LH Akuntansi": "Peserta didik mampu menerapkan etika profesi akuntan, prinsip integritas, kerahasiaan data keuangan, serta K3LH di tempat kerja.",
+              "Prinsip Dasar Akuntansi dan Perbankan": "Peserta didik mampu menerapkan prinsip dasar akuntansi, persamaan dasar akuntansi, mekanisme debit-kredit, serta dasar-dasar transaksi perbankan."
+            }
+          }
+        ]
+      },
+      {
+        "nama": "Konsentrasi Keahlian Teknik Kendaraan Ringan",
+        "capaian_per_fase": [
+          {
+            "fase": "F",
+            "kelas": "XI dan XII SMK/MAK",
+            "elemen": {
+              "Konversi Energi Kendaraan Ringan": "Peserta didik mampu melakukan perawatan dan perbaikan sistem konversi energi kendaraan ringan mencakup mesin bensin, mesin diesel, dan sistem bahan bakar.",
+              "Proses Perawatan dan Perbaikan Mesin": "Peserta didik mampu melakukan diagnosis, pembongkaran, pemeriksaan, penggantian komponen, dan perakitan ulang mesin kendaraan ringan sesuai SOP.",
+              "Sistem Pemindah Tenaga": "Peserta didik mampu merawat dan memperbaiki sistem pemindah tenaga (kopling, transmisi, poros propeler, diferensial, dan poros roda).",
+              "Sistem Sasis dan Kelistrikan": "Peserta didik mampu merawat dan memperbaiki sistem kemudi, rem, suspensi, kelistrikan bodi, serta sistem AC kendaraan ringan."
+            }
+          }
+        ]
+      },
+      {
+        "nama": "Konsentrasi Keahlian Rekayasa Perangkat Lunak",
+        "capaian_per_fase": [
+          {
+            "fase": "F",
+            "kelas": "XI dan XII SMK/MAK",
+            "elemen": {
+              "Pemrograman Web dan Perangkat Bergerak": "Peserta didik mampu merancang, membuat, dan mengintegrasikan aplikasi web interaktif serta aplikasi mobile native/hybrid berbasis basis data.",
+              "Basis Data": "Peserta didik mampu merancang ERD, membuat basis data relasional (SQL) dan non-relasional, serta mengelola manipulasi data (DML/DDL).",
+              "Pemrograman Berorientasi Objek Terapan": "Peserta didik mampu mengembangkan aplikasi enterprise skala menengah menggunakan arsitektur MVC dan kerangka kerja (framework) pemrograman modern.",
+              "Pembuatan GIM Terapan": "Peserta didik mampu merancang desain permainan (game design document), membuat aset 2D/3D sederhana, serta melakukan koding logika permainan menggunakan game engine."
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "kategori": "Pendidikan Kesetaraan (Program Paket A, Paket B, dan Paket C)",
+    "mata_pelajaran": [
+      {
+        "nama": "Pemberdayaan dan Keterampilan Kesetaraan",
+        "capaian_per_fase": [
+          {
+            "fase": "A s.d. C",
+            "kelas": "Program Paket A (Setara SD/MI)",
+            "elemen": {
+              "Pemberdayaan": "Peserta didik mengenali potensi diri, membangun kepercayaan diri, memahami hak dan kewajiban sebagai warga masyarakat, serta mampu beradaptasi dengan lingkungan sosial sekitar secara mandiri.",
+              "Keterampilan Wirausaha Sederhana": "Peserta didik mengenali jenis-jenis keterampilan praktis lokal, memanfaatkan bahan alam/lingkungan sekitar untuk membuat karya kerajinan atau olahan sederhana, serta memahami konsep dasar pertukaran nilai dan nilai guna barang."
+            }
+          },
+          {
+            "fase": "D",
+            "kelas": "Program Paket B (Setara SMP/MTs)",
+            "elemen": {
+              "Pemberdayaan": "Peserta didik mengidentifikasi permasalahan di lingkungan lokal, berpartisipasi aktif dalam kegiatan kemasyarakatan, serta mengkritisi potensi daerah untuk pengembangan kapasitas ekonomi keluarga.",
+              "Keterampilan Vokasional Terapan": "Peserta didik merencanakan, membuat, dan mengemas produk keterampilan khas daerah; mempraktikkan alur produksi sederhana; serta menyusun simulasi pembukuan dan pemasaran produk secara langsung maupun digital."
+            }
+          },
+          {
+            "fase": "E dan F",
+            "kelas": "Program Paket C (Setara SMA/MA)",
+            "elemen": {
+              "Pemberdayaan": "Peserta didik menganalisis peluang kemitraan, mengorganisasi kegiatan pemberdayaan komunitas lokal, serta menerapkan kepemimpinan partisipatif dalam menyelesaikan masalah sosial ekonomi di masyarakat.",
+              "Keterampilan Kewirausahaan Mandiri": "Peserta didik menganalisis kelayakan usaha, menyusun rencana bisnis (business plan), mengoperasikan proses produksi berbasis standar mutu, serta menerapkan strategi pemasaran modern dan pengelolaan keuangan usaha mandiri."
+            }
+          }
+        ]
+      },
+      {
+        "nama": "Kontekstualisasi Mata Pelajaran Umum Kesetaraan",
+        "capaian_per_fase": [
+          {
+            "fase": "A s.d. F",
+            "kelas": "Paket A, Paket B, dan Paket C",
+            "elemen": {
+              "Integrasi Kontekstual": "Penyampaian muatan mata pelajaran umum (Bahasa Indonesia, Matematika, IPA, IPS, PPKn) disesuaikan dengan karakteristik peserta didik dewasa/usia produktif, berorientasi pada pemecahan masalah praktis harian, fleksibilitas moda belajar (tatap muka, tutorial, mandiri), dan pemberdayaan potensi lokal."
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "kategori": "Pendidikan Khusus (SLB - TKLB, SDLB, SMPLB, SMALB)",
+    "mata_pelajaran": [
+      {
+        "nama": "Program Kebutuhan Khusus",
+        "capaian_per_fase": [
+          {
+            "fase": "Fondasi s.d. F",
+            "kelas": "TKLB, SDLB, SMPLB, SMALB (Sesuai Usia Mental)",
+            "elemen": {
+              "Pengembangan Diri dan Merawat Diri (Hambatan Intelektual & Fisik/Daksa)": "Peserta didik mampu melakukan kegiatan merawat diri (makan, minum, mandi, berpakaian, menjaga kebersihan diri) dan menolong diri sendiri dalam kehidupan sehari-hari secara mandiri atau dengan bantuan minimal.",
+              "Pengembangan Komunikasi, Persepsi Bunyi, dan Irama (Hambatan Pendengaran/Tuli)": "Peserta didik merespons, membedakan, dan mengasosiasikan bunyi latar belakang, bunyi bahasa, serta irama musik melalui sisa pendengaran atau hantaran tulang untuk berkomunikasi lisan/isyarat secara efektif.",
+              "Orientasi dan Mobilitas (Hambatan Penglihatan/Netra)": "Peserta didik mengenali konsep ruang, arah, dan objek menggunakan indra perabaan, pendengaran, dan penciuman; serta menggunakan tongkat putih/teknologi asistif untuk berpindah tempat secara aman dan mandiri.",
+              "Pengembangan Interaksi Sosial dan Perilaku (Autis)": "Peserta didik mengendalikan emosi, merespons instruksi sederhana, mematuhi kontak mata dan komunikasi efektif, serta berinteraksi secara adaptif dalam lingkungan keluarga dan sekolah."
+            }
+          }
+        ]
+      },
+      {
+        "nama": "Bahasa Indonesia Pendidikan Khusus",
+        "capaian_per_fase": [
+          {
+            "fase": "A (Usia Mental ± 7 Tahun)",
+            "kelas": "SDLB",
+            "elemen": {
+              "Menyimak dan Merespons": "Peserta didik merespons instruksi lisan, isyarat, atau simbol visual sederhana dalam kehidupan sehari-hari.",
+              "Membaca dan Memirsa": "Peserta didik mengenali huruf, kata sederhana, atau simbol Braille/gambar yang berkaitan dengan lingkungan dekatnya."
+            }
+          },
+          {
+            "fase": "D dan E (Usia Mental ± 10-12 Tahun)",
+            "kelas": "SMPLB dan SMALB",
+            "elemen": {
+              "Berbicara dan Mengomunikasikan": "Peserta didik menyampaikan pendapat, kebutuhan dasar, dan pengalaman pribadi menggunakan Bahasa Indonesia lisan, isyarat, atau papan komunikasi fungsional.",
+              "Menulis": "Peserta didik menyalin, menceritakan kembali secara tertulis/isyarat/Braille ungkapan pikiran sederhana tentang diri dan lingkungannya."
+            }
+          }
+        ]
+      },
+      {
+        "nama": "Matematika Fungsional Pendidikan Khusus",
+        "capaian_per_fase": [
+          {
+            "fase": "A s.d. F",
+            "kelas": "SDLB, SMPLB, SMALB",
+            "elemen": {
+              "Bilangan Fungsional": "Peserta didik membilang, mengenal konsep nilai tempat sederhana, serta mengoperasikan penjumlahan dan pengurangan konkret untuk transaksi belanja sederhana.",
+              "Pengukuran dan Uang Harian": "Peserta didik mengenali satuan waktu (jam, hari), mengenal pecahan uang rupiah, serta mempraktikkan penggunaan uang dalam simulasi kegiatan jual beli harian."
+            }
+          }
+        ]
+      },
+      {
+        "nama": "Keterampilan Vokasional SLB",
+        "capaian_per_fase": [
+          {
+            "fase": "D dan E/F",
+            "kelas": "SMPLB dan SMALB",
+            "elemen": {
+              "Orientasi Kerja": "Peserta didik mengenali alat kerja, K3 sederhana, serta mematuhi tata tertib dan keselamatan dalam lingkungan kerja keterampilan.",
+              "Praktik Keterampilan Pilihan": "Peserta didik mempraktikkan tahapan kerja pembuatan produk olahan/kerajinan (seperti Tata Boga, Tata Busana, Pertanian/Perkebunan, Suvenir, atau Sablon) sesuai bakat dan minat khusus untuk kemandirian ekonomi."
+            }
+          }
+        ]
+      }
+    ]
+  }
+]

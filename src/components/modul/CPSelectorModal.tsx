@@ -13,6 +13,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Skeleton } from '@/components/ui/skeleton';
 import { supabase } from '@/integrations/supabase/client';
 import { findMapelSlug, resolveMapelCP, FallbackInfo, MAPEL_LIST } from '@/lib/cp-mapel-mapping';
+import { queryMasterCPDatabase } from '@/lib/cp-master-service';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface CPSelectorModalProps {
@@ -64,6 +65,7 @@ export const CPSelectorModal = ({
   const [kelas, setKelas] = useState<string>('');
   const [cpSource, setCpSource] = useState<'github' | 'cp032' | 'kbc_madrasah'>('github');
   const [fallbackInfo, setFallbackInfo] = useState<FallbackInfo | null>(null);
+  const [activeDataSource, setActiveDataSource] = useState<string>('');
 
   // Compute effective source synchronously (avoids race condition with setCpSource)
   const getEffectiveSource = (): 'github' | 'cp032' | 'kbc_madrasah' => {
@@ -90,6 +92,7 @@ export const CPSelectorModal = ({
       setSelectedElements(new Set());
       setError(null);
       setFallbackInfo(null);
+      setActiveDataSource('');
     }
   }, [open, mataPelajaran, fase, kurikulum, cpSource]);
 
@@ -104,6 +107,23 @@ export const CPSelectorModal = ({
     setMatchedSlug(resolution ? resolution.slug : null);
     setFilterNama(resolution?.filterNama);
     setFallbackInfo(resolution?.fallbackInfo || null);
+
+    // 1. Primary Single Source of Truth: BSKAP No. 046/H/KR/2025 Master Database
+    if (source !== 'cp032' && source !== 'kbc_madrasah') {
+      const masterResult = queryMasterCPDatabase(mataPelajaran, fase);
+      if (masterResult && masterResult.elemen.length > 0) {
+        setAllElements(masterResult.elemen);
+        setKelas(masterResult.kelas);
+        if (masterResult.isFallback && masterResult.fallbackInfo) {
+          setFallbackInfo(masterResult.fallbackInfo);
+        }
+        setActiveDataSource('BSKAP No. 046/2025');
+        setLoading(false);
+        return;
+      }
+    }
+
+    setActiveDataSource(source === 'cp032' ? 'SK 032/2024' : source === 'kbc_madrasah' ? 'Kemenag 2025' : '');
 
     if (!resolution) {
       setError(`Mata pelajaran "${mataPelajaran}" tidak ditemukan dalam database CP resmi. Coba gunakan nama lengkap, misalnya "Matematika", "Bahasa Indonesia", "IPA", dll.`);
@@ -229,10 +249,17 @@ export const CPSelectorModal = ({
             <Search className="w-5 h-5 text-primary" />
             {cpSource === 'kbc_madrasah' ? 'Cari CP Resmi Kemenag (Madrasah)' : 'Cari CP Resmi Kemdikbud'}
           </DialogTitle>
-          <DialogDescription>
-            {mataPelajaran && fase
-              ? `${mataPelajaran} — Fase ${fase}${kelas ? ` (${kelas})` : ''}`
-              : 'Isi Mata Pelajaran dan Fase terlebih dahulu'}
+          <DialogDescription className="flex items-center gap-2 flex-wrap">
+            <span>
+              {mataPelajaran && fase
+                ? `${mataPelajaran} — Fase ${fase}${kelas ? ` (${kelas})` : ''}`
+                : 'Isi Mata Pelajaran dan Fase terlebih dahulu'}
+            </span>
+            {activeDataSource && (
+              <span className="text-[10px] font-medium bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-300 dark:border-emerald-800">
+                {activeDataSource}
+              </span>
+            )}
           </DialogDescription>
         </DialogHeader>
 
