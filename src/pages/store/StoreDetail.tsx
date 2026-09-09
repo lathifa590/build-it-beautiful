@@ -13,6 +13,7 @@ const StoreDetail = () => {
   
   const [buyerName, setBuyerName] = useState(user?.user_metadata?.full_name || '');
   const [buyerEmail, setBuyerEmail] = useState(user?.email || '');
+  const [buyerWhatsapp, setBuyerWhatsapp] = useState('');
   const [showBuyModal, setShowBuyModal] = useState(false);
 
   const { data: listing, isLoading } = useQuery({
@@ -27,6 +28,9 @@ const StoreDetail = () => {
       if (!buyerName || !buyerEmail) throw new Error("Nama dan Email wajib diisi");
 
       const isFree = listing.price_amount === 0;
+      // Tambahkan kode unik 3 digit acak (100-999) untuk order berbayar agar mudah diverifikasi di mutasi bank
+      const uniqueCode = isFree ? 0 : Math.floor(100 + Math.random() * 900);
+      const finalAmount = isFree ? 0 : listing.price_amount + uniqueCode;
       
       const orderData = {
         invoice_number: `INV-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
@@ -34,7 +38,8 @@ const StoreDetail = () => {
         listing_id: listing.listing_id,
         buyer_email: buyerEmail,
         buyer_name: buyerName,
-        total_amount: listing.price_amount,
+        buyer_whatsapp: buyerWhatsapp.trim() || undefined,
+        total_amount: finalAmount,
         status: isFree ? 'SELESAI' : 'PENDING_PAYMENT',
       };
 
@@ -147,14 +152,42 @@ const StoreDetail = () => {
                  <input type="email" placeholder="email@contoh.com" value={buyerEmail} onChange={e => setBuyerEmail(e.target.value)} />
                  <p className="text-xs text-gray-500 mt-1">*Link akses/download akan terhubung dengan email ini.</p>
                </div>
-
-               <div className="pt-4 border-t border-gray-200 mt-4 flex gap-3">
-                 <button className="btn-secondary w-full" onClick={() => setShowBuyModal(false)} disabled={buyMutation.isPending}>Batal</button>
-                 <button className="btn-simpan w-full" onClick={() => buyMutation.mutate()} disabled={buyMutation.isPending}>
-                   {buyMutation.isPending ? 'Memproses...' : 'Lanjutkan'}
-                 </button>
+               <div className="field-group">
+                 <label>Nomor WhatsApp</label>
+                 <input 
+                   type="tel" 
+                   placeholder="Misal: 08123456789" 
+                   value={buyerWhatsapp} 
+                   onChange={e => setBuyerWhatsapp(e.target.value)} 
+                 />
+                 <p className="text-xs text-gray-500 mt-1">*Untuk mempermudah konfirmasi pesanan via WhatsApp.</p>
                </div>
-             </div>
+
+                {listing.price_amount > 0 && (
+                  <div className="pt-1">
+                    <label className="text-xs font-bold text-gray-600 block mb-1.5 uppercase tracking-wider">Metode Pembayaran</label>
+                    <div className="p-3 bg-[#f8faff] border-2 border-blue-600 rounded-xl flex items-center justify-between">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-sm">
+                          🏦
+                        </div>
+                        <div>
+                          <p className="font-bold text-sm text-[#111]">{listing.store_profile?.bank_name || 'Bank BRI'}</p>
+                          <p className="text-[11px] text-gray-500">Transfer Manual (Konfirmasi WhatsApp)</p>
+                        </div>
+                      </div>
+                      <span className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold">✓</span>
+                    </div>
+                  </div>
+                )}
+
+                <div className="pt-4 border-t border-gray-200 mt-4 flex gap-3">
+                  <button className="btn-secondary w-full" onClick={() => setShowBuyModal(false)} disabled={buyMutation.isPending}>Batal</button>
+                  <button className="btn-simpan w-full" onClick={() => buyMutation.mutate()} disabled={buyMutation.isPending}>
+                    {buyMutation.isPending ? 'Memproses...' : 'Lanjutkan Pembayaran'}
+                  </button>
+                </div>
+              </div>
           </div>
         </div>
       )}
