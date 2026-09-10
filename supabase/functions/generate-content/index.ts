@@ -634,19 +634,31 @@ serve(async (req) => {
             repaired = repaired.replace(/\[\s*\.\.\.\s*\]/g, '[]');
             // Contoh 3: { ... } -> hapus ...
             repaired = repaired.replace(/\{\s*\.\.\.\s*\}/g, '{}');
-            // Jika masih ada ... yang nyasar di luar string, ganti jadi null
-            repaired = repaired.replace(/(?<!["\w])\.\.\.(?!["\w])/g, 'null');
+            // Jika masih ada ... yang nyasar di luar string, ganti jadi null (tanpa lookbehind)
+            repaired = repaired.replace(/([^"\w])\.\.\.(?=[^"\w]|$)/g, '$1null');
 
+            // Perbaiki "Unterminated string" — hapus field terakhir yang tidak lengkap
+            // Pattern: trailing comma + partial key/value di akhir
+            repaired = repaired.replace(/,\s*"[^"]*(?:"[^"]*)*$/, '');
+            // Tutup string yang terbuka (string value tidak ditutup sebelum } atau ])
+            repaired = repaired.replace(/"([^"\\]|\\["\\\/{bfnrtu])*$/, '');
+
+            repaired = repaired.replace(/,\s*$/, '');
             const openBraces = (repaired.match(/\{/g) || []).length;
             const closeBraces = (repaired.match(/\}/g) || []).length;
             const openBrackets = (repaired.match(/\[/g) || []).length;
             const closeBrackets = (repaired.match(/\]/g) || []).length;
-            repaired = repaired.replace(/,\s*"[^"]*"?\s*:?\s*"?[^"]*$/, '');
-            repaired = repaired.replace(/,\s*$/, '');
             for (let i = 0; i < openBrackets - closeBrackets; i++) repaired += ']';
             for (let i = 0; i < openBraces - closeBraces; i++) repaired += '}';
             return { parsed: JSON.parse(repaired), sanitized: repaired };
           } catch (repairError) {
+            // Last-resort: untuk kontekstualisasi-cp, coba ekstrak value langsung dari teks
+            try {
+              const cpMatch = text.match(/["']?cp_kontekstual["']?\s*:\s*["']([^"']*(?:\\.[^"']*)*)["']?/);
+              if (cpMatch?.[1]) {
+                return { parsed: { cp_kontekstual: cpMatch[1].trim() }, sanitized: text };
+              }
+            } catch { /* ignore */ }
             return { sanitized, error: repairError || parseError };
           }
         }
@@ -2986,7 +2998,7 @@ Jahit ke seksi/konten yang sudah ada — JANGAN buat seksi baru di luar struktur
             { role: "system", content: systemPrompt },
             { role: "user", content: userPrompt },
           ],
-          ...(type !== 'kontekstualisasi-cp' ? { response_format: { type: "json_object" } } : {}),
+          response_format: { type: "json_object" },
         }),
       });
     }
