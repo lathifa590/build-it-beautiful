@@ -99,7 +99,7 @@ export const CreateWorkspaceModal = ({ isOpen, onClose }: CreateWorkspaceModalPr
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px] border-2 border-foreground shadow-brutal">
+      <DialogContent className="sm:max-w-[425px] border-2 border-foreground shadow-brutal max-h-[90vh] overflow-y-auto">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle>Buat Workspace Baru</DialogTitle>
