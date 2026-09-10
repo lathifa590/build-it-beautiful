@@ -340,6 +340,17 @@ export const generateWorkspaceMeetingDirect = async (
 
       // Setelah modul selesai, perkaya formData dengan data dari respons
       if (jenis === 'modul') {
+        // Baca pemahaman_bermakna dan metode_pembelajaran dari root level modul response
+        // (modul-pertemuan kini selalu mengembalikan kedua field ini)
+        if (resData.data?.pemahaman_bermakna && !enrichedFormData.pemahamanBermakna) {
+          enrichedFormData.pemahamanBermakna = resData.data.pemahaman_bermakna;
+          console.log('[autogen] pemahaman_bermakna dari modul:', resData.data.pemahaman_bermakna.substring(0, 60));
+        }
+        if (resData.data?.metode_pembelajaran?.length > 0 && (!enrichedFormData.metodePembelajaran || enrichedFormData.metodePembelajaran.length === 0)) {
+          enrichedFormData.metodePembelajaran = resData.data.metode_pembelajaran;
+          console.log('[autogen] metode_pembelajaran dari modul:', resData.data.metode_pembelajaran);
+        }
+
         // Ekstrak auto_generated dari respons modul (dari prompt inline auto-fill)
         const modulAutoGen = resData.data?.auto_generated;
         if (modulAutoGen) {
