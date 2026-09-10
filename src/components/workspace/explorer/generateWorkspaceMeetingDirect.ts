@@ -157,9 +157,13 @@ export const generateWorkspaceMeetingDirect = async (
       const { data: cpRes } = await supabase.functions.invoke('generate-content', {
         body: { type: 'kontekstualisasi-cp', data: { ...baseFormData } }
       });
-      const cpKontekstual = cpRes?.data?.cp_kontekstual;
+      // Fallback: coba berbagai path karena edge function bisa mengembalikan { data: { cp_kontekstual } } atau { cp_kontekstual }
+      const cpKontekstual = cpRes?.data?.cp_kontekstual || cpRes?.cp_kontekstual;
       if (cpKontekstual && cpKontekstual.length > 20) {
         baseFormData.capaianPembelajaran = cpKontekstual;
+        console.log('[autogen] CP berhasil diringkas:', cpKontekstual.substring(0, 80));
+      } else {
+        console.warn('[autogen] CP tidak diringkas — response:', JSON.stringify(cpRes)?.substring(0, 200));
       }
     } catch (e) {
       console.warn("Kontekstualisasi CP gagal, lanjut dengan CP asli", e);
@@ -260,9 +264,9 @@ export const generateWorkspaceMeetingDirect = async (
       status: {}
     }];
 
-    const jenisDocs: JenisDoc[] = ['modul', 'lkpd', 'asesmen', 'materi', 'soal'];
+    const jenisDocs: JenisDoc[] = ['modul', 'lkpd', 'asesmen', 'materi', 'soal', 'refleksi'];
     const docLabels: Record<JenisDoc, string> = {
-      modul: 'Modul Ajar', lkpd: 'LKPD', asesmen: 'Asesmen', materi: 'Materi', soal: 'Bank Soal'
+      modul: 'Modul Ajar', lkpd: 'LKPD', asesmen: 'Asesmen', materi: 'Materi', soal: 'Bank Soal', refleksi: 'Refleksi'
     };
 
     // Gunakan soalConfig dari pengaturan, atau gunakan default (10 soal) jika kosong
@@ -280,9 +284,11 @@ export const generateWorkspaceMeetingDirect = async (
     };
 
     let soalConfig = defaultSoalConfig;
+    console.log('[autogen] genSettings.soalConfig raw:', JSON.stringify(genSettings.soalConfig)?.substring(0, 300));
     if (genSettings.soalConfig && Object.keys(genSettings.soalConfig).length > 0) {
       if ('typeConfigs' in genSettings.soalConfig) {
         soalConfig = genSettings.soalConfig as any;
+        console.log('[autogen] soalConfig dari settings (format baru):', JSON.stringify(soalConfig).substring(0, 200));
       } else {
         const legacy = genSettings.soalConfig as any;
         const newTypeConfigs: any = { ...defaultSoalConfig.typeConfigs };
@@ -292,7 +298,10 @@ export const generateWorkspaceMeetingDirect = async (
           }
         }
         soalConfig = { level: defaultSoalConfig.level, typeConfigs: newTypeConfigs };
+        console.log('[autogen] soalConfig dari settings (format legacy):', JSON.stringify(soalConfig).substring(0, 200));
       }
+    } else {
+      console.log('[autogen] soalConfig tidak ada di settings, pakai default:', JSON.stringify(defaultSoalConfig).substring(0, 200));
     }
 
     const docsToGenerate = jenisDocs; // Selalu generate semua dokumen termasuk soal
@@ -329,42 +338,80 @@ export const generateWorkspaceMeetingDirect = async (
         continue; // Lanjut ke dokumen berikutnya
       }
 
-      // Setelah modul selesai, perkaya formData dengan modulPreface jika ada
+      // Setelah modul selesai, perkaya formData dengan data dari respons
       if (jenis === 'modul') {
+        // Ekstrak auto_generated dari respons modul (dari prompt inline auto-fill)
+        const modulAutoGen = resData.data?.auto_generated;
+        if (modulAutoGen) {
+          console.log('[autogen] auto_generated dari modul ditemukan, memperkaya formData');
+          // Isi field yang masih kosong dari auto_generated yang ada di respons modul
+          if (modulAutoGen.identifikasi_murid) {
+            enrichedFormData.aspekPengetahuanAwal = enrichedFormData.aspekPengetahuanAwal || modulAutoGen.identifikasi_murid.aspek_pengetahuan_awal || '';
+            enrichedFormData.aspekMinat = enrichedFormData.aspekMinat || modulAutoGen.identifikasi_murid.aspek_minat || '';
+            enrichedFormData.aspekLatarBelakang = enrichedFormData.aspekLatarBelakang || modulAutoGen.identifikasi_murid.aspek_latar_belakang || '';
+            enrichedFormData.aspekKebutuhanBelajar = enrichedFormData.aspekKebutuhanBelajar || modulAutoGen.identifikasi_murid.aspek_kebutuhan_belajar || '';
+          }
+          if (modulAutoGen.materi_pengetahuan) {
+            enrichedFormData.materiPengetahuan = {
+              faktual: enrichedFormData.materiPengetahuan?.faktual || modulAutoGen.materi_pengetahuan.faktual || '',
+              konseptual: enrichedFormData.materiPengetahuan?.konseptual || modulAutoGen.materi_pengetahuan.konseptual || '',
+              prosedural: enrichedFormData.materiPengetahuan?.prosedural || modulAutoGen.materi_pengetahuan.prosedural || '',
+              metakognitif: enrichedFormData.materiPengetahuan?.metakognitif || modulAutoGen.materi_pengetahuan.metakognitif || '',
+            };
+          }
+          enrichedFormData.dimensiProfilLulusan = (enrichedFormData.dimensiProfilLulusan?.length ? enrichedFormData.dimensiProfilLulusan : null)
+            || modulAutoGen.dimensi_profil_lulusan || [];
+          enrichedFormData.dimensiProfilLulusanDeskripsi = enrichedFormData.dimensiProfilLulusanDeskripsi || modulAutoGen.dpl_deskripsi || '';
+          enrichedFormData.nilaiKarakter = (enrichedFormData.nilaiKarakter?.length ? enrichedFormData.nilaiKarakter : null)
+            || modulAutoGen.nilai_karakter || [];
+          enrichedFormData.kaitanKehidupan = enrichedFormData.kaitanKehidupan || modulAutoGen.kaitan_kehidupan || '';
+          enrichedFormData.pemahamanBermakna = enrichedFormData.pemahamanBermakna || resData.data?.pemahaman_bermakna || modulAutoGen.pemahaman_bermakna || '';
+          enrichedFormData.lintasDisiplinIlmu = Object.keys(enrichedFormData.lintasDisiplinIlmu || {}).length ? enrichedFormData.lintasDisiplinIlmu : (modulAutoGen.lintas_disiplin || {});
+          enrichedFormData.kemitraanPembelajaran = Object.keys(enrichedFormData.kemitraanPembelajaran || {}).length ? enrichedFormData.kemitraanPembelajaran : (modulAutoGen.kemitraan || {});
+          enrichedFormData.lingkunganPembelajaranDetail = Object.keys(enrichedFormData.lingkunganPembelajaranDetail || {}).length ? enrichedFormData.lingkunganPembelajaranDetail : (modulAutoGen.lingkungan || {});
+          enrichedFormData.pemanfaatanDigitalDetail = Object.keys(enrichedFormData.pemanfaatanDigitalDetail || {}).length ? enrichedFormData.pemanfaatanDigitalDetail : (modulAutoGen.pemanfaatan_digital || {});
+        }
+
+        // Bangun modulPreface dari agData atau modulAutoGen
+        const agSource = modulAutoGen || agData;
         if (resData.data.modulPreface) {
           currentResult.modulPreface = resData.data.modulPreface;
-        } else if (agData) {
+        } else if (agSource) {
           currentResult.modulPreface = {
-            pemahaman_bermakna: baseFormData.pemahamanBermakna || '',
+            pemahaman_bermakna: enrichedFormData.pemahamanBermakna || resData.data?.pemahaman_bermakna || '',
             auto_generated: {
-              identifikasi_murid: agData.identifikasi_murid || {
-                aspek_pengetahuan_awal: baseFormData.aspekPengetahuanAwal,
-                aspek_minat: baseFormData.aspekMinat,
-                aspek_latar_belakang: baseFormData.aspekLatarBelakang,
-                aspek_kebutuhan_belajar: baseFormData.aspekKebutuhanBelajar,
+              identifikasi_murid: agSource.identifikasi_murid || {
+                aspek_pengetahuan_awal: enrichedFormData.aspekPengetahuanAwal,
+                aspek_minat: enrichedFormData.aspekMinat,
+                aspek_latar_belakang: enrichedFormData.aspekLatarBelakang,
+                aspek_kebutuhan_belajar: enrichedFormData.aspekKebutuhanBelajar,
               },
-              materi_pengetahuan: agData.materi_pengetahuan || baseFormData.materiPengetahuan,
-              dimensi_profil_lulusan: baseFormData.dimensiProfilLulusan || [],
-              nilai_karakter: baseFormData.nilaiKarakter || [],
-              kaitan_kehidupan: baseFormData.kaitanKehidupan || '',
-              lintas_disiplin: agData.lintas_disiplin || {},
-              kemitraan: agData.kemitraan || {},
-              lingkungan: agData.lingkungan || {},
-              pemanfaatan_digital: agData.pemanfaatan_digital || {},
-              topik_panca_cinta: baseFormData.topikPancaCinta || [],
-              panca_cinta_deskripsi: baseFormData.topikPancaCintaDeskripsi || '',
-              materi_integrasi_kbc: baseFormData.materiIntegrasiKBC || ''
+              materi_pengetahuan: agSource.materi_pengetahuan || enrichedFormData.materiPengetahuan,
+              dimensi_profil_lulusan: enrichedFormData.dimensiProfilLulusan || [],
+              dpl_deskripsi: enrichedFormData.dimensiProfilLulusanDeskripsi || '',
+              nilai_karakter: enrichedFormData.nilaiKarakter || [],
+              kaitan_kehidupan: enrichedFormData.kaitanKehidupan || '',
+              lintas_disiplin: agSource.lintas_disiplin || enrichedFormData.lintasDisiplinIlmu || {},
+              kemitraan: agSource.kemitraan || enrichedFormData.kemitraanPembelajaran || {},
+              lingkungan: agSource.lingkungan || enrichedFormData.lingkunganPembelajaranDetail || {},
+              pemanfaatan_digital: agSource.pemanfaatan_digital || enrichedFormData.pemanfaatanDigitalDetail || {},
+              topik_panca_cinta: enrichedFormData.topikPancaCinta || [],
+              panca_cinta_deskripsi: enrichedFormData.topikPancaCintaDeskripsi || '',
+              materi_integrasi_kbc: enrichedFormData.materiIntegrasiKBC || ''
             }
           };
         }
         
-        // Inject auto_generated data into the modul content so it gets saved to curriculum_documents
-        // and can be read by WorkspaceMeetingEditor
+        // Inject auto_generated ke dalam konten modul agar tersimpan ke DB
         if (currentResult.modulPreface?.auto_generated) {
           resData.data.auto_generated = currentResult.modulPreface.auto_generated;
         }
+        // Tambahkan pemahaman_bermakna ke data modul jika belum ada
+        if (!resData.data.pemahaman_bermakna && enrichedFormData.pemahamanBermakna) {
+          resData.data.pemahaman_bermakna = enrichedFormData.pemahamanBermakna;
+        }
 
-        // Simpan autoFields ke generation_settings di tabel workspaces agar persisten dan tampil di editor
+        // Simpan enrichedFormData yang sudah diperkaya ke generation_settings
         await supabase
           .from('workspaces')
           .update({ 
