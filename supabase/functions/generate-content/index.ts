@@ -1662,9 +1662,12 @@ FORMAT OUTPUT JSON (WAJIB persis struktur nested berikut, JANGAN disederhanakan)
 }
 
 PENTING - STRUKTUR OUTPUT:
-- Kembalikan SATU OBJECT pertemuan langsung di level teratas (kecuali jika ada instruksi khusus untuk menambahkan field lain).
+- Kembalikan SATU OBJECT pertemuan langsung di level teratas.
 - Output JSON HARUS dimulai dengan { "nomorPertemuan": ${pPertemuanIndex + 1}, ... }
-- JANGAN tambahkan field "pemahaman_bermakna" atau "auto_generated" (KECUALI jika diinstruksikan secara eksplisit di bagian Instruksi Auto-Fill).
+- WAJIB sertakan field berikut di root level (sejajar dengan nomorPertemuan):
+  * "pemahaman_bermakna": string — pemahaman bermakna yang ingin dicapai murid pada pertemuan ini
+  * "metode_pembelajaran": array string — 2-4 metode konkret (misal ["Diskusi Kelompok", "Demonstrasi", "Tanya Jawab"])
+- JANGAN tambahkan field "auto_generated" (KECUALI jika diinstruksikan secara eksplisit di bagian Instruksi Auto-Fill).
 
 ATURAN STRUKTUR (WAJIB):
 1. WAJIB gunakan 3 fase pada TAHAP INTI: MEMAHAMI, MENGAPLIKASI, MEREFLEKSI.
@@ -1677,11 +1680,12 @@ ATURAN STRUKTUR (WAJIB):
 8. ${pIsKBC ? 'Gunakan istilah "peserta didik".' : 'Gunakan istilah "murid" bukan "siswa".'}
 9. Pastikan kesinambungan dengan pertemuan sebelumnya, JANGAN mengulang materi.`;
 
-        const pHasEmptyFields = !pData.aspekPengetahuanAwal || !pData.aspekMinat || !pData.materiPengetahuan?.faktual || !pData.dimensiProfilLulusan || pData.dimensiProfilLulusan.length === 0;
+        const pHasEmptyFields = !pData.aspekPengetahuanAwal || !pData.aspekMinat || !pData.materiPengetahuan?.faktual || !pData.dimensiProfilLulusan || pData.dimensiProfilLulusan.length === 0
+          || !pData.lintasDisiplinIlmu?.ppkn || !pData.kemitraanPembelajaran?.guruBidangStudiLain || !pData.lingkunganPembelajaranDetail?.ruangFisik;
 
         const pAutoFillInstructionPertemuan = `
 INSTRUKSI AUTO-FILL (PENTING!):
-Karena beberapa field Identifikasi Murid atau Jenis Pengetahuan materi masih kosong, WAJIB hasilkan field 'auto_generated' secara cerdas berdasarkan konteks pembelajaran:
+Beberapa field masih kosong. WAJIB hasilkan field 'auto_generated' secara cerdas berdasarkan konteks pembelajaran:
 
 1. IDENTIFIKASI MURID:
    - aspekPengetahuanAwal: Analisis prerequisite knowledge
@@ -1698,9 +1702,16 @@ Karena beberapa field Identifikasi Murid atau Jenis Pengetahuan materi masih kos
 3. DIMENSI PROFIL LULUSAN & NILAI KARAKTER:
    - Pilih 2-4 DPL dan 3-5 nilai karakter
 
-PENTING: Karena ini adalah pembuatan SATU pertemuan, sisipkan key "auto_generated" SEJAJAR dengan "nomorPertemuan" dan "tahap_awal" di root level output JSON:
+4. LINTAS DISIPLIN ILMU: identifikasi 1-3 mapel yang dapat diintegrasikan (isi string singkat, kosongkan jika tidak relevan)
+5. KEMITRAAN PEMBELAJARAN: pihak yang dapat berkolaborasi (guru lain, orang tua, instansi)
+6. LINGKUNGAN PEMBELAJARAN: ruang fisik, virtual, dan budaya belajar sesuai model ${pSelectedModel}
+7. PEMANFAATAN DIGITAL: platform/alat digital untuk perencanaan, pelaksanaan, dan asesmen
+
+Sisipkan key "auto_generated" SEJAJAR dengan "nomorPertemuan" dan "tahap_awal" di root level output JSON:
 {
   "nomorPertemuan": ${pData.pertemuanIndex ? pData.pertemuanIndex + 1 : 1},
+  "pemahaman_bermakna": "...",
+  "metode_pembelajaran": ["...", "..."],
   "durasi": "...",
   "auto_generated": {
     "identifikasi_murid": {
@@ -1716,7 +1727,11 @@ PENTING: Karena ini adalah pembuatan SATU pertemuan, sisipkan key "auto_generate
       "metakognitif": "..."
     },
     "dimensi_profil_lulusan": ["DPL 3", "DPL 5"],
-    "nilai_karakter": ["Kritis dan Kreatif"]
+    "nilai_karakter": ["Kritis dan Kreatif"],
+    "lintas_disiplin": { "ppkn": "...", "ips": "..." },
+    "kemitraan": { "guru_bidang_studi_lain": "...", "orang_tua": "...", "instansi_terkait": "..." },
+    "lingkungan": { "ruang_fisik": "...", "ruang_virtual": "...", "budaya_belajar": "..." },
+    "pemanfaatan_digital": { "perencanaan": "...", "pelaksanaan": "...", "asesmen": "..." }
   },
   "tahap_awal": { ... },
   ...
