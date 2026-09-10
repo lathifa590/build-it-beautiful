@@ -1,3 +1,5 @@
-name = "modulajar"
-compatibility_date = "2024-03-20"
-pages_build_output_dir = "dist"
+name = "modul-ajar"
+compatibility_date = "2026-09-10"
+
+[assets]
+directory = "./dist"
