@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Store, ShoppingBag, Package, Ticket, ArrowLeft } from 'lucide-react';
+import { Store, ShoppingBag, Package, Ticket, ArrowLeft, LayoutDashboard } from 'lucide-react';
+import StoreDashboardTab from '@/components/store/StoreDashboardTab';
 import StoreProfileTab from '@/components/store/StoreProfileTab';
 import StoreListingsTab from '@/components/store/StoreListingsTab';
 import StoreOrdersTab from '@/components/store/StoreOrdersTab';
@@ -9,7 +10,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useEffect } from 'react';
 
 const StoreManagement = () => {
-  const [activeTab, setActiveTab] = useState('profile');
+  const [activeTab, setActiveTab] = useState('dashboard');
   const navigate = useNavigate();
   const { user, isAdmin, isLoading } = useAuth();
 
@@ -32,6 +33,14 @@ const StoreManagement = () => {
           </div>
 
           <div className="space-y-2">
+            <div 
+              className={`sidebar-item ${activeTab === 'dashboard' ? 'active' : ''}`}
+              onClick={() => setActiveTab('dashboard')}
+            >
+              <LayoutDashboard className="w-4 h-4" />
+              <span>Beranda</span>
+            </div>
+            
             <div 
               className={`sidebar-item ${activeTab === 'profile' ? 'active' : ''}`}
               onClick={() => setActiveTab('profile')}
@@ -96,6 +105,7 @@ const StoreManagement = () => {
       {/* --- KONTEN UTAMA --- */}
       <div className="flex-1 p-4 pb-28 md:pb-8 md:p-8 md:h-screen overflow-y-auto w-full">
         <div className="max-w-5xl mx-auto">
+          {activeTab === 'dashboard' && <StoreDashboardTab />}
           {activeTab === 'profile' && <StoreProfileTab />}
           {activeTab === 'listings' && <StoreListingsTab />}
           {activeTab === 'orders' && <StoreOrdersTab />}
@@ -105,6 +115,13 @@ const StoreManagement = () => {
 
       {/* --- MOBILE BOTTOM NAV --- */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-[#f5f0e8] border-t-2 border-[#111] flex items-center justify-around p-2 pb-safe shadow-lg">
+        <button 
+          onClick={() => setActiveTab('dashboard')}
+          className={`flex flex-col items-center justify-center w-full p-2 rounded-lg ${activeTab === 'dashboard' ? 'text-[#c04a1a] font-bold' : 'text-gray-500'}`}
+        >
+          <LayoutDashboard className="w-5 h-5 mb-1" />
+          <span className="text-[10px]">Beranda</span>
+        </button>
         <button 
           onClick={() => setActiveTab('profile')}
           className={`flex flex-col items-center justify-center w-full p-2 rounded-lg ${activeTab === 'profile' ? 'text-[#c04a1a] font-bold' : 'text-gray-500'}`}

@@ -4,7 +4,7 @@ const ul = (arr:any[], fn:(x:any)=>string)=> arr.length?`<ul style="margin:6px 0
 export const renderModulToHtml = (d:any):string => {
   let h='';
   if(d.pemahaman_bermakna) h+=`<div style="background:#f0fdf4;border-left:4px solid #16a34a;padding:10px;margin:8px 0"><b>Pemahaman Bermakna:</b><br>${md(String(d.pemahaman_bermakna))}</div>`;
-  const list:any[] = d.pertemuan||[];
+  const list:any[] = Array.isArray(d?.pertemuan) ? d.pertemuan : (d?.tahap_awal||d?.tahap_inti||d?.tahap_penutup) ? [d] : [];
   for(const p of list){
     h+=`<h3 style="margin:10px 0 6px">Pertemuan ${p.nomorPertemuan??''} — ${esc(p.durasi||'')}</h3>`;
     const renderTahap=(label:string,tahap:any)=>{
