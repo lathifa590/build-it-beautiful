@@ -2,14 +2,16 @@ import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { storeApi } from '@/lib/store-api';
-import { CheckCircle, CheckCircle2, Clock, ArrowLeft, Download, Receipt, Copy, MessageCircle } from 'lucide-react';
+import { CheckCircle, CheckCircle2, Clock, ArrowLeft, Download, Receipt, Copy, MessageCircle, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 const StoreCheckout = () => {
   const { orderId } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [copiedField, setCopiedField] = useState<string | null>(null);
+  const [downloading, setDownloading] = useState(false);
 
   const { data: order, isLoading } = useQuery({
     queryKey: ['storeOrder', orderId],
@@ -74,6 +76,23 @@ const StoreCheckout = () => {
     }
   };
 
+  const handleDownload = async () => {
+    if (!order?.listing?.url_modul_ajar) return;
+    try {
+      setDownloading(true);
+      // ponytail: bucket private, path mentah tidak bisa dibuka langsung. Butuh signed URL 1 jam.
+      const path = order.listing.url_modul_ajar;
+      // jika sudah http (legacy), buka langsung
+      if (path.startsWith('http')) { window.open(path, '_blank'); return; }
+      const { data, error } = await supabase.storage.from('modul_store_files').createSignedUrl(path, 3600);
+      if (error) throw error;
+      if (data?.signedUrl) window.open(data.signedUrl, '_blank');
+      else throw new Error('Signed URL kosong');
+    } catch (e: any) {
+      toast.error(e.message || 'Gagal membuat link download');
+    } finally { setDownloading(false); }
+  };
+
   return (
     <div className="min-h-screen bg-[#f5f0e8] py-8 px-4 flex flex-col justify-center">
       <div className="container mx-auto max-w-md">
@@ -124,11 +143,11 @@ const StoreCheckout = () => {
               <div className="pt-4">
                 {order.listing?.url_modul_ajar ? (
                   <button 
-                    className="w-full py-4 px-6 bg-green-700 hover:bg-green-800 text-white font-black rounded-xl shadow-[4px_4px_0_0_#14532d] flex items-center justify-center gap-2 text-base transition-all active:translate-x-0.5 active:translate-y-0.5"
-                    onClick={() => window.open(order.listing!.url_modul_ajar!, '_blank')}
+                    className="w-full py-4 px-6 bg-green-700 hover:bg-green-800 text-white font-black rounded-xl shadow-[4px_4px_0_0_#14532d] flex items-center justify-center gap-2 text-base transition-all active:translate-x-0.5 active:translate-y-0.5 disabled:opacity-50"
+                    onClick={handleDownload} disabled={downloading}
                   >
-                    <Download className="w-5 h-5" />
-                    DOWNLOAD MODUL AJAR
+                    {downloading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Download className="w-5 h-5" />}
+                    {downloading ? 'MEMBUAT LINK...' : 'DOWNLOAD MODUL AJAR'}
                   </button>
                 ) : (
                   <div className="text-sm text-red-600 font-bold p-4 bg-red-50 border border-red-200 rounded-xl text-center">
