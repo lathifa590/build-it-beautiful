@@ -75,44 +75,35 @@ export const StoreBundleModal = ({
         const slot = meetingSlots[i];
         setProgressMsg(`Memproses Pertemuan ${i + 1} dari ${meetingSlots.length}...`);
         
-        // Fetch ALL documents linked to this slot (modul/lkpd/asesmen/materi/soal/refleksi = 6 docs)
+        // Batch: 1 query ambil semua doc + version untuk slot ini (pakai FK hint)
         const { data: links, error: linkError } = await supabase
           .from('meeting_document_links')
-          .select('document_id')
+          .select(`
+            document_id,
+            documents (
+              id, document_type, current_version_id,
+              document_versions!fk_documents_current_version ( content_json )
+            )
+          `)
           .eq('meeting_slot_id', slot.id);
           
-        if (linkError || !links || links.length === 0) {
-          console.warn(`No documents linked to slot ${slot.id}, skipping`);
-          continue;
-        }
+        if (linkError) { console.error(linkError); continue; }
+        if (!links || links.length === 0) { console.warn(`No docs slot ${slot.id}`); continue; }
         
-        // Collect content_json per document_type
         const dokumenByType: Record<string, any> = {};
         const pilihanDokumen: Record<string, boolean> = {};
         let modulPreface: any = null;
 
-        for (const link of links) {
-          const { data: docRow } = await supabase
-            .from('documents')
-            .select('document_type, current_version_id')
-            .eq('id', link.document_id)
-            .maybeSingle();
-          if (!docRow?.current_version_id) continue;
-
-          const { data: versionRow } = await supabase
-            .from('document_versions')
-            .select('content_json')
-            .eq('id', docRow.current_version_id)
-            .maybeSingle();
-          const cj = (versionRow as any)?.content_json;
+        for (const link of links as any[]) {
+          const doc = link.documents;
+          if (!doc) continue;
+          const versions = doc.document_versions;
+          const cj = Array.isArray(versions) ? versions[0]?.content_json : versions?.content_json;
           if (!cj) continue;
-
-          const t = docRow.document_type as string;
-          // bankSoal di V2 disimpan sebagai 'soal' tapi key dokumen = 'soal'
-          const key = t === 'soal' ? 'soal' : t;
+          const t = doc.document_type as string;
+          const key = t; // 'modul'|'lkpd'|'asesmen'|'materi'|'soal'|'refleksi'
           dokumenByType[key] = cj;
           pilihanDokumen[key] = true;
-          // ambil modulPreface dari dokumen modul jika ada
           if (t === 'modul' && cj.modulPreface) modulPreface = cj.modulPreface;
           if (t === 'modul' && cj.auto_generated && !modulPreface) {
             modulPreface = { pemahaman_bermakna: cj.pemahaman_bermakna || '', auto_generated: cj.auto_generated };
@@ -124,7 +115,6 @@ export const StoreBundleModal = ({
           continue;
         }
 
-        // Bangun GenerationResultV2 mini untuk 1 pertemuan ini
         const result: GenerationResultV2 = {
           pertemuan: [{
             id: slot.id,
@@ -140,19 +130,20 @@ export const StoreBundleModal = ({
         } as unknown as GenerationResultV2;
 
         try {
-          const { blob, filename } = await generateV2WordBlob(result, formData as any, slot.id);
+          // timeout 15s per pertemuan biar tidak hang
+          const renderPromise = generateV2WordBlob(result, formData as any, slot.id);
+          const timeout = new Promise<never>((_, rej) => setTimeout(() => rej(new Error('Render timeout 15s')), 15000));
+          const { blob, filename } = await Promise.race([renderPromise, timeout]);
           zip.file(`Pertemuan_${i + 1}_${filename}`, blob);
         } catch (err) {
           console.error(`Gagal render pertemuan ${slot.id}:`, err);
-          // Fallback: simpan JSON mentah agar ZIP tidak kosong
           zip.file(`Pertemuan_${i + 1}_Bahan.json`, JSON.stringify(dokumenByType, null, 2));
         }
       }
 
-      // Guard: jangan upload ZIP kosong
       const fileCount = Object.keys(zip.files).length;
       if (fileCount === 0) {
-        throw new Error('Gagal membuat ZIP: tidak ada dokumen berhasil diproses. Cek RLS documents/document_versions atau status pertemuan.');
+        throw new Error('Gagal membuat ZIP: tidak ada dokumen berhasil diproses.');
       }
 
       setProgressMsg('Membuat file ZIP dan Mengunggah...');
