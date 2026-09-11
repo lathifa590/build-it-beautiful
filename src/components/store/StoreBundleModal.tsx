@@ -52,6 +52,7 @@ export const StoreBundleModal = ({
   const mutation = useMutation({
     mutationFn: async () => {
       if (!profile?.store_id) throw new Error("Profil toko tidak ditemukan. Buat profil toko Anda di Manajemen Toko terlebih dahulu.");
+      if (profile.status !== 'ACTIVE') throw new Error("Profil toko tidak aktif. Aktifkan profil toko di Manajemen Toko.");
       
       const zip = new JSZip();
       setProgressMsg('Mengumpulkan data Program Tahunan & Semester...');
@@ -108,6 +109,7 @@ export const StoreBundleModal = ({
         ...listingData,
         store_id: profile.store_id,
         url_modul_ajar: originalUrl,
+        published_at: new Date().toISOString(),
       };
 
       setProgressMsg('Menyimpan ke Toko...');
