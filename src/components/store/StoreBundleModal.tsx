@@ -10,7 +10,6 @@ import { Store, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import type { Workspace } from '@/types/workspace';
 import type { CurriculumPlanDB, ProsemItemDB, MeetingSlotDB } from '@/hooks/useProsemData';
-import { generateV2WordBlob } from '@/lib/headless-export';
 import { DEFAULT_FORM_DATA } from '@/lib/constants';
 import type { GenerationResultV2 } from '@/types/modul';
 
@@ -110,35 +109,44 @@ export const StoreBundleModal = ({
           }
         }
 
-        if (Object.keys(dokumenByType).length === 0) {
-          console.warn(`Slot ${slot.id} has no content, skipping`);
-          continue;
+        const LABEL: Record<string,string> = { modul:'Modul Ajar', lkpd:'LKPD', asesmen:'Asesmen', materi:'Materi', soal:'Bank Soal', refleksi:'Refleksi' };
+
+        // Build Word HTML sederhana tanpa React — anti-hang
+        const escapeHtml = (s:string) => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        const renderValue = (v:any): string => {
+          if (v == null) return '';
+          if (typeof v === 'string') return `<p style="margin:4px 0">${escapeHtml(v).replace(/\n/g,'<br>')}</p>`;
+          if (Array.isArray(v)) return v.map(renderValue).join('');
+          if (typeof v === 'object') {
+            // coba cari field umum: coba stringify ringkas kalau tidak ada struktur dikenal
+            const keys = Object.keys(v);
+            // Jika object punya keys seperti 'judul','konten','deskripsi','pertanyaan' tampilkan
+            if (keys.length <= 8 && keys.every(k => typeof v[k] === 'string')) {
+              return keys.map(k => `<p><b>${escapeHtml(k)}:</b> ${escapeHtml(String(v[k])).replace(/\n/g,'<br>')}</p>`).join('');
+            }
+            return `<pre style="white-space:pre-wrap;font-size:9pt;background:#f5f5f5;padding:8px;border:1px solid #ddd">${escapeHtml(JSON.stringify(v, null, 2))}</pre>`;
+          }
+          return `<p>${escapeHtml(String(v))}</p>`;
+        };
+
+        const meetingTitle = `Pertemuan ${i+1} — ${(slot as any).materi_pokok || ''}`;
+        let htmlBody = `<h1 style="text-align:center;border-bottom:3px double #000;padding-bottom:8px">${escapeHtml(meetingTitle)}</h1>`;
+        htmlBody += `<p style="color:#666;font-size:9pt">Materi: ${escapeHtml((slot as any).materi_pokok || '-')} | JP: ${(slot as any).planned_jp || '-'} | Mapel: ${escapeHtml(workspace.subject || '')}</p><hr>`;
+        for (const [key, content] of Object.entries(dokumenByType)) {
+          const label = LABEL[key] || key;
+          htmlBody += `<h2 style="background:#111;color:#fff;padding:6px 10px;margin:16px 0 8px">${escapeHtml(label)}</h2>`;
+          // Jika modul punya modulPreface, tampilkan
+          if (key === 'modul' && modulPreface) {
+            if (modulPreface.pemahaman_bermakna) htmlBody += `<p><b>Pemahaman Bermakna:</b> ${escapeHtml(String(modulPreface.pemahaman_bermakna))}</p>`;
+          }
+          htmlBody += renderValue(content);
+          htmlBody += `<div style="page-break-after:always"></div>`;
         }
 
-        const result: GenerationResultV2 = {
-          pertemuan: [{
-            id: slot.id,
-            nomor: (slot as any).sequence || i + 1,
-            durasiMenit: (slot as any).planned_jp ? (slot as any).planned_jp * 35 : 70,
-            materiPokok: (slot as any).materi_pokok || `Pertemuan ${i + 1}`,
-            tujuanPertemuan: '',
-            status: Object.fromEntries(Object.keys(dokumenByType).map(k => [k, 'ok'])) as any,
-            dokumen: dokumenByType as any,
-            pilihanDokumen: pilihanDokumen as any,
-          }] as any,
-          modulPreface: modulPreface || undefined,
-        } as unknown as GenerationResultV2;
-
-        try {
-          // timeout 15s per pertemuan biar tidak hang
-          const renderPromise = generateV2WordBlob(result, formData as any, slot.id);
-          const timeout = new Promise<never>((_, rej) => setTimeout(() => rej(new Error('Render timeout 15s')), 15000));
-          const { blob, filename } = await Promise.race([renderPromise, timeout]);
-          zip.file(`Pertemuan_${i + 1}_${filename}`, blob);
-        } catch (err) {
-          console.error(`Gagal render pertemuan ${slot.id}:`, err);
-          zip.file(`Pertemuan_${i + 1}_Bahan.json`, JSON.stringify(dokumenByType, null, 2));
-        }
+        const wordHtml = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="utf-8"><style>body{font-family:Arial;font-size:11pt} h1{font-size:16pt} h2{font-size:13pt} pre{word-wrap:break-word}</style></head><body>${htmlBody}</body></html>`;
+        const blob = new Blob(['\ufeff', wordHtml], { type: 'application/msword' });
+        const safeName = `Pertemuan_${i+1}_${(slot as any).materi_pokok || 'Materi'}`.replace(/[\\/:*?"<>|]/g,'_').slice(0,60);
+        zip.file(`${safeName}.doc`, blob);
       }
 
       const fileCount = Object.keys(zip.files).length;
