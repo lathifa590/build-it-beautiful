@@ -84,24 +84,6 @@ const StoreProfileTab = () => {
 
   return (
     <div className="space-y-6">
-      <div className="stat-grid">
-        <div className="stat-card">
-          <div className="stat-label">Kunjungan toko</div>
-          <div className="stat-value">{profile?.metrics?.views || 0}</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-label">Dilihat modul ajar</div>
-          <div className="stat-value">{profile?.metrics?.clicks || 0}</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-label">Penjualan selesai</div>
-          <div className="stat-value">0</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-label">Pendapatan</div>
-          <div className="stat-value">Rp0</div>
-        </div>
-      </div>
 
       <div className="card">
         <div className="card-head flex-col items-start gap-3 md:flex-row md:items-center justify-between">
