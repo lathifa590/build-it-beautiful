@@ -29,9 +29,8 @@ export const generateV2WordBlob = async (
   
   const plan = buildV2ExportPlan({
     result,
-    scope: 'single', // We only want to export this specific meeting
+    scope: 'active_meeting',
     activePertemuanId: pertemuanId,
-    activeJenisDokumen: 'modul', // Default, the plan will export all if scope is 'single'
     formData,
   });
 
@@ -55,7 +54,7 @@ export const generateV2WordBlob = async (
           modulPreface={result.modulPreface}
           letterheadUrl={null}
           isLetterheadEnabled={false}
-          onRendered={resolve}
+          onMounted={resolve}
         />
       );
     });
