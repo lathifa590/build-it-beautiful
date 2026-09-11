@@ -75,10 +75,24 @@ export const StoreBundleModal = ({
         const slot = meetingSlots[i];
         setProgressMsg(`Memproses Pertemuan ${i + 1} dari ${meetingSlots.length}...`);
         
-        const { data: docData, error: docError } = await supabase
-          .from('workspace_meeting_documents')
-          .select('content')
-          .eq('pertemuan_id', slot.id)
+        // Fetch via meeting_document_links -> documents -> document_versions (current content)
+        // ponytail: workspace_meeting_documents table doesn't exist; using real schema
+        const { data: linkData } = await supabase
+          .from('meeting_document_links')
+          .select('document_id')
+          .eq('meeting_slot_id', slot.id)
+          .limit(1)
+          .maybeSingle();
+          
+        if (!linkData?.document_id) {
+          console.warn(`No document linked to slot ${slot.id}, skipping`);
+          continue;
+        }
+        
+        const { data: docRow, error: docError } = await supabase
+          .from('documents')
+          .select('current_version_id, document_versions(content_json)')
+          .eq('id', linkData.document_id)
           .maybeSingle();
           
         if (docError) {
@@ -86,9 +100,10 @@ export const StoreBundleModal = ({
           continue;
         }
 
-        if (docData?.content) {
+        const content = (docRow as any)?.document_versions?.content_json;
+        if (content) {
           try {
-            const result = docData.content as unknown as GenerationResultV2;
+            const result = content as unknown as GenerationResultV2;
             const { blob, filename } = await generateV2WordBlob(result, formData as any, slot.id);
             zip.file(`Pertemuan_${i + 1}_${filename}`, blob);
           } catch (err) {
