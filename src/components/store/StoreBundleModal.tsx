@@ -91,16 +91,27 @@ export const StoreBundleModal = ({
         
         const { data: docRow, error: docError } = await supabase
           .from('documents')
-          .select('current_version_id, document_versions(content_json)')
+          .select('current_version_id')
           .eq('id', linkData.document_id)
           .maybeSingle();
           
-        if (docError) {
+        if (docError || !docRow?.current_version_id) {
           console.error('Gagal mengambil dokumen pertemuan:', docError);
           continue;
         }
 
-        const content = (docRow as any)?.document_versions?.content_json;
+        const { data: versionRow, error: versionError } = await supabase
+          .from('document_versions')
+          .select('content_json')
+          .eq('id', docRow.current_version_id)
+          .maybeSingle();
+
+        if (versionError) {
+          console.error('Gagal mengambil versi dokumen:', versionError);
+          continue;
+        }
+
+        const content = (versionRow as any)?.content_json;
         if (content) {
           try {
             const result = content as unknown as GenerationResultV2;
@@ -110,6 +121,12 @@ export const StoreBundleModal = ({
             console.error(`Gagal render pertemuan ${slot.id}:`, err);
           }
         }
+      }
+
+      // Guard: jangan upload ZIP kosong
+      const fileCount = Object.keys(zip.files).length;
+      if (fileCount === 0) {
+        throw new Error('Gagal membuat ZIP: tidak ada dokumen berhasil diproses. Cek RLS documents/document_versions atau status pertemuan.');
       }
 
       setProgressMsg('Membuat file ZIP dan Mengunggah...');
