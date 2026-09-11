@@ -150,6 +150,8 @@ export const SemesterPlanView: React.FC<SemesterPlanViewProps> = ({
         semesterPlan={plan}
         prosemItems={items}
       />
+
+
     </section>
   );
 };
