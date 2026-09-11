@@ -11,6 +11,7 @@ import { supabase } from '@/integrations/supabase/client';
 import type { Workspace } from '@/types/workspace';
 import type { CurriculumPlanDB, ProsemItemDB, MeetingSlotDB } from '@/hooks/useProsemData';
 import { DEFAULT_FORM_DATA } from '@/lib/constants';
+import { renderDocToHtml } from '@/components/store/bundle-render';
 import type { GenerationResultV2 } from '@/types/modul';
 
 interface StoreBundleModalProps {
@@ -110,40 +111,18 @@ export const StoreBundleModal = ({
         }
 
         const LABEL: Record<string,string> = { modul:'Modul Ajar', lkpd:'LKPD', asesmen:'Asesmen', materi:'Materi', soal:'Bank Soal', refleksi:'Refleksi' };
-
-        // Build Word HTML sederhana tanpa React — anti-hang
-        const escapeHtml = (s:string) => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-        const renderValue = (v:any): string => {
-          if (v == null) return '';
-          if (typeof v === 'string') return `<p style="margin:4px 0">${escapeHtml(v).replace(/\n/g,'<br>')}</p>`;
-          if (Array.isArray(v)) return v.map(renderValue).join('');
-          if (typeof v === 'object') {
-            // coba cari field umum: coba stringify ringkas kalau tidak ada struktur dikenal
-            const keys = Object.keys(v);
-            // Jika object punya keys seperti 'judul','konten','deskripsi','pertanyaan' tampilkan
-            if (keys.length <= 8 && keys.every(k => typeof v[k] === 'string')) {
-              return keys.map(k => `<p><b>${escapeHtml(k)}:</b> ${escapeHtml(String(v[k])).replace(/\n/g,'<br>')}</p>`).join('');
-            }
-            return `<pre style="white-space:pre-wrap;font-size:9pt;background:#f5f5f5;padding:8px;border:1px solid #ddd">${escapeHtml(JSON.stringify(v, null, 2))}</pre>`;
-          }
-          return `<p>${escapeHtml(String(v))}</p>`;
-        };
-
+        const esc = (s:string) => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
         const meetingTitle = `Pertemuan ${i+1} — ${(slot as any).materi_pokok || ''}`;
-        let htmlBody = `<h1 style="text-align:center;border-bottom:3px double #000;padding-bottom:8px">${escapeHtml(meetingTitle)}</h1>`;
-        htmlBody += `<p style="color:#666;font-size:9pt">Materi: ${escapeHtml((slot as any).materi_pokok || '-')} | JP: ${(slot as any).planned_jp || '-'} | Mapel: ${escapeHtml(workspace.subject || '')}</p><hr>`;
+        let htmlBody = `<h1 style="text-align:center;border-bottom:3px double #000;padding-bottom:8px">${esc(meetingTitle)}</h1>`;
+        htmlBody += `<p style="color:#666;font-size:9pt">Materi: ${esc((slot as any).materi_pokok || '-')} | JP: ${(slot as any).planned_jp || '-'} | Mapel: ${esc(workspace.subject || '')}</p><hr>`;
         for (const [key, content] of Object.entries(dokumenByType)) {
           const label = LABEL[key] || key;
-          htmlBody += `<h2 style="background:#111;color:#fff;padding:6px 10px;margin:16px 0 8px">${escapeHtml(label)}</h2>`;
-          // Jika modul punya modulPreface, tampilkan
-          if (key === 'modul' && modulPreface) {
-            if (modulPreface.pemahaman_bermakna) htmlBody += `<p><b>Pemahaman Bermakna:</b> ${escapeHtml(String(modulPreface.pemahaman_bermakna))}</p>`;
-          }
-          htmlBody += renderValue(content);
+          htmlBody += `<h2 style="background:#111;color:#fff;padding:6px 10px;margin:16px 0 8px">${esc(label)}</h2>`;
+          if (key === 'modul' && modulPreface?.pemahaman_bermakna && !(content as any)?.pemahaman_bermakna) htmlBody += `<div style="background:#f0fdf4;border-left:4px solid #16a34a;padding:8px"><b>Pemahaman Bermakna (Preface):</b> ${esc(String(modulPreface.pemahaman_bermakna))}</div>`;
+          htmlBody += renderDocToHtml(key, content);
           htmlBody += `<div style="page-break-after:always"></div>`;
         }
-
-        const wordHtml = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="utf-8"><style>body{font-family:Arial;font-size:11pt} h1{font-size:16pt} h2{font-size:13pt} pre{word-wrap:break-word}</style></head><body>${htmlBody}</body></html>`;
+        const wordHtml = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="utf-8"><style>body{font-family:Arial;font-size:11pt} h1{font-size:16pt} h2{font-size:13pt} h3{font-size:12pt} pre{word-wrap:break-word} table{border-collapse:collapse} td,th{border:1px solid #000;padding:4px}</style></head><body>${htmlBody}</body></html>`;
         const blob = new Blob(['\ufeff', wordHtml], { type: 'application/msword' });
         const safeName = `Pertemuan_${i+1}_${(slot as any).materi_pokok || 'Materi'}`.replace(/[\\/:*?"<>|]/g,'_').slice(0,60);
         zip.file(`${safeName}.doc`, blob);
