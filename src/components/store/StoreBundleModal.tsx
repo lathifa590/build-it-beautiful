@@ -75,51 +75,77 @@ export const StoreBundleModal = ({
         const slot = meetingSlots[i];
         setProgressMsg(`Memproses Pertemuan ${i + 1} dari ${meetingSlots.length}...`);
         
-        // Fetch via meeting_document_links -> documents -> document_versions (current content)
-        // ponytail: workspace_meeting_documents table doesn't exist; using real schema
-        const { data: linkData } = await supabase
+        // Fetch ALL documents linked to this slot (modul/lkpd/asesmen/materi/soal/refleksi = 6 docs)
+        const { data: links, error: linkError } = await supabase
           .from('meeting_document_links')
           .select('document_id')
-          .eq('meeting_slot_id', slot.id)
-          .limit(1)
-          .maybeSingle();
+          .eq('meeting_slot_id', slot.id);
           
-        if (!linkData?.document_id) {
-          console.warn(`No document linked to slot ${slot.id}, skipping`);
+        if (linkError || !links || links.length === 0) {
+          console.warn(`No documents linked to slot ${slot.id}, skipping`);
           continue;
         }
         
-        const { data: docRow, error: docError } = await supabase
-          .from('documents')
-          .select('current_version_id')
-          .eq('id', linkData.document_id)
-          .maybeSingle();
-          
-        if (docError || !docRow?.current_version_id) {
-          console.error('Gagal mengambil dokumen pertemuan:', docError);
-          continue;
-        }
+        // Collect content_json per document_type
+        const dokumenByType: Record<string, any> = {};
+        const pilihanDokumen: Record<string, boolean> = {};
+        let modulPreface: any = null;
 
-        const { data: versionRow, error: versionError } = await supabase
-          .from('document_versions')
-          .select('content_json')
-          .eq('id', docRow.current_version_id)
-          .maybeSingle();
+        for (const link of links) {
+          const { data: docRow } = await supabase
+            .from('documents')
+            .select('document_type, current_version_id')
+            .eq('id', link.document_id)
+            .maybeSingle();
+          if (!docRow?.current_version_id) continue;
 
-        if (versionError) {
-          console.error('Gagal mengambil versi dokumen:', versionError);
-          continue;
-        }
+          const { data: versionRow } = await supabase
+            .from('document_versions')
+            .select('content_json')
+            .eq('id', docRow.current_version_id)
+            .maybeSingle();
+          const cj = (versionRow as any)?.content_json;
+          if (!cj) continue;
 
-        const content = (versionRow as any)?.content_json;
-        if (content) {
-          try {
-            const result = content as unknown as GenerationResultV2;
-            const { blob, filename } = await generateV2WordBlob(result, formData as any, slot.id);
-            zip.file(`Pertemuan_${i + 1}_${filename}`, blob);
-          } catch (err) {
-            console.error(`Gagal render pertemuan ${slot.id}:`, err);
+          const t = docRow.document_type as string;
+          // bankSoal di V2 disimpan sebagai 'soal' tapi key dokumen = 'soal'
+          const key = t === 'soal' ? 'soal' : t;
+          dokumenByType[key] = cj;
+          pilihanDokumen[key] = true;
+          // ambil modulPreface dari dokumen modul jika ada
+          if (t === 'modul' && cj.modulPreface) modulPreface = cj.modulPreface;
+          if (t === 'modul' && cj.auto_generated && !modulPreface) {
+            modulPreface = { pemahaman_bermakna: cj.pemahaman_bermakna || '', auto_generated: cj.auto_generated };
           }
+        }
+
+        if (Object.keys(dokumenByType).length === 0) {
+          console.warn(`Slot ${slot.id} has no content, skipping`);
+          continue;
+        }
+
+        // Bangun GenerationResultV2 mini untuk 1 pertemuan ini
+        const result: GenerationResultV2 = {
+          pertemuan: [{
+            id: slot.id,
+            nomor: (slot as any).sequence || i + 1,
+            durasiMenit: (slot as any).planned_jp ? (slot as any).planned_jp * 35 : 70,
+            materiPokok: (slot as any).materi_pokok || `Pertemuan ${i + 1}`,
+            tujuanPertemuan: '',
+            status: Object.fromEntries(Object.keys(dokumenByType).map(k => [k, 'ok'])) as any,
+            dokumen: dokumenByType as any,
+            pilihanDokumen: pilihanDokumen as any,
+          }] as any,
+          modulPreface: modulPreface || undefined,
+        } as unknown as GenerationResultV2;
+
+        try {
+          const { blob, filename } = await generateV2WordBlob(result, formData as any, slot.id);
+          zip.file(`Pertemuan_${i + 1}_${filename}`, blob);
+        } catch (err) {
+          console.error(`Gagal render pertemuan ${slot.id}:`, err);
+          // Fallback: simpan JSON mentah agar ZIP tidak kosong
+          zip.file(`Pertemuan_${i + 1}_Bahan.json`, JSON.stringify(dokumenByType, null, 2));
         }
       }
 
