@@ -287,9 +287,10 @@ serve(async (req) => {
     // Determine endpoint based on which key we're using
     // Native Gemini API for user keys, Lovable AI gateway for default
     const GEMINI_MODEL_CHAIN = [
-      "gemini-1.5-flash",
-      "gemini-2.0-flash",
-      "gemini-1.5-pro"
+      "gemini-3.5-flash",
+      "gemini-3.0-flash",
+      "gemini-3.5-flash-lite",
+      "gemini-2.5-flash"
     ];
     
     const getGeminiEndpoint = (model: string, key: string) => 
@@ -825,7 +826,7 @@ serve(async (req) => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            model: "google/gemini-2.0-flash",
+            model: "google/gemini-3-flash-preview",
             messages: [{ role: "user", content: "Say 'test successful' in 2 words" }],
             max_tokens: 10,
           }),
@@ -3041,7 +3042,7 @@ Jahit ke seksi/konten yang sudah ada — JANGAN buat seksi baru di luar struktur
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: "google/gemini-2.0-flash",
+          model: "google/gemini-3-flash-preview",
           messages: [
             { role: "system", content: systemPrompt },
             { role: "user", content: userPrompt },
