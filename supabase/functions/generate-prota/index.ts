@@ -201,7 +201,15 @@ Kembalikan HANYA JSON valid (tanpa markdown, tanpa teks lain) dengan format:
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      resultData = JSON.parse(jsonMatch[0]);
+      try {
+        resultData = JSON.parse(jsonMatch[0]);
+      } catch (parseError) {
+        console.error("JSON parse error:", parseError, "Raw JSON:", jsonMatch[0]);
+        return new Response(JSON.stringify({ error: "Gagal memproses hasil dari AI. AI memberikan format yang tidak valid." }), {
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
       console.log(`Prota generated using model: ${usedModel}`);
     } else {
       // Lovable AI Gateway
@@ -238,7 +246,15 @@ Kembalikan HANYA JSON valid (tanpa markdown, tanpa teks lain) dengan format:
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      resultData = JSON.parse(jsonMatch[0]);
+      try {
+        resultData = JSON.parse(jsonMatch[0]);
+      } catch (parseError) {
+        console.error("JSON parse error:", parseError, "Raw JSON:", jsonMatch[0]);
+        return new Response(JSON.stringify({ error: "Gagal memproses hasil dari AI (Gateway). AI memberikan format yang tidak valid." }), {
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
     }
 
     // Log generation
