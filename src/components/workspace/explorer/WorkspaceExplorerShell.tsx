@@ -42,8 +42,7 @@ export const WorkspaceExplorerShell: React.FC<WorkspaceExplorerShellProps> = ({
   const { prosemPlans, prosemItems, isLoading, error, refresh } = useProsemData(workspace.id);
   const { refreshWorkspaces } = useWorkspace();
   const { user, isAdmin } = useAuth();
-  
-  const canAccessAutoGenerate = isAdmin || user?.email === 'jagofeed@gmail.com';
+  const canAccessAutoGenerate = true; // Fitur autogenerate cepat kini dibuka untuk semua (Deploy Publik)
 
   useEffect(() => {
     if (!workspace?.id) return;
