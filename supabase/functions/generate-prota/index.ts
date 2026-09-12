@@ -104,7 +104,10 @@ serve(async (req) => {
     
     let tpInstruction = "";
     if (tujuan_pembelajaran && Array.isArray(tujuan_pembelajaran) && tujuan_pembelajaran.length > 0) {
-      tpInstruction = `1. WAJIB GUNAKAN DAFTAR Tujuan Pembelajaran (TP) berikut SECARA UTUH tanpa mengubah redaksinya atau membuat TP baru:\n${tujuan_pembelajaran.map((tp, i) => `   - TP ${i+1}: ${tp}`).join('\n')}\n2. Kamu HANYA perlu melengkapi materi_pokok, alokasi_jp, semester, dimensi_profil_lulusan, panca_cinta, dan keterangan untuk masing-masing TP tersebut.`;
+      // Map to string in case it's an array of objects { description: string }
+      const tpStrings = tujuan_pembelajaran.map(tp => typeof tp === 'object' && tp.description ? tp.description : tp);
+      
+      tpInstruction = `1. WAJIB GUNAKAN DAFTAR Tujuan Pembelajaran (TP) berikut SECARA UTUH tanpa mengubah redaksinya atau membuat TP baru:\n${tpStrings.map((tp, i) => `   - TP ${i+1}: ${tp}`).join('\n')}\n2. Kamu HANYA perlu melengkapi materi_pokok, alokasi_jp, semester, dimensi_profil_lulusan, panca_cinta, dan keterangan untuk masing-masing TP tersebut.`;
     } else {
       tpInstruction = "1. Breakdown CP menjadi beberapa Tujuan Pembelajaran (TP) yang spesifik, terukur, dan operasional\n2. Setiap TP harus punya materi pokok yang jelas";
     }
@@ -167,7 +170,11 @@ Kembalikan HANYA JSON valid (tanpa markdown, tanpa teks lain) dengan format:
           headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
           body: JSON.stringify({
             contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: { temperature: 0.7, maxOutputTokens: 8192 },
+            generationConfig: { 
+              temperature: 0.7, 
+              maxOutputTokens: 8192,
+              responseMimeType: "application/json"
+            },
           }),
         });
 
@@ -193,16 +200,22 @@ Kembalikan HANYA JSON valid (tanpa markdown, tanpa teks lain) dengan format:
       const result = await response.json();
       const text = result.candidates?.[0]?.content?.parts?.[0]?.text || "";
       
-      // Parse JSON from response
-      const jsonMatch = text.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) {
-        return new Response(JSON.stringify({ error: "Format response AI tidak valid" }), {
+      // Clean markdown code blocks
+      const cleanText = text.replace(/```json/gi, "").replace(/```/g, "").trim();
+      const startIndex = cleanText.indexOf('{');
+      const endIndex = cleanText.lastIndexOf('}');
+      
+      if (startIndex === -1 || endIndex === -1) {
+        return new Response(JSON.stringify({ error: "Format response AI tidak valid (tidak ada JSON object)" }), {
           status: 200,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
+      
+      const jsonStr = cleanText.substring(startIndex, endIndex + 1);
+      
       try {
-        resultData = JSON.parse(jsonMatch[0]);
+        resultData = JSON.parse(jsonStr);
       } catch (parseError) {
         console.error("JSON parse error:", parseError, "Raw JSON:", jsonMatch[0]);
         return new Response(JSON.stringify({ error: "Gagal memproses hasil dari AI. AI memberikan format yang tidak valid." }), {
@@ -225,6 +238,7 @@ Kembalikan HANYA JSON valid (tanpa markdown, tanpa teks lain) dengan format:
           messages: [{ role: "user", content: prompt }],
           temperature: 0.7,
           max_tokens: 8192,
+          response_format: { type: "json_object" }
         }),
       });
 
@@ -239,17 +253,23 @@ Kembalikan HANYA JSON valid (tanpa markdown, tanpa teks lain) dengan format:
 
       const result = await response.json();
       const text = result.choices?.[0]?.message?.content || "";
-      const jsonMatch = text.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) {
+      const cleanText = text.replace(/```json/gi, "").replace(/```/g, "").trim();
+      const startIndex = cleanText.indexOf('{');
+      const endIndex = cleanText.lastIndexOf('}');
+      
+      if (startIndex === -1 || endIndex === -1) {
         return new Response(JSON.stringify({ error: "Format response AI tidak valid" }), {
           status: 200,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
+      
+      const jsonStr = cleanText.substring(startIndex, endIndex + 1);
+      
       try {
-        resultData = JSON.parse(jsonMatch[0]);
+        resultData = JSON.parse(jsonStr);
       } catch (parseError) {
-        console.error("JSON parse error:", parseError, "Raw JSON:", jsonMatch[0]);
+        console.error("JSON parse error:", parseError, "Raw JSON:", jsonStr);
         return new Response(JSON.stringify({ error: "Gagal memproses hasil dari AI (Gateway). AI memberikan format yang tidak valid." }), {
           status: 200,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
