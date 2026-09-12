@@ -2199,8 +2199,25 @@ PENTING — FORMAT "remedial" dan "pengayaan":
             typeConfigs[tipe] = { quantity: qty, useStimulus: !!data.config?.stimulus, stimulusCount: Math.ceil(qty / 5), useImages: !!data.config?.includeImages, imageCount: 1 };
           }
         }
-        // Filter only active types (qty > 0)
-        const activeTypes = Object.entries(typeConfigs).filter(([_, cfg]) => cfg.quantity > 0);
+        // Urutan standar tipe soal
+        const PREDEFINED_ORDER = [
+          'Pilihan Ganda',
+          'PG Kategori Benar/Salah',
+          'PG Multiple Choice Multiple Answer',
+          'Menjodohkan',
+          'Isian Singkat',
+          'Uraian'
+        ];
+        
+        // Filter only active types (qty > 0) and enforce order
+        const activeTypes = Object.entries(typeConfigs)
+          .filter(([_, cfg]) => cfg.quantity > 0)
+          .sort(([a], [b]) => {
+            const idxA = PREDEFINED_ORDER.indexOf(a);
+            const idxB = PREDEFINED_ORDER.indexOf(b);
+            return (idxA === -1 ? 999 : idxA) - (idxB === -1 ? 999 : idxB);
+          });
+          
         const jumlahSoal = activeTypes.reduce((sum, [_, cfg]) => sum + cfg.quantity, 0) || 10;
         const distribusiTipe = activeTypes.map(([tipe, cfg]) => `${tipe}: ${cfg.quantity} soal`).join('\n   - ');
 
@@ -2239,7 +2256,9 @@ PENTING — FORMAT "remedial" dan "pengayaan":
           if (cfg.useStimulus && cfg.stimulusCount > 0) {
             const ids = Array.from({ length: cfg.stimulusCount }, (_, i) => currentStimulusId + i);
             currentStimulusId += cfg.stimulusCount;
-            stimInstruction = ` -> WAJIB gunakan stimulus_id: ${ids.join(', ')} secara BERSAMA-SAMA untuk sekumpulan soal ini!`;
+            stimInstruction = `\n    -> WAJIB: Isi field "stimulus_id": ${ids[0]} untuk SEMUA soal nomor ${start} sampai ${end}. SANGAT DILARANG mengganti ID ini di tengah rentang soal!`;
+          } else {
+            stimInstruction = `\n    -> JANGAN isi field "stimulus_id"`;
           }
           lines.push(`- Soal no. ${start} s.d. ${end}: Tipe "${tipe}" (${cfg.quantity} soal)${stimInstruction}`);
           return lines;
@@ -2361,7 +2380,7 @@ ${useStimulus
    - Total stimulus yang dibutuhkan: ${jumlahStimulus} teks bacaan BERBEDA
    - ATURAN SANGAT KRITIKAL: JANGAN PERNAH MENCAMPUR TIPE SOAL DALAM SATU STIMULUS!
    - 1 Stimulus HANYA BOLEH digunakan untuk soal-soal dalam 1 Tipe/Blok yang sama secara komunal (berbagi teks).
-   - JANGAN PERNAH membuat teks bacaan baru untuk setiap 1 soal! Gunakan 1 teks untuk sekumpulan soal secara bersama-sama.
+   - JANGAN PERNAH membuat teks bacaan baru untuk setiap 1 soal! Gunakan 1 teks untuk sekumpulan soal secara bersama-sama. DILARANG KERAS menyelang-nyeling ID teks pada daftar soal!
 ${stimulusLengthGuide}
    - Gunakan field "stimulus_list" (array) untuk menyimpan multiple stimulus:
      [{"id": 1, "teks": "Bacaan 1..."}, {"id": 2, "teks": "Bacaan 2..."}]
@@ -2479,7 +2498,7 @@ OUTPUT JSON YANG HARUS DIHASILKAN:
       "level_kognitif": "C1 Mengingat | C2 Memahami | C3 Menerapkan | C4 Menganalisis | C5 Mengevaluasi | C6 Mencipta",
       "indikator_soal": "string - indikator spesifik yang diukur oleh soal ini",
       "pertanyaan": "string - stem soal (WAJIB ADA untuk SEMUA tipe!)",
-      ${useStimulus ? '"stimulus_id": number,' : ''}
+      ${useStimulus ? '"stimulus_id": 1, // GANTI DENGAN ID YANG DITUGASKAN. WAJIB SAMA persis angkanya untuk seluruh soal dalam rentang/blok ini. Jangan dinaikkan per soal!' : ''}
       "opsi": ${opsiArray},
       "pernyataan_benar_salah": [{"pernyataan": "...", "jawaban": "Benar/Salah"}],
       "premis": ["...", "..."],

@@ -714,8 +714,9 @@ export const DocumentPreview = ({
 
   // Defensive: ensure generatedSteps.pertemuan is always an array
   const safePertemuan = generatedSteps?.pertemuan || [];
-  const pemahaman_bermakna = generatedSteps?.pemahaman_bermakna || '';
+  const pemahaman_bermakna = generatedSteps?.pemahaman_bermakna || (safePertemuan[0] as any)?.pemahaman_bermakna || '';
   const isMultiPertemuan = safePertemuan.length > 1;
+  const metode_pembelajaran_data = generatedSteps?.metode_pembelajaran || (safePertemuan[0] as any)?.metode_pembelajaran || formData?.metodePembelajaran;
 
   // Always use Word-compatible math formatter for consistency
   const mathFormatter = formatMathTextSimple;
@@ -1152,7 +1153,7 @@ export const DocumentPreview = ({
               </div>
               <div style={{ marginBottom: '4px' }}><strong>Model Pembelajaran:</strong> {formData.modelPembelajaran || '-'}</div>
               <div style={{ marginBottom: '4px' }}>
-                <strong>Metode Pembelajaran:</strong> {formData.metodePembelajaran && formData.metodePembelajaran.length > 0 ? formData.metodePembelajaran.join(', ') : '-'}
+                <strong>Metode Pembelajaran:</strong> {metode_pembelajaran_data && metode_pembelajaran_data.length > 0 ? (Array.isArray(metode_pembelajaran_data) ? metode_pembelajaran_data.join(', ') : metode_pembelajaran_data) : '-'}
               </div>
             </div>
 
@@ -1248,8 +1249,8 @@ export const DocumentPreview = ({
                 Metode Pembelajaran
               </td>
               <td style={{ border: '1px solid black', padding: '6px' }}>
-                {formData.metodePembelajaran && formData.metodePembelajaran.length > 0 
-                  ? formData.metodePembelajaran.join(', ')
+                {metode_pembelajaran_data && metode_pembelajaran_data.length > 0 
+                  ? (Array.isArray(metode_pembelajaran_data) ? metode_pembelajaran_data.join(', ') : metode_pembelajaran_data)
                   : '-'}
               </td>
             </tr>
