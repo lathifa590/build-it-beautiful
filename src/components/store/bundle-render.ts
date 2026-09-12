@@ -1,6 +1,6 @@
-const esc = (s:string)=> s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-const md = (s:string)=> esc(s).replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<b>$1</b>');
-const ul = (arr:any[], fn:(x:any)=>string)=> arr.length?`<ul style="margin:6px 0 6px 18px">${arr.map(x=>`<li style="margin:2px 0">${fn(x)}</li>`).join('')}</ul>`:'<p style="color:#999">-</p>';
+const esc = (s:any)=> String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const md = (s:any)=> esc(s).replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<b>$1</b>');
+const ul = (arr:any, fn:(x:any)=>string)=> (Array.isArray(arr) && arr.length) ? `<ul style="margin:6px 0 6px 18px">${arr.map(x=>`<li style="margin:2px 0">${fn(x)}</li>`).join('')}</ul>` : '<p style="color:#999">-</p>';
 export const renderModulToHtml = (d:any):string => {
   let h='';
   if(d.pemahaman_bermakna) h+=`<div style="background:#f0fdf4;border-left:4px solid #16a34a;padding:10px;margin:8px 0"><b>Pemahaman Bermakna:</b><br>${md(String(d.pemahaman_bermakna))}</div>`;
