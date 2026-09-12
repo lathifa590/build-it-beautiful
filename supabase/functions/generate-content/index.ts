@@ -2209,13 +2209,17 @@ PENTING — FORMAT "remedial" dan "pengayaan":
         const hasAnyImages = activeTypes.some(([_, cfg]) => cfg.useImages);
         const soalPerStimulus = 5;
         
+        let currentStimulusId = 1;
+        
         // Build per-type stimulus/image info for prompt
         const perTypeDistribusi = activeTypes.map(([tipe, cfg]) => {
           const parts = [`${tipe} (${cfg.quantity} soal)`];
-          if (cfg.useStimulus) {
-            parts.push(`${cfg.stimulusCount} stimulus`);
+          if (cfg.useStimulus && cfg.stimulusCount > 0) {
+            const ids = Array.from({ length: cfg.stimulusCount }, (_, i) => currentStimulusId + i);
+            currentStimulusId += cfg.stimulusCount;
+            parts.push(`${cfg.stimulusCount} stimulus (Wajib pakai stimulus_id: ${ids.join(', ')} bersama-sama untuk tipe ini)`);
           } else {
-            parts.push('tanpa stimulus');
+            parts.push('tanpa stimulus (JANGAN isi stimulus_id)');
           }
           if (cfg.useImages && cfg.imageCount > 0) {
             const n = Math.min(cfg.imageCount, cfg.quantity);
@@ -2225,6 +2229,21 @@ PENTING — FORMAT "remedial" dan "pengayaan":
           }
           return `   - ${parts.join(', ')}`;
         }).join('\n');
+
+        currentStimulusId = 1; // reset for the next loop
+        
+        const urutanPenomoran = activeTypes.reduce((lines: string[], [tipe, cfg]: [string, any], idx: number) => {
+          const start = activeTypes.slice(0, idx).reduce((s: number, [_, c]: [string, any]) => s + c.quantity, 1);
+          const end = start + cfg.quantity - 1;
+          let stimInstruction = '';
+          if (cfg.useStimulus && cfg.stimulusCount > 0) {
+            const ids = Array.from({ length: cfg.stimulusCount }, (_, i) => currentStimulusId + i);
+            currentStimulusId += cfg.stimulusCount;
+            stimInstruction = ` -> WAJIB gunakan stimulus_id: ${ids.join(', ')} secara BERSAMA-SAMA untuk sekumpulan soal ini!`;
+          }
+          lines.push(`- Soal no. ${start} s.d. ${end}: Tipe "${tipe}" (${cfg.quantity} soal)${stimInstruction}`);
+          return lines;
+        }, []).join('\n');
 
         // Ringkasan target gambar per tipe untuk instruksi eksplisit
         const imageTargetsLines = activeTypes
@@ -2341,13 +2360,13 @@ ${useStimulus
   ? `   - Total soal: ${jumlahSoal} soal
    - Total stimulus yang dibutuhkan: ${jumlahStimulus} teks bacaan BERBEDA
    - ATURAN SANGAT KRITIKAL: JANGAN PERNAH MENCAMPUR TIPE SOAL DALAM SATU STIMULUS!
-   - 1 Stimulus HANYA BOLEH digunakan untuk soal-soal dalam 1 Tipe/Blok yang sama.
-   - Misalnya: Teks 1 KHUSUS untuk soal Pilihan Ganda. Teks 2 KHUSUS untuk soal Menjodohkan.
+   - 1 Stimulus HANYA BOLEH digunakan untuk soal-soal dalam 1 Tipe/Blok yang sama secara komunal (berbagi teks).
+   - JANGAN PERNAH membuat teks bacaan baru untuk setiap 1 soal! Gunakan 1 teks untuk sekumpulan soal secara bersama-sama.
 ${stimulusLengthGuide}
    - Gunakan field "stimulus_list" (array) untuk menyimpan multiple stimulus:
      [{"id": 1, "teks": "Bacaan 1..."}, {"id": 2, "teks": "Bacaan 2..."}]
-   - Setiap soal memiliki field "stimulus_id" yang merujuk ke id stimulus yang relevan
-   - Field "stimulus" utama berisi string kosong jika menggunakan stimulus_list`
+   - Setiap soal WAJIB memiliki field "stimulus_id" yang merujuk ke id stimulus yang relevan sesuai instruksi urutan penomoran.
+   - Field "stimulus" utama WAJIB berisi string kosong ("") jika menggunakan stimulus_list.`
   : '   - Tidak menggunakan stimulus/teks bacaan'
 }
 
@@ -2447,8 +2466,8 @@ c) PG Multiple Choice Multiple Answer:
 OUTPUT JSON YANG HARUS DIHASILKAN:
 {
   "judul_latihan": "Bank Soal [Mata Pelajaran] - [Topik]",
-  "stimulus": "${useStimulus && jumlahStimulus > 1 ? '' : 'string (konteks/bacaan jika diminta)'}",
-  ${useStimulus && jumlahStimulus > 1 ? '"stimulus_list": [{"id": 1, "teks": "..."}, {"id": 2, "teks": "..."}],' : ''}
+  "stimulus": "${useStimulus ? '' : 'string (konteks/bacaan jika diminta)'}",
+  ${useStimulus ? '"stimulus_list": [{"id": 1, "teks": "..."}, {"id": 2, "teks": "..."}],' : ''}
   "kisi_kisi": {
     "kompetensi_dasar": "string - KD yang diujikan",
     "indikator": ["string - indikator pencapaian yang diujikan"]
@@ -2460,7 +2479,7 @@ OUTPUT JSON YANG HARUS DIHASILKAN:
       "level_kognitif": "C1 Mengingat | C2 Memahami | C3 Menerapkan | C4 Menganalisis | C5 Mengevaluasi | C6 Mencipta",
       "indikator_soal": "string - indikator spesifik yang diukur oleh soal ini",
       "pertanyaan": "string - stem soal (WAJIB ADA untuk SEMUA tipe!)",
-      ${useStimulus && jumlahStimulus > 1 ? '"stimulus_id": number,' : ''}
+      ${useStimulus ? '"stimulus_id": number,' : ''}
       "opsi": ${opsiArray},
       "pernyataan_benar_salah": [{"pernyataan": "...", "jawaban": "Benar/Salah"}],
       "premis": ["...", "..."],
@@ -2514,15 +2533,10 @@ KONFIGURASI:
 
 DISTRIBUSI STIMULUS & GAMBAR PER TIPE:
 ${perTypeDistribusi}
-${useStimulus ? `- Total stimulus: ${jumlahStimulus} bacaan\n- SANGAT PENTING: Tiap stimulus HANYA untuk satu tipe soal. JANGAN mencampur PG, Uraian, Menjodohkan di bawah 1 stimulus yang sama!\n${stimulusLengthGuide}` : '- Tidak ada tipe soal yang menggunakan stimulus'}
+${useStimulus ? `- Total stimulus: ${jumlahStimulus} bacaan\n- SANGAT PENTING: 1 teks bacaan/stimulus WAJIB digunakan secara BERSAMA-SAMA untuk sekumpulan soal. JANGAN membuat teks baru untuk setiap soal!\n${stimulusLengthGuide}` : '- Tidak ada tipe soal yang menggunakan stimulus'}
 
 DISTRIBUSI TIPE SOAL & URUTAN PENOMORAN (WAJIB DIIKUTI TEPAT):
-${activeTypes.reduce((lines: string[], [tipe, cfg]: [string, any], idx: number) => {
-  const start = activeTypes.slice(0, idx).reduce((s: number, [_, c]: [string, any]) => s + c.quantity, 1);
-  const end = start + cfg.quantity - 1;
-  lines.push(`- Soal no. ${start} s.d. ${end}: Tipe "${tipe}" (${cfg.quantity} soal)`);
-  return lines;
-}, []).join('\n')}
+${urutanPenomoran}
 - TOTAL: ${jumlahSoal} soal
 - JANGAN mengubah urutan atau tipe soal dari ketentuan di atas!
 
@@ -2553,7 +2567,7 @@ INSTRUKSI PENTING:
 8. Pastikan distribusi level kognitif sesuai dengan konfigurasi
 9. Stimulus/bacaan HANYA dibuat untuk tipe soal yang dikonfigurasi menggunakan stimulus. Tipe tanpa stimulus = soal mandiri tanpa bacaan.
 10. HINDARI FRASA REDUNDAN: JANGAN memulai stem soal dengan kata-kata referensi seperti "Berdasarkan teks di atas...", "Berdasarkan teks 1...", "Dari wacana...", dsb. Sistem aplikasi sudah otomatis melabeli dan mengaitkan teks dengan nomor soal. Langsung saja tulis inti pertanyaannya.
-${useStimulus && jumlahStimulus > 1 ? `11. Buat ${jumlahStimulus} teks bacaan yang BERBEDA topiknya dalam stimulus_list, dan hubungkan setiap soal ke stimulus yang relevan via stimulus_id\n` : ''}${hasImageTargets ? `
+${useStimulus ? `11. Buat ${jumlahStimulus} teks bacaan secara total di dalam stimulus_list, dan hubungkan kumpulan soal ke teks yang relevan secara BERSAMA-SAMA via stimulus_id.\n` : ''}${hasImageTargets ? `
 12. PENANDA SOAL BERGAMBAR (WAJIB TEPAT JUMLAHNYA):
 ${imageTargetsLines}
    - Untuk tiap soal yang dipilih bergambar: set "requires_image": true dan sediakan "stimulus_image_prompt" (Bahasa Inggris singkat, deskriptif, aman untuk edukasi — untuk diberikan ke ChatGPT/Gemini/Midjourney).
