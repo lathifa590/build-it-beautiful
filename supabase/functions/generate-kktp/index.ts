@@ -183,7 +183,14 @@ Kembalikan HANYA JSON valid (tanpa markdown, tanpa teks lain) dengan format:
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      resultData = JSON.parse(jsonMatch[0]);
+      try {
+        resultData = JSON.parse(jsonMatch[0]);
+      } catch (e) {
+        return new Response(JSON.stringify({ error: "Format response AI tidak valid. Silakan coba lagi." }), {
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
       console.log(`KKTP generated using ${activeProvider}/${model}`);
     } else if (useGeminiDirect) {
       const models = ["gemini-3.5-flash", "gemini-3.5-flash-lite", "gemini-2.5-flash"];
@@ -229,7 +236,14 @@ Kembalikan HANYA JSON valid (tanpa markdown, tanpa teks lain) dengan format:
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      resultData = JSON.parse(jsonMatch[0]);
+      try {
+        resultData = JSON.parse(jsonMatch[0]);
+      } catch (e) {
+        return new Response(JSON.stringify({ error: "Format response AI tidak valid. Silakan coba lagi." }), {
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
       console.log(`KKTP generated using model: ${usedModel}`);
     } else {
       const gatewayUrl = "https://api.lovable.dev/v1/chat/completions";
@@ -265,7 +279,14 @@ Kembalikan HANYA JSON valid (tanpa markdown, tanpa teks lain) dengan format:
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      resultData = JSON.parse(jsonMatch[0]);
+      try {
+        resultData = JSON.parse(jsonMatch[0]);
+      } catch (e) {
+        return new Response(JSON.stringify({ error: "Format response AI tidak valid. Silakan coba lagi." }), {
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
     }
 
     // Log generation
