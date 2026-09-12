@@ -320,6 +320,21 @@ export const generateWorkspaceMeetingDirect = async (
         extra: jenis === 'soal' ? { config: soalConfig } : undefined,
       });
 
+      // Jika pertemuan pertama dan jenis modul, paksa menggunakan type 'modul'
+      // agar AI menghasilkan preface (pemahaman_bermakna, metode_pembelajaran, dll).
+      if (jenis === 'modul' && slot.sequence === 1) {
+        payload.type = 'modul';
+        payload.data = {
+          ...payload.data,
+          pertemuan: [
+            {
+              nomorPertemuan: slot.sequence,
+              durasi: `${slot.duration_minutes} menit`,
+            },
+          ],
+        };
+      }
+
       let resData: any = null;
       let generateErr: any = null;
       try {
@@ -340,8 +355,14 @@ export const generateWorkspaceMeetingDirect = async (
 
       // Setelah modul selesai, perkaya formData dengan data dari respons
       if (jenis === 'modul') {
+        // Jika kita menggunakan type 'modul', responsenya memiliki { pertemuan: [ obj ], pemahaman_bermakna, ... }
+        // Kita perlu mengekstrak array pertemuan agar dokumen yang disimpan benar-benar objek pertemuannya.
+        if (resData.data?.pertemuan && Array.isArray(resData.data.pertemuan)) {
+          const { pertemuan, ...preface } = resData.data;
+          resData.data = { ...pertemuan[0], ...preface }; // Gabungkan preface ke dalam objek pertemuan
+        }
+        
         // Baca pemahaman_bermakna dan metode_pembelajaran dari root level modul response
-        // (modul-pertemuan kini selalu mengembalikan kedua field ini)
         if (resData.data?.pemahaman_bermakna) {
           enrichedFormData.pemahamanBermakna = resData.data.pemahaman_bermakna;
           console.log('[autogen] pemahaman_bermakna dari modul:', resData.data.pemahaman_bermakna.substring(0, 60));
