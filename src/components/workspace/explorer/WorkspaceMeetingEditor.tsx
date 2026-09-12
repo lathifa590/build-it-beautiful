@@ -781,6 +781,21 @@ export const WorkspaceMeetingEditor: React.FC<WorkspaceMeetingEditorProps> = ({
                 <div>
                   <strong>💡 Tips:</strong> Anda dapat mengedit teks pada dokumen di bawah ini. Arahkan kursor (hover) ke bagian teks yang ingin diubah, lalu klik tombol <strong>Edit</strong>.
                 </div>
+                <button
+                  onClick={() => {
+                    if (jenis === 'soal') {
+                      setShowSoalModal(true);
+                    } else {
+                      pertemuanV2.regenerateDokumen(v2Aktif?.id || meetingId, jenis);
+                    }
+                  }}
+                  disabled={pertemuanV2.isGenerating}
+                  className="px-3 py-1.5 text-xs font-bold rounded-lg border-2 border-blue-800 bg-white hover:bg-blue-100 transition-all flex items-center gap-1 shrink-0 ml-4 disabled:opacity-50 disabled:cursor-not-allowed"
+                  title={`Generate ulang ${jenis}`}
+                >
+                  <RotateCcw className={`w-3.5 h-3.5 ${pertemuanV2.isGenerating ? 'animate-spin' : ''}`} />
+                  Generate Manual
+                </button>
               </div>
               <DocumentPreview
               contentRef={contentRef}
