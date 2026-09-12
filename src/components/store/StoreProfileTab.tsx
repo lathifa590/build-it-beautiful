@@ -4,15 +4,13 @@ import { storeApi } from '@/lib/store-api';
 import { StoreProfile } from '@/types/store';
 import { toast } from 'sonner';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Upload, Link, ExternalLink } from 'lucide-react';
+import { Link, ExternalLink } from 'lucide-react';
 
 const StoreProfileTab = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [editingProfile, setEditingProfile] = useState<Partial<StoreProfile> | null>(null);
   
-
-
   // Queries
   const { data: profile, isLoading } = useQuery({
     queryKey: ['storeProfile', user?.id],
@@ -80,7 +78,11 @@ const StoreProfileTab = () => {
     mutation.mutate({ ...editingProfile, store_slug: slug });
   };
 
-  if (isLoading || !editingProfile) return <div>Memuat profil...</div>;
+  if (isLoading || !editingProfile) return (
+    <div className="flex items-center justify-center h-64">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#111]"></div>
+    </div>
+  );
 
   return (
     <div className="space-y-6">
@@ -103,9 +105,9 @@ const StoreProfileTab = () => {
                 window.open(storeUrl, '_blank');
               }}
               title="Kunjungi Toko"
-              className="flex items-center justify-center p-1.5 bg-[#f5f0e8] border-2 border-[#111] rounded-md hover:bg-[#e8e0d0] transition-colors"
+              className="flex items-center justify-center p-2 bg-[#f5f0e8] border-2 border-[#111] rounded-md hover:bg-[#e8e0d0] transition-colors"
             >
-              <ExternalLink className="w-4 h-4" />
+              <ExternalLink className="w-5 h-5" />
             </button>
             <button 
               onClick={() => {
@@ -118,15 +120,16 @@ const StoreProfileTab = () => {
                 navigator.clipboard.writeText(storeUrl);
                 toast.success('Link toko berhasil disalin!');
               }}
-              className="flex items-center gap-2 px-3 py-1.5 text-sm font-bold bg-[#f5f0e8] border-2 border-[#111] rounded-md hover:bg-[#e8e0d0] transition-colors whitespace-nowrap"
+              className="flex items-center gap-2 px-3 py-2 text-sm font-bold bg-[#f5f0e8] border-2 border-[#111] rounded-md hover:bg-[#e8e0d0] transition-colors whitespace-nowrap"
             >
               <Link className="w-4 h-4" />
               Bagikan Toko
             </button>
           </div>
         </div>
-        <div className="card-body space-y-4 pt-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        
+        <div className="profile-field-group">
+          <div className="profile-row-2">
             <div className="field-group">
               <label htmlFor="store_name">Nama Toko</label>
               <input 
@@ -177,7 +180,7 @@ const StoreProfileTab = () => {
             />
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="profile-row-2">
             <div className="field-group">
               <label>Kategori Utama</label>
               <select value={editingProfile.category || ''} onChange={(e) => setEditingProfile({...editingProfile, category: e.target.value})}>
@@ -194,7 +197,7 @@ const StoreProfileTab = () => {
               <div className="flex items-center gap-2">
                 <input 
                   type="color" 
-                  className="w-16 h-[44px] p-1 border-2 border-[#111] rounded-md" 
+                  className="w-16 h-[44px] p-1 border-2 border-[#111] rounded-md cursor-pointer" 
                   value={editingProfile.primary_color || '#c04a1a'} 
                   onChange={(e) => setEditingProfile({...editingProfile, primary_color: e.target.value})}
                 />
@@ -208,25 +211,25 @@ const StoreProfileTab = () => {
             </div>
           </div>
 
-          <div className="field-group pt-4">
+          <div className="field-group">
             <label>URL Gambar Avatar Toko (1:1)</label>
-            <div className="flex items-center gap-4 mt-1">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mt-1">
               {editingProfile.avatar_url && (
-                <div className="w-16 h-16 rounded-full border-2 border-[#111] overflow-hidden bg-gray-100 flex-shrink-0">
+                <div className="w-16 h-16 rounded-full border-2 border-[#111] overflow-hidden bg-[#f5f0e8] flex-shrink-0">
                   <img 
                     src={editingProfile.avatar_url} 
                     alt="Avatar" 
                     className="w-full h-full object-cover"
                     onError={(e) => {
-                      (e.target as HTMLImageElement).src = 'https://placehold.co/100x100?text=Avatar';
+                      (e.target as HTMLImageElement).src = 'https://placehold.co/100x100/f5f0e8/111111?text=A';
                     }}
                   />
                 </div>
               )}
-              <div className="flex-1">
+              <div className="flex-1 w-full">
                 <input 
                   type="url"
-                  placeholder="Masukkan URL gambar avatar..."
+                  placeholder="Masukkan URL gambar avatar publik..."
                   value={editingProfile.avatar_url || ''}
                   onChange={(e) => setEditingProfile({...editingProfile, avatar_url: e.target.value})}
                   className="w-full"
@@ -239,20 +242,20 @@ const StoreProfileTab = () => {
             <label>URL Banner Desktop (3:1)</label>
             <div className="mt-1 space-y-3">
               {editingProfile.banner_desktop_url && (
-                <div className="w-full h-32 rounded-lg border-2 border-[#111] overflow-hidden bg-gray-100">
+                <div className="banner-preview h-32 bg-[#f5f0e8]">
                   <img 
                     src={editingProfile.banner_desktop_url} 
                     alt="Banner" 
                     className="w-full h-full object-cover"
                     onError={(e) => {
-                      (e.target as HTMLImageElement).src = 'https://placehold.co/900x300?text=Banner';
+                      (e.target as HTMLImageElement).src = 'https://placehold.co/900x300/f5f0e8/111111?text=BANNER';
                     }}
                   />
                 </div>
               )}
               <input 
                 type="url"
-                placeholder="Masukkan URL gambar banner..."
+                placeholder="Masukkan URL gambar banner publik..."
                 value={editingProfile.banner_desktop_url || ''}
                 onChange={(e) => setEditingProfile({...editingProfile, banner_desktop_url: e.target.value})}
                 className="w-full"
@@ -266,7 +269,7 @@ const StoreProfileTab = () => {
               <h5 className="font-black text-[#111] text-base flex items-center gap-2">
                 <span>💳 Rekening Pembayaran & WhatsApp Konfirmasi</span>
               </h5>
-              <p className="text-xs text-muted-foreground mt-0.5">
+              <p className="text-sm font-semibold text-muted-foreground mt-1">
                 Data ini akan ditampilkan kepada pembeli pada halaman checkout saat melakukan transfer manual.
               </p>
             </div>
@@ -315,7 +318,7 @@ const StoreProfileTab = () => {
                 value={editingProfile.whatsapp_number || ''} 
                 onChange={(e) => setEditingProfile({...editingProfile, whatsapp_number: e.target.value})}
               />
-              <p className="text-xs text-muted-foreground mt-1">
+              <p className="text-xs font-semibold text-muted-foreground mt-1">
                 Tombol &quot;Konfirmasi Transfer&quot; pembeli akan langsung membuka chat WhatsApp ke nomor ini dengan pesan invoice otomatis.
               </p>
             </div>
@@ -324,13 +327,13 @@ const StoreProfileTab = () => {
           <div className="field-group pt-2">
             <label>Status Toko</label>
             <select value={editingProfile.status || 'ACTIVE'} onChange={(e) => setEditingProfile({...editingProfile, status: e.target.value as any})}>
-              <option value="ACTIVE">Publik (Dapat diakses)</option>
-              <option value="PRIVAT">Privat (Hanya Saya)</option>
+              <option value="ACTIVE">Publik (Dapat diakses secara publik)</option>
+              <option value="PRIVAT">Privat (Disembunyikan dari publik)</option>
             </select>
           </div>
 
           <div className="pt-6 border-t-2 border-[#111] mt-6">
-            <button onClick={handleSave} disabled={mutation.isPending} className="btn-simpan w-full md:w-auto">
+            <button onClick={handleSave} disabled={mutation.isPending} className="btn-primary w-full md:w-auto">
               {mutation.isPending ? 'Menyimpan...' : 'Simpan Profil Toko'}
             </button>
           </div>
