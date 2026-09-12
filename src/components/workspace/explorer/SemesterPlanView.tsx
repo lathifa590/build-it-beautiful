@@ -1,9 +1,11 @@
 import React, { useState } from "react";
-import { BookOpen, PlusCircle, ChevronDown, Layers, BarChart3, Store } from "lucide-react";
+import { BookOpen, PlusCircle, ChevronDown, Layers, BarChart3, Store, Download, Loader2 } from "lucide-react";
 import type { CurriculumPlanDB, ProsemItemDB, MeetingSlotDB } from "@/hooks/useProsemData";
 import { TopicRow } from "./TopicRow";
 import { StoreBundleModal } from "@/components/store/StoreBundleModal";
 import type { Workspace } from "@/types/workspace";
+import { generateBundleZip } from "@/lib/bundle-generator";
+import { toast } from "sonner";
 
 interface SemesterPlanViewProps {
   plan: CurriculumPlanDB;
@@ -24,6 +26,39 @@ export const SemesterPlanView: React.FC<SemesterPlanViewProps> = ({
 }) => {
   const [collapsed, setCollapsed] = useState(false);
   const [isBundleModalOpen, setIsBundleModalOpen] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [downloadProgress, setDownloadProgress] = useState("");
+
+  const handleDownload = async () => {
+    try {
+      setIsDownloading(true);
+      setDownloadProgress("Memulai...");
+      
+      const zipBlob = await generateBundleZip(
+        workspace, 
+        plan.semester || 1, 
+        items, 
+        (msg) => setDownloadProgress(msg)
+      );
+      
+      const url = window.URL.createObjectURL(zipBlob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `Paket_Modul_${workspace.global_form_data?.mataPelajaran || workspace.subject || 'Mapel'}_Kelas${workspace.global_form_data?.kelas || workspace.grade || 'X'}_Fase${workspace.global_form_data?.fase || workspace.phase || ''}_Sem${plan.semester || 1}_${workspace.academic_year || ''}.zip`.replace(/\s+/g, '_');
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      toast.success("Berhasil mengunduh bundle modul!");
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err.message || "Gagal mengunduh bundle");
+    } finally {
+      setIsDownloading(false);
+      setDownloadProgress("");
+    }
+  };
 
   const totalJp = items.reduce((s, i) => s + i.allocated_jp, 0);
   const totalMeetings = items.reduce((s, i) => s + i.meeting_slots.length, 0);
@@ -73,14 +108,26 @@ export const SemesterPlanView: React.FC<SemesterPlanViewProps> = ({
           </div>
 
           {completedMeetings > 0 && (
-            <button
-              onClick={() => setIsBundleModalOpen(true)}
-              className="p-2 rounded-lg bg-orange-100 hover:bg-orange-200 text-orange-600 border-2 border-orange-200 transition-colors flex items-center gap-1 text-sm font-bold shadow-sm"
-              title="Publish Semester ini ke Toko"
-            >
-              <Store className="w-4 h-4" />
-              <span className="hidden sm:inline">Ke Toko</span>
-            </button>
+            <>
+              <button
+                onClick={handleDownload}
+                disabled={isDownloading}
+                className="p-2 rounded-lg bg-blue-100 hover:bg-blue-200 text-blue-600 border-2 border-blue-200 transition-colors flex items-center gap-1 text-sm font-bold shadow-sm disabled:opacity-50"
+                title="Download Bundle (.zip)"
+              >
+                {isDownloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+                <span className="hidden sm:inline">{isDownloading ? "Memproses..." : "Download"}</span>
+              </button>
+              
+              <button
+                onClick={() => setIsBundleModalOpen(true)}
+                className="p-2 rounded-lg bg-orange-100 hover:bg-orange-200 text-orange-600 border-2 border-orange-200 transition-colors flex items-center gap-1 text-sm font-bold shadow-sm"
+                title="Publish Semester ini ke Toko"
+              >
+                <Store className="w-4 h-4" />
+                <span className="hidden sm:inline">Ke Toko</span>
+              </button>
+            </>
           )}
 
           <button

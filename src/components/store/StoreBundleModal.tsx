@@ -11,7 +11,7 @@ import { supabase } from '@/integrations/supabase/client';
 import type { Workspace } from '@/types/workspace';
 import type { CurriculumPlanDB, ProsemItemDB, MeetingSlotDB } from '@/hooks/useProsemData';
 import { DEFAULT_FORM_DATA } from '@/lib/constants';
-import { renderDocToHtml } from '@/components/store/bundle-render';
+import { generateBundleZip } from '@/lib/bundle-generator';
 import type { GenerationResultV2 } from '@/types/modul';
 
 interface StoreBundleModalProps {
@@ -33,9 +33,24 @@ export const StoreBundleModal = ({
   const formData = workspace.global_form_data || DEFAULT_FORM_DATA;
   const semester = semesterPlan.semester || 1;
   
+  const completedMeetings = prosemItems.flatMap(item => item.meeting_slots).filter(s => s.status === 'completed').length;
+  const totalJP = prosemItems.reduce((sum, item) => sum + item.allocated_jp, 0);
+  const tahunAjaran = workspace.academic_year || '';
+  const semLabel = semester === 1 ? 'Ganjil' : 'Genap';
+  const mapelStr = formData.mataPelajaran || workspace.subject || '';
+  const kelasStr = formData.kelas || (workspace.grade ? `Kelas ${workspace.grade}` : '');
+  const faseStr = formData.fase || workspace.phase || '';
+
   const [listingData, setListingData] = useState<Partial<StoreListing>>({
-    title: `Paket Lengkap ${formData.mataPelajaran || ''} Kelas ${formData.kelas || ''} Semester ${semester}`,
-    description: `Paket Modul Ajar lengkap beserta Program Tahunan dan Program Semester untuk ${formData.mataPelajaran || ''} Kelas ${formData.kelas || ''} Fase ${formData.fase || ''} Semester ${semester}.`,
+    title: `[LENGKAP] ${mapelStr} ${kelasStr} Fase ${faseStr} Semester ${semLabel} ${tahunAjaran}`,
+    description: `Paket Modul Ajar ${mapelStr} lengkap untuk ${kelasStr} Fase ${faseStr} Semester ${semLabel}${tahunAjaran ? ` T.A. ${tahunAjaran}` : ''}.
+
+✅ Isi paket:
+• ${completedMeetings} Pertemuan (${totalJP} JP total)
+• Modul Ajar per pertemuan (termasuk RPP, LKPD, Asesmen, Materi & Refleksi)
+• Sesuai Kurikulum ${formData.kurikulum === 'kbc' ? 'KBC (Kemenag)' : 'Merdeka Belajar'}
+
+Cocok untuk guru ${mapelStr} ${kelasStr} yang ingin hemat waktu persiapan mengajar.`,
     price_amount: 50000,
     category: 'UMUM', 
     status: 'PUBLISHED',
@@ -54,87 +69,11 @@ export const StoreBundleModal = ({
       if (!profile?.store_id) throw new Error("Profil toko tidak ditemukan. Buat profil toko Anda di Manajemen Toko terlebih dahulu.");
       if (profile.status !== 'ACTIVE') throw new Error("Profil toko tidak aktif. Aktifkan profil toko di Manajemen Toko.");
       
-      const zip = new JSZip();
       setProgressMsg('Mengumpulkan data Program Tahunan & Semester...');
       
-      // 1. Export Prota & Prosem
-      // Untuk V2, ProtaData/ProsemData legacy butuh sedikit mapping atau kita generate seadanya
-      // Di Workspace, prota/prosem item tersimpan di prosem_items
-      // Kita asumsikan kita lewati dulu zip.file untuk prota/prosem jika mappingnya rumit,
-      // ATAU kita masukkan list topik sebagai file teks/csv
+      const zipBlob = await generateBundleZip(workspace, semester, prosemItems, setProgressMsg);
       
-      // 2. Fetch all workspace_meeting_documents for this semester
-      setProgressMsg('Mengambil dokumen pertemuan...');
-      const meetingSlots = prosemItems.flatMap(item => item.meeting_slots).filter(s => s.status === 'completed');
-      
-      if (meetingSlots.length === 0) {
-        throw new Error('Tidak ada pertemuan yang sudah selesai (generated) di semester ini.');
-      }
-
-      for (let i = 0; i < meetingSlots.length; i++) {
-        const slot = meetingSlots[i];
-        setProgressMsg(`Memproses Pertemuan ${i + 1} dari ${meetingSlots.length}...`);
-        
-        // Batch: 1 query ambil semua doc + version untuk slot ini (pakai FK hint)
-        const { data: links, error: linkError } = await supabase
-          .from('meeting_document_links')
-          .select(`
-            document_id,
-            documents (
-              id, document_type, current_version_id,
-              document_versions!fk_documents_current_version ( content_json )
-            )
-          `)
-          .eq('meeting_slot_id', slot.id);
-          
-        if (linkError) { console.error(linkError); continue; }
-        if (!links || links.length === 0) { console.warn(`No docs slot ${slot.id}`); continue; }
-        
-        const dokumenByType: Record<string, any> = {};
-        const pilihanDokumen: Record<string, boolean> = {};
-        let modulPreface: any = null;
-
-        for (const link of links as any[]) {
-          const doc = link.documents;
-          if (!doc) continue;
-          const versions = doc.document_versions;
-          const cj = Array.isArray(versions) ? versions[0]?.content_json : versions?.content_json;
-          if (!cj) continue;
-          const t = doc.document_type as string;
-          const key = t; // 'modul'|'lkpd'|'asesmen'|'materi'|'soal'|'refleksi'
-          dokumenByType[key] = cj;
-          pilihanDokumen[key] = true;
-          if (t === 'modul' && cj.modulPreface) modulPreface = cj.modulPreface;
-          if (t === 'modul' && cj.auto_generated && !modulPreface) {
-            modulPreface = { pemahaman_bermakna: cj.pemahaman_bermakna || '', auto_generated: cj.auto_generated };
-          }
-        }
-
-        const LABEL: Record<string,string> = { modul:'Modul Ajar', lkpd:'LKPD', asesmen:'Asesmen', materi:'Materi', soal:'Bank Soal', refleksi:'Refleksi' };
-        const esc = (s:string) => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-        const meetingTitle = `Pertemuan ${i+1} — ${(slot as any).materi_pokok || ''}`;
-        let htmlBody = `<h1 style="text-align:center;border-bottom:3px double #000;padding-bottom:8px">${esc(meetingTitle)}</h1>`;
-        htmlBody += `<p style="color:#666;font-size:9pt">Materi: ${esc((slot as any).materi_pokok || '-')} | JP: ${(slot as any).planned_jp || '-'} | Mapel: ${esc(workspace.subject || '')}</p><hr>`;
-        for (const [key, content] of Object.entries(dokumenByType)) {
-          const label = LABEL[key] || key;
-          htmlBody += `<h2 style="background:#111;color:#fff;padding:6px 10px;margin:16px 0 8px">${esc(label)}</h2>`;
-          if (key === 'modul' && modulPreface?.pemahaman_bermakna && !(content as any)?.pemahaman_bermakna) htmlBody += `<div style="background:#f0fdf4;border-left:4px solid #16a34a;padding:8px"><b>Pemahaman Bermakna (Preface):</b> ${esc(String(modulPreface.pemahaman_bermakna))}</div>`;
-          htmlBody += renderDocToHtml(key, content);
-          htmlBody += `<div style="page-break-after:always"></div>`;
-        }
-        const wordHtml = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="utf-8"><style>body{font-family:Arial;font-size:11pt} h1{font-size:16pt} h2{font-size:13pt} h3{font-size:12pt} pre{word-wrap:break-word} table{border-collapse:collapse} td,th{border:1px solid #000;padding:4px}</style></head><body>${htmlBody}</body></html>`;
-        const blob = new Blob(['\ufeff', wordHtml], { type: 'application/msword' });
-        const safeName = `Pertemuan_${i+1}_${(slot as any).materi_pokok || 'Materi'}`.replace(/[\\/:*?"<>|]/g,'_').slice(0,60);
-        zip.file(`${safeName}.doc`, blob);
-      }
-
-      const fileCount = Object.keys(zip.files).length;
-      if (fileCount === 0) {
-        throw new Error('Gagal membuat ZIP: tidak ada dokumen berhasil diproses.');
-      }
-
-      setProgressMsg('Membuat file ZIP dan Mengunggah...');
-      const zipBlob = await zip.generateAsync({ type: "blob" });
+      setProgressMsg('Mengunggah ke Toko...');
       const zipFile = new File([zipBlob], `Paket_Modul_${formData.mataPelajaran}_Kelas_${formData.kelas}_Sem_${semester}.zip`, { type: 'application/zip' });
       
       // Upload Zip
