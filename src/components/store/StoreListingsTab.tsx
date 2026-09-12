@@ -289,7 +289,7 @@ const StoreListingsTab = () => {
                   <div className="text-sm md:text-xl font-black text-[#c04a1a]">
                     {item.price_amount === 0 ? 'Gratis' : `Rp${(item.price_amount || 0).toLocaleString('id-ID')}`}
                   </div>
-                  <div className="flex gap-0.5 md:gap-1">
+                  <div className="flex gap-1 md:gap-1.5 shrink-0 bg-[#f5f0e8] p-1 rounded-md border border-gray-200">
                      <button 
                         className="p-1 md:p-1.5 hover:bg-gray-100 rounded text-gray-500" 
                         title="Edit" 

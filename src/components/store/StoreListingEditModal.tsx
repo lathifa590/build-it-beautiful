@@ -116,7 +116,6 @@ export const StoreListingEditModal = ({
             >
               <option value="PUBLISHED">Aktif (PUBLISHED)</option>
               <option value="DRAFT">Draf (Sembunyikan)</option>
-              <option value="TAKEDOWN">Takedown</option>
             </select>
           </div>
           
