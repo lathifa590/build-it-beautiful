@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Upload, FileText, Download, Edit, Copy, Trash } from 'lucide-react';
+import { Plus, Upload, FileText, Download, Edit, Copy, Trash, Search, Eye, ShoppingBag } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { storeApi } from '@/lib/store-api';
 import { StoreListing } from '@/types/store';
@@ -22,6 +22,10 @@ const StoreListingsTab = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingListing, setEditingListing] = useState<StoreListing | null>(null);
 
+  // Filters
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterStatus, setFilterStatus] = useState('ALL');
+
   // Queries
   const { data: profile } = useQuery({
     queryKey: ['storeProfile', user?.id],
@@ -42,8 +46,6 @@ const StoreListingsTab = () => {
       
       let previewUrl = formData.url_preview;
       let originalUrl = formData.url_modul_ajar;
-
-
 
       // Handle Original File Upload (Private Bucket)
       if (originalFile) {
@@ -117,6 +119,12 @@ const StoreListingsTab = () => {
     }
     mutation.mutate();
   };
+
+  const filteredListings = listings?.filter(item => {
+    if (filterStatus !== 'ALL' && item.status !== filterStatus) return false;
+    if (searchQuery && !item.title.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+    return true;
+  });
 
   if (isAddingNew) {
     return (
@@ -238,7 +246,7 @@ const StoreListingsTab = () => {
 
             <div className="pt-6 mt-6 border-t-2 border-[#111]">
               <button 
-                className="btn-simpan w-full md:w-auto" 
+                className="btn-primary w-full md:w-auto" 
                 onClick={handleSubmit}
                 disabled={mutation.isPending}
               >
@@ -255,91 +263,126 @@ const StoreListingsTab = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h3 className="section-heading mb-0 border-none pb-0">Katalog Modul Ajar</h3>
+          <h2 className="text-2xl font-black text-[#111]">Katalog Modul Ajar</h2>
           <p className="text-sm font-semibold text-muted-foreground mt-1">Kelola Modul Ajar yang Anda jual di marketplace.</p>
         </div>
-        <button className="btn-simpan flex items-center gap-2" onClick={() => setIsAddingNew(true)}>
+        <button className="btn btn-primary" onClick={() => setIsAddingNew(true)}>
           <Plus className="w-4 h-4" />
           Tambah Modul Ajar Baru
         </button>
       </div>
+
+      <div className="catalog-filter-bar">
+        <input 
+          type="text" 
+          placeholder="Cari modul..." 
+          className="catalog-search"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+        <select 
+          className="catalog-filter-select"
+          value={filterStatus}
+          onChange={(e) => setFilterStatus(e.target.value)}
+        >
+          <option value="ALL">Semua Status</option>
+          <option value="PUBLISHED">Aktif</option>
+          <option value="DRAFT">Draf</option>
+        </select>
+      </div>
       
       {isLoading ? (
-        <div>Memuat katalog...</div>
-      ) : listings && listings.length > 0 ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-6">
-          {listings.map(item => (
-            <div key={item.listing_id} className="card overflow-hidden flex flex-col border border-[#111] md:border-2">
-              <div className="aspect-[4/3] bg-[#f5f0e8] border-b border-[#111] md:border-b-2 flex items-center justify-center text-center relative overflow-hidden">
+        <div className="flex justify-center p-12">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#111]"></div>
+        </div>
+      ) : filteredListings && filteredListings.length > 0 ? (
+        <div className="product-grid">
+          {filteredListings.map(item => (
+            <div key={item.listing_id} className="product-card">
+              <div className="product-card__thumb">
                 {item.preview_image_url ? (
-                  <img src={item.preview_image_url} alt={item.title} className="w-full h-full object-cover" />
+                  <img src={item.preview_image_url} alt={item.title} />
                 ) : (
-                  <FileText className="w-8 h-8 md:w-12 md:h-12 text-[#111] opacity-20" />
+                  <div className="product-card__thumb-placeholder">
+                    <FileText className="w-8 h-8" />
+                  </div>
                 )}
+                
                 {item.status === 'PUBLISHED' ? (
-                  <span className="absolute top-1 right-1 md:top-2 md:right-2 bg-green-100 text-green-800 border border-green-800 md:border-2 text-[9px] md:text-xs font-bold px-1.5 py-0.5 rounded">Aktif</span>
+                  <span className="product-card__badge product-card__badge--aktif">Aktif</span>
                 ) : (
-                  <span className="absolute top-1 right-1 md:top-2 md:right-2 bg-gray-100 text-gray-800 border border-gray-800 md:border-2 text-[9px] md:text-xs font-bold px-1.5 py-0.5 rounded">Draf</span>
+                  <span className="product-card__badge product-card__badge--draf">Draf</span>
                 )}
               </div>
-              <div className="card-body p-2 md:p-4 flex-1 flex flex-col bg-white">
-                <h4 className="font-bold text-xs md:text-lg leading-tight mb-1 md:mb-1">{item.title}</h4>
-                <p className="text-[10px] md:text-xs font-bold text-muted-foreground mb-2 md:mb-3 truncate">{item.category}</p>
-                <div className="mt-auto flex justify-between items-end">
-                  <div className="text-sm md:text-xl font-black text-[#c04a1a]">
-                    {item.price_amount === 0 ? 'Gratis' : `Rp${(item.price_amount || 0).toLocaleString('id-ID')}`}
-                  </div>
-                  <div className="flex gap-1 md:gap-1.5 shrink-0 bg-[#f5f0e8] p-1 rounded-md border border-gray-200">
-                     <button 
-                        className="p-1 md:p-1.5 hover:bg-gray-100 rounded text-gray-500" 
-                        title="Edit" 
-                        onClick={() => {
-                          setEditingListing(item);
-                          setIsEditModalOpen(true);
-                        }}
-                     >
-                       <Edit className="w-3 h-3 md:w-4 md:h-4" />
-                     </button>
-                     <button 
-                        className="p-1 md:p-1.5 hover:bg-gray-100 rounded text-gray-500" 
-                        title="Duplikat" 
-                        onClick={() => {
-                          if(confirm('Duplikat modul ajar ini?')) duplicateMutation.mutate(item);
-                        }}
-                        disabled={duplicateMutation.isPending}
-                     >
-                       <Copy className="w-3 h-3 md:w-4 md:h-4" />
-                     </button>
-                     <button 
-                        className="p-1 md:p-1.5 hover:bg-red-50 rounded text-red-500" 
-                        title="Hapus" 
-                        onClick={() => {
-                          if(confirm('Yakin ingin menghapus modul ajar ini?')) deleteMutation.mutate(item.listing_id);
-                        }}
-                        disabled={deleteMutation.isPending}
-                     >
-                       <Trash className="w-3 h-3 md:w-4 md:h-4" />
-                     </button>
-                  </div>
+              
+              <div className="product-card__info">
+                <span className="product-card__jenjang">{item.category}</span>
+                <h3 className="product-card__title">{item.title}</h3>
+                <span className="product-card__price">
+                  {item.price_amount === 0 ? 'Gratis' : `Rp${(item.price_amount || 0).toLocaleString('id-ID')}`}
+                </span>
+                
+                <div className="product-card__meta">
+                  <Eye className="w-3 h-3" />
+                  <span>0 dilihat</span>
+                  <span>·</span>
+                  <span>0 terjual</span>
                 </div>
+              </div>
+              
+              <div className="product-card__actions">
+                 <button 
+                    className="product-card__action-btn"
+                    title="Edit" 
+                    onClick={() => {
+                      setEditingListing(item);
+                      setIsEditModalOpen(true);
+                    }}
+                 >
+                   <Edit className="w-4 h-4" /> Edit
+                 </button>
+                 <button 
+                    className="product-card__action-btn"
+                    title="Duplikat" 
+                    onClick={() => {
+                      if(confirm('Duplikat modul ajar ini?')) duplicateMutation.mutate(item);
+                    }}
+                    disabled={duplicateMutation.isPending}
+                 >
+                   <Copy className="w-4 h-4" /> Copy
+                 </button>
+                 <button 
+                    className="product-card__action-btn product-card__action-btn--danger"
+                    title="Hapus" 
+                    onClick={() => {
+                      if(confirm('Yakin ingin menghapus modul ajar ini?')) deleteMutation.mutate(item.listing_id);
+                    }}
+                    disabled={deleteMutation.isPending}
+                 >
+                   <Trash className="w-4 h-4" /> Hapus
+                 </button>
               </div>
             </div>
           ))}
         </div>
       ) : (
-        <div className="card">
-          <div className="card-body flex flex-col items-center justify-center p-12 text-center">
-            <div className="w-16 h-16 bg-[#f5f0e8] border-2 border-[#111] rounded-full flex items-center justify-center mb-4">
-              <Plus className="w-8 h-8 text-[#111]" />
-            </div>
-            <h4 className="text-lg font-black mb-1">Belum ada modul ajar</h4>
-            <p className="text-sm font-semibold text-muted-foreground mb-4 max-w-sm">
-              Anda belum mengunggah modul ajar apapun. Mulai bagikan modul ajar Anda ke publik sekarang.
-            </p>
-            <button className="btn-secondary" onClick={() => setIsAddingNew(true)}>
+        <div className="catalog-empty">
+          <div className="catalog-empty__icon">
+            <Plus className="w-8 h-8" />
+          </div>
+          <h4 className="catalog-empty__title">
+            {searchQuery || filterStatus !== 'ALL' ? 'Modul Ajar Tidak Ditemukan' : 'Belum ada modul ajar'}
+          </h4>
+          <p className="catalog-empty__desc">
+            {searchQuery || filterStatus !== 'ALL' 
+              ? 'Tidak ada modul ajar yang cocok dengan filter pencarian Anda.' 
+              : 'Anda belum mengunggah modul ajar apapun. Mulai bagikan modul ajar Anda ke publik sekarang.'}
+          </p>
+          {!(searchQuery || filterStatus !== 'ALL') && (
+            <button className="btn btn-secondary mt-2" onClick={() => setIsAddingNew(true)}>
               Tambah Modul Ajar Pertama
             </button>
-          </div>
+          )}
         </div>
       )}
       

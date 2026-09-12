@@ -69,7 +69,7 @@ const StoreDashboardTab = () => {
         <div className="flex gap-2">
           <button 
             onClick={() => navigate('/app')}
-            className="flex items-center gap-2 px-4 py-2 bg-[#c04a1a] text-white font-bold rounded-lg hover:bg-[#a03d15] transition-colors shadow-[2px_2px_0px_0px_rgba(17,17,17,1)] border-2 border-[#111] text-sm"
+            className="btn btn-primary"
           >
             <Plus className="w-4 h-4" />
             Buat Modul Baru
@@ -77,86 +77,110 @@ const StoreDashboardTab = () => {
         </div>
       </div>
 
-      {/* Main Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="card hover:-translate-y-1 transition-transform">
-          <div className="p-4 flex items-start justify-between">
+      {/* Main Stats (Desktop/Tablet ≥ 640px) */}
+      <div className="stat-grid-store hidden sm:grid">
+        <div className="stat-card-store">
+          <div className="stat-card-store__header">
             <div>
-              <p className="text-sm font-bold text-muted-foreground mb-1">Kunjungan Toko</p>
-              <h3 className="text-2xl font-black text-[#111]">{views}</h3>
+              <p className="stat-card-store__label">Kunjungan Toko</p>
+              <h3 className="stat-card-store__value">{views}</h3>
             </div>
-            <div className="p-2 bg-[#e8e0d0] rounded-lg border-2 border-[#111]">
+            <div className="stat-card-store__icon">
               <Users className="w-5 h-5 text-[#111]" />
             </div>
           </div>
-          <div className="px-4 pb-4">
-            <p className="text-xs font-semibold text-green-600 flex items-center gap-1">
+          <div className="mt-2">
+            <p className="stat-card-store__delta flex items-center gap-1">
               <TrendingUp className="w-3 h-3" />
               <span>+0% dari minggu lalu</span>
             </p>
           </div>
         </div>
 
-        <div className="card hover:-translate-y-1 transition-transform">
-          <div className="p-4 flex items-start justify-between">
+        <div className="stat-card-store">
+          <div className="stat-card-store__header">
             <div>
-              <p className="text-sm font-bold text-muted-foreground mb-1">Dilihat Modul</p>
-              <h3 className="text-2xl font-black text-[#111]">{clicks}</h3>
+              <p className="stat-card-store__label">Dilihat Modul</p>
+              <h3 className="stat-card-store__value">{clicks}</h3>
             </div>
-            <div className="p-2 bg-[#e8e0d0] rounded-lg border-2 border-[#111]">
+            <div className="stat-card-store__icon">
               <Eye className="w-5 h-5 text-[#111]" />
             </div>
           </div>
-          <div className="px-4 pb-4">
-            <p className="text-xs font-semibold text-green-600 flex items-center gap-1">
+          <div className="mt-2">
+            <p className="stat-card-store__delta flex items-center gap-1">
               <TrendingUp className="w-3 h-3" />
               <span>+0% dari minggu lalu</span>
             </p>
           </div>
         </div>
 
-        <div className="card hover:-translate-y-1 transition-transform">
-          <div className="p-4 flex items-start justify-between">
+        <div className="stat-card-store">
+          <div className="stat-card-store__header">
             <div>
-              <p className="text-sm font-bold text-muted-foreground mb-1">Penjualan Selesai</p>
-              <h3 className="text-2xl font-black text-[#111]">{sales}</h3>
+              <p className="stat-card-store__label">Penjualan Selesai</p>
+              <h3 className="stat-card-store__value">{sales}</h3>
             </div>
-            <div className="p-2 bg-[#e8e0d0] rounded-lg border-2 border-[#111]">
+            <div className="stat-card-store__icon">
               <ShoppingBag className="w-5 h-5 text-[#111]" />
             </div>
           </div>
-          <div className="px-4 pb-4">
-            <p className="text-xs font-semibold text-muted-foreground flex items-center gap-1">
+          <div className="mt-2">
+            <p className="stat-card-store__sub">
               Belum ada penjualan
             </p>
           </div>
         </div>
 
-        <div className="card hover:-translate-y-1 transition-transform">
-          <div className="p-4 flex items-start justify-between">
+        <div className="stat-card-store stat-card-store--income">
+          <div className="stat-card-store__header">
             <div>
-              <p className="text-sm font-bold text-muted-foreground mb-1">Total Pendapatan</p>
-              <h3 className="text-2xl font-black text-[#111]">Rp{revenue.toLocaleString('id-ID')}</h3>
+              <p className="stat-card-store__label">Total Pendapatan</p>
+              <h3 className="stat-card-store__value">Rp{revenue.toLocaleString('id-ID')}</h3>
             </div>
-            <div className="p-2 bg-[#e8e0d0] rounded-lg border-2 border-[#111]">
+            <div className="stat-card-store__icon">
               <DollarSign className="w-5 h-5 text-[#111]" />
             </div>
           </div>
-          <div className="px-4 pb-4">
-            <p className="text-xs font-semibold text-muted-foreground flex items-center gap-1">
+          <div className="mt-2">
+            <p className="stat-card-store__sub">
               Belum ada pendapatan
             </p>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* Main Stats (Mobile) */}
+      <div className="stat-strip sm:hidden">
+        <div className="stat-chip">
+          <span className="stat-chip-label">Kunjungan</span>
+          <div className="stat-chip-val">{views}</div>
+          <div className="stat-chip-sub">↑ +0% minggu ini</div>
+        </div>
+        <div className="stat-chip">
+          <span className="stat-chip-label">Dilihat</span>
+          <div className="stat-chip-val">{clicks}</div>
+          <div className="stat-chip-sub">↑ +0% minggu ini</div>
+        </div>
+        <div className="stat-chip">
+          <span className="stat-chip-label">Terjual</span>
+          <div className="stat-chip-val">{sales}</div>
+          <div className="stat-chip-sub text-muted-foreground">transaksi</div>
+        </div>
+        <div className="stat-chip stat-chip--income">
+          <span className="stat-chip-label">Pendapatan</span>
+          <div className="stat-chip-val">Rp{revenue.toLocaleString('id-ID')}</div>
+          <div className="stat-chip-sub text-muted-foreground">bulan ini</div>
+        </div>
+      </div>
+
+      <div className="dashboard-bottom">
         {/* Chart Section */}
-        <div className="card lg:col-span-2">
-          <div className="card-head">
-            <h3 className="font-black text-[#111] text-base">Grafik Kunjungan (7 Hari Terakhir)</h3>
+        <div className="chart-card">
+          <div className="chart-card__head">
+            Grafik Kunjungan (7 Hari Terakhir)
           </div>
-          <div className="p-4 h-[300px] w-full">
+          <div className="chart-card__body h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={revenueData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <defs>
@@ -200,29 +224,36 @@ const StoreDashboardTab = () => {
         </div>
 
         {/* Recent Orders or Popular Modules */}
-        <div className="card flex flex-col">
-          <div className="card-head flex items-center justify-between border-b-2 border-[#111] pb-3 mb-0">
-            <h3 className="font-black text-[#111] text-base">Modul Terpopuler</h3>
+        <div className="chart-card flex flex-col">
+          <div className="chart-card__head flex items-center justify-between border-b-2 border-[#111]">
+            <span>Modul Terpopuler</span>
             <button className="text-xs font-bold text-[#c04a1a] hover:underline flex items-center gap-1">
               Semua <ArrowRight className="w-3 h-3" />
             </button>
           </div>
-          <div className="p-4 flex-1 flex flex-col items-center justify-center text-center space-y-3 min-h-[200px]">
-            <div className="w-16 h-16 bg-[#e8e0d0] rounded-full flex items-center justify-center border-2 border-[#111]">
-              <Package className="w-8 h-8 text-[#111]" />
+          <div className="chart-card__body flex-1 flex flex-col">
+            <div className="flex-1 flex flex-col items-center justify-center text-center space-y-3 min-h-[200px]">
+              <div className="w-16 h-16 bg-[#e8e0d0] rounded-lg flex items-center justify-center border-2 border-[#111]">
+                <Package className="w-8 h-8 text-[#111]" />
+              </div>
+              <div>
+                <p className="font-bold text-[#111]">Belum ada data</p>
+                <p className="text-sm text-muted-foreground font-medium mt-1">Publikasikan modul ajar Anda ke toko untuk melihat statistiknya.</p>
+              </div>
             </div>
-            <div>
-              <p className="font-bold text-[#111]">Belum ada data</p>
-              <p className="text-sm text-muted-foreground font-medium mt-1">Publikasikan modul ajar Anda ke toko untuk melihat statistiknya.</p>
-            </div>
-            <button 
-              onClick={() => navigate('/app')}
-              className="mt-2 px-4 py-2 bg-white border-2 border-[#111] rounded-lg text-sm font-bold shadow-[2px_2px_0px_0px_rgba(17,17,17,1)] hover:-translate-y-0.5 hover:shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] transition-all"
-            >
-              Ke Katalog Saya
-            </button>
           </div>
         </div>
+      </div>
+
+      {/* Mobile CTA */}
+      <div className="mob-cta sm:hidden mt-6">
+        <button 
+          className="btn btn-primary w-full justify-center"
+          onClick={() => navigate('/app')}
+        >
+          <Plus className="w-5 h-5 mr-1" />
+          Tambah Modul Baru
+        </button>
       </div>
     </div>
   );
