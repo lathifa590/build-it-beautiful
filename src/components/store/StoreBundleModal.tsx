@@ -40,6 +40,11 @@ export const StoreBundleModal = ({
   const mapelStr = formData.mataPelajaran || workspace.subject || '';
   const kelasStr = formData.kelas || (workspace.grade ? `Kelas ${workspace.grade}` : '');
   const faseStr = formData.fase || workspace.phase || '';
+  
+  const topikList = prosemItems
+    .filter(item => item.meeting_slots.some(s => s.status === 'completed'))
+    .map((item, i) => `${i+1}. ${item.materi_pokok}`)
+    .join('\n');
 
   const [listingData, setListingData] = useState<Partial<StoreListing>>({
     title: `[LENGKAP] ${mapelStr} ${kelasStr} Fase ${faseStr} Semester ${semLabel} ${tahunAjaran}`,
@@ -49,6 +54,9 @@ export const StoreBundleModal = ({
 • ${completedMeetings} Pertemuan (${totalJP} JP total)
 • Modul Ajar per pertemuan (termasuk RPP, LKPD, Asesmen, Materi & Refleksi)
 • Sesuai Kurikulum ${formData.kurikulum === 'kbc' ? 'KBC (Kemenag)' : 'Merdeka Belajar'}
+
+📚 Daftar Topik/Materi:
+${topikList}
 
 Cocok untuk guru ${mapelStr} ${kelasStr} yang ingin hemat waktu persiapan mengajar.`,
     price_amount: 50000,
