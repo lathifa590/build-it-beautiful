@@ -136,38 +136,38 @@ export async function generateBundleZip(
 
       // Lintas Disiplin Ilmu (full interface)
       lintasDisiplinIlmu: {
-        ppkn: savedFormData.lintasDisiplinIlmu?.ppkn || rawGlobalFormData.lintasDisiplinIlmu?.ppkn || autoGen.lintas_disiplin?.ppkn || '',
-        ips: savedFormData.lintasDisiplinIlmu?.ips || rawGlobalFormData.lintasDisiplinIlmu?.ips || autoGen.lintas_disiplin?.ips || '',
-        matematika: savedFormData.lintasDisiplinIlmu?.matematika || rawGlobalFormData.lintasDisiplinIlmu?.matematika || autoGen.lintas_disiplin?.matematika || '',
-        bahasaIndonesia: savedFormData.lintasDisiplinIlmu?.bahasaIndonesia || rawGlobalFormData.lintasDisiplinIlmu?.bahasaIndonesia || autoGen.lintas_disiplin?.bahasa_indonesia || '',
-        seniBudaya: savedFormData.lintasDisiplinIlmu?.seniBudaya || rawGlobalFormData.lintasDisiplinIlmu?.seniBudaya || autoGen.lintas_disiplin?.seni_budaya || '',
-        prakarya: savedFormData.lintasDisiplinIlmu?.prakarya || rawGlobalFormData.lintasDisiplinIlmu?.prakarya || autoGen.lintas_disiplin?.prakarya || '',
-        penjaskes: savedFormData.lintasDisiplinIlmu?.penjaskes || rawGlobalFormData.lintasDisiplinIlmu?.penjaskes || autoGen.lintas_disiplin?.penjaskes || '',
+        ppkn: savedFormData.lintasDisiplinIlmu?.ppkn ?? rawGlobalFormData.lintasDisiplinIlmu?.ppkn ?? autoGen.lintas_disiplin?.ppkn ?? '',
+        ips: savedFormData.lintasDisiplinIlmu?.ips ?? rawGlobalFormData.lintasDisiplinIlmu?.ips ?? autoGen.lintas_disiplin?.ips ?? '',
+        matematika: savedFormData.lintasDisiplinIlmu?.matematika ?? rawGlobalFormData.lintasDisiplinIlmu?.matematika ?? autoGen.lintas_disiplin?.matematika ?? '',
+        bahasaIndonesia: savedFormData.lintasDisiplinIlmu?.bahasaIndonesia ?? rawGlobalFormData.lintasDisiplinIlmu?.bahasaIndonesia ?? autoGen.lintas_disiplin?.bahasa_indonesia ?? '',
+        seniBudaya: savedFormData.lintasDisiplinIlmu?.seniBudaya ?? rawGlobalFormData.lintasDisiplinIlmu?.seniBudaya ?? autoGen.lintas_disiplin?.seni_budaya ?? '',
+        prakarya: savedFormData.lintasDisiplinIlmu?.prakarya ?? rawGlobalFormData.lintasDisiplinIlmu?.prakarya ?? autoGen.lintas_disiplin?.prakarya ?? '',
+        penjaskes: savedFormData.lintasDisiplinIlmu?.penjaskes ?? rawGlobalFormData.lintasDisiplinIlmu?.penjaskes ?? autoGen.lintas_disiplin?.penjaskes ?? '',
       },
 
       // Kemitraan Pembelajaran (explicit object - NOT using raw kemitraan string)
       kemitraanPembelajaran: {
-        guruBidangStudiLain: savedFormData.kemitraanPembelajaran?.guruBidangStudiLain || autoGen.kemitraan?.guru_bidang_studi_lain || '',
-        orangTua: savedFormData.kemitraanPembelajaran?.orangTua || autoGen.kemitraan?.orang_tua || '',
-        tokohMasyarakat: savedFormData.kemitraanPembelajaran?.tokohMasyarakat || autoGen.kemitraan?.tokoh_masyarakat || '',
-        instansiTerkait: savedFormData.kemitraanPembelajaran?.instansiTerkait || autoGen.kemitraan?.instansi_terkait || '',
-        duniaUsaha: savedFormData.kemitraanPembelajaran?.duniaUsaha || autoGen.kemitraan?.dunia_usaha || '',
-        perguruanTinggiLSM: savedFormData.kemitraanPembelajaran?.perguruanTinggiLSM || autoGen.kemitraan?.perguruan_tinggi_lsm || '',
-        mgmpKomunitasBelajar: savedFormData.kemitraanPembelajaran?.mgmpKomunitasBelajar || autoGen.kemitraan?.mgmp_komunitas_belajar || '',
+        guruBidangStudiLain: savedFormData.kemitraanPembelajaran?.guruBidangStudiLain ?? autoGen.kemitraan?.guru_bidang_studi_lain ?? '',
+        orangTua: savedFormData.kemitraanPembelajaran?.orangTua ?? autoGen.kemitraan?.orang_tua ?? '',
+        tokohMasyarakat: savedFormData.kemitraanPembelajaran?.tokohMasyarakat ?? autoGen.kemitraan?.tokoh_masyarakat ?? '',
+        instansiTerkait: savedFormData.kemitraanPembelajaran?.instansiTerkait ?? autoGen.kemitraan?.instansi_terkait ?? '',
+        duniaUsaha: savedFormData.kemitraanPembelajaran?.duniaUsaha ?? autoGen.kemitraan?.dunia_usaha ?? '',
+        perguruanTinggiLSM: savedFormData.kemitraanPembelajaran?.perguruanTinggiLSM ?? autoGen.kemitraan?.perguruan_tinggi_lsm ?? '',
+        mgmpKomunitasBelajar: savedFormData.kemitraanPembelajaran?.mgmpKomunitasBelajar ?? autoGen.kemitraan?.mgmp_komunitas_belajar ?? '',
       },
 
       // Lingkungan Pembelajaran (explicit object)
       lingkunganPembelajaranDetail: {
-        ruangFisik: savedFormData.lingkunganPembelajaranDetail?.ruangFisik || autoGen.lingkungan?.ruang_fisik || '',
-        ruangVirtual: savedFormData.lingkunganPembelajaranDetail?.ruangVirtual || autoGen.lingkungan?.ruang_virtual || '',
-        budayaBelajar: savedFormData.lingkunganPembelajaranDetail?.budayaBelajar || autoGen.lingkungan?.budaya_belajar || '',
+        ruangFisik: savedFormData.lingkunganPembelajaranDetail?.ruangFisik ?? autoGen.lingkungan?.ruang_fisik ?? '',
+        ruangVirtual: savedFormData.lingkunganPembelajaranDetail?.ruangVirtual ?? autoGen.lingkungan?.ruang_virtual ?? '',
+        budayaBelajar: savedFormData.lingkunganPembelajaranDetail?.budayaBelajar ?? autoGen.lingkungan?.budaya_belajar ?? '',
       },
 
       // Pemanfaatan Digital (explicit object)
       pemanfaatanDigitalDetail: {
-        perencanaan: savedFormData.pemanfaatanDigitalDetail?.perencanaan || autoGen.pemanfaatan_digital?.perencanaan || '',
-        pelaksanaan: savedFormData.pemanfaatanDigitalDetail?.pelaksanaan || autoGen.pemanfaatan_digital?.pelaksanaan || '',
-        asesmen: savedFormData.pemanfaatanDigitalDetail?.asesmen || autoGen.pemanfaatan_digital?.asesmen || '',
+        perencanaan: savedFormData.pemanfaatanDigitalDetail?.perencanaan ?? autoGen.pemanfaatan_digital?.perencanaan ?? '',
+        pelaksanaan: savedFormData.pemanfaatanDigitalDetail?.pelaksanaan ?? autoGen.pemanfaatan_digital?.pelaksanaan ?? '',
+        asesmen: savedFormData.pemanfaatanDigitalDetail?.asesmen ?? autoGen.pemanfaatan_digital?.asesmen ?? '',
       },
 
       // KBC fields
@@ -215,8 +215,10 @@ export async function generateBundleZip(
     root.unmount();
     destroyStagingContainer(container);
 
-    const mapel = (safeFormData.mataPelajaran || 'Mapel').replace(/[\\/:*?"<>|]/g,'_').slice(0,20);
-    const safeName = `P${i+1}_${mapel}_${(slot as any).materi_pokok || 'Materi'}`.replace(/[\\/:*?"<>|]/g,'_').slice(0,70);
+    const mapelStr = (safeFormData.mataPelajaran || 'Mapel').replace(/[\\/:*?"<>|]/g,'_');
+    const kelasStr = (safeFormData.kelas || 'Kelas').replace(/[\\/:*?"<>|]/g,'_');
+    const materiStr = ((slot as any).materi_pokok || 'Materi').replace(/[\\/:*?"<>|]/g,'_');
+    const safeName = `${mapelStr}_${kelasStr}_Semester${semester}_P${i+1}_${materiStr}`.slice(0, 100);
     zip.file(`${safeName}.doc`, blob);
   }
 

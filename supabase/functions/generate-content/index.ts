@@ -675,6 +675,7 @@ serve(async (req) => {
       systemText: string,
       userText: string,
       maxTokens: number,
+      expectArray: boolean = false
     ): Promise<{
       ok: boolean;
       parsedContent?: any;
@@ -689,8 +690,8 @@ serve(async (req) => {
       let lastError = "Response AI tidak dapat diproses. Coba generate ulang.";
       let lastErrorCode = "parse_error";
 
-      const strictSystemText = `${systemText}\n\nKHUSUS LKPD: Kembalikan JSON murni saja. Jangan memakai markdown, jangan menambah komentar sebelum/sesudah JSON, dan pastikan semua string tertutup.`;
-      const strictUserText = `${userText}\n\nOUTPUT WAJIB berupa satu object JSON valid yang langsung dimulai dengan { dan diakhiri dengan }. Tidak boleh ada teks tambahan.`;
+      const strictSystemText = `${systemText}\n\nKembalikan JSON murni saja. Jangan memakai markdown, jangan menambah komentar sebelum/sesudah JSON, dan pastikan semua string tertutup.`;
+      const strictUserText = `${userText}\n\nOUTPUT WAJIB berupa satu ${expectArray ? 'array' : 'object'} JSON valid yang langsung dimulai dengan ${expectArray ? '[' : '{'} dan diakhiri dengan ${expectArray ? ']' : '}'}. Tidak boleh ada teks tambahan.`;
 
       for (let i = 0; i < userKeyPool.length; i++) {
         const entry = userKeyPool[i];
@@ -925,7 +926,7 @@ Jawab HANYA dengan JSON array of strings, tanpa penjelasan, tanpa markdown code 
         userPrompt = "Hasilkan array JSON judul pertemuan sekarang.";
         
         try {
-          const result = await executeCrossProviderParsedJson(systemPrompt, userPrompt, 1500);
+          const result = await executeCrossProviderParsedJson(systemPrompt, userPrompt, 1500, true);
           
           if (result.ok && Array.isArray(result.parsedContent)) {
             return new Response(JSON.stringify({ 
