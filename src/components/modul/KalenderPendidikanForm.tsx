@@ -1,8 +1,12 @@
-import { useEffect, useMemo } from 'react';
-import { Calendar, Clock, Trash2, Plus, AlertCircle, Calculator } from 'lucide-react';
-import type { KalenderPendidikan, ProsemEvent } from '@/types/modul';
+import { useEffect, useMemo, useState } from 'react';
+import { Calendar, Clock, Trash2, Plus, AlertCircle, Calculator, Download, Upload, Loader2 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+import type { KalenderPendidikan, ProsemEvent, SavedKalenderTemplate } from '@/types/modul';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
 import { BULAN_NAMES } from '@/lib/constants';
 
 interface KalenderPendidikanFormProps {
@@ -13,6 +17,49 @@ interface KalenderPendidikanFormProps {
 const STORAGE_KEY = 'prota_kalender_pendidikan';
 
 export const KalenderPendidikanForm = ({ kalender, onChange }: KalenderPendidikanFormProps) => {
+  const [isSavingTemplate, setIsSavingTemplate] = useState(false);
+  const [isLoadingTemplate, setIsLoadingTemplate] = useState(false);
+  const [savedTemplates, setSavedTemplates] = useState<SavedKalenderTemplate[]>([]);
+  const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
+  const [isLoadModalOpen, setIsLoadModalOpen] = useState(false);
+  const [newTemplateName, setNewTemplateName] = useState("");
+  const { toast } = useToast();
+
+  // Check if template exists on mount
+  useEffect(() => {
+    const fetchTemplates = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      
+      const { data } = await supabase
+        .from('profiles')
+        .select('default_kalender')
+        .eq('user_id', user.id)
+        .maybeSingle();
+        
+      if (data?.default_kalender) {
+        // Handle migration from single object to array
+        let templates = data.default_kalender as any;
+        if (!Array.isArray(templates)) {
+          // It's the old single object format
+          if (templates.jpPerMinggu !== undefined) {
+            templates = [{
+              id: "default",
+              name: "Template Lama",
+              kalender: templates
+            }];
+            // Silently update the database to array format
+            supabase.from('profiles').update({ default_kalender: templates }).eq('user_id', user.id).then();
+          } else {
+            templates = [];
+          }
+        }
+        setSavedTemplates(templates as SavedKalenderTemplate[]);
+      }
+    };
+    fetchTemplates();
+  }, []);
+
   // Load from localStorage on mount
   useEffect(() => {
     try {
@@ -113,6 +160,81 @@ export const KalenderPendidikanForm = ({ kalender, onChange }: KalenderPendidika
   const totalJPSem1 = kalender.jpPerMinggu * derivedMingguEfektifSem1;
   const totalJPSem2 = kalender.jpPerMinggu * derivedMingguEfektifSem2;
 
+  const saveTemplatesToCloud = async (templates: SavedKalenderTemplate[]) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error("Anda harus login.");
+    
+    const { error } = await supabase
+      .from('profiles')
+      .update({ default_kalender: templates as any })
+      .eq('user_id', user.id);
+      
+    if (error) throw error;
+    setSavedTemplates(templates);
+  };
+
+  const handleSaveTemplate = async () => {
+    if (!newTemplateName.trim()) {
+      toast({ title: "Gagal", description: "Nama template tidak boleh kosong.", variant: "destructive" });
+      return;
+    }
+    
+    setIsSavingTemplate(true);
+    try {
+      const newTemplate: SavedKalenderTemplate = {
+        id: crypto.randomUUID(),
+        name: newTemplateName.trim(),
+        kalender: kalender
+      };
+      
+      const newTemplates = [...savedTemplates, newTemplate];
+      await saveTemplatesToCloud(newTemplates);
+      
+      setIsSaveModalOpen(false);
+      setNewTemplateName("");
+      toast({
+        title: "Template Tersimpan",
+        description: `Template '${newTemplate.name}' berhasil disimpan.`,
+      });
+    } catch (err: any) {
+      toast({
+        title: "Gagal Menyimpan",
+        description: err.message,
+        variant: "destructive"
+      });
+    } finally {
+      setIsSavingTemplate(false);
+    }
+  };
+
+  const handleLoadTemplate = (template: SavedKalenderTemplate) => {
+    onChange(template.kalender);
+    setIsLoadModalOpen(false);
+    toast({
+      title: "Template Dimuat",
+      description: `Template '${template.name}' berhasil diterapkan.`,
+    });
+  };
+
+  const handleDeleteTemplate = async (idToDelete: string) => {
+    if (!confirm("Yakin ingin menghapus template ini?")) return;
+    
+    try {
+      const newTemplates = savedTemplates.filter(t => t.id !== idToDelete);
+      await saveTemplatesToCloud(newTemplates);
+      toast({
+        title: "Template Dihapus",
+        description: "Template berhasil dihapus dari cloud.",
+      });
+    } catch (err: any) {
+      toast({
+        title: "Gagal Menghapus",
+        description: err.message,
+        variant: "destructive"
+      });
+    }
+  };
+
   const handleAddEvent = () => {
     const newEvent: ProsemEvent = {
       nama: 'Kegiatan Baru',
@@ -195,9 +317,33 @@ export const KalenderPendidikanForm = ({ kalender, onChange }: KalenderPendidika
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-2 mb-3">
-        <Calendar className="w-5 h-5 text-primary" />
-        <h3 className="font-bold text-sm">Kalender Pendidikan</h3>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+        <div className="flex items-center gap-2">
+          <Calendar className="w-5 h-5 text-primary" />
+          <h3 className="font-bold text-sm">Kalender Pendidikan</h3>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          {savedTemplates.length > 0 && (
+            <Button 
+              size="sm" 
+              variant="outline" 
+              onClick={() => setIsLoadModalOpen(true)}
+              className="h-8 text-xs px-2"
+            >
+              <Download className="w-3 h-3 mr-1" />
+              Gunakan Template
+            </Button>
+          )}
+          <Button 
+            size="sm" 
+            variant="secondary" 
+            onClick={() => setIsSaveModalOpen(true)}
+            className="h-8 text-xs px-2"
+          >
+            <Upload className="w-3 h-3 mr-1" />
+            Simpan Template
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-3 gap-3">
@@ -371,6 +517,77 @@ export const KalenderPendidikanForm = ({ kalender, onChange }: KalenderPendidika
           {renderMonthTable(2, sem2Months)}
         </div>
       </div>
+
+      <Dialog open={isSaveModalOpen} onOpenChange={setIsSaveModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Simpan sebagai Template</DialogTitle>
+            <DialogDescription>
+              Berikan nama untuk template kalender ini (misal: SDN 1 Jakarta).
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4 space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="templateName">Nama Template</Label>
+              <Input 
+                id="templateName"
+                placeholder="Contoh: Template Kelas 4 Fase B"
+                value={newTemplateName}
+                onChange={e => setNewTemplateName(e.target.value)}
+                autoFocus
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsSaveModalOpen(false)}>Batal</Button>
+            <Button onClick={handleSaveTemplate} disabled={isSavingTemplate || !newTemplateName.trim()}>
+              {isSavingTemplate && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              Simpan
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isLoadModalOpen} onOpenChange={setIsLoadModalOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Pilih Template Kalender</DialogTitle>
+            <DialogDescription>
+              Pilih template kalender yang ingin Anda gunakan untuk mapel ini.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-2 flex flex-col gap-2 max-h-[300px] overflow-y-auto">
+            {savedTemplates.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-4">Belum ada template tersimpan.</p>
+            ) : (
+              savedTemplates.map(template => (
+                <div key={template.id} className="flex items-center justify-between p-3 border rounded-lg hover:border-primary/50 transition-colors bg-muted/20">
+                  <div>
+                    <h4 className="font-semibold text-sm">{template.name}</h4>
+                    <p className="text-xs text-muted-foreground">JP/Minggu: {template.kalender.jpPerMinggu}</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button 
+                      size="sm" 
+                      onClick={() => handleLoadTemplate(template)}
+                    >
+                      Pilih
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="text-destructive hover:bg-destructive/10 px-2"
+                      onClick={() => handleDeleteTemplate(template.id)}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

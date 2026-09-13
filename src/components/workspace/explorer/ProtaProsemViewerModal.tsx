@@ -7,9 +7,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { ProtaPreview } from "@/components/modul/ProtaPreview";
 import { ProsemPreview } from "@/components/modul/ProsemPreview";
 import { KKTPPreview } from "@/components/modul/KKTPPreview";
+import { KalenderPendidikanForm } from "@/components/modul/KalenderPendidikanForm";
 import { exportProtaToWord, exportProsemToWord, exportKktpToWord } from "@/lib/export-word";
 import { useKktpGenerator } from "@/hooks/useKktpGenerator";
-import type { ProsemData, KKTPData } from "@/types/modul";
+import type { ProsemData, KKTPData, KalenderPendidikan } from "@/types/modul";
+import { useToast } from "@/hooks/use-toast";
 
 interface ProtaProsemViewerModalProps {
   isOpen: boolean;
@@ -22,7 +24,7 @@ export const ProtaProsemViewerModal: React.FC<ProtaProsemViewerModalProps> = ({
   onClose,
   workspace,
 }) => {
-  const [activeTab, setActiveTab] = useState<"prota" | "prosem" | "kktp">("prota");
+  const [activeTab, setActiveTab] = useState<"kalender" | "prota" | "prosem" | "kktp">("kalender");
   const { protaData, isLoading: isProtaLoading } = useProtaData(isOpen ? workspace.id : null);
   const { generate, isLoading: isGenerating, error: genError } = useKktpGenerator();
   const [isSavingKktp, setIsSavingKktp] = useState(false);
@@ -30,8 +32,11 @@ export const ProtaProsemViewerModal: React.FC<ProtaProsemViewerModalProps> = ({
   const [prosemSem1, setProsemSem1] = useState<ProsemData | null>(null);
   const [prosemSem2, setProsemSem2] = useState<ProsemData | null>(null);
   const [kktpData, setKktpData] = useState<KKTPData | null>(null);
+  const [kalenderData, setKalenderData] = useState<KalenderPendidikan | null>(null);
   const [profile, setProfile] = useState<{namaPenyusun?: string; nipPenyusun?: string; kepalaSekolah?: string; nipKepalaSekolah?: string} | null>(null);
   const [isProsemLoading, setIsProsemLoading] = useState(false);
+  const [isSavingKalender, setIsSavingKalender] = useState(false);
+  const { toast } = useToast();
 
   React.useEffect(() => {
     if (!isOpen || !workspace.id) return;
@@ -80,6 +85,12 @@ export const ProtaProsemViewerModal: React.FC<ProtaProsemViewerModalProps> = ({
     loadData();
   }, [isOpen, workspace.id]);
 
+  React.useEffect(() => {
+    if (protaData?.kalender && !kalenderData) {
+      setKalenderData(protaData.kalender);
+    }
+  }, [protaData]);
+
   if (!isOpen) return null;
 
   const isLoading = isProtaLoading || isProsemLoading;
@@ -123,6 +134,16 @@ export const ProtaProsemViewerModal: React.FC<ProtaProsemViewerModalProps> = ({
         {/* Tabs */}
         <div className="flex px-4 border-b-2 border-foreground bg-muted/10 overflow-x-auto whitespace-nowrap shrink-0">
           <button
+            onClick={() => setActiveTab("kalender")}
+            className={`px-4 py-3 text-base font-bold border-b-2 -mb-[2px] transition-colors ${
+              activeTab === "kalender" 
+                ? "border-primary text-primary" 
+                : "border-transparent text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            Kalender Pendidikan
+          </button>
+          <button
             onClick={() => setActiveTab("prota")}
             className={`px-4 py-3 text-base font-bold border-b-2 -mb-[2px] transition-colors ${
               activeTab === "prota" 
@@ -160,6 +181,56 @@ export const ProtaProsemViewerModal: React.FC<ProtaProsemViewerModalProps> = ({
             <div className="flex flex-col items-center justify-center h-40 gap-3 text-muted-foreground">
               <Loader2 className="w-8 h-8 animate-spin text-primary" />
               <p className="text-sm font-medium">Memuat data...</p>
+            </div>
+          ) : activeTab === "kalender" ? (
+            <div className="space-y-4 animate-in slide-in-from-bottom-2 h-full max-w-4xl mx-auto py-4">
+              {!kalenderData ? (
+                <div className="text-center py-10 text-muted-foreground text-sm">
+                  Belum ada data Kalender Pendidikan.
+                </div>
+              ) : (
+                <div className="bg-white p-6 rounded-xl border border-border shadow-sm relative">
+                  <KalenderPendidikanForm 
+                    kalender={kalenderData} 
+                    onChange={setKalenderData} 
+                  />
+                  <div className="mt-6 flex justify-end">
+                    <button
+                      onClick={async () => {
+                        setIsSavingKalender(true);
+                        try {
+                          await supabase.rpc("upsert_curriculum_plan", {
+                            p_workspace_id: workspace.id,
+                            p_type: "prota",
+                            p_semester: null,
+                            p_content: {
+                              ...protaData,
+                              kalender: kalenderData
+                            }
+                          });
+                          toast({
+                            title: "Berhasil",
+                            description: "Perubahan Kalender Pendidikan berhasil disimpan ke Workspace.",
+                          });
+                        } catch (err: any) {
+                          toast({
+                            title: "Gagal Menyimpan",
+                            description: err.message,
+                            variant: "destructive"
+                          });
+                        } finally {
+                          setIsSavingKalender(false);
+                        }
+                      }}
+                      disabled={isSavingKalender}
+                      className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground font-semibold rounded-md hover:bg-primary/90 transition-colors"
+                    >
+                      {isSavingKalender && <Loader2 className="w-4 h-4 animate-spin" />}
+                      Simpan Perubahan ke Workspace
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           ) : activeTab === "prota" ? (
             <div className="space-y-4 animate-in slide-in-from-bottom-2 h-full">

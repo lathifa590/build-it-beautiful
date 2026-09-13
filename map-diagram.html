@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>ModulAjar Sekolah — Diagram</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+  :root{--primary:#c04a1a;--black:#111;--bg:#f5f0e8;--surface:#fff;--muted:#666}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--black)}
+  header{background:var(--surface);border-bottom:3px solid var(--black);padding:20px 24px;position:sticky;top:0;z-index:10}
+  header h1{margin:0;font-size:20px;letter-spacing:-0.5px}
+  header p{margin:6px 0 0;color:var(--muted);font-size:13px}
+  .wrap{max-width:1100px;margin:0 auto;padding:28px 20px}
+  .card{background:var(--surface);border:2.5px solid var(--black);box-shadow:4px 4px 0 var(--black);border-radius:14px;padding:22px 20px;margin-bottom:22px}
+  .card h2{margin:0 0 6px;font-size:15px}
+  .card .sub{margin:0 0 14px;color:var(--muted);font-size:12px}
+  .mermaid{background:#fafafa;border:1.5px solid #e5e7eb;border-radius:10px;padding:12px;overflow-x:auto}
+  .legend{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+  .pill{font-size:11px;padding:5px 9px;border-radius:999px;border:1.5px solid var(--black);background:var(--surface);font-weight:700}
+  .pill.orange{background:#fff3ed;border-color:#c04a1a;color:#c04a1a}
+  .pill.green{background:#f0fdf4;border-color:#15803d;color:#15803d}
+  .pill.yellow{background:#fffbeb;border-color:#b45309;color:#b45309}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:800px){.grid{grid-template-columns:1fr}}
+  .kpi{border:2px solid var(--black);border-radius:12px;padding:14px;background:var(--surface)}
+  .kpi b{font-size:18px}
+  .kpi span{color:var(--muted);font-size:12px}
+</style>
+</head>
+<body>
+<header>
+  <h1>📚 ModulAjar Sekolah — Peta Visual</h1>
+  <p>Personal → Sekolah: Waka set kalender sekali, guru warisi. Mode Cepat tidak tersentuh. 1 guru = 1 sekolah, sekolah via Admin.</p>
+</header>
+<div class="wrap">
+
+  <div class="card">
+    <h2>1 — Arsitektur Keseluruhan</h2>
+    <p class="sub">Mode Cepat steril, Workspace personal tetap, Sekolah sebagai layer di atas Workspace</p>
+    <div class="mermaid">
+flowchart TB
+    U[👤 User Login] --> R{profiles.school_id?}
+    R -- null --> P[Personal]
+    R -- ada --> S[Sekolah]
+    P --> Q[⚡ Mode Cepat<br/>Form → Generate → Hasil]
+    P --> W[📁 Workspace Personal<br/>Kalender Manual]
+    S --> Q
+    S --> WS[📁 Workspace Sekolah<br/>Auto-prefill dari Waka]
+    WS --> SC[(school_calendars)]
+    SC --> WAKA[👨‍🏫 Waka Set Sekali]
+    WS --> DASH[📊 Dashboard /sekolah]
+    DASH --> KS[👔 Kepsek Read-only]
+    DASH --> WK[👨‍🏫 Waka Review]
+    </div>
+    <div class="legend"><span class="pill orange">⚡ Mode Cepat steril</span><span class="pill green">Waka source</span><span class="pill yellow">Dashboard tracking</span></div>
+  </div>
+
+  <div class="card">
+    <h2>2 — Data Model Minimal</h2>
+    <p class="sub">Hanya 2 tabel baru + 1 kolom di profiles. Copy-on-create, bukan FK live.</p>
+    <div class="mermaid">
+erDiagram
+    schools ||--o{ profiles : "1 sekolah = N user"
+    schools ||--o{ school_calendars : "1 sekolah = N semester"
+    profiles ||--o{ workspaces : "1 user = N workspace"
+    workspaces ||--o{ meeting_slots : "pertemuan"
+    workspaces ||--o{ documents : "dokumen"
+    schools {
+        uuid id PK
+        varchar npsn UK
+        text name
+        uuid waka_user_id
+    }
+    school_calendars {
+        uuid school_id FK
+        text academic_year
+        int semester
+        int pekan_efektif
+    }
+    profiles {
+        uuid school_id FK
+        text school_role
+        text school_status
+    }
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h2>3 — Provisioning (Admin-gated)</h2>
+      <p class="sub">Guru tidak bisa bikin sekolah sendiri</p>
+      <div class="mermaid">
+sequenceDiagram
+    participant A as 🛡️ Admin
+    participant W as 👨‍🏫 Waka
+    participant G as 👩‍🏫 Guru
+    A->>W: Daftarkan Sekolah + assign Waka
+    G->>A: Input NPSN → pending
+    A->>G: Approve → active
+    Note over G: 1 guru = 1 sekolah
+      </div>
+    </div>
+    <div class="card">
+      <h2>4 — Kalender Warisan</h2>
+      <p class="sub">Waka isi sekali → guru auto-prefill</p>
+      <div class="mermaid">
+flowchart LR
+    WK[Waka<br/>/sekolah/kalender] --> SC[(school_calendars)]
+    SC --> GM[Buat Workspace]
+    GM --> WS[(workspaces copy)]
+    SC -.-> ALERT{Diperbarui?}
+    ALERT --> SYNC[Sync ulang]
+      </div>
+      <div class="kpi" style="margin-top:12px"><span>Contoh</span><br/><b>18 pekan S1 • 16 pekan S2</b><br/><span>Waka set 2026/2027, semua workspace guru terisi otomatis + badge 🔒 Disinkron dari Waka</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>5 — Dashboard Tracking</h2>
+    <p class="sub">Kepsek/Waka pantau progress tanpa buka workspace guru satu-satu</p>
+    <div class="mermaid">
+flowchart TB
+    MS[(meeting_slots)] & DOC[(documents)] --> RPC[RPC get_school_progress]
+    RPC --> DASH[📊 /sekolah]
+    DASH --> TBL[Tabel per Guru<br/>Progress Bar]
+    TBL --> R[🔴 <30% 🟡 30-70% 🟢 >70%]
+    TBL --> DETAIL[Detail read-only]
+    DASH --> KS[👔 Kepsek Rekap]
+    DASH --> GR[👩‍🏫 Guru: Saya vs Rata-rata]
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>6 — Roadmap</h2>
+    <p class="sub">S1 buktikan value, S2 baru berbagi & approval</p>
+    <div class="mermaid">
+gantt
+    title Roadmap — Shortest Diff First
+    dateFormat  YYYY-MM-DD
+    axisFormat %m/%d
+    section S1 Fondasi
+    Migration + Admin UI       :done, s1a, 2026-09-15, 3d
+    Kalender + Prefill         :active, s1b, after s1a, 4d
+    Dashboard                  :s1c, after s1b, 3d
+    Pilot Deploy               :milestone, after s1c, 0d
+    section S2 Berbagi
+    Bank Modul                 :s2a, after s1c, 4d
+    Komentar & Approval        :s2b, after s2a, 4d
+    section S3 Governance
+    Template Lock              :s3a, after s2c, 5d
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>7 — Route Guard</h2>
+    <p class="sub">Mode Cepat tidak mount SchoolProvider sama sekali</p>
+    <div class="mermaid">
+flowchart TB
+    APP[App.tsx] --> MODE{appMode?}
+    MODE -- quick --> QUICK[⚡ Mode Cepat<br/>TIDAK ada SchoolProvider]
+    MODE -- workspace --> WS[📁 Workspace Branch]
+    WS --> SCH{profiles.school_id?}
+    SCH -- null --> WSP[Personal Manual]
+    SCH -- ada --> WSS[+ SchoolProvider + prefill]
+    WSS --> SEKOLAH[/sekolah/* SchoolGate/]
+    </div>
+  </div>
+
+</div>
+<script>mermaid.initialize({startOnLoad:true, theme:"base", themeVariables:{primaryColor:"#fff3ed",primaryBorderColor:"#c04a1a",lineColor:"#111"}});</script>
+</body>
+</html>
