@@ -6,7 +6,6 @@ import { DPL_OPTIONS, NILAI_KARAKTER_OPTIONS, KBC_ELEMEN_CINTA } from '@/lib/con
 import { classifySoal, computeAnswerLines, parseAlternatifJawaban } from '@/lib/soal-format';
 import { Sparkles } from 'lucide-react';
 import { StimulusImageGenerator } from '@/components/modul/StimulusImageGenerator';
-import { getLetterheadConfig } from '@/lib/workspace';
 import { isEnglishSubject, getQuestionRange, getStimulusInstruction } from '@/lib/soal-utils';
 import { EditableSection } from '@/components/modul/EditableSection';
 import { SectionEditor } from '@/components/modul/SectionEditor';
@@ -716,7 +715,7 @@ export const DocumentPreview = ({
   const safePertemuan = generatedSteps?.pertemuan || [];
   const pemahaman_bermakna = generatedSteps?.pemahaman_bermakna || (safePertemuan[0] as any)?.pemahaman_bermakna || '';
   const isMultiPertemuan = safePertemuan.length > 1;
-  const metode_pembelajaran_data = generatedSteps?.metode_pembelajaran || (safePertemuan[0] as any)?.metode_pembelajaran || formData?.metodePembelajaran;
+  const metode_pembelajaran_data = (generatedSteps as any)?.metode_pembelajaran || (safePertemuan[0] as any)?.metode_pembelajaran || formData?.metodePembelajaran;
 
   // Always use Word-compatible math formatter for consistency
   const mathFormatter = formatMathTextSimple;
@@ -1167,7 +1166,7 @@ export const DocumentPreview = ({
                   {formData.lintasDisiplinIlmu.bahasaIndonesia && <li><strong>Bahasa Indonesia:</strong> {formData.lintasDisiplinIlmu.bahasaIndonesia}</li>}
                   {formData.lintasDisiplinIlmu.seniBudaya && <li><strong>Seni Budaya:</strong> {formData.lintasDisiplinIlmu.seniBudaya}</li>}
                   {formData.lintasDisiplinIlmu.prakarya && <li><strong>Prakarya:</strong> {formData.lintasDisiplinIlmu.prakarya}</li>}
-                  {formData.lintasDisiplinIlmu.pjok && <li><strong>PJOK:</strong> {formData.lintasDisiplinIlmu.pjok}</li>}
+                  {formData.lintasDisiplinIlmu.penjaskes && <li><strong>PJOK:</strong> {formData.lintasDisiplinIlmu.penjaskes}</li>}
                   {formData.lintasDisiplinIlmu.lainnya && <li><strong>Lainnya:</strong> {formData.lintasDisiplinIlmu.lainnya}</li>}
                 </ul>
               ) : (
@@ -1421,45 +1420,6 @@ export const DocumentPreview = ({
             )}
             
             {/* Pemanfaatan Digital */}
-        {outputFormat === 'minimalis' && (
-          <div style={{ marginBottom: '20px' }}>
-            <h3 style={{ fontSize: '12pt', fontWeight: 'bold', borderBottom: '1px solid black', paddingBottom: '4px', marginBottom: '8px' }}>VIII. KEMITRAAN PEMBELAJARAN</h3>
-            <div style={{ paddingLeft: '8px', marginBottom: '16px' }}>
-              {formData.kemitraanPembelajaran ? (
-                <ul style={{ margin: '0', paddingLeft: '20px' }}>
-                  {formData.kemitraanPembelajaran.guruBidangStudiLain && <li><strong>Guru Bidang Studi Lain:</strong> {formData.kemitraanPembelajaran.guruBidangStudiLain}</li>}
-                  {formData.kemitraanPembelajaran.orangTua && <li><strong>Orang Tua:</strong> {formData.kemitraanPembelajaran.orangTua}</li>}
-                  {formData.kemitraanPembelajaran.tokohMasyarakat && <li><strong>Tokoh Masyarakat:</strong> {formData.kemitraanPembelajaran.tokohMasyarakat}</li>}
-                  {formData.kemitraanPembelajaran.instansiTerkait && <li><strong>Instansi Terkait:</strong> {formData.kemitraanPembelajaran.instansiTerkait}</li>}
-                  {formData.kemitraanPembelajaran.duniaUsaha && <li><strong>Dunia Usaha/Industri:</strong> {formData.kemitraanPembelajaran.duniaUsaha}</li>}
-                  {formData.kemitraanPembelajaran.perguruanTinggiLSM && <li><strong>Perguruan Tinggi/LSM:</strong> {formData.kemitraanPembelajaran.perguruanTinggiLSM}</li>}
-                  {formData.kemitraanPembelajaran.mgmpKomunitasBelajar && <li><strong>MGMP/Komunitas Belajar:</strong> {formData.kemitraanPembelajaran.mgmpKomunitasBelajar}</li>}
-                </ul>
-              ) : formData.kemitraan ? (
-                <div style={{ marginLeft: '12px' }}>{formData.kemitraan}</div>
-              ) : (
-                <div style={{ marginLeft: '12px' }}>-</div>
-              )}
-            </div>
-
-            <h3 style={{ fontSize: '12pt', fontWeight: 'bold', borderBottom: '1px solid black', paddingBottom: '4px', marginBottom: '8px' }}>IX. LINGKUNGAN PEMBELAJARAN</h3>
-            <div style={{ paddingLeft: '8px', marginBottom: '16px' }}>
-              {formData.lingkunganPembelajaranDetail ? (
-                <ul style={{ margin: '0', paddingLeft: '20px' }}>
-                  {formData.lingkunganPembelajaranDetail.ruangFisik && <li><strong>Ruang Fisik:</strong> {formData.lingkunganPembelajaranDetail.ruangFisik}</li>}
-                  {formData.lingkunganPembelajaranDetail.ruangVirtual && <li><strong>Ruang Virtual:</strong> {formData.lingkunganPembelajaranDetail.ruangVirtual}</li>}
-                  {formData.lingkunganPembelajaranDetail.budayaBelajar && <li><strong>Budaya Belajar:</strong> {formData.lingkunganPembelajaranDetail.budayaBelajar}</li>}
-                </ul>
-              ) : formData.lingkunganPembelajaran ? (
-                <div style={{ marginLeft: '12px' }}>{formData.lingkunganPembelajaran}</div>
-              ) : (
-                <div style={{ marginLeft: '12px' }}>-</div>
-              )}
-            </div>
-          </div>
-        )}
-            
-            {/* Pemanfaatan Digital */}
             <tr style={{ backgroundColor: '#ede9fe' }}>
               <td
                 colSpan={2}
@@ -1531,8 +1491,8 @@ export const DocumentPreview = ({
                   {formData.lingkunganPembelajaranDetail.ruangVirtual && <li><strong>Ruang Virtual:</strong> {formData.lingkunganPembelajaranDetail.ruangVirtual}</li>}
                   {formData.lingkunganPembelajaranDetail.budayaBelajar && <li><strong>Budaya Belajar:</strong> {formData.lingkunganPembelajaranDetail.budayaBelajar}</li>}
                 </ul>
-              ) : formData.lingkunganPembelajaran ? (
-                <div style={{ marginLeft: '12px' }}>{formData.lingkunganPembelajaran}</div>
+              ) : formData.lingkunganBelajar && formData.lingkunganBelajar.length > 0 ? (
+                <div style={{ marginLeft: '12px' }}>{formData.lingkunganBelajar.join(', ')}</div>
               ) : (
                 <div style={{ marginLeft: '12px' }}>-</div>
               )}

@@ -13,7 +13,6 @@ export interface MateriPengetahuan {
   metakognitif: string;
 }
 
-// Lintas Disiplin Ilmu (structured per mapel)
 export interface LintasDisiplinIlmu {
   ppkn: string;
   ips: string;
@@ -22,6 +21,7 @@ export interface LintasDisiplinIlmu {
   seniBudaya: string;
   prakarya: string;
   penjaskes: string;
+  lainnya?: string;
 }
 
 // Kemitraan Pembelajaran
