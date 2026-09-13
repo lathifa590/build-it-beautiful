@@ -432,6 +432,7 @@ export interface ProtaData {
   prota: ProtaItem[];
   total_jp_sem1: number;
   total_jp_sem2: number;
+  kalender?: KalenderPendidikan;
 }
 
 export interface KalenderPendidikan {
@@ -442,6 +443,12 @@ export interface KalenderPendidikan {
   tanggalMulaiSem2: string;
   kegiatanNonPembelajaran?: ProsemEvent[];
   mingguPerBulan?: Record<string, number>; // key: "YYYY-M" (e.g., "2026-7"), value: jumlah minggu
+}
+
+export interface SavedKalenderTemplate {
+  id: string;
+  name: string;
+  kalender: KalenderPendidikan;
 }
 
 // === KKTP (Kriteria Ketercapaian Tujuan Pembelajaran) ===

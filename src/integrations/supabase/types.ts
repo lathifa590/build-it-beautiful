@@ -409,6 +409,7 @@ export type Database = {
         Row: {
           avatar_url: string | null
           created_at: string
+          default_kalender: Json | null
           display_name: string | null
           email: string | null
           gemini_api_key: string | null
@@ -423,6 +424,7 @@ export type Database = {
         Insert: {
           avatar_url?: string | null
           created_at?: string
+          default_kalender?: Json | null
           display_name?: string | null
           email?: string | null
           gemini_api_key?: string | null
@@ -437,6 +439,7 @@ export type Database = {
         Update: {
           avatar_url?: string | null
           created_at?: string
+          default_kalender?: Json | null
           display_name?: string | null
           email?: string | null
           gemini_api_key?: string | null
