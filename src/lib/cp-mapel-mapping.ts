@@ -164,7 +164,15 @@ export const PHASE_FALLBACK_MAPEL: Record<
       targetSlug: 'ilmu-pengetahuan-sosial-ips',
       parentMapelName: 'IPS (Ilmu Pengetahuan Sosial)',
       description:
-        'Sesuai regulasi resmi Kemdikbudristek (BSKAP No. 032/2024), mata pelajaran Geografi pada Fase E (Kelas X) terintegrasi dalam Capaian Pembelajaran (CP) IPS. Di bawah ini disajikan CP resmi IPS Fase E yang mencakup konsep dasar geografi, litosfer, atmosfer, hidrosfer, dan SIG untuk modul ajar Geografi Anda.',
+        'Sesuai regulasi resmi Kemdikbudristek (BSKAP No. 046/2025), mata pelajaran Geografi pada Fase E (Kelas X) terintegrasi dalam Capaian Pembelajaran (CP) IPS. Di bawah ini disajikan CP resmi IPS Fase E yang mencakup konsep dasar geografi, litosfer, atmosfer, hidrosfer, dan SIG untuk modul ajar Geografi Anda.',
+    },
+  },
+  sejarah: {
+    E: {
+      targetSlug: 'ilmu-pengetahuan-sosial-ips',
+      parentMapelName: 'IPS (Ilmu Pengetahuan Sosial)',
+      description:
+        'Sesuai regulasi resmi Kemdikbudristek (BSKAP No. 046/2025), mata pelajaran Sejarah pada Fase E (Kelas X SMA) terintegrasi dalam Capaian Pembelajaran (CP) IPS. Di bawah ini disajikan CP resmi IPS Fase E yang mencakup konsep dasar ilmu sejarah dan penelitian sejarah untuk modul ajar Sejarah Anda.',
     },
   },
 };

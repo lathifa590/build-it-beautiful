@@ -283,6 +283,92 @@
             }
           }
         ]
+      },
+      {
+        "nama": "Ilmu Pengetahuan Sosial (IPS)",
+        "capaian_per_fase": [
+          {
+            "fase": "D",
+            "kelas": "VII, VIII, dan IX SMP/MTs/Program Paket B",
+            "elemen": {
+              "Pemahaman Konsep": "Menjelaskan keberagaman kondisi geografis Indonesia, konektivitas antarruang terhadap upaya pemanfaatan dan pelestarian potensi sumber daya alam, faktor aktivitas manusia terhadap perubahan iklim dan potensi bencana alam; memprediksi dampak perubahan iklim terhadap kehidupan ekonomi, sosial, budaya masyarakat serta merefleksikan pola adaptasi terhadap perubahan iklim dan upaya mitigasi bencana untuk menunjang sustainable development goals (SDGs) dalam konteks lokal, regional, dan global; mengidentifikasi upaya masyarakat dalam memenuhi kebutuhannya melalui kegiatan ekonomi, harga, pasar, lembaga keuangan, perdagangan internasional; menelaah peran masyarakat dan negara dalam mendorong pertumbuhan ekonomi di era digital, serta potensi Indonesia menjadi negara maju; mengelaborasi proses interaksi sosial, lembaga sosial, dinamika sosial dan perubahan sistem sosial budaya dalam masyarakat yang majemuk untuk mewujudkan integrasi bangsa dengan prinsip kebhinekaan; menjelaskan konsep dasar ilmu sejarah yaitu manusia, ruang, waktu, kronologi, perubahan; menganalisis keterhubungan antara masa lampau, masa kini, dan masa yang akan datang ketika mempelajari sejarah lokal dan toponimi wilayah serta berbagai peristiwa atau kejadian penting dalam lingkup lokal, nasional dan global terkait asal-usul nenek moyang bangsa Indonesia dan jalur rempah nusantara.",
+              "Keterampilan Proses": "Menerapkan pemahaman konsep melalui pendekatan keterampilan proses dengan cara mengamati fenomena dan peristiwa secara sistematis dengan menggunakan pancaindra serta menemukan persamaan dan perbedaannya; menanya dengan panduan pendidik, mengajukan pertanyaan untuk menggali dan klarifikasi informasi, serta mencari tahu penyebab dan memprediksinya; mengumpulkan informasi secara berkolaborasi, merencanakan dan melakukan penyelidikan, mengumpulkan informasi dengan sumber primer, dan mendokumentasikannya; berkolaborasi, mengolah informasi yang relevan serta memprioritaskan beberapa gagasan tertentu; menguji dan menerapkan konsep melalui eksperimen, simulasi, studi kasus, atau situasi nyata untuk memperkuat pemahaman dan keterampilan; mengevaluasi dan merefleksi serta melakukan perbaikan untuk menarik simpulan hasil penyelidikan dengan tepat; mengomunikasikan dan menyajikan hasil penyelidikan dengan menggunakan media informasi yang tepat; dan menyusun rencana tidak lanjut dari hasil penyelidikan yang telah dihasilkan secara kolaboratif."
+            }
+          },
+          {
+            "fase": "E",
+            "kelas": "X SMA/MA/Program Paket C",
+            "elemen": {
+              "Pemahaman Konsep": "Menjelaskan konsep dasar geografi, fenomena geografi fisik melalui litosfer, atmosfer, dan hidrosfer sebagai ruang hidup, serta mengimplementasikan teknologi geospasial berupa peta, penginderaan jauh dan Sistem Informasi Geografis (SIG); menelaah hakikat ilmu ekonomi sebagai ilmu yang mempelajari upaya manusia dalam memenuhi kebutuhan hidupnya; membedakan produk keuangan bank dan nonbank sebagai dasar dalam menggunakan produk dan layanan, risiko keuangan dan menyusun laporan keuangan pribadi; menjelaskan fungsi sosiologi sebagai ilmu yang secara kritis, analitis, kreatif, dan solutif mengkaji masyarakat; menelaah status dan peran individu dalam kelompok sosial dan memberikan contoh berbagai ragam gejala sosial yang ada di dalam masyarakat; menganalisis keragaman manusia dan budayanya sebagai bagian dari masyarakat multikultural; dan menelaah konsep dasar ilmu sejarah dan mengimplementasikan penelitian sejarah untuk merefleksikan keterhubungan antara masa lampau, masa kini, dan masa yang akan datang melalui berbagai peristiwa atau kejadian penting dalam lingkup lokal, nasional dan global mulai dari masa kerajaan Hindu-Buddha hingga masa kerajaan Islam.",
+              "Keterampilan Proses": "Mengamati fenomena kehidupan manusia dalam dimensi ruang dan waktu secara sistematis serta menemukan persamaan dan perbedaannya dan potensinya; membuat pertanyaan secara mandiri untuk menggali informasi tentang fenomena kehidupan manusia dalam dimensi ruang dan waktu secara sistematis; mengumpulkan informasi dari sumber primer dan/atau sekunder, melakukan observasi, dan mendokumentasikannya; menarik simpulan berdasarkan dari informasi yang diperoleh dari sumber primer dan/atau sekunder, hasil observasi dan hasil dokumentasi; mengomunikasikan hasil analisis informasi yang diperoleh dari sumber primer dan/atau sekunder, data hasil observasi, dan hasil dokumentasi dalam bentuk media digital dan/atau non digital; dan merefleksikan hasil analisis informasi yang diperoleh dari sumber primer dan/atau sekunder, hasil observasi, dan hasil dokumentasi serta menyusun rencana tindak lanjut."
+            }
+          }
+        ]
+      },
+      {
+        "nama": "Geografi",
+        "capaian_per_fase": [
+          {
+            "fase": "F",
+            "kelas": "XI dan XII SMA/MA/Program Paket C",
+            "elemen": {
+              "Pemahaman Konsep": "Menganalisis keuntungan dari posisi strategis wilayah Indonesia dari sisi astronomis, geografis, geologis dan pemanfaatan sumber daya alam yang ada; memahami pola keanekaragaman hayati Indonesia dan dunia; memahami karakteristik geografi penduduk di wilayah Indonesia; memahami perubahan iklim, kebencanaan, dan lingkungan hidup sebagai bagian yang tak terpisahkan dari kondisi alam Indonesia; dan memahami kewilayahan dan pembangunan serta kerja sama antarnegara.",
+              "Keterampilan Proses": "Mengamati fenomena di Indonesia dan/atau dunia untuk memahami pola dan karakteristik, serta membuat pertanyaan ilmiah guna menggali informasi secara mendalam; mengumpulkan data melalui observasi langsung dan/atau kajian pustaka, mendokumentasikan data secara sistematis, menganalisis data dengan pendekatan ilmiah, dan menyimpulkan hasil analisis untuk menjawab pertanyaan; mengomunikasikan hasil analisis dalam berbagai media, seperti peta, grafik, tabel, infografis, dan aplikasi digital, serta merefleksi proses serta hasil yang diperoleh untuk menyempurnakan pemahaman dan merencanakan pengembangan lebih lanjut; dan membuat projek kolaboratif tentang fenomena geografi di Indonesia dan/atau dunia menggunakan teknologi geospasial."
+            }
+          }
+        ]
+      },
+      {
+        "nama": "Ekonomi",
+        "capaian_per_fase": [
+          {
+            "fase": "F",
+            "kelas": "XI dan XII SMA/SMK/MA/MAK Program Paket C",
+            "elemen": {
+              "Pemahaman Konsep": "Menjelaskan berbagai konsep dasar ekonomi; Mengidentifikasi berbagai permasalahan ekonomi dan keuangan, termasuk keterkaitan permasalahan ekonomi dengan literasi ekonomi dan keuangan digital yang terjadi di lingkungan sekitar, serta menganalisis dampak dari permasalahan ekonomi dan keuangan yang sedang terjadi berdasarkan konsep yang sudah dipelajari; memahami konsep-konsep pendapatan nasional dan pertumbuhan ekonomi serta kaitannya dengan kemiskinan, kesenjangan ekonomi, serta solusi untuk mengatasinya; memahami konsep ketenagakerjaan dan masalahnya serta solusi untuk mengatasinya; memahami konsep uang dan peredaran uang serta kaitannya dengan inflasi dan kebijakan moneter; memahami konsep akuntansi keuangan dasar dalam konteks menilai kondisi keuangan unit usaha (persamaan dasar akuntansi, siklus akuntansi dan laporan keuangan); dan memahami konsep kebijakan fiskal, fungsi anggaran negara dan daerah, dan perpajakan; konsep ekonomi internasional dan masalahnya.",
+              "Keterampilan Proses": "Mengamati kondisi dan masalah ekonomi di lingkungan sekitar, regional, atau nasional; mempertanyakan dan memprediksi faktor penyebab, kondisi, dan masalah ekonomi di lingkungan sekitar, regional, atau nasional; mengumpulkan informasi berkaitan dengan kondisi dan permasalahan ekonomi di lingkungan sekitar, regional, atau nasional; memvalidasi dan menganalisis informasi yang telah dikumpulkan terkait dengan faktor penyebab kondisi dan permasalahan ekonomi di lingkungan sekitar, regional, atau nasional; menarik kesimpulan terkait faktor penyebab dan memberikan solusi atas kondisi dan permasalahan ekonomi di lingkungan sekitar, regional, atau nasional; mengomunikasikan hasil pengamatan terkait penarikan kesimpulan atas kondisi dan permasalahan ekonomi serta solusi mengatasinya; merefleksikan solusi atas permasalahan ekonomi untuk kepentingan lingkungan sekitar; dan merencanakan projek lanjutan secara kolaboratif dalam rangka mengurangi permasalahan ekonomi di lingkungan sekitar."
+            }
+          }
+        ]
+      },
+      {
+        "nama": "Sosiologi",
+        "capaian_per_fase": [
+          {
+            "fase": "F",
+            "kelas": "XI dan XII SMA/MA/Program Paket C",
+            "elemen": {
+              "Pemahaman Konsep": "Menguasai sejumlah kompetensi, yakni murid mampu berpikir kritis dan kreatif; melakukan kajian literasi atas fenomena Sosiologi, menganalisis, menyajikan, melaporkan dan mengomunikasikan hasil kajian; mampu menunjukkan sikap berkesadaran sebagai warga yang baik, dan menghasilkan projek inovatif atas fenomena Sosiologi dalam bentuk digital maupun nondigital. Kompetensi tersebut terbentuk setelah murid menganalisis berbagai permasalahan sosial, konflik, dan integrasi sosial yang terjadi di masyarakat; dan murid juga mampu menyusun pemecahan masalah sosial dalam perspektif pemberdayaan, menerapkan prinsip kesetaraan dalam perbedaan sosial yang digunakan untuk mewujudkan masyarakat multikultural, serta menganalisis hubungan perubahan sosial pada kelompok atau komunitas dan globalisasi.",
+              "Keterampilan Proses": "Mengamati, mendokumentasikan, mengumpulkan, mengolah, menyajikan, melaporkan, dan mengomunikasikan fenomena sosial di Indonesia dan/atau dunia baik dari realitas sosial maupun dari media digital sebagai respon atas perubahan yang disajikan secara logis dan sistematis dengan pendekatan pembelajaran mendalam; Atas pemahaman dan refleksi yang dilakukan, murid mampu merancang projek kolaboratif yang solutif atas masalah sosial, konflik sosial dan kekerasan akibat perbedaan, integrasi sosial, perubahan sosial budaya, dan hubungannya dengan globalisasi dalam pendekatan pemberdayaan; dan hasil kerja kolaboratif dalam mengkaji objek Sosiologi murid mampu melahirkan pengalaman bermakna dan berkesadaran kolektif dalam membangun masyarakat yang harmonis."
+            }
+          }
+        ]
+      },
+      {
+        "nama": "Antropologi",
+        "capaian_per_fase": [
+          {
+            "fase": "F",
+            "kelas": "XI dan XII SMA/MA/Program Paket C",
+            "elemen": {
+              "Pemahaman Konsep": "Menjelaskan konsep dasar Antropologi sebagai disiplin keilmuan, termasuk sejarah perkembangan, ruang lingkup, dan prinsip-prinsip seperti native’s point of view (pendekatan emik), relativisme budaya, thick description dan holistik, serta mengintegrasikannya secara bermakna dan kontekstual dalam menganalisis fenomena budaya, dengan pemahaman bahwa unsur-unsur kebudayaan saling mempengaruhi dan berhubungan; menjelaskan metode penelitian etnografi sebagai ciri khas utama dalam Antropologi dengan akan mempelajari metode, teknik, dan prinsip etnografi dalam menggali data secara mendalam melalui keterlibatan langsung di lapangan dan membaca hasil karya etnografi secara kritis, sehingga mampu menghasilkan gambaran utuh tentang kehidupan dan budaya suatu komunitas; memahami bahwa kebudayaan merupakan objek kajian utama dalam Antropologi yang melibatkan konsep dasar dan unsur-unsur budaya, yang terus berkembang seiring dengan perubahan sosial, teknologi, dan interaksi antarbudaya; memahami bahasa dan sistem religi tidak hanya sebagai bagian unsur universal dalam kebudayaan tetapi juga sebagai bagian dari sistem simbol dan kepercayaan yang hadir dalam kehidupan manusia; menganalisis konsep dasar dan fungsi organisasi sosial, termasuk keluarga dan sistem kekerabatan sebagai bagian dari struktur sosial di masyarakat; menganalisis problematika keberagaman budaya sebagai realitas dalam kehidupan masyarakat yang multikultural dan masyarakat digital.",
+              "Keterampilan Proses": "Mengaplikasikan metode penelitian etnografi secara sederhana sebagai bagian dari keterampilan dasar dalam Antropologi; menerapkan prinsip relativisme budaya dalam kehidupan sehari-hari sebagai bentuk penghargaan terhadap keberagaman nilai dan norma budaya; mengaplikasikan pendekatan emik dan etik dalam praktik, serta merefleksikan pengalaman mereka dalam menggunakan metode penelitian etnografi sederhana; menganalisis dan mengevaluasi temuan mereka dengan memperhatikan bagaimana perspektif emik dan etik dapat mempengaruhi pemahaman mereka tentang dinamika sosial dan budaya; mengidentifikasi tantangan dan peluang dalam melakukan penelitian lapangan serta memperoleh wawasan yang lebih dalam tentang interaksi sosial dan kebudayaan; dan, merekomendasi atau solusi berdasarkan temuan mereka yang dapat bermanfaat untuk mempromosikan pemahaman lintas budaya dan menghargai keragaman budaya di komunitas mereka."
+            }
+          }
+        ]
+      },
+      {
+        "nama": "Sejarah (SMA/MA)",
+        "capaian_per_fase": [
+          {
+            "fase": "F",
+            "kelas": "XI dan XII SMA/MA/Program Paket C",
+            "elemen": {
+              "Pemahaman Konsep": "Menjelaskan sejarah pada Masa Penjajahan Bangsa Barat, Perlawanan Rakyat Daerah Terhadap Penjajah, Pergerakan Kebangsaan Indonesia, Pendudukan Jepang, Proklamasi Kemerdekaan Indonesia, Mempertahankan Kemerdekaan Indonesia, Masa Pemerintahan Sukarno, Masa Pemerintahan Suharto, dan Reformasi; menerapkan proses berpikir sejarah, melakukan literasi sejarah, penelitian sejarah, dan menunjukkan kesadaran sejarah melalui proses inkuiri; dan mengevaluasi nilai-nilai yang terkandung dalam sejarah untuk dapat dikontekstualisasikan dalam kehidupan masa sekarang.",
+              "Keterampilan Proses": "Menerapkan secara spesifik keterampilan proses belajar sejarah mencakup keterampilan berpikir diakronis (kronologis) dan sinkronis, pemahaman sejarah, analisis dan interpretasi sejarah, kemampuan riset sejarah, literasi sejarah, analisis isu kesejarahan serta pengambilan keputusan, dan kebermaknaan peristiwa sejarah. Secara umum keterampilan proses pada mata pelajaran Sejarah dilakukan dengan cara mengamati, menanya, mengumpulkan informasi (heuristik), menganalisis informasi (kritik sumber), menarik kesimpulan, mengomunikasikan, serta merefleksikan dan merencanakan projek lanjutan secara kolaboratif."
+            }
+          }
+        ]
       }
     ]
   },

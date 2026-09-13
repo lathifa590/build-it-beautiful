@@ -1,5 +1,5 @@
 import masterDatabase from '@/data/cp_database_master_2025.json';
-import { resolveMapelCP, FallbackInfo } from './cp-mapel-mapping';
+import { resolveMapelCP, findMapelSlug, FallbackInfo } from './cp-mapel-mapping';
 
 export interface MasterCPFase {
   fase: string;
@@ -28,6 +28,68 @@ export interface MasterCPQueryResult {
   source: 'master_bskap_046_2025';
 }
 
+const GENERIC_WORDS = new Set([
+  'ilmu', 'pengetahuan', 'pendidikan', 'dan', 'atau', 'pada', 'untuk', 'mata', 'pelajaran',
+  'tingkat', 'lanjut', 'dasar', 'dasar-dasar', 'keahlian', 'konsentrasi', 'program'
+]);
+
+function matchesMapelName(dbName: string, queryName: string, targetSlug?: string): boolean {
+  const normDb = dbName.toLowerCase().trim();
+  const normQuery = queryName.toLowerCase().trim();
+
+  if (normDb === normQuery) return true;
+
+  // Canonical slug matching via findMapelSlug (SSOT)
+  const dbSlug = findMapelSlug(dbName)?.slug;
+  const querySlug = targetSlug || findMapelSlug(queryName)?.slug;
+  if (dbSlug && querySlug) {
+    if (dbSlug === querySlug) return true;
+    // Special case: "Ilmu Pengetahuan Alam (IPA) / IPAS" in master DB serves both IPA and IPAS
+    if (
+      (dbSlug === 'ilmu-pengetahuan-alam-dan-sosial-ipas' || dbSlug === 'ilmu-pengetahuan-alam-ipa') &&
+      (querySlug === 'ilmu-pengetahuan-alam-dan-sosial-ipas' || querySlug === 'ilmu-pengetahuan-alam-ipa')
+    ) {
+      return true;
+    }
+    // Known slugs that differ must NOT cross-match (e.g. IPS vs IPA)
+    return false;
+  }
+
+  // Strict domain conflict prevention
+  const isQuerySosial = /\b(ips|sosial)\b/i.test(normQuery);
+  const isDbSosial = /\b(ips|sosial)\b/i.test(normDb);
+  const isQueryAlam = /\b(ipa|alam)\b/i.test(normQuery) && !/\b(dan sosial|sosial)\b/i.test(normQuery);
+  const isDbAlam = /\b(ipa|alam)\b/i.test(normDb) && !/\b(dan sosial|sosial)\b/i.test(normDb);
+
+  if (isQuerySosial && isDbAlam && !isDbSosial) return false;
+  if (isQueryAlam && isDbSosial && !isDbAlam) return false;
+
+  // Exact acronym match
+  const allQueryTokens = normQuery.replace(/[^a-z0-9]/g, ' ').split(/\s+/).filter(Boolean);
+  const allDbTokens = normDb.replace(/[^a-z0-9]/g, ' ').split(/\s+/).filter(Boolean);
+  if (allQueryTokens.some((t) => allDbTokens.includes(t) && (t === 'ipa' || t === 'ips' || t === 'pjok' || t === 'ppkn'))) {
+    return true;
+  }
+
+  // Substring checks if sufficiently distinct
+  if (normDb.length > 5 && normQuery.length > 5) {
+    if (normDb.includes(normQuery) || normQuery.includes(normDb)) return true;
+  }
+
+  // Significant (non-generic) words matching
+  const dbWords = normDb.replace(/[^a-z0-9]/g, ' ').split(/\s+/).filter((w) => w.length > 2 && !GENERIC_WORDS.has(w));
+  const queryWords = normQuery.replace(/[^a-z0-9]/g, ' ').split(/\s+/).filter((w) => w.length > 2 && !GENERIC_WORDS.has(w));
+
+  if (queryWords.length === 0 || dbWords.length === 0) return false;
+
+  const matchCount = queryWords.filter((w) => dbWords.includes(w)).length;
+  if (queryWords.length === 1 && matchCount === 1) return true;
+  if (matchCount >= 2 && matchCount === queryWords.length) return true;
+  if (matchCount >= 2 && matchCount >= Math.ceil(queryWords.length * 0.7)) return true;
+
+  return false;
+}
+
 /**
  * Searches cp_database_master_2025.json (Keputusan Kepala BSKAP No. 046/H/KR/2025)
  * as the Single Source of Truth (SSOT).
@@ -48,6 +110,7 @@ export function queryMasterCPDatabase(
   // Check smart fallback first (e.g. Fisika/Kimia/Biologi on Fase E -> IPA Fase E)
   const resolved = resolveMapelCP(mataPelajaran, fase);
   const targetMapelNama = (resolved?.fallbackInfo?.parentMapelName || mataPelajaran).trim().toLowerCase();
+  const targetSlug = resolved?.slug;
   const isFallback = Boolean(resolved?.isFallback);
   const fallbackInfo = resolved?.fallbackInfo;
 
@@ -66,32 +129,12 @@ export function queryMasterCPDatabase(
     }
   }
 
-function matchesMapelName(dbName: string, queryName: string): boolean {
-  const normDb = dbName.toLowerCase().trim();
-  const normQuery = queryName.toLowerCase().trim();
-
-  if (normDb === normQuery) return true;
-  if (normDb.includes(normQuery) || normQuery.includes(normDb)) return true;
-
-  const allQueryTokens = normQuery.replace(/[^a-z0-9]/g, ' ').split(/\s+/).filter(Boolean);
-  const allDbTokens = normDb.replace(/[^a-z0-9]/g, ' ').split(/\s+/).filter(Boolean);
-  if (allQueryTokens.some((t) => allDbTokens.includes(t) && (t === 'ipa' || t === 'ips' || t === 'pjok' || t === 'ppkn'))) {
-    return true;
-  }
-
-  const dbWords = normDb.replace(/[^a-z0-9]/g, ' ').split(/\s+/).filter((w) => w.length > 2);
-  const queryWords = normQuery.replace(/[^a-z0-9]/g, ' ').split(/\s+/).filter((w) => w.length > 2);
-  const matchCount = queryWords.filter((w) => dbWords.includes(w)).length;
-  if (matchCount >= 2) return true;
-  if (queryWords.length === 1 && matchCount === 1) return true;
-
-  return false;
-}
-
   // 2. Search Mata Pelajaran
   for (const cat of targetCategories) {
     for (const mp of cat.mata_pelajaran) {
-      const isMatch = matchesMapelName(mp.nama, rawInput) || matchesMapelName(mp.nama, targetMapelNama);
+      const isMatch =
+        matchesMapelName(mp.nama, rawInput, targetSlug) ||
+        matchesMapelName(mp.nama, targetMapelNama, targetSlug);
 
       if (!isMatch) continue;
 

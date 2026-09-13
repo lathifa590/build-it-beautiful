@@ -52,6 +52,64 @@ describe('cp-master-service (BSKAP No. 046/H/KR/2025 SSOT)', () => {
     expect(result?.elemen.length).toBe(5);
   });
 
+  it('should query Ilmu Pengetahuan Sosial (IPS) on Fase D with correct elements and never match IPA', () => {
+    const result = queryMasterCPDatabase('Ilmu Pengetahuan Sosial', 'D');
+    expect(result).not.toBeNull();
+    expect(result?.mataPelajaran).toContain('Ilmu Pengetahuan Sosial');
+    expect(result?.faseCode).toContain('D');
+    expect(result?.isFallback).toBe(false);
+
+    const elemenNames = result?.elemen.map((e) => e.nama);
+    expect(elemenNames).toContain('Pemahaman Konsep');
+    expect(elemenNames).toContain('Keterampilan Proses');
+    expect(elemenNames).not.toContain('Pemahaman IPA');
+
+    const pemahaman = result?.elemen.find((e) => e.nama === 'Pemahaman Konsep');
+    expect(pemahaman?.teks).toContain('kondisi geografis Indonesia');
+    expect(pemahaman?.teks).toContain('kegiatan ekonomi');
+    expect(pemahaman?.teks).toContain('interaksi sosial');
+    expect(pemahaman?.teks).toContain('ilmu sejarah');
+    expect(pemahaman?.teks).not.toContain('bioteknologi');
+  });
+
+  it('should query IPS via alias on Fase D', () => {
+    const result = queryMasterCPDatabase('IPS', 'D');
+    expect(result).not.toBeNull();
+    expect(result?.mataPelajaran).toContain('Ilmu Pengetahuan Sosial');
+    expect(result?.faseCode).toContain('D');
+  });
+
+  it('should query IPA on Fase D correctly without matching IPS', () => {
+    const result = queryMasterCPDatabase('IPA', 'D');
+    expect(result).not.toBeNull();
+    expect(result?.mataPelajaran).toContain('Ilmu Pengetahuan Alam');
+    const elemenNames = result?.elemen.map((e) => e.nama);
+    expect(elemenNames).toContain('Pemahaman IPA');
+  });
+
+  it('should resolve Ekonomi on Fase E to IPS Fase E fallback', () => {
+    const result = queryMasterCPDatabase('Ekonomi', 'E');
+    expect(result).not.toBeNull();
+    expect(result?.mataPelajaran).toContain('Ilmu Pengetahuan Sosial');
+    expect(result?.isFallback).toBe(true);
+    expect(result?.fallbackInfo?.parentMapelName).toContain('IPS');
+  });
+
+  it('should find Ekonomi, Geografi, Sosiologi on Fase F directly', () => {
+    const resEko = queryMasterCPDatabase('Ekonomi', 'F');
+    expect(resEko).not.toBeNull();
+    expect(resEko?.mataPelajaran).toBe('Ekonomi');
+    expect(resEko?.isFallback).toBe(false);
+
+    const resGeo = queryMasterCPDatabase('Geografi', 'F');
+    expect(resGeo).not.toBeNull();
+    expect(resGeo?.mataPelajaran).toBe('Geografi');
+
+    const resSosio = queryMasterCPDatabase('Sosiologi', 'F');
+    expect(resSosio).not.toBeNull();
+    expect(resSosio?.mataPelajaran).toBe('Sosiologi');
+  });
+
   it('should format master CP detailed report properly', () => {
     const result = queryMasterCPDatabase('Fisika', 'F');
     expect(result).not.toBeNull();
