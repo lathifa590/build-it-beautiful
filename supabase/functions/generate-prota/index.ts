@@ -1,12 +1,16 @@
+// @ts-ignore
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+// @ts-ignore
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+declare const Deno: any;
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-serve(async (req) => {
+serve(async (req: any) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -217,7 +221,7 @@ Kembalikan HANYA JSON valid (tanpa markdown, tanpa teks lain) dengan format:
       try {
         resultData = JSON.parse(jsonStr);
       } catch (parseError) {
-        console.error("JSON parse error:", parseError, "Raw JSON:", jsonMatch[0]);
+        console.error("JSON parse error:", parseError, "Raw JSON:", jsonStr);
         return new Response(JSON.stringify({ error: "Gagal memproses hasil dari AI. AI memberikan format yang tidak valid." }), {
           status: 200,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
