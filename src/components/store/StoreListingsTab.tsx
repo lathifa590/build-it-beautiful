@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Plus, Upload, FileText, Download, Edit, Copy, Trash, Search, Eye, ShoppingBag } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Plus, Upload, FileText, Download, Edit, Copy, Trash, Search, Eye, ShoppingBag, Link, MoreVertical } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { storeApi } from '@/lib/store-api';
 import { StoreListing } from '@/types/store';
@@ -21,6 +21,19 @@ const StoreListingsTab = () => {
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingListing, setEditingListing] = useState<StoreListing | null>(null);
+
+  const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest('.kebab-btn') && !target.closest('.kebab-dropdown')) {
+        setOpenDropdownId(null);
+      }
+    };
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, []);
 
   // Filters
   const [searchQuery, setSearchQuery] = useState('');
@@ -313,6 +326,63 @@ const StoreListingsTab = () => {
                 ) : (
                   <span className="product-card__badge product-card__badge--draf">Draf</span>
                 )}
+                
+                <button 
+                  className={`kebab-btn ${openDropdownId === item.listing_id ? 'open' : ''}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setOpenDropdownId(openDropdownId === item.listing_id ? null : item.listing_id);
+                  }}
+                >
+                  <MoreVertical className="w-4 h-4" />
+                </button>
+                
+                <div className={`kebab-dropdown ${openDropdownId === item.listing_id ? 'show' : ''}`}>
+                  <div 
+                    className="kebab-dropdown-item"
+                    onClick={() => {
+                      setOpenDropdownId(null);
+                      setEditingListing(item);
+                      setIsEditModalOpen(true);
+                    }}
+                  >
+                    <Edit className="w-4 h-4" /> <span>Edit Modul</span>
+                  </div>
+                  <div 
+                    className="kebab-dropdown-item"
+                    onClick={() => {
+                      setOpenDropdownId(null);
+                      const baseUrl = window.location.origin;
+                      const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+                      const productUrl = isLocalhost 
+                        ? `${baseUrl}/store/item/${item.listing_id}`
+                        : `https://modulajar.online/store/item/${item.listing_id}`;
+                        
+                      navigator.clipboard.writeText(productUrl);
+                      toast.success('Link produk berhasil disalin!');
+                    }}
+                  >
+                    <Link className="w-4 h-4" /> <span>Bagikan</span>
+                  </div>
+                  <div 
+                    className="kebab-dropdown-item"
+                    onClick={() => {
+                      setOpenDropdownId(null);
+                      if(confirm('Duplikat modul ajar ini?')) duplicateMutation.mutate(item);
+                    }}
+                  >
+                    <Copy className="w-4 h-4" /> <span>Duplikat</span>
+                  </div>
+                  <div 
+                    className="kebab-dropdown-item danger"
+                    onClick={() => {
+                      setOpenDropdownId(null);
+                      if(confirm('Yakin ingin menghapus modul ajar ini?')) deleteMutation.mutate(item.listing_id);
+                    }}
+                  >
+                    <Trash className="w-4 h-4" /> <span>Hapus</span>
+                  </div>
+                </div>
               </div>
               
               <div className="product-card__info">
@@ -328,39 +398,6 @@ const StoreListingsTab = () => {
                   <span>·</span>
                   <span>0 terjual</span>
                 </div>
-              </div>
-              
-              <div className="product-card__actions">
-                 <button 
-                    className="product-card__action-btn"
-                    title="Edit" 
-                    onClick={() => {
-                      setEditingListing(item);
-                      setIsEditModalOpen(true);
-                    }}
-                 >
-                   <Edit className="w-4 h-4" /> Edit
-                 </button>
-                 <button 
-                    className="product-card__action-btn"
-                    title="Duplikat" 
-                    onClick={() => {
-                      if(confirm('Duplikat modul ajar ini?')) duplicateMutation.mutate(item);
-                    }}
-                    disabled={duplicateMutation.isPending}
-                 >
-                   <Copy className="w-4 h-4" /> Copy
-                 </button>
-                 <button 
-                    className="product-card__action-btn product-card__action-btn--danger"
-                    title="Hapus" 
-                    onClick={() => {
-                      if(confirm('Yakin ingin menghapus modul ajar ini?')) deleteMutation.mutate(item.listing_id);
-                    }}
-                    disabled={deleteMutation.isPending}
-                 >
-                   <Trash className="w-4 h-4" /> Hapus
-                 </button>
               </div>
             </div>
           ))}

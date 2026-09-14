@@ -1,0 +1,390 @@
+<style>
+:root {
+  --color-primary: #c04a1a;
+  --color-primary-bg: #fff3ed;
+  --color-black: #111111;
+  --color-surface: #ffffff;
+  --color-surface-alt: #fafafa;
+  --color-page-bg: #f5f0e8;
+  --color-success: #15803d;
+  --color-success-bg: #f0fdf4;
+  --color-danger: #991b1b;
+  --color-danger-bg: #fef2f2;
+  --color-text: #111111;
+  --color-text-muted: #666666;
+  --color-border: #e5e7eb;
+  --color-border-bold: #111111;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Inter', sans-serif; background: var(--color-page-bg); color: var(--color-text); }
+
+.demo { padding: 24px 20px; }
+
+.label {
+  font-size: 10px; font-weight: 800; text-transform: uppercase;
+  letter-spacing: 0.1em; color: var(--color-text-muted); margin-bottom: 14px;
+}
+
+/* GRID */
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+
+/* CARD */
+.card {
+  background: var(--color-surface);
+  border: 2.5px solid var(--color-border-bold);
+  border-radius: 10px;
+  box-shadow: 4px 4px 0 var(--color-black);
+  overflow: visible;
+  position: relative;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+.card:hover { transform: translate(-1px,-1px); box-shadow: 5px 5px 0 var(--color-black); }
+
+/* THUMB */
+.thumb {
+  height: 130px;
+  border-bottom: 2.5px solid var(--color-border-bold);
+  border-radius: 7px 7px 0 0;
+  overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+}
+
+/* BADGE */
+.badge {
+  position: absolute; top: 8px; left: 8px;
+  font-size: 10px; font-weight: 800; text-transform: uppercase;
+  letter-spacing: 0.06em; border-radius: 4px; padding: 2px 7px; border: 2px solid;
+}
+.badge-success { color: var(--color-success); background: var(--color-success-bg); border-color: var(--color-success); }
+.badge-neutral  { color: var(--color-black);   background: var(--color-surface);    border-color: var(--color-black); }
+
+/* KEBAB BUTTON */
+.kebab-btn {
+  position: absolute; top: 8px; right: 8px;
+  width: 28px; height: 28px;
+  background: var(--color-surface);
+  border: 2.5px solid var(--color-border-bold);
+  border-radius: 6px;
+  box-shadow: 2px 2px 0 var(--color-black);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; z-index: 10;
+  font-size: 16px; font-weight: 900; color: var(--color-black);
+  line-height: 1; letter-spacing: 0; padding-bottom: 2px;
+  transition: all 0.1s ease;
+  user-select: none;
+}
+.kebab-btn:hover { background: var(--color-primary-bg); border-color: var(--color-primary); color: var(--color-primary); box-shadow: 2px 2px 0 var(--color-primary); }
+.kebab-btn.open  { background: var(--color-black); color: #fff; box-shadow: none; transform: translate(1px,1px); }
+
+/* DROPDOWN */
+.dropdown {
+  display: none;
+  position: absolute;
+  top: calc(8px + 28px + 6px);
+  right: 8px;
+  background: var(--color-surface);
+  border: 2.5px solid var(--color-border-bold);
+  border-radius: 8px;
+  box-shadow: 4px 4px 0 var(--color-black);
+  z-index: 100;
+  min-width: 148px;
+  overflow: hidden;
+}
+.dropdown.show { display: block; }
+
+.dropdown-item {
+  display: flex; align-items: center; gap: 9px;
+  padding: 9px 13px;
+  font-size: 12px; font-weight: 700;
+  color: var(--color-text);
+  cursor: pointer;
+  border-bottom: 1.5px solid var(--color-border);
+  transition: background 0.08s ease;
+  user-select: none;
+}
+.dropdown-item:last-child { border-bottom: none; }
+.dropdown-item:hover { background: var(--color-primary-bg); color: var(--color-primary); }
+.dropdown-item:hover svg { stroke: var(--color-primary); }
+.dropdown-item.danger { color: var(--color-danger); }
+.dropdown-item.danger:hover { background: var(--color-danger-bg); color: var(--color-danger); }
+.dropdown-item.danger svg { stroke: var(--color-danger); }
+.dropdown-item svg { flex-shrink: 0; }
+
+/* CARD BODY */
+.body { padding: 10px 12px 12px; }
+.jenjang { font-size: 10px; font-weight: 700; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3px; }
+.title {
+  font-size: 12px; font-weight: 700; line-height: 1.45;
+  margin-bottom: 6px; color: var(--color-text);
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.price { font-size: 15px; font-weight: 800; color: var(--color-primary); margin-bottom: 5px; }
+.meta {
+  font-size: 10px; font-weight: 600; color: var(--color-text-muted);
+  display: flex; align-items: center; gap: 4px;
+}
+
+/* DIVIDER */
+hr { border: none; border-top: 2.5px solid var(--color-border-bold); margin: 28px 0; }
+
+/* MOBILE FRAME */
+.phone-frame {
+  max-width: 360px; margin: 0 auto;
+  border: 2.5px solid var(--color-black); border-radius: 16px;
+  overflow: hidden; box-shadow: 5px 5px 0 var(--color-black);
+}
+.phone-inner { background: var(--color-page-bg); padding: 16px 14px 0; }
+.page-title { font-size: 18px; font-weight: 800; margin-bottom: 2px; }
+.page-sub   { font-size: 11px; font-weight: 600; color: var(--color-text-muted); margin-bottom: 10px; }
+.btn-cta {
+  width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px;
+  font-size: 13px; font-weight: 700; padding: 9px 16px;
+  border: 2.5px solid var(--color-black); border-radius: 7px;
+  background: var(--color-black); color: #fff;
+  box-shadow: 3px 3px 0 var(--color-primary); cursor: pointer; margin-bottom: 10px;
+  font-family: inherit;
+}
+.search {
+  width: 100%; height: 36px; padding: 0 12px;
+  font-size: 12px; font-weight: 600;
+  border: 2px solid var(--color-black); border-radius: 6px;
+  background: #fff; box-shadow: 2px 2px 0 var(--color-black);
+  font-family: inherit; color: var(--color-text); margin-bottom: 8px;
+}
+.select {
+  width: 100%; height: 36px; padding: 0 10px;
+  font-size: 12px; font-weight: 600;
+  border: 2px solid var(--color-black); border-radius: 6px;
+  background: #fff; box-shadow: 2px 2px 0 var(--color-black);
+  font-family: inherit; color: var(--color-text); margin-bottom: 12px;
+}
+.bottom-nav {
+  background: var(--color-surface); border-top: 2.5px solid var(--color-border-bold);
+  display: flex; padding: 6px 0 2px;
+}
+.nav-item {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
+  font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--color-text-muted); cursor: pointer; padding: 4px 0;
+  border-top: 3px solid transparent;
+}
+.nav-item.active { color: var(--color-primary); border-top-color: var(--color-primary); }
+
+/* THUMB placeholders */
+.ph { color: #d0c8be; }
+</style>
+
+<div class="demo">
+
+  <!-- DESKTOP -->
+  <div class="label">Desktop — 3 kolom, kebab ⋮ di pojok thumbnail</div>
+  <div class="grid-3">
+
+    <!-- card 1 -->
+    <div class="card" id="c1">
+      <div class="thumb" style="background:#f0ebe0;">
+        <span class="badge badge-neutral">Simpan</span>
+        <svg class="ph" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+        <button class="kebab-btn" onclick="toggleMenu('m1',this)">⋮</button>
+        <div class="dropdown" id="m1">
+          <div class="dropdown-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Edit Modul</div>
+          <div class="dropdown-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg> Bagikan</div>
+          <div class="dropdown-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Duplikat</div>
+          <div class="dropdown-item danger"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg> Hapus</div>
+        </div>
+      </div>
+      <div class="body">
+        <div class="jenjang">SD</div>
+        <div class="title">[LENGKAP] Bahasa Indonesia Kelas IV Fase A Semester Ganjil 2024/2025</div>
+        <div class="price">Rp20.000</div>
+        <div class="meta"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> 0 dilihat · 0 terjual</div>
+      </div>
+    </div>
+
+    <!-- card 2 -->
+    <div class="card" id="c2">
+      <div class="thumb" style="background:#eaf4ea;">
+        <span class="badge badge-success">AKTIF</span>
+        <svg class="ph" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <button class="kebab-btn" onclick="toggleMenu('m2',this)">⋮</button>
+        <div class="dropdown" id="m2">
+          <div class="dropdown-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Edit Modul</div>
+          <div class="dropdown-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg> Bagikan</div>
+          <div class="dropdown-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Duplikat</div>
+          <div class="dropdown-item danger"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg> Hapus</div>
+        </div>
+      </div>
+      <div class="body">
+        <div class="jenjang">SD</div>
+        <div class="title">Paket Lengkap Kelas Semester 1sfef</div>
+        <div class="price">Rp60.000</div>
+        <div class="meta"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> 0 dilihat · 0 terjual</div>
+      </div>
+    </div>
+
+    <!-- card 3 -->
+    <div class="card" id="c3">
+      <div class="thumb" style="background:#eaf4ea;">
+        <span class="badge badge-success">AKTIF</span>
+        <svg class="ph" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <button class="kebab-btn" onclick="toggleMenu('m3',this)">⋮</button>
+        <div class="dropdown" id="m3">
+          <div class="dropdown-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Edit Modul</div>
+          <div class="dropdown-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg> Bagikan</div>
+          <div class="dropdown-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Duplikat</div>
+          <div class="dropdown-item danger"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg> Hapus</div>
+        </div>
+      </div>
+      <div class="body">
+        <div class="jenjang">SD</div>
+        <div class="title">Paket Lengkap Kelas Semester 12</div>
+        <div class="price">Rp30.000</div>
+        <div class="meta"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> 0 dilihat · 0 terjual</div>
+      </div>
+    </div>
+
+  </div>
+
+  <hr>
+
+  <!-- MOBILE -->
+  <div class="label">Mobile — 2 kolom</div>
+  <div class="phone-frame">
+    <div class="phone-inner">
+      <div class="page-title">Katalog Modul Ajar</div>
+      <div class="page-sub">Kelola Modul Ajar yang Anda jual di marketplace.</div>
+      <button class="btn-cta">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Tambah Modul Ajar Baru
+      </button>
+      <input class="search" placeholder="Cari modul...">
+      <select class="select"><option>Semua Status</option></select>
+
+      <div class="grid-2">
+
+        <!-- mob card 1 -->
+        <div class="card" id="mc1" style="box-shadow:3px 3px 0 #111;">
+          <div class="thumb" style="height:100px; background:#f0ebe0;">
+            <span class="badge badge-neutral" style="font-size:9px;">Simpan</span>
+            <svg class="ph" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            <button class="kebab-btn" style="width:24px;height:24px;font-size:13px;" onclick="toggleMenu('mm1',this)">⋮</button>
+            <div class="dropdown" id="mm1" style="min-width:130px;">
+              <div class="dropdown-item" style="padding:8px 11px; font-size:11px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Edit Modul</div>
+              <div class="dropdown-item" style="padding:8px 11px; font-size:11px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg> Bagikan</div>
+              <div class="dropdown-item" style="padding:8px 11px; font-size:11px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Duplikat</div>
+              <div class="dropdown-item danger" style="padding:8px 11px; font-size:11px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg> Hapus</div>
+            </div>
+          </div>
+          <div class="body" style="padding:8px 10px 10px;">
+            <div class="jenjang">SD</div>
+            <div class="title" style="font-size:11px;">[LENGKAP] Bahasa Indonesia Kelas IV Fase A…</div>
+            <div class="price" style="font-size:13px;">Rp20.000</div>
+            <div class="meta" style="font-size:9px;"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> 0 dilihat · 0 terjual</div>
+          </div>
+        </div>
+
+        <!-- mob card 2 -->
+        <div class="card" id="mc2" style="box-shadow:3px 3px 0 #111;">
+          <div class="thumb" style="height:100px; background:#eaf4ea;">
+            <span class="badge badge-success" style="font-size:9px;">AKTIF</span>
+            <svg class="ph" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            <button class="kebab-btn" style="width:24px;height:24px;font-size:13px;" onclick="toggleMenu('mm2',this)">⋮</button>
+            <div class="dropdown" id="mm2" style="min-width:130px;">
+              <div class="dropdown-item" style="padding:8px 11px; font-size:11px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Edit Modul</div>
+              <div class="dropdown-item" style="padding:8px 11px; font-size:11px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg> Bagikan</div>
+              <div class="dropdown-item" style="padding:8px 11px; font-size:11px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Duplikat</div>
+              <div class="dropdown-item danger" style="padding:8px 11px; font-size:11px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg> Hapus</div>
+            </div>
+          </div>
+          <div class="body" style="padding:8px 10px 10px;">
+            <div class="jenjang">SD</div>
+            <div class="title" style="font-size:11px;">Paket Lengkap Kelas Semester 1sfef</div>
+            <div class="price" style="font-size:13px;">Rp60.000</div>
+            <div class="meta" style="font-size:9px;"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> 0 dilihat · 0 terjual</div>
+          </div>
+        </div>
+
+        <!-- mob card 3 -->
+        <div class="card" id="mc3" style="box-shadow:3px 3px 0 #111;">
+          <div class="thumb" style="height:100px; background:#eaf4ea;">
+            <span class="badge badge-success" style="font-size:9px;">AKTIF</span>
+            <svg class="ph" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            <button class="kebab-btn" style="width:24px;height:24px;font-size:13px;" onclick="toggleMenu('mm3',this)">⋮</button>
+            <div class="dropdown" id="mm3" style="min-width:130px;">
+              <div class="dropdown-item" style="padding:8px 11px; font-size:11px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Edit Modul</div>
+              <div class="dropdown-item" style="padding:8px 11px; font-size:11px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg> Bagikan</div>
+              <div class="dropdown-item" style="padding:8px 11px; font-size:11px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Duplikat</div>
+              <div class="dropdown-item danger" style="padding:8px 11px; font-size:11px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg> Hapus</div>
+            </div>
+          </div>
+          <div class="body" style="padding:8px 10px 10px;">
+            <div class="jenjang">SD</div>
+            <div class="title" style="font-size:11px;">Paket Lengkap Kelas Semester 12</div>
+            <div class="price" style="font-size:13px;">Rp30.000</div>
+            <div class="meta" style="font-size:9px;"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> 0 dilihat · 0 terjual</div>
+          </div>
+        </div>
+
+        <!-- mob card 4 -->
+        <div class="card" id="mc4" style="box-shadow:3px 3px 0 #111;">
+          <div class="thumb" style="height:100px; background:#eaf4ea;">
+            <span class="badge badge-success" style="font-size:9px;">AKTIF</span>
+            <svg class="ph" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            <button class="kebab-btn" style="width:24px;height:24px;font-size:13px;" onclick="toggleMenu('mm4',this)">⋮</button>
+            <div class="dropdown" id="mm4" style="min-width:130px;">
+              <div class="dropdown-item" style="padding:8px 11px; font-size:11px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Edit Modul</div>
+              <div class="dropdown-item" style="padding:8px 11px; font-size:11px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg> Bagikan</div>
+              <div class="dropdown-item" style="padding:8px 11px; font-size:11px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Duplikat</div>
+              <div class="dropdown-item danger" style="padding:8px 11px; font-size:11px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg> Hapus</div>
+            </div>
+          </div>
+          <div class="body" style="padding:8px 10px 10px;">
+            <div class="jenjang">SD</div>
+            <div class="title" style="font-size:11px;">Paket Lengkap Kelas IV Semester 1</div>
+            <div class="price" style="font-size:13px;">Rp40.000</div>
+            <div class="meta" style="font-size:9px;"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> 0 dilihat · 0 terjual</div>
+          </div>
+        </div>
+
+      </div>
+      <div style="height:12px;"></div>
+    </div>
+
+    <!-- bottom nav -->
+    <div class="bottom-nav">
+      <div class="nav-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>BERANDA</div>
+      <div class="nav-item active"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>KATALOG</div>
+      <div class="nav-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg>PESANAN</div>
+      <div class="nav-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>KUPON</div>
+      <div class="nav-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>PROFIL</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function toggleMenu(id, btn) {
+  const dropdown = document.getElementById(id);
+  const allDropdowns = document.querySelectorAll('.dropdown');
+  const allBtns = document.querySelectorAll('.kebab-btn');
+
+  const isOpen = dropdown.classList.contains('show');
+
+  allDropdowns.forEach(d => d.classList.remove('show'));
+  allBtns.forEach(b => b.classList.remove('open'));
+
+  if (!isOpen) {
+    dropdown.classList.add('show');
+    btn.classList.add('open');
+  }
+}
+
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.kebab-btn') && !e.target.closest('.dropdown')) {
+    document.querySelectorAll('.dropdown').forEach(d => d.classList.remove('show'));
+    document.querySelectorAll('.kebab-btn').forEach(b => b.classList.remove('open'));
+  }
+});
+</script>
