@@ -79,7 +79,7 @@ serve(async (req) => {
     const systemPrompt = `Kamu adalah seorang penulis blog pendidikan ahli dan pakar SEO Indonesia. 
 Tugasmu adalah menulis artikel blog SEO yang informatif, menarik, dan terstruktur untuk website ModulAjar.Online.
 Website ini menyediakan generator AI untuk Kurikulum Merdeka dan Kurikulum Berbasis Cinta (KBC) Kemenag.
-Tulislah artikel yang mendalam (sekitar 1000 - 1500 kata) menggunakan format Markdown murni.
+Tulislah artikel yang komprehensif namun padat (sekitar 500 - 800 kata) menggunakan format Markdown murni.
 
 OUTPUT WAJIB: 
 Berikan respon HANYA dalam format JSON dengan struktur berikut tanpa tag markdown atau teks tambahan:
