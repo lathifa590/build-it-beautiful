@@ -27,10 +27,9 @@ serve(async (req) => {
     // 1. Inisialisasi Supabase Client (Service Role agar bypass RLS)
     const supabaseUrl = Deno.env.get('SUPABASE_URL') || '';
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
-    const anthropicApiKey = Deno.env.get('ANTHROPIC_API_KEY') || '';
     
-    if (!supabaseUrl || !supabaseKey || !anthropicApiKey) {
-      throw new Error("Missing environment variables: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, or ANTHROPIC_API_KEY");
+    if (!supabaseUrl || !supabaseKey) {
+      throw new Error("Missing environment variables: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY");
     }
 
     const supabase = createClient(supabaseUrl, supabaseKey);
@@ -64,7 +63,30 @@ serve(async (req) => {
 
     console.log(`Processing keyword: ${queueItem.keyword}`);
 
-    // 3. Panggil Claude 3.5 Sonnet
+    // 3. Dapatkan Gemini API Key dari akun admin
+    const { data: adminUsers, error: adminError } = await supabase.auth.admin.listUsers();
+    if (adminError) throw new Error(`Error fetching users: ${adminError.message}`);
+    
+    const adminUser = adminUsers.users.find(u => u.email === 'pakhusnulid@gmail.com');
+    if (!adminUser) throw new Error("Admin user pakhusnulid@gmail.com not found");
+
+    const { data: apiKeyData, error: keyError } = await supabase
+      .from('user_api_keys')
+      .select('api_key')
+      .eq('user_id', adminUser.id)
+      .eq('provider', 'gemini')
+      .eq('is_active', true)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (keyError || !apiKeyData || !apiKeyData.api_key) {
+      throw new Error("Active Gemini API key not found for admin user");
+    }
+
+    const geminiApiKey = apiKeyData.api_key;
+
+    // 4. Panggil Gemini API (gemini-2.5-flash)
     const systemPrompt = `Kamu adalah seorang penulis blog pendidikan ahli dan pakar SEO Indonesia. 
 Tugasmu adalah menulis artikel blog SEO yang informatif, menarik, dan terstruktur untuk website ModulAjar.Online.
 Website ini menyediakan generator AI untuk Kurikulum Merdeka dan Kurikulum Berbasis Cinta (KBC) Kemenag.
@@ -88,51 +110,53 @@ Instruksi Konten:
 - Berikan intro yang memikat, isi yang daging (bermanfaat bagi guru), dan kesimpulan yang kuat.
 - Selipkan call-to-action (CTA) halus di akhir artikel untuk mengajak guru mencoba generator otomatis di ModulAjar.Online.`;
 
-    const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
+    const geminiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiApiKey}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': anthropicApiKey,
-        'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
-        model: 'claude-3-5-sonnet-20241022',
-        max_tokens: 4000,
-        temperature: 0.7,
-        system: systemPrompt,
-        messages: [
-          { role: 'user', content: userPrompt }
-        ]
+        contents: [
+          {
+            role: "user",
+            parts: [{ text: userPrompt }]
+          }
+        ],
+        systemInstruction: {
+          parts: [{ text: systemPrompt }]
+        },
+        generationConfig: {
+          temperature: 0.7,
+          responseMimeType: "application/json"
+        }
       })
     });
 
-    if (!claudeResponse.ok) {
-      const errText = await claudeResponse.text();
-      throw new Error(`Claude API Error: ${claudeResponse.status} - ${errText}`);
+    if (!geminiResponse.ok) {
+      const errText = await geminiResponse.text();
+      throw new Error(`Gemini API Error: ${geminiResponse.status} - ${errText}`);
     }
 
-    const claudeData = await claudeResponse.json();
-    const resultText = claudeData.content[0].text;
+    const geminiData = await geminiResponse.json();
+    const resultText = geminiData.candidates?.[0]?.content?.parts?.[0]?.text;
+
+    if (!resultText) {
+      throw new Error(`Invalid Gemini response format: ${JSON.stringify(geminiData)}`);
+    }
     
     // Parse JSON
     let parsedResult;
     try {
-      // Hilangkan awalan ```json dan akhiran ``` jika ada
-      let cleanText = resultText.trim();
-      if (cleanText.startsWith('```json')) cleanText = cleanText.substring(7);
-      if (cleanText.startsWith('```')) cleanText = cleanText.substring(3);
-      if (cleanText.endsWith('```')) cleanText = cleanText.substring(0, cleanText.length - 3);
-      
-      parsedResult = JSON.parse(cleanText.trim());
+      parsedResult = JSON.parse(resultText.trim());
     } catch (e) {
-      throw new Error(`Failed to parse Claude JSON response: ${resultText}`);
+      throw new Error(`Failed to parse Gemini JSON response: ${resultText}`);
     }
 
     if (!parsedResult.title || !parsedResult.content) {
-      throw new Error(`Incomplete JSON response from Claude: ${JSON.stringify(parsedResult)}`);
+      throw new Error(`Incomplete JSON response from Gemini: ${JSON.stringify(parsedResult)}`);
     }
 
-    // 4. Generate Slug dan Kalkulasi Reading Time
+    // 5. Generate Slug dan Kalkulasi Reading Time
     let slug = slugify(parsedResult.title);
     
     // Ensure slug is unique
@@ -158,7 +182,7 @@ Instruksi Konten:
     const wordCount = parsedResult.content.split(/\s+/).length;
     const readingTime = Math.max(1, Math.ceil(wordCount / 200));
 
-    // 5. Insert ke blog_articles
+    // 6. Insert ke blog_articles
     const { data: newArticle, error: insertError } = await supabase
       .from('blog_articles')
       .insert({
@@ -184,13 +208,13 @@ Instruksi Konten:
       throw new Error(`Error inserting blog article: ${insertError.message}`);
     }
 
-    // 6. Update queue status
+    // 7. Update queue status
     await supabase
       .from('seo_keyword_queue')
       .update({ status: 'done', article_id: newArticle.id })
       .eq('id', queueItem.id);
 
-    // 7. Log success
+    // 8. Log success
     await supabase
       .from('cron_job_logs')
       .insert({
