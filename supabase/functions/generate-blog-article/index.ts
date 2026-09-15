@@ -63,23 +63,19 @@ serve(async (req) => {
 
     console.log(`Processing keyword: ${queueItem.keyword}`);
 
-    // 3. Dapatkan Gemini API Key yang aktif dari database
-    const { data: apiKeyData, error: keyError } = await supabase
+    // 3. Dapatkan SEMUA Gemini API Key yang aktif dari database
+    const { data: activeKeys, error: keyError } = await supabase
       .from('user_api_keys')
       .select('api_key')
       .eq('provider', 'gemini')
       .eq('is_active', true)
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .maybeSingle();
+      .order('created_at', { ascending: false });
 
-    if (keyError || !apiKeyData || !apiKeyData.api_key) {
+    if (keyError || !activeKeys || activeKeys.length === 0) {
       throw new Error("No active Gemini API key found in the database. Please add one in Settings.");
     }
 
-    const geminiApiKey = apiKeyData.api_key;
-
-    // 4. Panggil Gemini API (gemini-2.5-flash)
+    // 4. Panggil Gemini API (gemini-2.5-flash) dengan fallback
     const systemPrompt = `Kamu adalah seorang penulis blog pendidikan ahli dan pakar SEO Indonesia. 
 Tugasmu adalah menulis artikel blog SEO yang informatif, menarik, dan terstruktur untuk website ModulAjar.Online.
 Website ini menyediakan generator AI untuk Kurikulum Merdeka dan Kurikulum Berbasis Cinta (KBC) Kemenag.
@@ -103,54 +99,77 @@ Instruksi Konten:
 - Berikan intro yang memikat, isi yang daging (bermanfaat bagi guru), dan kesimpulan yang kuat.
 - Selipkan call-to-action (CTA) halus di akhir artikel untuk mengajak guru mencoba generator otomatis di ModulAjar.Online.`;
 
-    const geminiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiApiKey}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        contents: [
-          {
-            role: "user",
-            parts: [{ text: userPrompt }]
-          }
-        ],
-        systemInstruction: {
-          parts: [{ text: systemPrompt }]
-        },
-        generationConfig: {
-          temperature: 0.7,
-          responseMimeType: "application/json"
+    let successData: any = null;
+    let lastErrorMsg = "";
+
+    // Loop through all active keys until one succeeds
+    for (const keyRow of activeKeys) {
+      const geminiApiKey = keyRow.api_key;
+      
+      try {
+        const geminiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiApiKey}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            contents: [
+              {
+                role: "user",
+                parts: [{ text: userPrompt }]
+              }
+            ],
+            systemInstruction: {
+              parts: [{ text: systemPrompt }]
+            },
+            generationConfig: {
+              temperature: 0.7,
+              responseMimeType: "application/json"
+            }
+          })
+        });
+
+        if (!geminiResponse.ok) {
+          const errText = await geminiResponse.text();
+          throw new Error(`Gemini API Error: ${geminiResponse.status} - ${errText}`);
         }
-      })
-    });
 
-    if (!geminiResponse.ok) {
-      const errText = await geminiResponse.text();
-      throw new Error(`Gemini API Error: ${geminiResponse.status} - ${errText}`);
+        const geminiData = await geminiResponse.json();
+        const resultText = geminiData.candidates?.[0]?.content?.parts?.[0]?.text;
+
+        if (!resultText) {
+          throw new Error(`Invalid Gemini response format: ${JSON.stringify(geminiData)}`);
+        }
+        
+        // Parse JSON
+        let parsedResult;
+        try {
+          parsedResult = JSON.parse(resultText.trim());
+        } catch (e) {
+          throw new Error(`Failed to parse Gemini JSON response: ${resultText}`);
+        }
+
+        if (!parsedResult.title || !parsedResult.content) {
+          throw new Error(`Incomplete JSON response from Gemini: ${JSON.stringify(parsedResult)}`);
+        }
+
+        // Berhasil!
+        successData = parsedResult;
+        break; 
+
+      } catch (err: any) {
+        lastErrorMsg = err.message;
+        console.warn(`Key ${geminiApiKey.substring(0, 10)}... failed: ${lastErrorMsg}`);
+        // Lanjut mencoba key berikutnya di array
+      }
     }
 
-    const geminiData = await geminiResponse.json();
-    const resultText = geminiData.candidates?.[0]?.content?.parts?.[0]?.text;
-
-    if (!resultText) {
-      throw new Error(`Invalid Gemini response format: ${JSON.stringify(geminiData)}`);
-    }
-    
-    // Parse JSON
-    let parsedResult;
-    try {
-      parsedResult = JSON.parse(resultText.trim());
-    } catch (e) {
-      throw new Error(`Failed to parse Gemini JSON response: ${resultText}`);
-    }
-
-    if (!parsedResult.title || !parsedResult.content) {
-      throw new Error(`Incomplete JSON response from Gemini: ${JSON.stringify(parsedResult)}`);
+    if (!successData) {
+      throw new Error(`All active Gemini API keys failed. Last error: ${lastErrorMsg}`);
     }
 
     // 5. Generate Slug dan Kalkulasi Reading Time
-    let slug = slugify(parsedResult.title);
+    let slug = slugify(successData.title);
     
     // Ensure slug is unique
     let isUnique = false;
@@ -172,7 +191,7 @@ Instruksi Konten:
     }
 
     // Hitung reading time kasar (asumsi 200 kata per menit)
-    const wordCount = parsedResult.content.split(/\s+/).length;
+    const wordCount = successData.content.split(/\s+/).length;
     const readingTime = Math.max(1, Math.ceil(wordCount / 200));
 
     // 6. Insert ke blog_articles
@@ -180,11 +199,11 @@ Instruksi Konten:
       .from('blog_articles')
       .insert({
         slug,
-        title: parsedResult.title,
-        meta_title: parsedResult.title, // Bisa diperpendek jika mau
-        meta_description: parsedResult.meta_description,
-        content: parsedResult.content,
-        excerpt: parsedResult.excerpt,
+        title: successData.title,
+        meta_title: successData.title, // Bisa diperpendek jika mau
+        meta_description: successData.meta_description,
+        content: successData.content,
+        excerpt: successData.excerpt,
         category: queueItem.category || 'Pendidikan',
         keyword_target: queueItem.keyword,
         status: 'published',
@@ -213,7 +232,7 @@ Instruksi Konten:
       .insert({
         job_name: 'generate_blog_article',
         status: 'success',
-        message: `Successfully generated article: ${parsedResult.title} (ID: ${newArticle.id}) from keyword: ${queueItem.keyword}`
+        message: `Successfully generated article: ${successData.title} (ID: ${newArticle.id}) from keyword: ${queueItem.keyword}`
       });
 
     return new Response(
