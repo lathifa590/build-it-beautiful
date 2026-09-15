@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { 
   ArrowLeft, Key, Eye, EyeOff, CheckCircle, XCircle, Loader2,
-  ExternalLink, AlertTriangle, Info, Plus, Trash2, Power, PowerOff, Sparkles
+  ExternalLink, AlertTriangle, Info, Plus, Trash2, Power, PowerOff, Sparkles, PlayCircle
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -166,6 +166,28 @@ const Settings = () => {
       </header>
 
       <main className="max-w-2xl mx-auto p-4 space-y-6">
+        
+        {/* Tutorial Banner */}
+        <div className="bg-primary/10 border-2 border-primary/30 rounded-xl p-4 flex flex-col sm:flex-row items-center gap-4 shadow-brutal-sm">
+          <div className="p-3 bg-primary text-primary-foreground rounded-lg border-2 border-foreground shrink-0">
+            <PlayCircle className="w-6 h-6" />
+          </div>
+          <div className="flex-1 text-center sm:text-left">
+            <h2 className="text-base font-bold text-foreground">Panduan Penggunaan Aplikasi</h2>
+            <p className="text-sm text-muted-foreground mt-1">
+              Masih bingung atau baru pertama kali mencoba? Tonton playlist tutorial lengkap kami di TikTok!
+            </p>
+          </div>
+          <a
+            href="https://vt.tiktok.com/ZS9SWpsy3tWcY-5ZlHa/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="shrink-0 bg-foreground text-background font-bold py-2 px-4 rounded-lg hover:bg-foreground/80 transition-colors flex items-center gap-2 text-sm"
+          >
+            <span>Tonton Tutorial</span>
+            <ExternalLink className="w-4 h-4" />
+          </a>
+        </div>
         {/* Provider Picker */}
         <div className="bg-card border-2 border-foreground rounded-xl p-6 shadow-brutal">
           <div className="flex items-center gap-3 mb-4">

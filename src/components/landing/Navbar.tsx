@@ -58,6 +58,12 @@ export const Navbar = () => {
             >
               Testimoni
             </button>
+            <Link
+              to="/blog"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Blog
+            </Link>
           </div>
 
           {/* Desktop CTA */}
@@ -112,6 +118,13 @@ export const Navbar = () => {
             >
               Testimoni
             </button>
+            <Link
+              to="/blog"
+              onClick={() => setIsMenuOpen(false)}
+              className="block w-full text-left px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
+            >
+              Blog
+            </Link>
             <div className="pt-3 space-y-2 px-4">
               <Link to="/auth" className="block">
                 <Button
