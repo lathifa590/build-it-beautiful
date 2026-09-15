@@ -24,6 +24,9 @@ import AdminAgencyPackages from "./pages/admin/AgencyPackages";
 import AdminAgencyOwners from "./pages/admin/AgencyOwners";
 import AdminAgencyPromos from "./pages/admin/AgencyPromos";
 import NotFound from "./pages/NotFound";
+import SEOPage from "./pages/landing/SEOPage";
+import BlogIndex from "./pages/blog/BlogIndex";
+import BlogDetail from "./pages/blog/BlogDetail";
 
 // Store Imports
 import StoreIndex from "./pages/store/StoreIndex";
@@ -46,6 +49,22 @@ const App = () => (
               <Routes>
                 {/* Public Landing Page */}
                 <Route path="/" element={<Landing />} />
+                
+                {/* SEO Landing Pages */}
+                <Route path="/generator-modul-ajar" element={<SEOPage explicitSlug="generator-modul-ajar" />} />
+                <Route path="/generator-rpp" element={<SEOPage explicitSlug="generator-rpp" />} />
+                <Route path="/generator-lkpd" element={<SEOPage explicitSlug="generator-lkpd" />} />
+                <Route path="/generator-asesmen" element={<SEOPage explicitSlug="generator-asesmen" />} />
+                <Route path="/kurikulum-merdeka" element={<SEOPage explicitSlug="kurikulum-merdeka" />} />
+                <Route path="/kurikulum-kbc" element={<SEOPage explicitSlug="kurikulum-kbc" />} />
+                <Route path="/rpp-madrasah" element={<SEOPage explicitSlug="rpp-madrasah" />} />
+                <Route path="/modul-ajar-mi" element={<SEOPage explicitSlug="modul-ajar-mi" />} />
+                <Route path="/modul-ajar-mts" element={<SEOPage explicitSlug="modul-ajar-mts" />} />
+                <Route path="/modul-ajar-ma" element={<SEOPage explicitSlug="modul-ajar-ma" />} />
+                
+                {/* Blog Routes */}
+                <Route path="/blog" element={<BlogIndex />} />
+                <Route path="/blog/:slug" element={<BlogDetail />} />
                 
                 {/* Auth routes */}
                 <Route path="/auth" element={<Auth />} />

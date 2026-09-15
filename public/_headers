@@ -1,0 +1,10 @@
+/generator-*
+  Cache-Control: public, max-age=86400
+/kurikulum-*
+  Cache-Control: public, max-age=86400
+/rpp-*
+  Cache-Control: public, max-age=86400
+/modul-ajar-*
+  Cache-Control: public, max-age=86400
+/blog/*
+  Cache-Control: public, max-age=3600
