@@ -63,17 +63,10 @@ serve(async (req) => {
 
     console.log(`Processing keyword: ${queueItem.keyword}`);
 
-    // 3. Dapatkan Gemini API Key dari akun admin
-    const { data: adminUsers, error: adminError } = await supabase.auth.admin.listUsers();
-    if (adminError) throw new Error(`Error fetching users: ${adminError.message}`);
-    
-    const adminUser = adminUsers.users.find(u => u.email === 'pakhusnulid@gmail.com');
-    if (!adminUser) throw new Error("Admin user pakhusnulid@gmail.com not found");
-
+    // 3. Dapatkan Gemini API Key yang aktif dari database
     const { data: apiKeyData, error: keyError } = await supabase
       .from('user_api_keys')
       .select('api_key')
-      .eq('user_id', adminUser.id)
       .eq('provider', 'gemini')
       .eq('is_active', true)
       .order('created_at', { ascending: false })
@@ -81,7 +74,7 @@ serve(async (req) => {
       .maybeSingle();
 
     if (keyError || !apiKeyData || !apiKeyData.api_key) {
-      throw new Error("Active Gemini API key not found for admin user");
+      throw new Error("No active Gemini API key found in the database. Please add one in Settings.");
     }
 
     const geminiApiKey = apiKeyData.api_key;
