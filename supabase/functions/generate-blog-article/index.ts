@@ -25,11 +25,11 @@ serve(async (req) => {
 
   try {
     // 1. Inisialisasi Supabase Client (Service Role agar bypass RLS)
-    const supabaseUrl = Deno.env.get('SUPABASE_URL') || '';
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
+    const supabaseUrl = Deno.env.get('SUPABASE_URL') || Deno.env.get('CUSTOM_SUPABASE_URL') || '';
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || Deno.env.get('CUSTOM_SERVICE_ROLE_KEY') || '';
     
     if (!supabaseUrl || !supabaseKey) {
-      throw new Error("Missing environment variables: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY");
+      throw new Error("Missing environment variables: SUPABASE_URL or CUSTOM_SUPABASE_URL, and SERVICE_ROLE_KEY");
     }
 
     const supabase = createClient(supabaseUrl, supabaseKey);
