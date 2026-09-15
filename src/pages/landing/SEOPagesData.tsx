@@ -1,5 +1,6 @@
 import React from 'react';
 import { LandingPageProps } from './LandingPageTemplate';
+import { CheckCircle2 } from 'lucide-react';
 
 export const SEOPagesData: Record<string, Omit<LandingPageProps, 'slug'>> = {
   'generator-modul-ajar': {
