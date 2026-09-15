@@ -80,7 +80,8 @@ import { usePertemuanGeneration } from '@/hooks/usePertemuanGeneration';
 import { PertemuanResultNavigator } from '@/components/modul/PertemuanResultNavigator';
 import { V2ExportDialog } from '@/components/modul/V2ExportDialog';
 import { ExportFormatDialog } from '@/components/modul/ExportFormatDialog';
-import type { OutputFormat } from '@/types/export-format';
+import { OutputFormat, OUTPUT_FORMAT_LABELS } from '@/types/export-format';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useV2Export } from '@/hooks/useV2Export';
 import { normalizeBankSoalImages } from '@/lib/bank-soal-normalize';
 import { buildContextKey, pickContextFields, JENIS_DOKUMEN_ORDER } from '@/lib/pertemuan-generation';
@@ -2728,16 +2729,14 @@ img{max-width:100%}
           outputFormatRef.current = format;
           setOutputFormat(format);
           setShowExportFormatDialog(false);
-          // Wait two animation frames to ensure React has fully re-rendered the DOM
+          // Wait enough time for React to completely re-render the huge DocumentPreview DOM
           // with the new outputFormat before we snapshot it for export.
-          requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-              if (exportTarget === 'pdf') exportToPDF();
-              else if (exportTarget === 'all') exportToWord(format);
-              else if (activeTab === 'soal') exportSoalDocx();
-              else exportCurrentTab(format);
-            });
-          });
+          setTimeout(() => {
+            if (exportTarget === 'pdf') exportToPDF();
+            else if (exportTarget === 'all') exportToWord(format);
+            else if (activeTab === 'soal') exportSoalDocx();
+            else exportCurrentTab(format);
+          }, 500);
         }}
       />
       <SaveProfileModal
@@ -3506,6 +3505,29 @@ img{max-width:100%}
                   }
                   onOpenSoalModal={handleV2OpenSoalModal}
                   renderDokumen={({ jenis, dokumen }) => (
+                    <div className="flex flex-col h-full relative">
+                      {/* Format Selector UI */}
+                      <div className="flex justify-end mb-4 print:hidden" data-no-export="true">
+                        <div className="flex items-center space-x-2 bg-background p-2 rounded-lg border shadow-sm">
+                          <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">Tampilan:</span>
+                          <Select value={outputFormat} onValueChange={(val: OutputFormat) => {
+                            setOutputFormat(val);
+                            outputFormatRef.current = val;
+                            localStorage.setItem('modulajar_export_format', val);
+                          }}>
+                            <SelectTrigger className="w-[200px] h-8 text-sm bg-background border-input hover:bg-accent focus:ring-1 focus:ring-ring">
+                              <SelectValue placeholder="Pilih Tampilan" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {Object.entries(OUTPUT_FORMAT_LABELS).map(([key, label]) => (
+                                <SelectItem key={key} value={key}>
+                                  {label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
                     <DocumentPreview
                       contentRef={contentRef}
                       activeTab={V2_TAB_MAP[jenis]}
@@ -3547,10 +3569,33 @@ img{max-width:100%}
                       generatingPertemuanIndex={null}
                       v2Mode={true}
                     />
+                    </div>
                   )}
                 />
               ) : (
-              <div className="flex-1 overflow-y-auto p-4 md:p-8 pb-24 md:pb-8">
+              <div className="flex-1 overflow-y-auto p-4 md:p-8 pb-24 md:pb-8 relative">
+                {/* Format Selector UI */}
+                <div className="flex justify-end mb-4 print:hidden" data-no-export="true">
+                  <div className="flex items-center space-x-2 bg-background p-2 rounded-lg border shadow-sm">
+                    <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">Tampilan:</span>
+                          <Select value={outputFormat} onValueChange={(val: OutputFormat) => {
+                            setOutputFormat(val);
+                            outputFormatRef.current = val;
+                            localStorage.setItem('modulajar_export_format', val);
+                          }}>
+                      <SelectTrigger className="w-[200px] h-8 text-sm bg-background border-input hover:bg-accent focus:ring-1 focus:ring-ring">
+                        <SelectValue placeholder="Pilih Tampilan" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Object.entries(OUTPUT_FORMAT_LABELS).map(([key, label]) => (
+                          <SelectItem key={key} value={key}>
+                            {label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
                 <DocumentPreview
                   contentRef={contentRef}
                   activeTab={activeTab}

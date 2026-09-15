@@ -1,6 +1,8 @@
 import React from 'react';
 import { LandingPageProps } from './LandingPageTemplate';
 import { CheckCircle2 } from 'lucide-react';
+import { KurikulumKBCContent } from './components/KurikulumKBCContent';
+import { RPPMadrasahContent } from './components/RPPMadrasahContent';
 
 export const SEOPagesData: Record<string, Omit<LandingPageProps, 'slug'>> = {
   'generator-modul-ajar': {
@@ -82,34 +84,10 @@ export const SEOPagesData: Record<string, Omit<LandingPageProps, 'slug'>> = {
     h1: "Generator Modul Ajar & RPP Kurikulum KBC untuk Madrasah",
     subheadline: "Satu-satunya AI yang dirancang khusus memahami struktur Kurikulum Berbasis Cinta (KBC) Kemenag. Lengkap dengan integrasi nilai-nilai Panca Cinta.",
     showKbcBadge: true,
-    customContent: (
-      <div className="space-y-6">
-        <div>
-          <h2 className="text-2xl font-bold text-slate-800 mb-3">Apa itu Kurikulum Berbasis Cinta (KBC)?</h2>
-          <p className="text-slate-600 leading-relaxed">
-            Kurikulum Berbasis Cinta (KBC) adalah kurikulum resmi yang diusung oleh Kementerian Agama Republik Indonesia (Kemenag) untuk diaplikasikan di Madrasah (MI, MTs, dan MA). Kurikulum ini menekankan pendidikan karakter yang berakar pada kasih sayang dan spiritualitas keagamaan (Panca Cinta).
-          </p>
-        </div>
-        
-        <div>
-          <h2 className="text-2xl font-bold text-slate-800 mb-3">Mata Pelajaran Madrasah yang Didukung</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
-            {['Akidah Akhlak', 'Al-Quran Hadis', 'Fikih', 'SKI (Sejarah Kebudayaan Islam)', 'Bahasa Arab', 'Matematika', 'IPA / IPS', 'Bahasa Indonesia'].map((mapel, i) => (
-              <div key={i} className="bg-emerald-50 text-emerald-800 font-medium px-4 py-3 rounded-lg border border-emerald-100 text-center">
-                {mapel}
-              </div>
-            ))}
-          </div>
-        </div>
-        
-        <div className="mt-8">
-          <h2 className="text-2xl font-bold text-slate-800 mb-3">KBC vs Kurikulum Merdeka</h2>
-          <p className="text-slate-600 leading-relaxed mb-4">
-            Meskipun sama-sama mengusung semangat kemerdekaan belajar, KBC memiliki kekhasan pada insersi nilai-nilai spiritualitas dan kasih sayang dalam setiap langkah pembelajaran, yang tidak ditemukan secara eksplisit dalam Kurikulum Merdeka Kemendikbud.
-          </p>
-        </div>
-      </div>
-    ),
+    ctaText: "Buat RPP KBC Gratis Sekarang →",
+    bottomCtaText: "Buat RPP KBC Gratis Sekarang →",
+    ctaClassName: "bg-[#15803d] hover:bg-[#111] shadow-[3px_3px_0_#111] text-white",
+    customContent: <KurikulumKBCContent />,
     faqs: [
       { question: "Apa itu KBC Kemenag?", answer: "KBC singkatan dari Kurikulum Berbasis Cinta, sebuah terobosan Kemenag untuk menciptakan ekosistem madrasah yang ramah, penuh kasih, dan sarat nilai spiritual." },
       { question: "Apa bedanya KBC dengan Kurikulum Merdeka?", answer: "Perbedaan utamanya terletak pada landasan filosofis Panca Cinta dan struktur mata pelajaran agama yang lebih detail di KBC." },
@@ -128,7 +106,11 @@ export const SEOPagesData: Record<string, Omit<LandingPageProps, 'slug'>> = {
         "@context": "https://schema.org",
         "@type": "FAQPage",
         "mainEntity": [
-          { "@type": "Question", "name": "Apa itu KBC Kemenag?", "acceptedAnswer": { "@type": "Answer", "text": "Kurikulum Berbasis Cinta untuk madrasah." } }
+          { "@type": "Question", "name": "Apa itu KBC Kemenag?", "acceptedAnswer": { "@type": "Answer", "text": "KBC singkatan dari Kurikulum Berbasis Cinta, sebuah terobosan Kemenag untuk menciptakan ekosistem madrasah yang ramah, penuh kasih, dan sarat nilai spiritual." } },
+          { "@type": "Question", "name": "Apa bedanya KBC dengan Kurikulum Merdeka?", "acceptedAnswer": { "@type": "Answer", "text": "Perbedaan utamanya terletak pada landasan filosofis Panca Cinta dan struktur mata pelajaran agama yang lebih detail di KBC." } },
+          { "@type": "Question", "name": "Apakah ModulAjar.Online support KBC?", "acceptedAnswer": { "@type": "Answer", "text": "Ya, kami adalah salah satu platform AI pertama yang memiliki opsi khusus untuk format dokumen dan alur pedagogi KBC." } },
+          { "@type": "Question", "name": "Jenjang apa saja yang menggunakan KBC?", "acceptedAnswer": { "@type": "Answer", "text": "MI (Madrasah Ibtidaiyah), MTs (Madrasah Tsanawiyah), dan MA (Madrasah Aliyah)." } },
+          { "@type": "Question", "name": "Apakah RPP KBC berbeda dengan RPP biasa?", "acceptedAnswer": { "@type": "Answer", "text": "Ya, RPP KBC mewajibkan adanya insersi nilai-nilai kasih sayang dan pendekatan spiritual di dalam pendahuluan, inti, hingga penutup pembelajaran." } }
         ]
       }
     ])
@@ -139,19 +121,36 @@ export const SEOPagesData: Record<string, Omit<LandingPageProps, 'slug'>> = {
     h1: "Generator RPP & Modul Ajar Madrasah (MI, MTs, MA) Otomatis",
     subheadline: "Susun perangkat pembelajaran khas Madrasah secara cepat. Mendukung mata pelajaran keagamaan seperti Fikih, SKI, Akidah Akhlak dengan dalil-dalil otomatis.",
     showKbcBadge: true,
-    customContent: (
-      <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-6 my-8">
-        <h3 className="text-xl font-bold text-indigo-900 mb-2 flex items-center gap-2">
-          <CheckCircle2 className="w-6 h-6 text-indigo-600" /> Mendukung KBC (Kurikulum Berbasis Cinta) Kemenag
-        </h3>
-        <p className="text-indigo-800">
-          ModulAjar.Online sudah dioptimalkan untuk memahami nomenklatur dan pedoman terbaru dari Kementerian Agama untuk seluruh jenjang madrasah di Indonesia.
-        </p>
-      </div>
-    ),
+    ctaText: "Generate Modul Ajar Madrasah →",
+    bottomCtaText: "Generate Modul Ajar Madrasah →",
+    ctaClassName: "bg-[#15803d] hover:bg-[#111] shadow-[3px_3px_0_#111] text-white",
+    customContent: <RPPMadrasahContent />,
     faqs: [
-      { question: "Apakah bisa meng-generate RPP untuk Mapel Umum di Madrasah?", answer: "Tentu, selain mata pelajaran agama, sistem kami sangat mumpuni untuk mapel umum seperti Matematika atau IPA di lingkungan Madrasah." }
-    ]
+      { question: "Apakah RPP KBC berbeda dengan RPP Kurikulum Merdeka?", answer: "Ya, RPP KBC mewajibkan adanya insersi nilai-nilai kasih sayang dan spiritual di dalam pendahuluan, inti, hingga penutup pembelajaran." },
+      { question: "Bagaimana cara membuat RPP KBC di ModulAjar.Online?", answer: "Sangat mudah. Anda hanya perlu memilih jenjang madrasah (MI/MTs/MA), lalu memasukkan topik pelajaran. Sistem kami otomatis mengonfigurasi output sesuai SK Dirjen Pendis." },
+      { question: "Apakah dalil Al-Quran dan Hadis otomatis masuk ke RPP?", answer: "Tentu. Ini adalah fitur unggulan kami. AI akan mencari dan menyisipkan dalil yang paling relevan dengan topik (misalnya QS. Al-Baqarah: 43 untuk topik Zakat) lengkap dengan terjemahannya." },
+      { question: "Berapa lama membuat RPP KBC dengan AI?", answer: "Kurang dari 30 detik. RPP langsung siap diunduh dalam format Word (Docx) dan siap untuk dicetak atau disunting." },
+      { question: "Apakah bisa untuk semua mapel madrasah?", answer: "Ya, kami mendukung mapel umum (Matematika, IPA) maupun mapel agama (Fikih, SKI, Qur'an Hadis, Akidah Akhlak, Bahasa Arab)." }
+    ],
+    schema: JSON.stringify([
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Generator RPP Madrasah",
+        "applicationCategory": "EducationalApplication"
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          { "@type": "Question", "name": "Apakah RPP KBC berbeda dengan RPP Kurikulum Merdeka?", "acceptedAnswer": { "@type": "Answer", "text": "Ya, RPP KBC mewajibkan adanya insersi nilai-nilai kasih sayang dan spiritual di dalam pendahuluan, inti, hingga penutup pembelajaran." } },
+          { "@type": "Question", "name": "Bagaimana cara membuat RPP KBC di ModulAjar.Online?", "acceptedAnswer": { "@type": "Answer", "text": "Sangat mudah. Anda hanya perlu memilih jenjang madrasah (MI/MTs/MA), lalu memasukkan topik pelajaran. Sistem kami otomatis mengonfigurasi output sesuai SK Dirjen Pendis." } },
+          { "@type": "Question", "name": "Apakah dalil Al-Quran dan Hadis otomatis masuk ke RPP?", "acceptedAnswer": { "@type": "Answer", "text": "Tentu. Ini adalah fitur unggulan kami. AI akan mencari dan menyisipkan dalil yang paling relevan dengan topik (misalnya QS. Al-Baqarah: 43 untuk topik Zakat) lengkap dengan terjemahannya." } },
+          { "@type": "Question", "name": "Berapa lama membuat RPP KBC dengan AI?", "acceptedAnswer": { "@type": "Answer", "text": "Kurang dari 30 detik. RPP langsung siap diunduh dalam format Word (Docx) dan siap untuk dicetak atau disunting." } },
+          { "@type": "Question", "name": "Apakah bisa untuk semua mapel madrasah?", "acceptedAnswer": { "@type": "Answer", "text": "Ya, kami mendukung mapel umum (Matematika, IPA) maupun mapel agama (Fikih, SKI, Qur'an Hadis, Akidah Akhlak, Bahasa Arab)." } }
+        ]
+      }
+    ])
   },
   'modul-ajar-mi': {
     seoTitle: "Modul Ajar MI (Madrasah Ibtidaiyah) Otomatis AI | ModulAjar.Online",

@@ -656,6 +656,153 @@ const renderLangkahTable = (
   );
 };
 
+const renderTahapNarasi = (
+  tahap: any,
+  tahapLabel: string,
+  outputFormat: string
+) => {
+  if (!tahap) return null;
+  const isPanduan = outputFormat === 'panduan';
+  
+  // For 3-phase inti
+  if (tahapLabel === 'Inti' && hasFaseInti(tahap)) {
+    const faseList = tahap.fase_pembelajaran || [];
+    return (
+      <div style={{ marginBottom: '12px' }}>
+        <h4 style={{ fontWeight: 'bold', fontSize: '11pt', margin: '8px 0 4px 0', color: '#1e40af' }}>&gt; TAHAP INTI: {tahap.judul} ({tahap.durasi_total})</h4>
+        {faseList.map((fase: any, fIdx: number) => (
+          <div key={fIdx} style={{ marginLeft: '12px', marginBottom: '8px' }}>
+            <div style={{ fontWeight: 'bold', fontSize: '10.5pt', marginBottom: '4px' }}>Fase {fIdx + 1}: {fase.nama_fase}</div>
+            {(fase.sintaks || []).map((k: any, i: number) => (
+              <div key={i} style={{ marginBottom: '6px' }}>
+                {isPanduan ? (
+                  <div style={{ display: 'flex', alignItems: 'flex-start' }}>
+                    <div style={{ width: '16px', height: '16px', border: '1px solid black', marginRight: '8px', marginTop: '2px', flexShrink: 0 }}></div>
+                    <div>
+                      <strong>{k.sintaks}</strong> ({k.durasi})
+                      {k.sub_kegiatan?.map((sub: any, j: number) => (
+                        <div key={j} style={{ marginLeft: '12px', marginTop: '2px', fontSize: '0.95em' }}>- {sub.judul}</div>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div style={{ marginLeft: '8px' }}>
+                    <strong>{k.sintaks}</strong> ({k.durasi})
+                    {k.sub_kegiatan?.map((sub: any, j: number) => (
+                      <div key={j} style={{ marginLeft: '12px', marginTop: '4px' }}>
+                        <div style={{ fontWeight: 500 }}>• {sub.judul}</div>
+                        {sub.aktivitas && sub.aktivitas.length > 0 && (
+                          <ul style={{ margin: '2px 0 4px 16px', listStyleType: 'disc' }}>
+                            {sub.aktivitas.map((a: any, idx: number) => <li key={idx} style={{ fontSize: '0.95em' }}>{formatRichText(a)}</li>)}
+                          </ul>
+                        )}
+                        {!sub.aktivitas && sub.aktivitas_guru && (
+                          <ul style={{ margin: '2px 0 4px 16px', listStyleType: 'disc' }}>
+                            {sub.aktivitas_guru.map((ag: any, idx: number) => <li key={idx} style={{ fontSize: '0.95em' }}>{formatRichText(ag)}</li>)}
+                          </ul>
+                        )}
+                        {sub.pertanyaan_pemantik && sub.pertanyaan_pemantik.length > 0 && (
+                          <div style={{ fontStyle: 'italic', color: '#d97706', fontSize: '0.9em', marginLeft: '16px' }}>💡 {sub.pertanyaan_pemantik.map((p: string) => `"${p}"`).join(', ')}</div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+    );
+  }
+  
+  // Standard rendering
+  const kegiatan = tahap.kegiatan || tahap; // handles legacy array
+  const kList = Array.isArray(kegiatan) ? kegiatan : [];
+  if (kList.length === 0) return null;
+  
+  return (
+    <div style={{ marginBottom: '12px' }}>
+      <h4 style={{ fontWeight: 'bold', fontSize: '11pt', margin: '8px 0 4px 0', color: '#1e40af' }}>&gt; TAHAP {tahapLabel.toUpperCase()}</h4>
+      {kList.map((k: any, i: number) => (
+        <div key={i} style={{ marginBottom: '6px', marginLeft: '12px' }}>
+          {isPanduan ? (
+            <div style={{ display: 'flex', alignItems: 'flex-start' }}>
+              <div style={{ width: '16px', height: '16px', border: '1px solid black', marginRight: '8px', marginTop: '2px', flexShrink: 0 }}></div>
+              <div>
+                <strong>{k.sintaks || k.kegiatan}</strong> ({k.durasi})
+                {k.sub_kegiatan?.map((sub: any, j: number) => (
+                  <div key={j} style={{ marginLeft: '12px', marginTop: '2px', fontSize: '0.95em' }}>- {sub.judul}</div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div>
+              <strong>{k.sintaks || k.kegiatan}</strong> ({k.durasi})
+              {k.sub_kegiatan?.map((sub: any, j: number) => (
+                <div key={j} style={{ marginLeft: '12px', marginTop: '4px' }}>
+                  <div style={{ fontWeight: 500 }}>• {sub.judul}</div>
+                  {sub.aktivitas && sub.aktivitas.length > 0 && (
+                    <ul style={{ margin: '2px 0 4px 16px', listStyleType: 'disc' }}>
+                      {sub.aktivitas.map((a: any, idx: number) => <li key={idx} style={{ fontSize: '0.95em' }}>{formatRichText(a)}</li>)}
+                    </ul>
+                  )}
+                  {!sub.aktivitas && sub.aktivitas_guru && (
+                    <ul style={{ margin: '2px 0 4px 16px', listStyleType: 'disc' }}>
+                      {sub.aktivitas_guru.map((ag: any, idx: number) => <li key={idx} style={{ fontSize: '0.95em' }}>{formatRichText(ag)}</li>)}
+                    </ul>
+                  )}
+                  {sub.pertanyaan_pemantik && sub.pertanyaan_pemantik.length > 0 && (
+                    <div style={{ fontStyle: 'italic', color: '#d97706', fontSize: '0.9em', marginLeft: '16px' }}>💡 {sub.pertanyaan_pemantik.map((p: string) => `"${p}"`).join(', ')}</div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+const renderPertemuanAsNarasi = (pertemuan: any, index: number, outputFormat: string, isDetailed: boolean) => {
+  const isPerPertemuan = outputFormat === 'per-pertemuan' || outputFormat === 'modular';
+  const pageBreakStyle = isPerPertemuan ? { pageBreakBefore: 'always', marginTop: '20px' } : { marginTop: '20px' };
+  
+  return (
+    <div key={`pert-narasi-${index}`} style={{ ...(pageBreakStyle as any), marginBottom: '30px' }}>
+      {isPerPertemuan && (
+        <div style={{ textAlign: 'center', borderBottom: '3px solid black', borderTop: '3px solid black', padding: '12px 0', marginBottom: '20px' }}>
+          <h2 style={{ fontSize: '16pt', fontWeight: 'bold', margin: 0 }}>PERTEMUAN {pertemuan.nomorPertemuan}</h2>
+          <div style={{ fontSize: '12pt', fontStyle: 'italic' }}>
+            Waktu: {pertemuan.durasi} Menit | Fokus: {isDetailed ? (pertemuan.tahap_inti?.judul || 'Materi Utama') : 'Materi Utama'}
+          </div>
+        </div>
+      )}
+      {!isPerPertemuan && (
+        <h3 style={{ fontSize: '13pt', fontWeight: 'bold', borderBottom: '2px solid #e2e8f0', paddingBottom: '4px', marginBottom: '12px', marginTop: index > 0 ? '24px' : '0' }}>
+          PERTEMUAN {pertemuan.nomorPertemuan} ({pertemuan.durasi} Menit)
+        </h3>
+      )}
+      
+      {isDetailed ? (
+        <>
+          {renderTahapNarasi(pertemuan.tahap_awal, 'Pendahuluan', outputFormat)}
+          {renderTahapNarasi(pertemuan.tahap_inti, 'Inti', outputFormat)}
+          {renderTahapNarasi(pertemuan.tahap_penutup, 'Penutup', outputFormat)}
+        </>
+      ) : (
+        <>
+          {renderTahapNarasi(pertemuan.pembukaan, 'Pendahuluan', outputFormat)}
+          {renderTahapNarasi(pertemuan.inti, 'Inti', outputFormat)}
+          {renderTahapNarasi(pertemuan.penutup, 'Penutup', outputFormat)}
+        </>
+      )}
+    </div>
+  );
+};
+
+
 export const DocumentPreview = ({
   contentRef,
   activeTab,
@@ -717,6 +864,15 @@ export const DocumentPreview = ({
   const isMultiPertemuan = safePertemuan.length > 1;
   const metode_pembelajaran_data = (generatedSteps as any)?.metode_pembelajaran || (safePertemuan[0] as any)?.metode_pembelajaran || formData?.metodePembelajaran;
 
+  // Format view helpers
+  const isRingkasan = outputFormat === 'ringkasan';
+  const isPanduan = outputFormat === 'panduan';
+  const isMinimalis = outputFormat === 'minimalis';
+  const isPerPertemuan = outputFormat === 'per-pertemuan';
+  const isModular = outputFormat === 'modular';
+  const isTabel = outputFormat === 'tabel' || (!isRingkasan && !isPanduan && !isMinimalis && !isPerPertemuan && !isModular);
+  const isNarasi = !isTabel;
+
   // Always use Word-compatible math formatter for consistency
   const mathFormatter = formatMathTextSimple;
 
@@ -771,8 +927,76 @@ export const DocumentPreview = ({
           </div>
         )}
 
-        {/* Identifikasi Table or Minimalis */}
-        {outputFormat === 'minimalis' ? (
+                
+        {isPanduan && (
+          <div style={{ marginBottom: '24px' }}>
+             <div style={{ display: 'flex', justifyContent: 'space-between', border: '1.5px solid black', padding: '12px', borderRadius: '4px', backgroundColor: '#fef9c3', breakInside: 'avoid' }}>
+                <div style={{ flex: 1 }}>
+                   <div style={{ fontWeight: 'bold', fontSize: '12pt', marginBottom: '6px', color: '#854d0e' }}>📋 PANDUAN MENGAJAR (QUICK GUIDE)</div>
+                   <div style={{ fontSize: '10.5pt' }}>
+                     <div style={{ marginBottom: '4px' }}><strong>Guru:</strong> {formData.namaPenyusun}</div>
+                     <div style={{ marginBottom: '4px' }}><strong>Materi:</strong> {formData.materi}</div>
+                     <div><strong>Waktu:</strong> {formData.pertemuan.length} Pertemuan ({getTotalDurasi(formData)} Menit)</div>
+                   </div>
+                </div>
+                <div style={{ flex: 1, borderLeft: '1.5px solid black', paddingLeft: '16px', fontSize: '10pt' }}>
+                   <strong style={{ color: '#854d0e' }}>Ceklist Persiapan:</strong>
+                   <ul style={{ margin: '4px 0 0 0', paddingLeft: '20px', listStyleType: 'none', marginLeft: '-16px' }}>
+                      <li style={{ marginBottom: '4px' }}>[ &nbsp; ] Pahami sintaks dan langkah kegiatan</li>
+                      <li style={{ marginBottom: '4px' }}>[ &nbsp; ] Siapkan & gandakan LKPD</li>
+                      <li style={{ marginBottom: '4px' }}>[ &nbsp; ] Cek kesiapan alat/media/proyektor</li>
+                      <li>[ &nbsp; ] Siapkan rubrik asesmen</li>
+                   </ul>
+                </div>
+             </div>
+          </div>
+        )}
+
+{/* Identifikasi Display Logic */}
+        {!isPanduan && isRingkasan && (
+          <div style={{ marginBottom: '20px', fontSize: '10pt' }}>
+            <h3 style={{ fontSize: '11pt', fontWeight: 'bold', borderBottom: '1px solid black', paddingBottom: '4px', marginBottom: '8px' }}>I. IDENTIFIKASI</h3>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px 12px', marginBottom: '8px' }}>
+              <span style={{ marginRight: '12px' }}><strong>Penyusun:</strong> {formData.namaPenyusun}</span>
+              <span style={{ marginRight: '12px' }}><strong>Sekolah:</strong> {formData.sekolah}</span>
+              <span style={{ marginRight: '12px' }}><strong>Mapel:</strong> {formData.mataPelajaran}</span>
+              <span style={{ marginRight: '12px' }}><strong>Kelas/Fase:</strong> {formData.kelas} / {formData.fase}</span>
+              <span style={{ marginRight: '12px' }}><strong>Materi:</strong> {formData.materi} {formData.subMateri && `- ${formData.subMateri}`}</span>
+              <span><strong>Pertemuan:</strong> {formData.pertemuan.length} ({getTotalDurasi(formData)} Menit)</span>
+            </div>
+            <div style={{ fontStyle: 'italic', color: '#4b5563', marginTop: '8px', padding: '8px', backgroundColor: '#f8fafc', borderRadius: '4px' }}>
+              <strong>Profil Siswa:</strong> Memiliki pengetahuan awal {formData.aspekPengetahuanAwal?.toLowerCase() || '-'}, dengan minat pada {formData.aspekMinat?.toLowerCase() || '-'}, dan latar belakang {formData.aspekLatarBelakang?.toLowerCase() || '-'}. Kebutuhan belajar: {formData.aspekKebutuhanBelajar?.toLowerCase() || '-'}.
+            </div>
+          </div>
+        )}
+
+        {!isPanduan && (isPerPertemuan || isModular) && (
+          <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '20px', fontSize: '10.5pt' }}>
+            <tbody>
+              <tr>
+                <td colSpan={2} style={{ borderBottom: '2px solid black', paddingBottom: '4px', fontWeight: 'bold', fontSize: '12pt' }}>I. IDENTIFIKASI DASAR</td>
+              </tr>
+              <tr>
+                <td style={{ padding: '6px 0', width: '30%', verticalAlign: 'top', fontWeight: 'bold' }}>Penyusun & Sekolah</td>
+                <td style={{ padding: '6px 0', verticalAlign: 'top' }}>{formData.namaPenyusun} — {formData.sekolah}</td>
+              </tr>
+              <tr>
+                <td style={{ borderTop: '1px solid #e2e8f0', padding: '6px 0', verticalAlign: 'top', fontWeight: 'bold' }}>Mata Pelajaran</td>
+                <td style={{ borderTop: '1px solid #e2e8f0', padding: '6px 0', verticalAlign: 'top' }}>{formData.mataPelajaran} (Kelas {formData.kelas} / Fase {formData.fase})</td>
+              </tr>
+              <tr>
+                <td style={{ borderTop: '1px solid #e2e8f0', padding: '6px 0', verticalAlign: 'top', fontWeight: 'bold' }}>Materi Pokok</td>
+                <td style={{ borderTop: '1px solid #e2e8f0', padding: '6px 0', verticalAlign: 'top' }}>{formData.materi} {formData.subMateri && `- ${formData.subMateri}`}</td>
+              </tr>
+              <tr>
+                <td style={{ borderTop: '1px solid #e2e8f0', padding: '6px 0', verticalAlign: 'top', fontWeight: 'bold' }}>Alokasi Waktu</td>
+                <td style={{ borderTop: '1px solid #e2e8f0', padding: '6px 0', verticalAlign: 'top' }}>{formData.pertemuan.length} Pertemuan ({getTotalDurasi(formData)} Menit)</td>
+              </tr>
+            </tbody>
+          </table>
+        )}
+
+        {!isPanduan && isMinimalis && (
           <div style={{ marginBottom: '20px' }}>
             <h3 style={{ fontSize: '12pt', fontWeight: 'bold', borderBottom: '1px solid black', paddingBottom: '4px', marginBottom: '8px' }}>I. IDENTIFIKASI DASAR</h3>
             <div style={{ paddingLeft: '8px', marginBottom: '16px' }}>
@@ -801,7 +1025,7 @@ export const DocumentPreview = ({
               <div style={{ marginBottom: '4px' }}><strong>Metakognitif:</strong> {formData.materiPengetahuan?.metakognitif || '-'}</div>
               <div style={{ marginBottom: '4px', marginTop: '8px' }}><strong>Kaitan dengan Kehidupan:</strong> {formData.kaitanKehidupan || '-'}</div>
             </div>
-
+            
             <h3 style={{ fontSize: '12pt', fontWeight: 'bold', borderBottom: '1px solid black', paddingBottom: '4px', marginBottom: '8px' }}>IV. INTEGRASI NILAI & KARAKTER</h3>
             <div style={{ paddingLeft: '8px', marginBottom: '16px' }}>
               <div><strong>Nilai Karakter:</strong> {formData.nilaiKarakter && formData.nilaiKarakter.length > 0 ? formData.nilaiKarakter.join(', ') : '-'}</div>
@@ -835,7 +1059,7 @@ export const DocumentPreview = ({
                   <div style={{ marginBottom: '4px' }}><strong>Elemen Cinta yang Dikembangkan:</strong></div>
                   {(formData as any).topikPancaCinta && (formData as any).topikPancaCinta.length > 0 ? (
                     <ul style={{ margin: '4px 0', paddingLeft: '20px' }}>
-                      {(formData as any).topikPancaCinta.map((elemen: string, idx: number) => {
+                      {(formData as any).topikPancaCinta.map((elemen, idx) => {
                         const desc = (formData as any).topikPancaCintaDeskripsi?.[elemen];
                         return (
                           <li key={idx} style={{ marginBottom: desc ? '6px' : '0' }}>
@@ -859,264 +1083,267 @@ export const DocumentPreview = ({
               </>
             )}
           </div>
-        ) : (
-          <table
-          style={{
-            width: '100%',
-            borderCollapse: 'collapse',
-            border: '1px solid black',
-            marginBottom: '20px',
-            tableLayout: 'fixed',
-          }}
-        >
-          <colgroup>
-            <col style={{ width: '30%' }} />
-            <col style={{ width: '70%' }} />
-          </colgroup>
-          <tbody>
-            <tr style={{ backgroundColor: '#e2e8f0' }}>
-              <td
-                colSpan={2}
-                style={{ border: '1px solid black', padding: '8px', fontWeight: 'bold' }}
-              >
-                I. IDENTIFIKASI DASAR
-              </td>
-            </tr>
-            <tr>
-              <td
-                style={{
-                  border: '1px solid black',
-                  padding: '6px',
-                  fontWeight: 'bold',
-                  verticalAlign: 'top',
-                }}
-              >
-                Identitas Umum
-              </td>
-              <td style={{ border: '1px solid black', padding: '6px', verticalAlign: 'top' }}>
-                <div>
-                  <strong>Nama Penyusun:</strong> {formData.namaPenyusun}
-                </div>
-                <div>
-                  <strong>Sekolah:</strong> {formData.sekolah}
-                </div>
-                <div>
-                  <strong>Mata Pelajaran:</strong> {formData.mataPelajaran}
-                </div>
-                <div>
-                  <strong>Materi:</strong> {formData.materi} {formData.subMateri && `- ${formData.subMateri}`}
-                </div>
-                <div>
-                  <strong>Kelas/Fase:</strong> {formData.kelas} / {formData.fase}
-                </div>
-                <div>
-                  <strong>Semester:</strong> {formData.semester}
-                </div>
-                <div>
-                  <strong>Jumlah Pertemuan:</strong> {formData.pertemuan.length} ({getTotalDurasi(formData)} Menit)
-                </div>
-              </td>
-            </tr>
-            
-            {/* Identifikasi Murid Section */}
-            <tr style={{ backgroundColor: '#dbeafe' }}>
-              <td
-                colSpan={2}
-                style={{ border: '1px solid black', padding: '8px', fontWeight: 'bold' }}
-              >
-                II. IDENTIFIKASI MURID
-              </td>
-            </tr>
-            <tr>
-              <td style={{ border: '1px solid black', padding: '6px', fontWeight: 'bold', verticalAlign: 'top' }}>
-                Aspek Pengetahuan Awal
-              </td>
-              <td style={{ border: '1px solid black', padding: '6px' }}>
-                {formData.aspekPengetahuanAwal || '-'}
-              </td>
-            </tr>
-            <tr>
-              <td style={{ border: '1px solid black', padding: '6px', fontWeight: 'bold', verticalAlign: 'top' }}>
-                Aspek Minat
-              </td>
-              <td style={{ border: '1px solid black', padding: '6px' }}>
-                {formData.aspekMinat || '-'}
-              </td>
-            </tr>
-            <tr>
-              <td style={{ border: '1px solid black', padding: '6px', fontWeight: 'bold', verticalAlign: 'top' }}>
-                Aspek Latar Belakang
-              </td>
-              <td style={{ border: '1px solid black', padding: '6px' }}>
-                {formData.aspekLatarBelakang || '-'}
-              </td>
-            </tr>
-            <tr>
-              <td style={{ border: '1px solid black', padding: '6px', fontWeight: 'bold', verticalAlign: 'top' }}>
-                Aspek Kebutuhan Belajar
-              </td>
-              <td style={{ border: '1px solid black', padding: '6px' }}>
-                {formData.aspekKebutuhanBelajar || '-'}
-              </td>
-            </tr>
-            
-            {/* Jenis Pengetahuan Materi Section */}
-            <tr style={{ backgroundColor: '#d1fae5' }}>
-              <td
-                colSpan={2}
-                style={{ border: '1px solid black', padding: '8px', fontWeight: 'bold' }}
-              >
-                III. JENIS PENGETAHUAN MATERI
-              </td>
-            </tr>
-            <tr>
-              <td style={{ border: '1px solid black', padding: '6px', fontWeight: 'bold', verticalAlign: 'top' }}>
-                Faktual
-              </td>
-              <td style={{ border: '1px solid black', padding: '6px' }}>
-                {formData.materiPengetahuan?.faktual || '-'}
-              </td>
-            </tr>
-            <tr>
-              <td style={{ border: '1px solid black', padding: '6px', fontWeight: 'bold', verticalAlign: 'top' }}>
-                Konseptual
-              </td>
-              <td style={{ border: '1px solid black', padding: '6px' }}>
-                {formData.materiPengetahuan?.konseptual || '-'}
-              </td>
-            </tr>
-            <tr>
-              <td style={{ border: '1px solid black', padding: '6px', fontWeight: 'bold', verticalAlign: 'top' }}>
-                Prosedural
-              </td>
-              <td style={{ border: '1px solid black', padding: '6px' }}>
-                {formData.materiPengetahuan?.prosedural || '-'}
-              </td>
-            </tr>
-            <tr>
-              <td style={{ border: '1px solid black', padding: '6px', fontWeight: 'bold', verticalAlign: 'top' }}>
-                Metakognitif
-              </td>
-              <td style={{ border: '1px solid black', padding: '6px' }}>
-                {formData.materiPengetahuan?.metakognitif || '-'}
-              </td>
-            </tr>
-            
-            {/* Kaitan Kehidupan */}
-            <tr>
-              <td style={{ border: '1px solid black', padding: '6px', fontWeight: 'bold', verticalAlign: 'top' }}>
-                Kaitan dengan Kehidupan
-              </td>
-              <td style={{ border: '1px solid black', padding: '6px' }}>
-                {formData.kaitanKehidupan || '-'}
-              </td>
-            </tr>
-            
-            {/* Integrasi Nilai & Karakter */}
-            <tr style={{ backgroundColor: '#fef3c7' }}>
-              <td
-                colSpan={2}
-                style={{ border: '1px solid black', padding: '8px', fontWeight: 'bold' }}
-              >
-                IV. INTEGRASI NILAI & KARAKTER
-              </td>
-            </tr>
-            <tr>
-              <td style={{ border: '1px solid black', padding: '6px', fontWeight: 'bold', verticalAlign: 'top' }}>
-                Nilai Karakter
-              </td>
-              <td style={{ border: '1px solid black', padding: '6px' }}>
-                {formData.nilaiKarakter && formData.nilaiKarakter.length > 0 
-                  ? formData.nilaiKarakter.join(', ')
-                  : '-'}
-              </td>
-            </tr>
-            
-            {/* Dimensi Profil Lulusan - ALWAYS SHOWN */}
-            <tr style={{ backgroundColor: '#e0e7ff' }}>
-              <td
-                colSpan={2}
-                style={{ border: '1px solid black', padding: '8px', fontWeight: 'bold' }}
-              >
-                V. DIMENSI PROFIL LULUSAN
-              </td>
-            </tr>
-            <tr>
-              <td style={{ border: '1px solid black', padding: '6px', fontWeight: 'bold', verticalAlign: 'top' }}>
-                DPL yang Dikembangkan
-              </td>
-              <td style={{ border: '1px solid black', padding: '6px' }}>
-                {formData.dimensiProfilLulusan && formData.dimensiProfilLulusan.length > 0 ? (
-                  <ul style={{ margin: 0, paddingLeft: '16px' }}>
-                    {formData.dimensiProfilLulusan.map((kode, idx) => {
-                      const dpl = DPL_OPTIONS.find(d => d.kode === kode);
-                      const desc = formData.dimensiProfilLulusanDeskripsi?.[kode];
-                      return (
-                        <li key={idx} style={{ marginBottom: desc ? '6px' : '0' }}>
-                          <strong>{kode}:</strong> {dpl?.nama || kode}
-                          {desc && <span> &mdash; {desc}</span>}
-                        </li>
-                      );
-                    })}
-                  </ul>
-                ) : (
-                  formData.profilLulusan && formData.profilLulusan.length > 0 
-                    ? formData.profilLulusan.join(', ')
-                    : '-'
-                )}
-              </td>
-            </tr>
-            
-            {/* Topik Panca Cinta - KBC ONLY */}
-            {formData.kurikulum === 'kbc' && (
-              <>
-                <tr style={{ backgroundColor: '#fce7f3' }}>
-                  <td
-                    colSpan={2}
-                    style={{ border: '1px solid black', padding: '8px', fontWeight: 'bold' }}
-                  >
-                    V-B. TOPIK PANCA CINTA (KBC)
-                  </td>
-                </tr>
-                <tr>
-                  <td style={{ border: '1px solid black', padding: '6px', fontWeight: 'bold', verticalAlign: 'top' }}>
-                    Elemen Cinta yang Dikembangkan
-                  </td>
-                  <td style={{ border: '1px solid black', padding: '6px' }}>
-                    {(formData as any).topikPancaCinta && (formData as any).topikPancaCinta.length > 0 ? (
-                      <ul style={{ margin: 0, paddingLeft: '16px' }}>
-                        {(formData as any).topikPancaCinta.map((elemen: string, idx: number) => {
-                          const desc = (formData as any).topikPancaCintaDeskripsi?.[elemen];
-                          return (
-                            <li key={idx} style={{ marginBottom: desc ? '6px' : '0' }}>
-                              <strong>{elemen}</strong>
-                              {desc && <span> &mdash; {desc}</span>}
-                            </li>
-                          );
-                        })}
-                      </ul>
-                    ) : '-'}
-                  </td>
-                </tr>
-                <tr>
-                  <td style={{ border: '1px solid black', padding: '6px', fontWeight: 'bold', verticalAlign: 'top' }}>
-                    Materi Integrasi KBC
-                  </td>
-                  <td style={{ border: '1px solid black', padding: '6px' }}>
-                    {(formData as any).materiIntegrasiKBC 
-                      ? formatRichText((formData as any).materiIntegrasiKBC)
-                      : <span style={{ color: '#6b7280', fontStyle: 'italic' }}>Akan di-generate oleh AI</span>
-                    }
-                  </td>
-                </tr>
-              </>
-            )}
-          </tbody>
-        </table>
         )}
 
-        {/* Desain Pembelajaran Table */}
-        {outputFormat === 'minimalis' ? (
+        {!isPanduan && isTabel && (
+          <table
+            style={{
+              width: '100%',
+              borderCollapse: 'collapse',
+              border: '1px solid black',
+              marginBottom: '20px',
+              tableLayout: 'fixed',
+            }}
+          >
+            <colgroup>
+              <col style={{ width: '30%' }} />
+              <col style={{ width: '70%' }} />
+            </colgroup>
+            <tbody>
+              <tr style={{ backgroundColor: '#e2e8f0' }}>
+                <td
+                  colSpan={2}
+                  style={{ border: '1px solid black', padding: '8px', fontWeight: 'bold' }}
+                >
+                  I. IDENTIFIKASI DASAR
+                </td>
+              </tr>
+              <tr>
+                <td
+                  style={{
+                    border: '1px solid black',
+                    padding: '6px',
+                    fontWeight: 'bold',
+                    verticalAlign: 'top',
+                  }}
+                >
+                  Identitas Umum
+                </td>
+                <td style={{ border: '1px solid black', padding: '6px', verticalAlign: 'top' }}>
+                  <div>
+                    <strong>Nama Penyusun:</strong> {formData.namaPenyusun}
+                  </div>
+                  <div>
+                    <strong>Sekolah:</strong> {formData.sekolah}
+                  </div>
+                  <div>
+                    <strong>Mata Pelajaran:</strong> {formData.mataPelajaran}
+                  </div>
+                  <div>
+                    <strong>Materi:</strong> {formData.materi} {formData.subMateri && `- ${formData.subMateri}`}
+                  </div>
+                  <div>
+                    <strong>Kelas/Fase:</strong> {formData.kelas} / {formData.fase}
+                  </div>
+                  <div>
+                    <strong>Semester:</strong> {formData.semester}
+                  </div>
+                  <div>
+                    <strong>Jumlah Pertemuan:</strong> {formData.pertemuan.length} ({getTotalDurasi(formData)} Menit)
+                  </div>
+                </td>
+              </tr>
+              
+              {/* Identifikasi Murid Section */}
+              <tr style={{ backgroundColor: '#dbeafe' }}>
+                <td
+                  colSpan={2}
+                  style={{ border: '1px solid black', padding: '8px', fontWeight: 'bold' }}
+                >
+                  II. IDENTIFIKASI MURID
+                </td>
+              </tr>
+              <tr>
+                <td style={{ border: '1px solid black', padding: '6px', fontWeight: 'bold', verticalAlign: 'top' }}>
+                  Aspek Pengetahuan Awal
+                </td>
+                <td style={{ border: '1px solid black', padding: '6px' }}>
+                  {formData.aspekPengetahuanAwal || '-'}
+                </td>
+              </tr>
+              <tr>
+                <td style={{ border: '1px solid black', padding: '6px', fontWeight: 'bold', verticalAlign: 'top' }}>
+                  Aspek Minat
+                </td>
+                <td style={{ border: '1px solid black', padding: '6px' }}>
+                  {formData.aspekMinat || '-'}
+                </td>
+              </tr>
+              <tr>
+                <td style={{ border: '1px solid black', padding: '6px', fontWeight: 'bold', verticalAlign: 'top' }}>
+                  Aspek Latar Belakang
+                </td>
+                <td style={{ border: '1px solid black', padding: '6px' }}>
+                  {formData.aspekLatarBelakang || '-'}
+                </td>
+              </tr>
+              <tr>
+                <td style={{ border: '1px solid black', padding: '6px', fontWeight: 'bold', verticalAlign: 'top' }}>
+                  Aspek Kebutuhan Belajar
+                </td>
+                <td style={{ border: '1px solid black', padding: '6px' }}>
+                  {formData.aspekKebutuhanBelajar || '-'}
+                </td>
+              </tr>
+              
+              {/* Jenis Pengetahuan Materi */}
+              <tr style={{ backgroundColor: '#dcfce7' }}>
+                <td
+                  colSpan={2}
+                  style={{ border: '1px solid black', padding: '8px', fontWeight: 'bold' }}
+                >
+                  III. JENIS PENGETAHUAN MATERI
+                </td>
+              </tr>
+              <tr>
+                <td style={{ border: '1px solid black', padding: '6px', fontWeight: 'bold', verticalAlign: 'top' }}>
+                  Faktual
+                </td>
+                <td style={{ border: '1px solid black', padding: '6px' }}>
+                  {formData.materiPengetahuan?.faktual || '-'}
+                </td>
+              </tr>
+              <tr>
+                <td style={{ border: '1px solid black', padding: '6px', fontWeight: 'bold', verticalAlign: 'top' }}>
+                  Konseptual
+                </td>
+                <td style={{ border: '1px solid black', padding: '6px' }}>
+                  {formData.materiPengetahuan?.konseptual || '-'}
+                </td>
+              </tr>
+              <tr>
+                <td style={{ border: '1px solid black', padding: '6px', fontWeight: 'bold', verticalAlign: 'top' }}>
+                  Prosedural
+                </td>
+                <td style={{ border: '1px solid black', padding: '6px' }}>
+                  {formData.materiPengetahuan?.prosedural || '-'}
+                </td>
+              </tr>
+              <tr>
+                <td style={{ border: '1px solid black', padding: '6px', fontWeight: 'bold', verticalAlign: 'top' }}>
+                  Metakognitif
+                </td>
+                <td style={{ border: '1px solid black', padding: '6px' }}>
+                  {formData.materiPengetahuan?.metakognitif || '-'}
+                </td>
+              </tr>
+              
+              {/* Kaitan Kehidupan */}
+              <tr>
+                <td style={{ border: '1px solid black', padding: '6px', fontWeight: 'bold', verticalAlign: 'top' }}>
+                  Kaitan dengan Kehidupan
+                </td>
+                <td style={{ border: '1px solid black', padding: '6px' }}>
+                  {formData.kaitanKehidupan || '-'}
+                </td>
+              </tr>
+              
+              {/* Integrasi Nilai & Karakter */}
+              <tr style={{ backgroundColor: '#fef3c7' }}>
+                <td
+                  colSpan={2}
+                  style={{ border: '1px solid black', padding: '8px', fontWeight: 'bold' }}
+                >
+                  IV. INTEGRASI NILAI & KARAKTER
+                </td>
+              </tr>
+              <tr>
+                <td style={{ border: '1px solid black', padding: '6px', fontWeight: 'bold', verticalAlign: 'top' }}>
+                  Nilai Karakter
+                </td>
+                <td style={{ border: '1px solid black', padding: '6px' }}>
+                  {formData.nilaiKarakter && formData.nilaiKarakter.length > 0 
+                    ? formData.nilaiKarakter.join(', ')
+                    : '-'}
+                </td>
+              </tr>
+              
+              {/* Dimensi Profil Lulusan - ALWAYS SHOWN */}
+              <tr style={{ backgroundColor: '#e0e7ff' }}>
+                <td
+                  colSpan={2}
+                  style={{ border: '1px solid black', padding: '8px', fontWeight: 'bold' }}
+                >
+                  V. DIMENSI PROFIL LULUSAN
+                </td>
+              </tr>
+              <tr>
+                <td style={{ border: '1px solid black', padding: '6px', fontWeight: 'bold', verticalAlign: 'top' }}>
+                  DPL yang Dikembangkan
+                </td>
+                <td style={{ border: '1px solid black', padding: '6px' }}>
+                  {formData.dimensiProfilLulusan && formData.dimensiProfilLulusan.length > 0 ? (
+                    <ul style={{ margin: 0, paddingLeft: '16px' }}>
+                      {formData.dimensiProfilLulusan.map((kode, idx) => {
+                        const dpl = DPL_OPTIONS.find(d => d.kode === kode);
+                        const desc = formData.dimensiProfilLulusanDeskripsi?.[kode];
+                        return (
+                          <li key={idx} style={{ marginBottom: desc ? '6px' : '0' }}>
+                            <strong>{kode}:</strong> {dpl?.nama || kode}
+                            {desc && <span> &mdash; {desc}</span>}
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  ) : (
+                    formData.profilLulusan && formData.profilLulusan.length > 0 
+                      ? formData.profilLulusan.join(', ')
+                      : '-'
+                  )}
+                </td>
+              </tr>
+              
+              {/* Topik Panca Cinta - KBC ONLY */}
+              {formData.kurikulum === 'kbc' && (
+                <>
+                  <tr style={{ backgroundColor: '#fce7f3' }}>
+                    <td
+                      colSpan={2}
+                      style={{ border: '1px solid black', padding: '8px', fontWeight: 'bold' }}
+                    >
+                      V-B. TOPIK PANCA CINTA (KBC)
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style={{ border: '1px solid black', padding: '6px', fontWeight: 'bold', verticalAlign: 'top' }}>
+                      Elemen Cinta yang Dikembangkan
+                    </td>
+                    <td style={{ border: '1px solid black', padding: '6px' }}>
+                      {(formData as any).topikPancaCinta && (formData as any).topikPancaCinta.length > 0 ? (
+                        <ul style={{ margin: 0, paddingLeft: '16px' }}>
+                          {(formData as any).topikPancaCinta.map((elemen, idx) => {
+                            const desc = (formData as any).topikPancaCintaDeskripsi?.[elemen];
+                            return (
+                              <li key={idx} style={{ marginBottom: desc ? '6px' : '0' }}>
+                                <strong>{elemen}</strong>
+                                {desc && <span> &mdash; {desc}</span>}
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      ) : '-'}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style={{ border: '1px solid black', padding: '6px', fontWeight: 'bold', verticalAlign: 'top' }}>
+                      Materi Integrasi KBC
+                    </td>
+                    <td style={{ border: '1px solid black', padding: '6px' }}>
+                      {(formData as any).materiIntegrasiKBC 
+                        ? formatRichText((formData as any).materiIntegrasiKBC)
+                        : <span style={{ color: '#6b7280', fontStyle: 'italic' }}>Akan di-generate oleh AI</span>
+                      }
+                    </td>
+                  </tr>
+                </>
+              )}
+            </tbody>
+          </table>
+        )}
+
+{/* Desain Pembelajaran Table */}
+        {!isPanduan && !isRingkasan && (
+          isNarasi ? (
           <div style={{ marginBottom: '20px' }}>
             <h3 style={{ fontSize: '12pt', fontWeight: 'bold', borderBottom: '1px solid black', paddingBottom: '4px', marginBottom: '8px' }}>VI. DESAIN PEMBELAJARAN</h3>
             <div style={{ paddingLeft: '8px', marginBottom: '16px' }}>
@@ -1459,10 +1686,11 @@ export const DocumentPreview = ({
             )}
           </tbody>
         </table>
-        )}
+        ))}
 
         {/* Minimalis layout for VIII, IX, X */}
-        {outputFormat === 'minimalis' && (
+        {!isPanduan && !isRingkasan && (
+          isNarasi && (
           <div style={{ marginBottom: '20px' }}>
             <h3 style={{ fontSize: '12pt', fontWeight: 'bold', borderBottom: '1px solid black', paddingBottom: '4px', marginBottom: '8px' }}>VIII. KEMITRAAN PEMBELAJARAN</h3>
             <div style={{ paddingLeft: '8px', marginBottom: '16px' }}>
@@ -1513,7 +1741,7 @@ export const DocumentPreview = ({
               )}
             </div>
           </div>
-        )}
+        ))}
 
         {/* Langkah Pembelajaran Section */}
         <div style={{ marginBottom: '30px' }}>
@@ -1553,6 +1781,48 @@ export const DocumentPreview = ({
             currentContent={safePertemuan}
             onEdit={handleOpenEditor('modul')}
           >
+            {isNarasi ? (
+              isRingkasan ? (
+                <table
+                  style={{
+                    width: '100%',
+                    borderCollapse: 'collapse',
+                    border: '1px solid black',
+                    tableLayout: 'fixed',
+                  }}
+                >
+                  <colgroup>
+                    <col style={{ width: '15%' }} />
+                    <col style={{ width: '70%' }} />
+                    <col style={{ width: '15%' }} />
+                  </colgroup>
+                  <tbody>
+                    <tr style={{ backgroundColor: '#f1f5f9', textAlign: 'center' }}>
+                      <th style={{ border: '1px solid black', padding: '6px' }}>PERTEMUAN</th>
+                      <th style={{ border: '1px solid black', padding: '6px' }}>FOKUS / MATERI UTAMA</th>
+                      <th style={{ border: '1px solid black', padding: '6px' }}>DURASI</th>
+                    </tr>
+                    {safePertemuan.map((pertemuan, index) => (
+                      <tr key={`ringkasan-${index}`}>
+                        <td style={{ border: '1px solid black', padding: '8px', textAlign: 'center', fontWeight: 'bold' }}>{pertemuan.nomorPertemuan}</td>
+                        <td style={{ border: '1px solid black', padding: '8px' }}>
+                          {isDetailedFormat(pertemuan) 
+                            ? ((pertemuan as any).tahap_inti?.judul || (pertemuan as any).pemahaman_bermakna || 'Materi Utama')
+                            : 'Materi Utama'}
+                        </td>
+                        <td style={{ border: '1px solid black', padding: '8px', textAlign: 'center' }}>{pertemuan.durasi} Menit</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <div style={{ width: '100%' }}>
+                  {safePertemuan.map((pertemuan, index) =>
+                    renderPertemuanAsNarasi(pertemuan, index, outputFormat, isDetailedFormat(pertemuan))
+                  )}
+                </div>
+              )
+            ) : (
             <table
               style={{
                 width: '100%',
@@ -1579,6 +1849,7 @@ export const DocumentPreview = ({
                 )}
               </tbody>
             </table>
+            )}
           </EditableSection>
         ) : (
           // Fallback if no pertemuan data
@@ -1679,7 +1950,7 @@ export const DocumentPreview = ({
       </div>
 
       {/* TAB CONTENT: LKPD - Natural Document Format */}
-      {lkpdData && (
+      {!isRingkasan && !isPanduan && lkpdData && (
         <div data-section="lkpd" style={{ ...getSectionStyle('lkpd'), pageBreakBefore: 'always', marginTop: '40px' }}>
           {/* Page Break - using div for compatibility */}
           <div style={{ pageBreakBefore: 'always' }} />
@@ -1787,7 +2058,7 @@ export const DocumentPreview = ({
       )}
 
       {/* TAB CONTENT: ASESMEN - Natural Document Format */}
-      {asesmenData && (
+      {!isRingkasan && !isPanduan && asesmenData && (
         <div
           data-section="asesmen"
           style={{ ...getSectionStyle('asesmen'), pageBreakBefore: 'always', marginTop: '40px' }}
@@ -2057,7 +2328,7 @@ export const DocumentPreview = ({
       )}
 
       {/* TAB CONTENT: BANK SOAL - Print-oriented document layout */}
-      {bankSoalData && (() => {
+      {!isRingkasan && !isPanduan && bankSoalData && (() => {
         // --- Local helpers (co-located; shared logic in @/lib/soal-format) ---
         const soalList = bankSoalData.daftar_soal || [];
 
@@ -2633,7 +2904,7 @@ export const DocumentPreview = ({
 
 
       {/* TAB CONTENT: MATERI - Natural Document Format */}
-      {materiData && (
+      {!isRingkasan && !isPanduan && materiData && (
         <div
           data-section="materi"
           style={{ ...getSectionStyle('materi'), pageBreakBefore: 'always', marginTop: '40px' }}
@@ -2905,7 +3176,7 @@ export const DocumentPreview = ({
       )}
 
       {/* TAB CONTENT: TINDAK LANJUT */}
-      {tindakLanjutData && (
+      {!isRingkasan && !isPanduan && tindakLanjutData && (
         <div
           data-section="tindakLanjut"
           style={{ ...getSectionStyle('tindakLanjut'), pageBreakBefore: 'always', marginTop: '40px' }}
