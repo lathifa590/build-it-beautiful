@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { ArrowLeft, RefreshCw, BookOpen, Layers, Calendar, Settings, AlertTriangle } from "lucide-react";
+import { ArrowLeft, RefreshCw, BookOpen, Layers, Calendar, Settings, AlertTriangle, School } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { WorkspaceSettingsModal } from "../WorkspaceSettingsModal";
 import { useProsemData } from "@/hooks/useProsemData";
@@ -13,6 +13,7 @@ import { AutoGenerateConfirmModal } from "./AutoGenerateConfirmModal";
 import { useAuth } from "@/contexts/AuthContext";
 import { generateWorkspaceModul } from "./generateWorkspaceModul";
 import { generateWorkspaceMeetingDirect } from "./generateWorkspaceMeetingDirect";
+import { useSchool } from "@/contexts/SchoolContext";
 
 interface WorkspaceExplorerShellProps {
   workspace: Workspace;
@@ -32,6 +33,7 @@ export const WorkspaceExplorerShell: React.FC<WorkspaceExplorerShellProps> = ({
   onEnqueuePertemuanV2,
 }) => {
   const navigate = useNavigate();
+  const { isFeatureAllowed } = useSchool();
   const [isViewerOpen, setIsViewerOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isEnqueuing, setIsEnqueuing] = useState(false);
@@ -162,8 +164,19 @@ export const WorkspaceExplorerShell: React.FC<WorkspaceExplorerShellProps> = ({
           <p className="workspace-meta">
             Kelas {workspace.grade} · Fase {workspace.phase} · {workspace.academic_year}
           </p>
-          {workspace.school_name && (
-            <p className="text-xs text-muted-foreground font-semibold">{workspace.school_name}</p>
+          {isFeatureAllowed && workspace.school_name && (
+            <div className="flex items-center gap-2 pt-0.5">
+              <span className="text-xs text-muted-foreground font-semibold">{workspace.school_name}</span>
+              <button
+                type="button"
+                onClick={() => navigate('/sekolah')}
+                className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-orange-100 hover:bg-orange-200 text-orange-800 dark:bg-orange-950 dark:text-orange-200 border border-orange-300 dark:border-orange-800 transition-colors shadow-xs"
+                title="Buka Dashboard Sekolah"
+              >
+                <School className="w-3 h-3 text-primary" />
+                Dashboard Sekolah
+              </button>
+            </div>
           )}
           <div className="flex items-center gap-2 mt-2">
             <button

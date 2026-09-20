@@ -32,3 +32,8 @@ supabase/.temp/
 Prompt*.md
 Review*.md
 Revisi*.md
+
+# Temporary MS Word lock files
+~$*
+scratch/
+

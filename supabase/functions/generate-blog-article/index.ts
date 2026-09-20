@@ -87,7 +87,8 @@ Berikan respon HANYA dalam format JSON dengan struktur berikut tanpa tag markdow
   "title": "Judul artikel yang clickbait tapi profesional (Max 60 karakter)",
   "meta_description": "Meta description SEO-friendly (Max 160 karakter)",
   "excerpt": "Ringkasan pendek 2 kalimat untuk preview blog",
-  "content": "Isi artikel lengkap dalam format Markdown (gunakan heading H2, H3, list, dan bold)"
+  "content": "Isi artikel lengkap dalam format Markdown (gunakan heading H2, H3, list, dan bold)",
+  "image_prompt": "Prompt bahasa Inggris max 150 karakter untuk DALL-E/Midjourney yang relevan dengan judul artikel untuk dibuatkan cover image"
 }`;
 
     const userPrompt = `Buatkan artikel blog SEO untuk target keyword utama: "${queueItem.keyword}".
@@ -226,7 +227,75 @@ Instruksi Konten:
       .update({ status: 'done', article_id: newArticle.id })
       .eq('id', queueItem.id);
 
-    // 8. Log success
+    // 8. Generate Image Fail-Soft via 9Router Async
+    const ninerouterUrl = Deno.env.get('NINEROUTER_URL');
+    const ninerouterKey = Deno.env.get('NINEROUTER_KEY');
+
+    if (ninerouterUrl && successData.image_prompt) {
+      console.log(`Starting image generation for prompt: ${successData.image_prompt}`);
+      
+      // We run this asynchronously using Promise.race with a 5s ceiling to fail-soft and not block
+      const generateAndUploadImage = async () => {
+        try {
+          const imgRes = await fetch(`${ninerouterUrl}/v1/images/generations?response_format=binary`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              ...(ninerouterKey ? { 'Authorization': `Bearer ${ninerouterKey}` } : {})
+            },
+            body: JSON.stringify({
+              model: "openai/dall-e-3",
+              prompt: successData.image_prompt,
+              size: "1024x1024"
+            })
+          });
+
+          if (!imgRes.ok) {
+            throw new Error(`9Router error: ${imgRes.status} ${await imgRes.text()}`);
+          }
+
+          const blob = await imgRes.blob();
+          const fileName = `${slug}-${Date.now()}.png`;
+
+          // Upload to Supabase Storage
+          const { error: uploadError } = await supabase.storage
+            .from('blog-images')
+            .upload(fileName, blob, {
+              contentType: 'image/png',
+              upsert: true
+            });
+
+          if (uploadError) {
+            throw new Error(`Storage upload error: ${uploadError.message}`);
+          }
+
+          const { data: { publicUrl } } = supabase.storage
+            .from('blog-images')
+            .getPublicUrl(fileName);
+
+          // Update blog article
+          await supabase
+            .from('blog_articles')
+            .update({ featured_image_url: publicUrl })
+            .eq('id', newArticle.id);
+
+          console.log(`Successfully attached image: ${publicUrl}`);
+        } catch (err: any) {
+          console.error(`Fail-soft image generation skipped: ${err.message}`);
+        }
+      };
+
+      const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('Image generation timeout')), 5000));
+      
+      // Wait for at most 5 seconds for the image, otherwise continue. 
+      // The edge function environment will terminate when response is returned, 
+      // so we do await it, but cap it at 5s.
+      await Promise.race([generateAndUploadImage(), timeout]).catch(err => {
+        console.warn(err.message);
+      });
+    }
+
+    // 9. Log success
     await supabase
       .from('cron_job_logs')
       .insert({

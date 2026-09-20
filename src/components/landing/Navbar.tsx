@@ -25,7 +25,7 @@ export const Navbar = () => {
           <Link to="/" className="flex items-center gap-3">
             <div className="bg-white p-1.5 rounded-lg border-2 border-foreground shadow-brutal-sm">
               <img 
-                src="/favicon.png" 
+                src="/logo-web.webp" 
                 alt="ModulAjar Logo" 
                 className="w-6 h-6 md:w-7 md:h-7" 
               />

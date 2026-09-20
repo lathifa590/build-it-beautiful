@@ -9,7 +9,9 @@ import {
 } from '@/components/ui/dialog';
 import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { useTeacherProfiles } from '@/hooks/useTeacherProfiles';
-import { AlertCircle } from 'lucide-react';
+import { useSchool } from '@/contexts/SchoolContext';
+import { AlertCircle, School } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 import { useNavigate } from 'react-router-dom';
 
 interface CreateWorkspaceModalProps {
@@ -20,6 +22,7 @@ interface CreateWorkspaceModalProps {
 export const CreateWorkspaceModal = ({ isOpen, onClose }: CreateWorkspaceModalProps) => {
   const { createWorkspace } = useWorkspace();
   const { data: cloudProfiles = [] } = useTeacherProfiles();
+  const { school, schoolCalendar, isSchoolActive, isFeatureAllowed } = useSchool();
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
@@ -32,6 +35,17 @@ export const CreateWorkspaceModal = ({ isOpen, onClose }: CreateWorkspaceModalPr
     default_jp_per_meeting: 2,
     weekly_jp_pattern: '',
   });
+
+  // Auto-prefill from School if active
+  React.useEffect(() => {
+    if (isFeatureAllowed && isSchoolActive && school) {
+      setFormData(prev => ({
+        ...prev,
+        academic_year: school.academic_year_active || prev.academic_year,
+        jp_duration_minutes: schoolCalendar?.jp_duration_minutes || prev.jp_duration_minutes,
+      }));
+    }
+  }, [isSchoolActive, school, schoolCalendar]);
 
   // Auto-select first profile if none is selected
   React.useEffect(() => {
@@ -72,7 +86,10 @@ export const CreateWorkspaceModal = ({ isOpen, onClose }: CreateWorkspaceModalPr
     setIsSubmitting(true);
     try {
       const { profile_id, ...workspaceData } = formData;
-      const newWs = await createWorkspace(workspaceData);
+      const newWs = await createWorkspace({
+        ...workspaceData,
+        school_name: isSchoolActive && school ? school.name : undefined,
+      });
       
       if (newWs && profile_id) {
         localStorage.setItem(`workspace_profile_${newWs.id}`, profile_id);
@@ -106,6 +123,19 @@ export const CreateWorkspaceModal = ({ isOpen, onClose }: CreateWorkspaceModalPr
             <DialogDescription>
               Workspace memisahkan perencanaan untuk setiap mata pelajaran dan kelas.
             </DialogDescription>
+            {isSchoolActive && school && (
+              <div className="mt-2.5 p-2.5 rounded-lg bg-orange-50 dark:bg-orange-950/40 border border-orange-200 dark:border-orange-800 flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2 text-xs text-orange-950 dark:text-orange-200 font-medium">
+                  <School className="w-4 h-4 text-primary shrink-0" />
+                  <span>
+                    Sinkron dengan <strong>{school.name}</strong>
+                  </span>
+                </div>
+                <Badge variant="outline" className="border-orange-300 text-[10px] bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-100 font-semibold">
+                  Waka Kurikulum
+                </Badge>
+              </div>
+            )}
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="field-group">
@@ -186,7 +216,14 @@ export const CreateWorkspaceModal = ({ isOpen, onClose }: CreateWorkspaceModalPr
               </div>
             )}
             <div className="field-group">
-              <label htmlFor="jp_duration_minutes">Durasi 1 JP (Menit)</label>
+              <div className="flex items-center justify-between">
+                <label htmlFor="jp_duration_minutes">Durasi 1 JP (Menit)</label>
+                {isFeatureAllowed && isSchoolActive && schoolCalendar?.jp_duration_minutes && (
+                  <span className="text-[10px] text-primary font-bold">
+                    Standar Sekolah: {schoolCalendar.jp_duration_minutes} mnt
+                  </span>
+                )}
+              </div>
               <input
                 type="number"
                 id="jp_duration_minutes"
