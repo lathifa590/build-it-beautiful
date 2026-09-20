@@ -22,6 +22,7 @@ import {
 } from '@/lib/pertemuan-export';
 import type { JenisDokumenPertemuan } from '@/types/modul';
 import { type OutputFormat, OUTPUT_FORMAT_LABELS } from '@/types/export-format';
+import { ENABLE_OUTPUT_FORMAT_SELECTOR } from '@/lib/feature-flags';
 
 interface Props {
   open: boolean;
@@ -147,26 +148,28 @@ export const V2ExportDialog = ({
             )}
           </div>
 
-          <div className="space-y-2">
-            <p className="text-xs font-bold uppercase text-muted-foreground">Tampilan Dokumen</p>
-            <div className="grid grid-cols-2 gap-2">
-              {(Object.entries(OUTPUT_FORMAT_LABELS) as [OutputFormat, string][]).map(([fmt, label]) => (
-                <button
-                  key={fmt}
-                  type="button"
-                  disabled={isExporting}
-                  onClick={() => setOutputFormat(fmt)}
-                  className={`text-left px-3 py-2 rounded-md border-2 text-[11px] font-bold ${
-                    outputFormat === fmt
-                      ? 'bg-emerald-600 text-white border-emerald-700'
-                      : 'bg-card border-foreground/20'
-                  } ${isExporting ? 'opacity-50 cursor-not-allowed' : ''}`}
-                >
-                  {label}
-                </button>
-              ))}
+          {ENABLE_OUTPUT_FORMAT_SELECTOR && (
+            <div className="space-y-2">
+              <p className="text-xs font-bold uppercase text-muted-foreground">Tampilan Dokumen</p>
+              <div className="grid grid-cols-2 gap-2">
+                {(Object.entries(OUTPUT_FORMAT_LABELS) as [OutputFormat, string][]).map(([fmt, label]) => (
+                  <button
+                    key={fmt}
+                    type="button"
+                    disabled={isExporting}
+                    onClick={() => setOutputFormat(fmt)}
+                    className={`text-left px-3 py-2 rounded-md border-2 text-[11px] font-bold ${
+                      outputFormat === fmt
+                        ? 'bg-emerald-600 text-white border-emerald-700'
+                        : 'bg-card border-foreground/20'
+                    } ${isExporting ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           <div className="rounded-md border-2 border-foreground/20 p-3 space-y-1 text-xs">
             <p>

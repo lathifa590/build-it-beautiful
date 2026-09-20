@@ -14,6 +14,7 @@ import {
   Package,
   Store,
   Sparkles,
+  School,
 } from 'lucide-react';
 
 
@@ -24,6 +25,7 @@ interface AdminLayoutProps {
 const navItems = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/admin' },
   { icon: Users, label: 'Pengguna', path: '/admin/users' },
+  { icon: School, label: 'Sekolah', path: '/admin/schools' },
   { icon: UserCheck, label: 'Pelanggan Lama', path: '/admin/customers' },
   { icon: Settings, label: 'Pengaturan', path: '/admin/settings' },
 ];

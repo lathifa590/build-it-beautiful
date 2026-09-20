@@ -13,7 +13,7 @@ export const Footer = () => {
             <div className="flex items-center gap-3 mb-4">
               <div className="bg-white p-1.5 rounded-lg">
                 <img 
-                  src="/favicon.png" 
+                  src="/logo-web.webp" 
                   alt="ModulAjar Logo" 
                   className="w-7 h-7" 
                 />

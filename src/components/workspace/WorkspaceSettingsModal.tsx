@@ -9,10 +9,11 @@ import {
 } from '@/components/ui/dialog';
 import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { useSchool } from '@/contexts/SchoolContext';
 import { Workspace } from '@/types/workspace';
 import { toast } from 'sonner';
 import { modelOptions, metodeOptions, DEFAULT_SOAL_CONFIG } from '@/lib/constants';
-import { Sparkles, Settings2, FileQuestion } from 'lucide-react';
+import { Sparkles, Settings2, FileQuestion, School as SchoolIcon, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SoalConfigModal } from '@/components/modul/SoalConfigModal';
 import type { SoalConfig } from '@/types/modul';
@@ -26,6 +27,7 @@ interface WorkspaceSettingsModalProps {
 export const WorkspaceSettingsModal = ({ isOpen, onClose, workspace }: WorkspaceSettingsModalProps) => {
   const { updateWorkspace } = useWorkspace();
   const { user, isAdmin } = useAuth();
+  const { school, schoolCalendar, isSchoolActive, isFeatureAllowed } = useSchool();
   
   const isSuperUser = isAdmin || user?.email === 'jagofeed@gmail.com';
 
@@ -138,6 +140,40 @@ export const WorkspaceSettingsModal = ({ isOpen, onClose, workspace }: Workspace
             <DialogDescription>
               Ubah pengaturan untuk "{workspace.subject} - Kelas {workspace.grade}".
             </DialogDescription>
+            {isFeatureAllowed && isSchoolActive && school && (
+              <div className="mt-3 p-3 rounded-xl bg-orange-50 dark:bg-orange-950/40 border border-orange-300 dark:border-orange-800 space-y-2 text-left">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-xs font-bold text-orange-950 dark:text-orange-200">
+                    <SchoolIcon className="w-4 h-4 text-primary shrink-0" />
+                    <span>Sekolah: {school.name}</span>
+                  </div>
+                  <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-orange-200 dark:bg-orange-900 text-orange-900 dark:text-orange-100 font-bold">
+                    Kalender Waka
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Workspace ini terhubung ke kalender kurikulum sekolah. Anda dapat menyinkronkan durasi JP jika Waka Kurikulum melakukan revisi.
+                </p>
+                {schoolCalendar?.jp_duration_minutes && schoolCalendar.jp_duration_minutes !== formData.jp_duration_minutes && (
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      setFormData(prev => ({
+                        ...prev,
+                        jp_duration_minutes: schoolCalendar.jp_duration_minutes || prev.jp_duration_minutes,
+                      }));
+                      toast.success(`Durasi JP disesuaikan dengan kalender sekolah (${schoolCalendar.jp_duration_minutes} menit)`);
+                    }}
+                    className="h-7 text-xs gap-1.5 border-orange-400 bg-white dark:bg-card font-bold text-foreground"
+                  >
+                    <RefreshCw className="w-3 h-3 text-primary" />
+                    Sinkronkan Durasi ({schoolCalendar.jp_duration_minutes} mnt)
+                  </Button>
+                )}
+              </div>
+            )}
           </DialogHeader>
           <div className="grid gap-6 py-4">
             <div className="field-group">

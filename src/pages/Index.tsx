@@ -61,6 +61,7 @@ import { useContentHistory, useSaveContentHistory, useDeleteContentHistory, useU
 import { useAuth } from '@/contexts/AuthContext';
 import { useConfirm } from '@/contexts/ConfirmContext';
 import { useWorkspace } from '@/contexts/WorkspaceContext';
+import { useSchool } from '@/contexts/SchoolContext';
 import { 
   useTeacherProfiles, 
   useSaveTeacherProfile, 
@@ -74,7 +75,7 @@ import { generateExportFilename } from '@/lib/export-filename';
 
 import { supabase } from '@/integrations/supabase/client';
 import { invokeGenerateWithRetry } from '@/lib/invokeWithRetry';
-import { ENABLE_PERTEMUAN_DOCS_V2 } from '@/lib/feature-flags';
+import { ENABLE_PERTEMUAN_DOCS_V2, ENABLE_OUTPUT_FORMAT_SELECTOR } from '@/lib/feature-flags';
 import type { V2ExportFormat, V2ExportScope } from '@/lib/pertemuan-export';
 import { usePertemuanGeneration } from '@/hooks/usePertemuanGeneration';
 import { PertemuanResultNavigator } from '@/components/modul/PertemuanResultNavigator';
@@ -87,7 +88,7 @@ import { normalizeBankSoalImages } from '@/lib/bank-soal-normalize';
 import { buildContextKey, pickContextFields, JENIS_DOKUMEN_ORDER } from '@/lib/pertemuan-generation';
 import type { JenisDokumenPertemuan } from '@/types/modul';
 
-import { LogOut, Shield, User, Settings, Store, ShoppingBag, MoreVertical, RotateCcw, Maximize2, Minimize2, Plus, X, FileDown, Image as ImageIcon, RefreshCw, Lock } from 'lucide-react';
+import { LogOut, Shield, User, Settings, Store, ShoppingBag, MoreVertical, RotateCcw, Maximize2, Minimize2, Plus, X, FileDown, Image as ImageIcon, RefreshCw, Lock, School } from 'lucide-react';
 import {
   DropdownMenu as HeaderMoreMenu,
   DropdownMenuContent as HeaderMoreMenuContent,
@@ -313,6 +314,7 @@ const Index = () => {
   const appMode = location.pathname.startsWith('/app/workspace') ? 'workspace' : 'quick';
   
   const { workspaces, activeWorkspace, setActiveWorkspace } = useWorkspace();
+  const { school, isFeatureAllowed } = useSchool();
   
   useEffect(() => {
     // Match /app/workspace/:id and /app/workspace/:id/planning (and sub-paths)
@@ -2900,6 +2902,17 @@ img{max-width:100%}
               <span className="hidden sm:inline">Toko Saya</span>
             </Link>
 
+            {isFeatureAllowed && (
+              <Link
+                to="/sekolah"
+                className="flex items-center gap-2 px-3 py-2 text-sm font-medium bg-orange-50 text-orange-700 border-2 border-orange-200 rounded-lg hover:bg-orange-100 transition-colors"
+                title={school ? `Dashboard Sekolah: ${school.name}` : "Mode Sekolah"}
+              >
+                <School className="w-4 h-4 text-primary" />
+                <span className="hidden sm:inline">Sekolah</span>
+              </Link>
+            )}
+
             {isAdmin && (
               <Link
                 to="/admin"
@@ -2966,6 +2979,14 @@ img{max-width:100%}
                     <span>Toko Saya</span>
                   </Link>
                 </HeaderMoreMenuItem>
+                {isFeatureAllowed && (
+                  <HeaderMoreMenuItem asChild>
+                    <Link to="/sekolah" className="flex items-center gap-2 cursor-pointer">
+                      <School className="w-4 h-4 text-orange-600" />
+                      <span>{school?.name || "Mode Sekolah"}</span>
+                    </Link>
+                  </HeaderMoreMenuItem>
+                )}
                 {isAdmin && (
                   <HeaderMoreMenuItem asChild>
                     <Link to="/admin" className="flex items-center gap-2 cursor-pointer">
@@ -3507,27 +3528,29 @@ img{max-width:100%}
                   renderDokumen={({ jenis, dokumen }) => (
                     <div className="flex flex-col h-full relative">
                       {/* Format Selector UI */}
-                      <div className="flex justify-end mb-4 print:hidden" data-no-export="true">
-                        <div className="flex items-center space-x-2 bg-background p-2 rounded-lg border shadow-sm">
-                          <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">Tampilan:</span>
-                          <Select value={outputFormat} onValueChange={(val: OutputFormat) => {
-                            setOutputFormat(val);
-                            outputFormatRef.current = val;
-                            localStorage.setItem('modulajar_export_format', val);
-                          }}>
-                            <SelectTrigger className="w-[200px] h-8 text-sm bg-background border-input hover:bg-accent focus:ring-1 focus:ring-ring">
-                              <SelectValue placeholder="Pilih Tampilan" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {Object.entries(OUTPUT_FORMAT_LABELS).map(([key, label]) => (
-                                <SelectItem key={key} value={key}>
-                                  {label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                      {ENABLE_OUTPUT_FORMAT_SELECTOR && (
+                        <div className="flex justify-end mb-4 print:hidden" data-no-export="true">
+                          <div className="flex items-center space-x-2 bg-background p-2 rounded-lg border shadow-sm">
+                            <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">Tampilan:</span>
+                            <Select value={outputFormat} onValueChange={(val: OutputFormat) => {
+                              setOutputFormat(val);
+                              outputFormatRef.current = val;
+                              localStorage.setItem('modulajar_export_format', val);
+                            }}>
+                              <SelectTrigger className="w-[200px] h-8 text-sm bg-background border-input hover:bg-accent focus:ring-1 focus:ring-ring">
+                                <SelectValue placeholder="Pilih Tampilan" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {Object.entries(OUTPUT_FORMAT_LABELS).map(([key, label]) => (
+                                  <SelectItem key={key} value={key}>
+                                    {label}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
                         </div>
-                      </div>
+                      )}
                     <DocumentPreview
                       contentRef={contentRef}
                       activeTab={V2_TAB_MAP[jenis]}
@@ -3575,27 +3598,29 @@ img{max-width:100%}
               ) : (
               <div className="flex-1 overflow-y-auto p-4 md:p-8 pb-24 md:pb-8 relative">
                 {/* Format Selector UI */}
-                <div className="flex justify-end mb-4 print:hidden" data-no-export="true">
-                  <div className="flex items-center space-x-2 bg-background p-2 rounded-lg border shadow-sm">
-                    <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">Tampilan:</span>
-                          <Select value={outputFormat} onValueChange={(val: OutputFormat) => {
-                            setOutputFormat(val);
-                            outputFormatRef.current = val;
-                            localStorage.setItem('modulajar_export_format', val);
-                          }}>
-                      <SelectTrigger className="w-[200px] h-8 text-sm bg-background border-input hover:bg-accent focus:ring-1 focus:ring-ring">
-                        <SelectValue placeholder="Pilih Tampilan" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {Object.entries(OUTPUT_FORMAT_LABELS).map(([key, label]) => (
-                          <SelectItem key={key} value={key}>
-                            {label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                {ENABLE_OUTPUT_FORMAT_SELECTOR && (
+                  <div className="flex justify-end mb-4 print:hidden" data-no-export="true">
+                    <div className="flex items-center space-x-2 bg-background p-2 rounded-lg border shadow-sm">
+                      <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">Tampilan:</span>
+                            <Select value={outputFormat} onValueChange={(val: OutputFormat) => {
+                              setOutputFormat(val);
+                              outputFormatRef.current = val;
+                              localStorage.setItem('modulajar_export_format', val);
+                            }}>
+                        <SelectTrigger className="w-[200px] h-8 text-sm bg-background border-input hover:bg-accent focus:ring-1 focus:ring-ring">
+                          <SelectValue placeholder="Pilih Tampilan" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Object.entries(OUTPUT_FORMAT_LABELS).map(([key, label]) => (
+                            <SelectItem key={key} value={key}>
+                              {label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
-                </div>
+                )}
                 <DocumentPreview
                   contentRef={contentRef}
                   activeTab={activeTab}

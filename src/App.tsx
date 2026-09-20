@@ -6,34 +6,47 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { WorkspaceProvider } from "@/contexts/WorkspaceContext";
+import { SchoolProvider } from "@/contexts/SchoolContext";
 import { ConfirmProvider } from "@/contexts/ConfirmContext";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { AdminRoute } from "@/components/auth/AdminRoute";
 import { AgencyRoute } from "@/components/auth/AgencyRoute";
 import { StoreGate } from "@/components/auth/StoreGate";
-import AgencyDashboard from "./pages/agency/Dashboard";
-import Landing from "./pages/Landing";
-import Index from "./pages/Index";
-import Auth from "./pages/Auth";
-import Settings from "./pages/Settings";
-import AdminDashboard from "./pages/admin/Dashboard";
-import AdminUsers from "./pages/admin/Users";
-import AdminSettings from "./pages/admin/Settings";
-import AdminCustomers from "./pages/admin/Customers";
-import AdminAgencyPackages from "./pages/admin/AgencyPackages";
-import AdminAgencyOwners from "./pages/admin/AgencyOwners";
-import AdminAgencyPromos from "./pages/admin/AgencyPromos";
-import NotFound from "./pages/NotFound";
-import SEOPage from "./pages/landing/SEOPage";
-import BlogIndex from "./pages/blog/BlogIndex";
-import BlogDetail from "./pages/blog/BlogDetail";
+import { SchoolPilotRoute } from "@/components/auth/SchoolPilotRoute";
+import { Suspense, lazy } from "react";
+import { PageLoader } from "@/components/ui/PageLoader";
+
+const AgencyDashboard = lazy(() => import("./pages/agency/Dashboard"));
+const Landing = lazy(() => import("./pages/Landing"));
+const Index = lazy(() => import("./pages/Index"));
+const Auth = lazy(() => import("./pages/Auth"));
+const Settings = lazy(() => import("./pages/Settings"));
+const AdminDashboard = lazy(() => import("./pages/admin/Dashboard"));
+const AdminUsers = lazy(() => import("./pages/admin/Users"));
+const AdminSettings = lazy(() => import("./pages/admin/Settings"));
+const AdminCustomers = lazy(() => import("./pages/admin/Customers"));
+const AdminAgencyPackages = lazy(() => import("./pages/admin/AgencyPackages"));
+const AdminAgencyOwners = lazy(() => import("./pages/admin/AgencyOwners"));
+const AdminAgencyPromos = lazy(() => import("./pages/admin/AgencyPromos"));
+const AdminSchools = lazy(() => import("./pages/admin/Schools"));
+const SekolahKalender = lazy(() => import("./pages/sekolah/Kalender"));
+const SekolahDashboard = lazy(() => import("./pages/sekolah/Dashboard"));
+const SekolahJoin = lazy(() => import("./pages/sekolah/Join"));
+const SekolahBank = lazy(() => import("./pages/sekolah/Bank"));
+const SekolahAnggota = lazy(() => import("./pages/sekolah/Anggota"));
+const SekolahStandar = lazy(() => import("./pages/sekolah/Standar"));
+const SekolahExport = lazy(() => import("./pages/sekolah/Export"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const SEOPage = lazy(() => import("./pages/landing/SEOPage"));
+const BlogIndex = lazy(() => import("./pages/blog/BlogIndex"));
+const BlogDetail = lazy(() => import("./pages/blog/BlogDetail"));
 
 // Store Imports
-import StoreIndex from "./pages/store/StoreIndex";
-import StoreProfile from "./pages/store/StoreProfile";
-import StoreDetail from "./pages/store/StoreDetail";
-import StoreManagement from "./pages/store/StoreManagement";
-import StoreCheckout from "./pages/store/StoreCheckout";
+const StoreIndex = lazy(() => import("./pages/store/StoreIndex"));
+const StoreProfile = lazy(() => import("./pages/store/StoreProfile"));
+const StoreDetail = lazy(() => import("./pages/store/StoreDetail"));
+const StoreManagement = lazy(() => import("./pages/store/StoreManagement"));
+const StoreCheckout = lazy(() => import("./pages/store/StoreCheckout"));
 
 const queryClient = new QueryClient();
 
@@ -42,10 +55,12 @@ const App = () => (
     <BrowserRouter>
       <AuthProvider>
         <WorkspaceProvider>
-          <TooltipProvider>
-            <ConfirmProvider>
+          <SchoolProvider>
+            <TooltipProvider>
+              <ConfirmProvider>
               <Toaster />
               <Sonner />
+              <Suspense fallback={<PageLoader />}>
               <Routes>
                 {/* Public Landing Page */}
                 <Route path="/" element={<Landing />} />
@@ -105,12 +120,78 @@ const App = () => (
                     } 
                   />
 
+                {/* Mode Sekolah Routes (Deploy Terbatas: Admin & jagofeed@gmail.com) */}
+                <Route
+                  path="/sekolah/join"
+                  element={
+                    <SchoolPilotRoute>
+                      <SekolahJoin />
+                    </SchoolPilotRoute>
+                  }
+                />
+                <Route
+                  path="/sekolah"
+                  element={
+                    <SchoolPilotRoute>
+                      <SekolahDashboard />
+                    </SchoolPilotRoute>
+                  }
+                />
+                <Route
+                  path="/sekolah/kalender"
+                  element={
+                    <SchoolPilotRoute>
+                      <SekolahKalender />
+                    </SchoolPilotRoute>
+                  }
+                />
+                <Route
+                  path="/sekolah/bank"
+                  element={
+                    <SchoolPilotRoute>
+                      <SekolahBank />
+                    </SchoolPilotRoute>
+                  }
+                />
+                <Route
+                  path="/sekolah/anggota"
+                  element={
+                    <SchoolPilotRoute>
+                      <SekolahAnggota />
+                    </SchoolPilotRoute>
+                  }
+                />
+                <Route
+                  path="/sekolah/standar"
+                  element={
+                    <SchoolPilotRoute>
+                      <SekolahStandar />
+                    </SchoolPilotRoute>
+                  }
+                />
+                <Route
+                  path="/sekolah/export"
+                  element={
+                    <SchoolPilotRoute>
+                      <SekolahExport />
+                    </SchoolPilotRoute>
+                  }
+                />
+
                 {/* Admin routes */}
                 <Route
                   path="/admin"
                   element={
                     <AdminRoute>
                       <AdminDashboard />
+                    </AdminRoute>
+                  }
+                />
+                <Route
+                  path="/admin/schools"
+                  element={
+                    <AdminRoute>
+                      <AdminSchools />
                     </AdminRoute>
                   }
                 />
@@ -177,8 +258,10 @@ const App = () => (
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
-            </ConfirmProvider>
-          </TooltipProvider>
+              </Suspense>
+              </ConfirmProvider>
+            </TooltipProvider>
+          </SchoolProvider>
         </WorkspaceProvider>
       </AuthProvider>
     </BrowserRouter>

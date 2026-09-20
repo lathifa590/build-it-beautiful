@@ -1,73 +1,63 @@
-# Welcome to your Lovable project
+# ModulAjar.Online
 
-## Project info
+ModulAjar.Online adalah platform **Generator Dokumen Pembelajaran Profesional** berbasis AI (Artificial Intelligence) untuk membantu guru membuat Modul Ajar, RPP, LKPD, Asesmen, Bank Soal, hingga Prota & Prosem yang disesuaikan dengan **Kurikulum Merdeka** dan **Kurikulum Berbasis Cinta (KBC) Kemenag**.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## 🚀 Fitur Utama
+- **Generator AI Otomatis**: Buat Modul Ajar, LKPD, RPP, Asesmen, dan dokumen lainnya secara instan.
+- **Dukungan Kurikulum Lengkap**: Mencakup Kurikulum Merdeka (Kemdikbud) dan Kurikulum Berbasis Cinta (Kemenag).
+- **Edit & Regenerate AI**: Edit spesifik per bagian atau buat ulang (*regenerate*) poin-poin yang dirasa kurang pas dengan mudah dan fleksibel.
+- **Export to PDF & Word**: Mudah diunduh, dicetak, dan diajukan.
 
-## How can I edit this code?
+## 🛠️ Tech Stack
+Proyek ini dibangun menggunakan teknologi web modern:
+- **Frontend**: [React 18](https://react.dev/) dipadukan dengan *build tool* [Vite](https://vitejs.dev/)
+- **Bahasa**: [TypeScript](https://www.typescriptlang.org/) untuk *type safety*
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/) dengan komponen desain dari [shadcn/ui](https://ui.shadcn.com/) (menggunakan tema Neo-Brutalism)
+- **Backend & Database**: [Supabase](https://supabase.com/) (Autentikasi, PostgreSQL, dan Storage)
 
-There are several ways of editing your application.
+## 💻 Cara Menjalankan Project (Local Development)
 
-**Use Lovable**
+Pastikan Anda sudah menginstal **Node.js** (rekomendasi: versi 18 atau terbaru) sebelum menjalankan aplikasi secara lokal.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+1. **Clone repository ini**
+   ```bash
+   git clone <URL_REPO_ANDA>
+   cd modul-ajar-generator
+   ```
 
-Changes made via Lovable will be committed automatically to this repo.
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-**Use your preferred IDE**
+3. **Setup Environment Variables (Environment lokal)**
+   - Buat file bernama `.env` di *root directory*.
+   - Tambahkan *keys* dan *URL* Supabase Anda (sesuaikan dengan proyek Supabase yang sedang aktif).
+   ```env
+   VITE_SUPABASE_URL=https://your-project-url.supabase.co
+   VITE_SUPABASE_ANON_KEY=your-anon-key
+   ```
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+4. **Jalankan development server**
+   ```bash
+   npm run dev
+   ```
+   Aplikasi akan berjalan secara lokal dan Anda bisa mengaksesnya di *browser* (umumnya di `http://localhost:8080` atau `http://localhost:5173`).
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+## 📦 Build untuk Production
+Jika Anda ingin melakukan *build* untuk dipublikasikan ke layanan hosting (seperti Vercel, Netlify, VPS, dll), jalankan perintah:
+```bash
+npm run build
 ```
+Setelah proses selesai, hasil *build* *production-ready* akan tersedia di dalam folder `dist/`.
 
-**Edit a file directly in GitHub**
+## 📁 Struktur Folder Utama
+- `/src/components`: Kumpulan komponen React (UI modular, *layout*, dsb).
+- `/src/pages`: Komponen inti dari masing-masing halaman rute (Landing, Admin, User Dashboard, dll).
+- `/src/contexts`: React Context untuk *state management* (Auth, Workspace, dll).
+- `/src/hooks`: *Custom React hooks* untuk menyimpan logika *fetching* data.
+- `/src/utils`: Kumpulan fungsi pembantu (*helper functions*).
+- `/supabase/migrations`: Skema tabel, *policies* (RLS), dan *functions* database SQL.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+---
+*Dibuat dengan ❤️ untuk kemudahan Guru-Guru Hebat se-Indonesia.* 🇮🇩

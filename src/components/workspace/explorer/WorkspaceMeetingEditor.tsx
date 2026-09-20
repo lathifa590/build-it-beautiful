@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { ArrowLeft, Loader2, Minimize2, Maximize2, FileDown, RotateCcw } from "lucide-react";
+import { ArrowLeft, Loader2, Minimize2, Maximize2, FileDown, RotateCcw, Share2 } from "lucide-react";
+import { useSchool } from "@/contexts/SchoolContext";
+import { ShareToSchoolModal } from "@/components/school/ShareToSchoolModal";
 import { supabase } from "@/integrations/supabase/client";
 import type { Workspace } from "@/types/workspace";
 import type { MeetingSlotDB, ProsemItemDB } from "@/hooks/useProsemData";
@@ -50,6 +52,11 @@ export const WorkspaceMeetingEditor: React.FC<WorkspaceMeetingEditorProps> = ({
   const [isKontekstualisasiCP, setIsKontekstualisasiCP] = useState(false);
   const [showSoalModal, setShowSoalModal] = useState(false);
   const [soalConfig, setSoalConfig] = useState(DEFAULT_SOAL_CONFIG);
+
+  // Integrasi Mode Sekolah (Fase S2: Bank Modul)
+  const { school, isSchoolActive, isFeatureAllowed } = useSchool();
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [shareTarget, setShareTarget] = useState<{ jenis: string; dokumen: any } | null>(null);
 
   // Generate synthetic FormData for the AI Generator
   const [formData, setFormData] = useState<FormData | null>(null);
@@ -781,21 +788,37 @@ export const WorkspaceMeetingEditor: React.FC<WorkspaceMeetingEditorProps> = ({
                 <div>
                   <strong>💡 Tips:</strong> Anda dapat mengedit teks pada dokumen di bawah ini. Arahkan kursor (hover) ke bagian teks yang ingin diubah, lalu klik tombol <strong>Edit</strong>.
                 </div>
-                <button
-                  onClick={() => {
-                    if (jenis === 'soal') {
-                      setShowSoalModal(true);
-                    } else {
-                      pertemuanV2.regenerateDokumen(v2Aktif?.id || meetingId, jenis);
-                    }
-                  }}
-                  disabled={pertemuanV2.isGenerating}
-                  className="px-3 py-1.5 text-xs font-bold rounded-lg border-2 border-blue-800 bg-white hover:bg-blue-100 transition-all flex items-center gap-1 shrink-0 ml-4 disabled:opacity-50 disabled:cursor-not-allowed"
-                  title={`Generate ulang ${jenis}`}
-                >
-                  <RotateCcw className={`w-3.5 h-3.5 ${pertemuanV2.isGenerating ? 'animate-spin' : ''}`} />
-                  Generate Manual
-                </button>
+                <div className="flex items-center gap-2 ml-4 shrink-0">
+                  <button
+                    onClick={() => {
+                      if (jenis === 'soal') {
+                        setShowSoalModal(true);
+                      } else {
+                        pertemuanV2.regenerateDokumen(v2Aktif?.id || meetingId, jenis);
+                      }
+                    }}
+                    disabled={pertemuanV2.isGenerating}
+                    className="px-3 py-1.5 text-xs font-bold rounded-lg border-2 border-blue-800 bg-white hover:bg-blue-100 transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                    title={`Generate ulang ${jenis}`}
+                  >
+                    <RotateCcw className={`w-3.5 h-3.5 ${pertemuanV2.isGenerating ? 'animate-spin' : ''}`} />
+                    Generate Manual
+                  </button>
+
+                  {isFeatureAllowed && isSchoolActive && dokumen && (
+                    <button
+                      onClick={() => {
+                        setShareTarget({ jenis, dokumen });
+                        setIsShareModalOpen(true);
+                      }}
+                      className="px-3 py-1.5 text-xs font-bold rounded-lg border-2 border-indigo-700 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 transition-all flex items-center gap-1 shadow-sm"
+                      title="Bagikan dokumen ini ke Bank Modul Sekolah"
+                    >
+                      <Share2 className="w-3.5 h-3.5" />
+                      Bagikan ke Bank Sekolah
+                    </button>
+                  )}
+                </div>
               </div>
               <DocumentPreview
               contentRef={contentRef}
@@ -870,6 +893,24 @@ export const WorkspaceMeetingEditor: React.FC<WorkspaceMeetingEditorProps> = ({
         buildPlan={v2BuildPlan}
         onExport={handleRunV2Export}
       />
+
+      {isFeatureAllowed && isSchoolActive && shareTarget && (
+        <ShareToSchoolModal
+          isOpen={isShareModalOpen}
+          onClose={() => {
+            setIsShareModalOpen(false);
+            setShareTarget(null);
+          }}
+          documentTitle={`${workspace.subject || 'Modul Ajar'} - Pertemuan ${meeting.sequence || 1} (${shareTarget.jenis.toUpperCase()})`}
+          documentType={shareTarget.jenis}
+          contentJson={shareTarget.dokumen}
+          workspaceId={workspace.id}
+          subject={workspace.subject}
+          grade={workspace.grade}
+          phase={workspace.phase}
+          academicYear={workspace.academic_year}
+        />
+      )}
     </div>
   );
 };
