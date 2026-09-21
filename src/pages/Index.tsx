@@ -19,7 +19,7 @@ import type {
   ProsemData,
   ProsemEvent,
 } from '@/types/modul';
-import { DEFAULT_FORM_DATA, DEFAULT_SOAL_CONFIG, IDENTIFIKASI_FIELDS, FASE_KELAS_MAP, DEFAULT_KALENDER_PENDIDIKAN, DEFAULT_PROSEM_EVENTS, BULAN_NAMES } from '@/lib/constants';
+import { DEFAULT_FORM_DATA, DEFAULT_SOAL_CONFIG, IDENTIFIKASI_FIELDS, FASE_KELAS_MAP, DEFAULT_KALENDER_PENDIDIKAN, DEFAULT_PROSEM_EVENTS, BULAN_NAMES, resetModulAutoFillFields } from '@/lib/constants';
 import { Header } from '@/components/modul/Header';
 import { NotificationToast } from '@/components/modul/Notification';
 import { ProfileManager } from '@/components/modul/ProfileManager';
@@ -1484,51 +1484,57 @@ const Index = () => {
       const autoGen = data.auto_generated;
       setFormData((prev) => ({
         ...prev,
-        aspekPengetahuanAwal: prev.aspekPengetahuanAwal || autoGen.identifikasi_murid?.aspek_pengetahuan_awal || '',
-        aspekMinat: prev.aspekMinat || autoGen.identifikasi_murid?.aspek_minat || '',
-        aspekLatarBelakang: prev.aspekLatarBelakang || autoGen.identifikasi_murid?.aspek_latar_belakang || '',
-        aspekKebutuhanBelajar: prev.aspekKebutuhanBelajar || autoGen.identifikasi_murid?.aspek_kebutuhan_belajar || '',
+        aspekPengetahuanAwal: autoGen.identifikasi_murid?.aspek_pengetahuan_awal ?? prev.aspekPengetahuanAwal ?? '',
+        aspekMinat: autoGen.identifikasi_murid?.aspek_minat ?? prev.aspekMinat ?? '',
+        aspekLatarBelakang: autoGen.identifikasi_murid?.aspek_latar_belakang ?? prev.aspekLatarBelakang ?? '',
+        aspekKebutuhanBelajar: autoGen.identifikasi_murid?.aspek_kebutuhan_belajar ?? prev.aspekKebutuhanBelajar ?? '',
         materiPengetahuan: {
-          faktual: prev.materiPengetahuan.faktual || autoGen.materi_pengetahuan?.faktual || '',
-          konseptual: prev.materiPengetahuan.konseptual || autoGen.materi_pengetahuan?.konseptual || '',
-          prosedural: prev.materiPengetahuan.prosedural || autoGen.materi_pengetahuan?.prosedural || '',
-          metakognitif: prev.materiPengetahuan.metakognitif || autoGen.materi_pengetahuan?.metakognitif || '',
+          faktual: autoGen.materi_pengetahuan?.faktual ?? prev.materiPengetahuan?.faktual ?? '',
+          konseptual: autoGen.materi_pengetahuan?.konseptual ?? prev.materiPengetahuan?.konseptual ?? '',
+          prosedural: autoGen.materi_pengetahuan?.prosedural ?? prev.materiPengetahuan?.prosedural ?? '',
+          metakognitif: autoGen.materi_pengetahuan?.metakognitif ?? prev.materiPengetahuan?.metakognitif ?? '',
         },
-        kaitanKehidupan: prev.kaitanKehidupan || autoGen.kaitan_kehidupan || '',
-        dimensiProfilLulusan: prev.dimensiProfilLulusan?.length > 0 ? prev.dimensiProfilLulusan : (autoGen.dimensi_profil_lulusan || []),
-        dimensiProfilLulusanDeskripsi: prev.dimensiProfilLulusanDeskripsi || autoGen.dpl_deskripsi,
-        nilaiKarakter: prev.nilaiKarakter?.length > 0 ? prev.nilaiKarakter : (autoGen.nilai_karakter || []),
+        kaitanKehidupan: autoGen.kaitan_kehidupan ?? prev.kaitanKehidupan ?? '',
+        dimensiProfilLulusan: (autoGen.dimensi_profil_lulusan && autoGen.dimensi_profil_lulusan.length > 0)
+          ? autoGen.dimensi_profil_lulusan
+          : prev.dimensiProfilLulusan,
+        dimensiProfilLulusanDeskripsi: autoGen.dpl_deskripsi ?? prev.dimensiProfilLulusanDeskripsi,
+        nilaiKarakter: (autoGen.nilai_karakter && autoGen.nilai_karakter.length > 0)
+          ? autoGen.nilai_karakter
+          : prev.nilaiKarakter,
         lintasDisiplinIlmu: {
-          ppkn: prev.lintasDisiplinIlmu.ppkn || autoGen.lintas_disiplin?.ppkn || '',
-          ips: prev.lintasDisiplinIlmu.ips || autoGen.lintas_disiplin?.ips || '',
-          matematika: prev.lintasDisiplinIlmu.matematika || autoGen.lintas_disiplin?.matematika || '',
-          bahasaIndonesia: prev.lintasDisiplinIlmu.bahasaIndonesia || autoGen.lintas_disiplin?.bahasa_indonesia || '',
-          seniBudaya: prev.lintasDisiplinIlmu.seniBudaya || autoGen.lintas_disiplin?.seni_budaya || '',
-          prakarya: prev.lintasDisiplinIlmu.prakarya || autoGen.lintas_disiplin?.prakarya || '',
-          penjaskes: prev.lintasDisiplinIlmu.penjaskes || autoGen.lintas_disiplin?.penjaskes || '',
+          ppkn: autoGen.lintas_disiplin?.ppkn ?? prev.lintasDisiplinIlmu?.ppkn ?? '',
+          ips: autoGen.lintas_disiplin?.ips ?? prev.lintasDisiplinIlmu?.ips ?? '',
+          matematika: autoGen.lintas_disiplin?.matematika ?? prev.lintasDisiplinIlmu?.matematika ?? '',
+          bahasaIndonesia: autoGen.lintas_disiplin?.bahasa_indonesia ?? prev.lintasDisiplinIlmu?.bahasaIndonesia ?? '',
+          seniBudaya: autoGen.lintas_disiplin?.seni_budaya ?? prev.lintasDisiplinIlmu?.seniBudaya ?? '',
+          prakarya: autoGen.lintas_disiplin?.prakarya ?? prev.lintasDisiplinIlmu?.prakarya ?? '',
+          penjaskes: autoGen.lintas_disiplin?.penjaskes ?? prev.lintasDisiplinIlmu?.penjaskes ?? '',
         },
         kemitraanPembelajaran: {
-          guruBidangStudiLain: prev.kemitraanPembelajaran.guruBidangStudiLain || autoGen.kemitraan?.guru_bidang_studi_lain || '',
-          orangTua: prev.kemitraanPembelajaran.orangTua || autoGen.kemitraan?.orang_tua || '',
-          tokohMasyarakat: prev.kemitraanPembelajaran.tokohMasyarakat || autoGen.kemitraan?.tokoh_masyarakat || '',
-          instansiTerkait: prev.kemitraanPembelajaran.instansiTerkait || autoGen.kemitraan?.instansi_terkait || '',
-          duniaUsaha: prev.kemitraanPembelajaran.duniaUsaha || autoGen.kemitraan?.dunia_usaha || '',
-          perguruanTinggiLSM: prev.kemitraanPembelajaran.perguruanTinggiLSM || autoGen.kemitraan?.perguruan_tinggi_lsm || '',
-          mgmpKomunitasBelajar: prev.kemitraanPembelajaran.mgmpKomunitasBelajar || autoGen.kemitraan?.mgmp_komunitas_belajar || '',
+          guruBidangStudiLain: autoGen.kemitraan?.guru_bidang_studi_lain ?? prev.kemitraanPembelajaran?.guruBidangStudiLain ?? '',
+          orangTua: autoGen.kemitraan?.orang_tua ?? prev.kemitraanPembelajaran?.orangTua ?? '',
+          tokohMasyarakat: autoGen.kemitraan?.tokoh_masyarakat ?? prev.kemitraanPembelajaran?.tokohMasyarakat ?? '',
+          instansiTerkait: autoGen.kemitraan?.instansi_terkait ?? prev.kemitraanPembelajaran?.instansiTerkait ?? '',
+          duniaUsaha: autoGen.kemitraan?.dunia_usaha ?? prev.kemitraanPembelajaran?.duniaUsaha ?? '',
+          perguruanTinggiLSM: autoGen.kemitraan?.perguruan_tinggi_lsm ?? prev.kemitraanPembelajaran?.perguruanTinggiLSM ?? '',
+          mgmpKomunitasBelajar: autoGen.kemitraan?.mgmp_komunitas_belajar ?? prev.kemitraanPembelajaran?.mgmpKomunitasBelajar ?? '',
         },
         lingkunganPembelajaranDetail: {
-          ruangFisik: prev.lingkunganPembelajaranDetail.ruangFisik || autoGen.lingkungan?.ruang_fisik || '',
-          ruangVirtual: prev.lingkunganPembelajaranDetail.ruangVirtual || autoGen.lingkungan?.ruang_virtual || '',
-          budayaBelajar: prev.lingkunganPembelajaranDetail.budayaBelajar || autoGen.lingkungan?.budaya_belajar || '',
+          ruangFisik: autoGen.lingkungan?.ruang_fisik ?? prev.lingkunganPembelajaranDetail?.ruangFisik ?? '',
+          ruangVirtual: autoGen.lingkungan?.ruang_virtual ?? prev.lingkunganPembelajaranDetail?.ruangVirtual ?? '',
+          budayaBelajar: autoGen.lingkungan?.budaya_belajar ?? prev.lingkunganPembelajaranDetail?.budayaBelajar ?? '',
         },
         pemanfaatanDigitalDetail: {
-          perencanaan: prev.pemanfaatanDigitalDetail.perencanaan || autoGen.pemanfaatan_digital?.perencanaan || '',
-          pelaksanaan: prev.pemanfaatanDigitalDetail.pelaksanaan || autoGen.pemanfaatan_digital?.pelaksanaan || '',
-          asesmen: prev.pemanfaatanDigitalDetail.asesmen || autoGen.pemanfaatan_digital?.asesmen || '',
+          perencanaan: autoGen.pemanfaatan_digital?.perencanaan ?? prev.pemanfaatanDigitalDetail?.perencanaan ?? '',
+          pelaksanaan: autoGen.pemanfaatan_digital?.pelaksanaan ?? prev.pemanfaatanDigitalDetail?.pelaksanaan ?? '',
+          asesmen: autoGen.pemanfaatan_digital?.asesmen ?? prev.pemanfaatanDigitalDetail?.asesmen ?? '',
         },
-        topikPancaCinta: (prev.topikPancaCinta?.length > 0 ? prev.topikPancaCinta : (autoGen.topik_panca_cinta || prev.topikPancaCinta || [])),
-        topikPancaCintaDeskripsi: prev.topikPancaCintaDeskripsi || autoGen.panca_cinta_deskripsi,
-        materiIntegrasiKBC: prev.materiIntegrasiKBC || autoGen.materi_integrasi_kbc || '',
+        topikPancaCinta: (autoGen.topik_panca_cinta && autoGen.topik_panca_cinta.length > 0)
+          ? autoGen.topik_panca_cinta
+          : prev.topikPancaCinta,
+        topikPancaCintaDeskripsi: autoGen.panca_cinta_deskripsi ?? prev.topikPancaCintaDeskripsi,
+        materiIntegrasiKBC: autoGen.materi_integrasi_kbc ?? prev.materiIntegrasiKBC ?? '',
       }));
       showNotificationMessage('Modul + data auto-fill berhasil dibuat!');
       markTPAsGenerated(formData.tujuanPembelajaran);
@@ -1539,6 +1545,12 @@ const Index = () => {
     }
   };
 
+  // Helper: Manual reset auto-fill fields
+  const handleResetAutoFill = useCallback(() => {
+    setFormData((prev) => resetModulAutoFillFields(prev));
+    showNotificationMessage('Isian auto-fill (Identifikasi s.d. Pemanfaatan Digital) berhasil dibersihkan.');
+  }, [showNotificationMessage]);
+
   // Handler: Auto-fill form from Prota TP
   const handleCreateModulFromTP = useCallback((item: ProtaItem) => {
     const jpPerMinggu = kalenderPendidikan.jpPerMinggu || 2;
@@ -1548,8 +1560,20 @@ const Index = () => {
       durasi: `${jpPerMinggu * 40} menit`,
     }));
 
+    // Reset dokumen hasil generate sebelumnya agar tidak tercampur dengan modul lama
+    setGeneratedSteps(null);
+    setMateriData(null);
+    setLkpdData(null);
+    setAsesmenData(null);
+    setTindakLanjutData(null);
+    setBankSoalData(null);
+    setGeneratedImage(null);
+    setSoalImage(null);
+    setSelectedHistoryId(null);
+
+    // Reset isian auto-fill materi lama agar AI meng-generate ulang secara kontekstual
     setFormData(prev => ({
-      ...prev,
+      ...resetModulAutoFillFields(prev),
       tujuanPembelajaran: item.tujuan_pembelajaran,
       materi: item.materi_pokok,
       semester: item.semester.toString(),
@@ -1558,8 +1582,8 @@ const Index = () => {
 
     setActiveTab('modul');
     setMobileTab('form');
-    showNotificationMessage(`Form terisi dari TP #${item.no}. Lengkapi lalu generate Modul Ajar.`);
-  }, [kalenderPendidikan]);
+    showNotificationMessage(`Form disiapkan untuk TP #${item.no}. Isian auto-fill dibersihkan untuk materi baru.`);
+  }, [kalenderPendidikan, showNotificationMessage]);
 
   // Mark TP as generated after successful modul generation
   const markTPAsGenerated = useCallback((tp: string) => {
@@ -3218,6 +3242,7 @@ img{max-width:100%}
             checkRemovePertemuanV2={ENABLE_PERTEMUAN_DOCS_V2 ? v2CheckRemovePertemuan : undefined}
             onRemovePertemuanV2={ENABLE_PERTEMUAN_DOCS_V2 ? v2RemovePertemuan : undefined}
             isV2Enabled={ENABLE_PERTEMUAN_DOCS_V2}
+            onResetAutoFill={handleResetAutoFill}
           />
 
           {/* Konfirmasi reset hasil V2 saat konteks pembelajaran berubah */}

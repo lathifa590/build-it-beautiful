@@ -1,4 +1,4 @@
-import { User, Layout, Sparkles, Loader2, Plus, Trash2, Users, BookOpen, Globe, ChevronDown, ChevronRight, Info, Search, Wand2 } from 'lucide-react';
+import { User, Layout, Sparkles, Loader2, Plus, Trash2, Users, BookOpen, Globe, ChevronDown, ChevronRight, Info, Search, Wand2, RotateCcw } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -74,6 +74,7 @@ interface FormSectionProps {
   onRemovePertemuanV2?: (index: number) => void;
   isV2Enabled?: boolean;
   isWorkspaceMode?: boolean;
+  onResetAutoFill?: () => void;
 }
 
 
@@ -162,6 +163,7 @@ export const FormSection = ({
   onRemovePertemuanV2,
   isV2Enabled = false,
   isWorkspaceMode = false,
+  onResetAutoFill,
 }: FormSectionProps) => {
   const [pendingRemoveIndex, setPendingRemoveIndex] = useState<number | null>(null);
   const [removeBlockedReason, setRemoveBlockedReason] = useState<string | null>(null);
@@ -249,16 +251,29 @@ export const FormSection = ({
       </div>
 
       {/* Info Banner */}
-      <div className="bg-info/10 border-2 border-info/30 rounded-xl p-4 flex items-start gap-3">
-        <Info className="w-5 h-5 text-info flex-shrink-0 mt-0.5" />
-        <div className="text-sm">
-          <p className="font-bold text-info mb-1">Tips Pengisian Form</p>
-          <p className="text-muted-foreground">
-            Isi field <span className="text-primary font-bold">Wajib</span> (Section 1 & 4). 
-            Field dengan label <span className="text-secondary-foreground font-medium">✨ AI Auto-fill</span> akan 
-            diisi otomatis oleh AI berdasarkan konteks pembelajaran.
-          </p>
+      <div className="bg-info/10 border-2 border-info/30 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex items-start gap-3">
+          <Info className="w-5 h-5 text-info flex-shrink-0 mt-0.5" />
+          <div className="text-sm">
+            <p className="font-bold text-info mb-1">Tips Pengisian Form</p>
+            <p className="text-muted-foreground">
+              Isi field <span className="text-primary font-bold">Wajib</span> (Section 1 & 4). 
+              Field dengan label <span className="text-secondary-foreground font-medium">✨ AI Auto-fill</span> akan 
+              diisi otomatis oleh AI berdasarkan konteks pembelajaran.
+            </p>
+          </div>
         </div>
+        {onResetAutoFill && (
+          <button
+            type="button"
+            onClick={onResetAutoFill}
+            className="self-start sm:self-center flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg border-2 border-info/40 bg-card hover:bg-info/10 text-info transition-colors shadow-sm cursor-pointer"
+            title="Bersihkan data auto-fill untuk materi ini agar diisi ulang oleh AI"
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+            Reset Auto-fill
+          </button>
+        )}
       </div>
 
       {/* 1. IDENTIFIKASI DASAR - REQUIRED */}
