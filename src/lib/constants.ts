@@ -209,6 +209,39 @@ export const DEFAULT_FORM_DATA = {
   pemanfaatanDigital: '',
 };
 
+/**
+ * Mereset seluruh isian turunan materi yang dihasilkan oleh AI Auto-fill
+ * (Identifikasi Murid, Jenis Pengetahuan, Nilai Karakter, DPL, Lintas Disiplin,
+ * Kemitraan, Lingkungan, Digital, Panca Cinta) ke kondisi default bersih,
+ * tanpa mengubah identitas guru/sekolah dan setting umum.
+ */
+export const resetModulAutoFillFields = (prev: FormData): FormData => ({
+  ...prev,
+  aspekPengetahuanAwal: '',
+  aspekMinat: '',
+  aspekLatarBelakang: '',
+  aspekKebutuhanBelajar: '',
+  materiPengetahuan: { ...DEFAULT_MATERI_PENGETAHUAN },
+  kaitanKehidupan: '',
+  nilaiKarakter: [],
+  dimensiProfilLulusan: [],
+  dimensiProfilLulusanDeskripsi: undefined,
+  lintasDisiplinIlmu: { ...DEFAULT_LINTAS_DISIPLIN },
+  kemitraanPembelajaran: { ...DEFAULT_KEMITRAAN },
+  lingkunganPembelajaranDetail: { ...DEFAULT_LINGKUNGAN_DETAIL },
+  pemanfaatanDigitalDetail: { ...DEFAULT_PEMANFAATAN_DIGITAL },
+  topikPancaCinta: [],
+  topikPancaCintaDeskripsi: undefined,
+  materiIntegrasiKBC: '',
+  kesiapanSiswa: '',
+  karakteristikMateri: '',
+  profilLulusan: [],
+  lintasDisiplin: '',
+  kemitraan: '',
+  lingkunganBelajar: [],
+  pemanfaatanDigital: '',
+});
+
 export const DEFAULT_SOAL_TYPE_CONFIG = {
   quantity: 0,
   useStimulus: false,
