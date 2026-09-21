@@ -29,14 +29,14 @@ export const HeroSection = () => {
 
             {/* Headline */}
             <h1 className="text-3xl md:text-5xl lg:text-6xl font-extrabold text-foreground leading-tight mb-6">
-              Generator Dokumen{' '}
-              <span className="text-primary">Pembelajaran Profesional</span>
+              Generator Modul Ajar{' '}
+              <span className="text-primary">& Perangkat Ajar AI</span>
             </h1>
 
             {/* Subheadline */}
             <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-xl mx-auto lg:mx-0">
-              Buat Modul Ajar, LKPD, Asesmen, Bank Soal, hingga Prota & Prosem 
-              sesuai <strong>Kurikulum Merdeka</strong> dan <strong>KBC Kemenag</strong> — dengan fitur <strong>Edit AI</strong> dan <strong>Regenerate</strong> per bagian.
+              Aplikasi cerdas pembuat <strong>Modul Ajar</strong>, <strong>LKPD</strong>, <strong>Asesmen</strong>, hingga <strong>Prota & Promes</strong> otomatis. 
+              Mendukung <strong>Kurikulum Merdeka</strong>, pendekatan <strong>Pembelajaran Mendalam (Deep Learning)</strong>, dan <strong>KBC Kemenag</strong> dengan fitur <strong>Edit AI</strong> & <strong>Regenerate</strong> instan.
             </p>
 
             {/* CTA Buttons */}
