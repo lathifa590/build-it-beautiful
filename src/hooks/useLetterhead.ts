@@ -72,11 +72,14 @@ export const useLetterhead = () => {
       // Upload to storage
       const { error: uploadError } = await supabase.storage
         .from('letterheads')
-        .upload(filePath, file, { upsert: true });
+        .upload(filePath, file, {
+          contentType: file.type,
+          upsert: true,
+        });
 
       if (uploadError) {
         console.error('Upload error:', uploadError);
-        throw new Error('Gagal mengupload gambar. Silakan coba lagi.');
+        throw new Error(uploadError.message || 'Gagal mengupload gambar. Silakan coba lagi.');
       }
 
       // Get public URL
