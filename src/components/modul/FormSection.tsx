@@ -126,8 +126,9 @@ const CollapsibleSection = ({
         {icon}
         <h2 className="font-extrabold flex-1">{title}</h2>
         {badge && (
-          <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full font-medium">
-            {badge}
+          <span className="text-xs bg-secondary text-secondary-foreground px-2 py-0.5 rounded-full font-medium inline-flex items-center gap-1 border border-secondary-foreground/20">
+            <Sparkles className="w-3 h-3 text-primary" />
+            {badge.replace(/^[^\w\s]+/, '').trim()}
           </span>
         )}
         {isOpen ? <ChevronDown className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
@@ -251,29 +252,32 @@ export const FormSection = ({
       </div>
 
       {/* Info Banner */}
-      <div className="bg-info/10 border-2 border-info/30 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div className="flex items-start gap-3">
-          <Info className="w-5 h-5 text-info flex-shrink-0 mt-0.5" />
-          <div className="text-sm">
-            <p className="font-bold text-info mb-1">Tips Pengisian Form</p>
-            <p className="text-muted-foreground">
-              Isi field <span className="text-primary font-bold">Wajib</span> (Section 1 & 4). 
-              Field dengan label <span className="text-secondary-foreground font-medium">✨ AI Auto-fill</span> akan 
-              diisi otomatis oleh AI berdasarkan konteks pembelajaran.
-            </p>
+      <div className="bg-info/10 border-2 border-info/30 rounded-xl p-3.5 space-y-2.5">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 text-info">
+            <Info className="w-4 h-4 flex-shrink-0" />
+            <span className="font-bold text-sm">Tips Pengisian Form</span>
           </div>
+          {onResetAutoFill && (
+            <button
+              type="button"
+              onClick={onResetAutoFill}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-md border border-info/40 bg-card hover:bg-info/10 text-info transition-colors shadow-sm cursor-pointer"
+              title="Bersihkan data auto-fill untuk materi ini agar diisi ulang oleh AI"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>Reset Auto-fill</span>
+            </button>
+          )}
         </div>
-        {onResetAutoFill && (
-          <button
-            type="button"
-            onClick={onResetAutoFill}
-            className="self-start sm:self-center flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg border-2 border-info/40 bg-card hover:bg-info/10 text-info transition-colors shadow-sm cursor-pointer"
-            title="Bersihkan data auto-fill untuk materi ini agar diisi ulang oleh AI"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-            Reset Auto-fill
-          </button>
-        )}
+        <p className="text-xs text-muted-foreground leading-relaxed">
+          Isi field <span className="text-primary font-bold">Wajib</span> (Bagian 1 & 4). Field dengan badge{' '}
+          <span className="inline-flex items-center gap-1 font-semibold text-secondary-foreground px-1.5 py-0.5 rounded bg-secondary/80 border border-secondary-foreground/20 text-[11px] align-middle">
+            <Sparkles className="w-3 h-3 text-primary" />
+            AI Auto-fill
+          </span>{' '}
+          akan diisi otomatis oleh AI berdasarkan konteks pembelajaran.
+        </p>
       </div>
 
       {/* 1. IDENTIFIKASI DASAR - REQUIRED */}
@@ -539,7 +543,7 @@ export const FormSection = ({
         title="2. Identifikasi Murid" 
         icon={<Users className="w-5 h-5" />}
         defaultOpen={false}
-        badge="✨ AI Auto-fill"
+        badge="AI Auto-fill"
       >
         <textarea
           name="aspekPengetahuanAwal"
@@ -576,7 +580,7 @@ export const FormSection = ({
         title="3. Jenis Pengetahuan" 
         icon={<BookOpen className="w-5 h-5" />}
         defaultOpen={false}
-        badge="✨ AI Auto-fill"
+        badge="AI Auto-fill"
       >
         <textarea
           value={formData.materiPengetahuan?.faktual || ''}
@@ -924,7 +928,7 @@ export const FormSection = ({
         title="5. Lintas Disiplin Ilmu" 
         icon={<Globe className="w-5 h-5" />}
         defaultOpen={false}
-        badge="✨ AI Auto-fill"
+        badge="AI Auto-fill"
       >
         <input
           value={formData.lintasDisiplinIlmu?.ppkn || ''}
@@ -975,7 +979,7 @@ export const FormSection = ({
         title="6. Kemitraan & Lingkungan" 
         icon={<Users className="w-5 h-5" />}
         defaultOpen={false}
-        badge="✨ AI Auto-fill"
+        badge="AI Auto-fill"
       >
         {/* Kemitraan */}
         <div className="border-2 border-dashed border-muted-foreground/30 p-3 rounded-lg bg-secondary/30">
