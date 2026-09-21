@@ -62,6 +62,22 @@ const StoreCouponsTab = () => {
     }
   });
 
+  const toggleMutation = useMutation({
+    mutationFn: async (coupon: StoreCoupon) => {
+      return storeApi.upsertCoupon({
+        coupon_id: coupon.coupon_id,
+        status: coupon.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE',
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['storeCoupons', profile?.store_id] });
+      toast.success('Status kupon diperbarui');
+    },
+    onError: (error: any) => {
+      toast.error(error.message || 'Gagal mengubah status kupon');
+    }
+  });
+
   const handleSubmit = () => {
     if (!formData.code || !formData.discount_value) {
       toast.error('Kode kupon dan nilai diskon wajib diisi');
@@ -180,7 +196,9 @@ const StoreCouponsTab = () => {
       </div>
       
       {isLoading ? (
-        <div>Memuat kupon...</div>
+        <div className="flex justify-center p-12">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#111]"></div>
+        </div>
       ) : coupons && coupons.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {coupons.map(coupon => (
@@ -190,9 +208,23 @@ const StoreCouponsTab = () => {
                   {coupon.code}
                 </div>
                 {coupon.status === 'ACTIVE' ? (
-                  <span className="bg-green-100 text-green-800 border border-green-800 text-xs font-bold px-2 py-1 rounded">Aktif</span>
+                  <button
+                    onClick={() => toggleMutation.mutate(coupon)}
+                    disabled={toggleMutation.isPending}
+                    className="bg-green-100 text-green-800 border border-green-800 text-xs font-bold px-2 py-1 rounded hover:bg-green-200 transition-colors"
+                    title="Klik untuk menonaktifkan"
+                  >
+                    Aktif
+                  </button>
                 ) : (
-                  <span className="bg-gray-100 text-gray-800 border border-gray-800 text-xs font-bold px-2 py-1 rounded">Nonaktif</span>
+                  <button
+                    onClick={() => toggleMutation.mutate(coupon)}
+                    disabled={toggleMutation.isPending}
+                    className="bg-gray-100 text-gray-800 border border-gray-800 text-xs font-bold px-2 py-1 rounded hover:bg-gray-200 transition-colors"
+                    title="Klik untuk mengaktifkan"
+                  >
+                    Nonaktif
+                  </button>
                 )}
               </div>
               

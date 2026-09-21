@@ -5,6 +5,11 @@ import { storeApi } from '@/lib/store-api';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
+const formatTanggal = (iso?: string) =>
+  iso
+    ? new Date(iso).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })
+    : '-';
+
 const StoreOrdersTab = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -92,6 +97,7 @@ const StoreOrdersTab = () => {
                   <th>Invoice</th>
                   <th>Produk</th>
                   <th>Pembeli</th>
+                  <th>Tanggal</th>
                   <th>Total</th>
                   <th>Status</th>
                   <th className="text-center">Aksi</th>
@@ -103,8 +109,7 @@ const StoreOrdersTab = () => {
                     <td className="order-invoice">{order.invoice_number}</td>
                     <td className="font-bold">{order.listing?.title}</td>
                     <td>
-                      <p className="font-bold text-sm">{order.buyer_name}</p>
-                      {order.buyer_whatsapp && (
+                      <p className="font-bold text-sm">{order.buyer_name}</p>                      {order.buyer_whatsapp && (
                         <a
                           href={`https://wa.me/${order.buyer_whatsapp.replace(/\D/g, '').replace(/^0/, '62')}`}
                           target="_blank"
@@ -116,6 +121,7 @@ const StoreOrdersTab = () => {
                         </a>
                       )}
                     </td>
+                    <td className="text-sm font-semibold text-muted-foreground whitespace-nowrap">{formatTanggal(order.created_at)}</td>
                     <td className="order-total">
                       {order.total_amount === 0 ? 'Gratis' : `Rp${order.total_amount.toLocaleString('id-ID')}`}
                     </td>
@@ -180,6 +186,7 @@ const StoreOrdersTab = () => {
                   )}
                 </div>
                 <h4 className="order-card-mobile__product">{order.listing?.title}</h4>
+                <p className="text-[10px] font-semibold text-muted-foreground">{formatTanggal(order.created_at)}</p>
                 <div className="order-card-mobile__buyer flex items-center justify-between">
                   <span>{order.buyer_name}</span>
                   {order.buyer_whatsapp && (

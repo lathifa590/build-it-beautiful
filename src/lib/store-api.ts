@@ -4,7 +4,7 @@ import {
   StoreListing, 
   StoreOrder, 
   StoreCoupon,
-  StoreMetrics
+  StoreMetricRow
 } from "@/types/store";
 
 export const storeApi = {
@@ -268,6 +268,24 @@ export const storeApi = {
   },
   
   // --- Metrics ---
+  /**
+   * Mengambil baris metrik harian toko (kunjungan, views produk, pesanan, pendapatan)
+   * untuk diagregasi di dashboard & kartu katalog.
+   */
+  async getStoreMetrics(storeId: string): Promise<StoreMetricRow[]> {
+    const { data, error } = await supabase
+      .from('modul_store_metrics' as any)
+      .select('date, listing_id, store_views, product_views, checkout_started, orders_completed, revenue_amount')
+      .eq('store_id', storeId)
+      .order('date', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching store metrics:', error);
+      return [];
+    }
+    return (data as unknown as StoreMetricRow[]) || [];
+  },
+
   async incrementStoreMetric(storeId: string, listingId: string | null, metricType: 'views' | 'clicks'): Promise<void> {
     const { error } = await supabase.rpc('increment_store_metric', {
       p_store_id: storeId,
