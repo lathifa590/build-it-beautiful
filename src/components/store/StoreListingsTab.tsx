@@ -52,6 +52,39 @@ const StoreListingsTab = () => {
     enabled: !!profile?.store_id,
   });
 
+  const { data: orders } = useQuery({
+    queryKey: ['storeOrders', profile?.store_id],
+    queryFn: () => storeApi.getMyStoreOrders(profile!.store_id),
+    enabled: !!profile?.store_id,
+  });
+
+  const { data: metrics } = useQuery({
+    queryKey: ['storeMetrics', profile?.store_id],
+    queryFn: () => storeApi.getStoreMetrics(profile!.store_id),
+    enabled: !!profile?.store_id,
+  });
+
+  // Agregasi metrik per listing untuk kartu produk
+  const viewsByListing = React.useMemo(() => {
+    const map = new Map<string, number>();
+    metrics?.forEach((m) => {
+      if (m.listing_id) {
+        map.set(m.listing_id, (map.get(m.listing_id) || 0) + (m.product_views || 0));
+      }
+    });
+    return map;
+  }, [metrics]);
+
+  const soldByListing = React.useMemo(() => {
+    const map = new Map<string, number>();
+    orders?.forEach((o) => {
+      if (o.status === 'SELESAI') {
+        map.set(o.listing_id, (map.get(o.listing_id) || 0) + 1);
+      }
+    });
+    return map;
+  }, [orders]);
+
   // Mutations
   const mutation = useMutation({
     mutationFn: async () => {
@@ -192,7 +225,19 @@ const StoreListingsTab = () => {
                 </select>
               </div>
               <div className="field-group">
-                <label>Harga (Rp)</label>
+                <label>Status Publikasi</label>
+                <select
+                  value={formData.status || 'PUBLISHED'}
+                  onChange={e => setFormData({...formData, status: e.target.value as any})}
+                >
+                  <option value="PUBLISHED">Terbitkan Sekarang (langsung tampil)</option>
+                  <option value="DRAFT">Simpan sebagai Draf (belum tampil)</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="field-group">
+              <label>Harga (Rp)</label>
                 <div className="mt-2 mb-3">
                   <label className="flex items-center gap-2 cursor-pointer w-max">
                     <input 
@@ -217,7 +262,6 @@ const StoreListingsTab = () => {
                     onChange={e => setFormData({...formData, price_amount: Number(e.target.value)})}
                   />
                 )}
-              </div>
             </div>
 
             <div className="field-group">
@@ -263,7 +307,9 @@ const StoreListingsTab = () => {
                 onClick={handleSubmit}
                 disabled={mutation.isPending}
               >
-                {mutation.isPending ? 'Menyimpan...' : 'Simpan & Terbitkan'}
+                {mutation.isPending
+                  ? 'Menyimpan...'
+                  : formData.status === 'DRAFT' ? 'Simpan Draf' : 'Simpan & Terbitkan'}
               </button>
             </div>
           </div>
@@ -377,7 +423,7 @@ const StoreListingsTab = () => {
                     className="kebab-dropdown-item danger"
                     onClick={() => {
                       setOpenDropdownId(null);
-                      if(confirm('Yakin ingin menghapus modul ajar ini?')) deleteMutation.mutate(item.listing_id);
+                      if(confirm('Yakin ingin menghapus modul ajar ini? PERINGATAN: riwayat pesanan yang terkait dengan modul ini juga akan terhapus.')) deleteMutation.mutate(item.listing_id);
                     }}
                   >
                     <Trash className="w-4 h-4" /> <span>Hapus</span>
@@ -394,9 +440,9 @@ const StoreListingsTab = () => {
                 
                 <div className="product-card__meta">
                   <Eye className="w-3 h-3" />
-                  <span>0 dilihat</span>
+                  <span>{viewsByListing.get(item.listing_id) || 0} dilihat</span>
                   <span>·</span>
-                  <span>0 terjual</span>
+                  <span>{soldByListing.get(item.listing_id) || 0} terjual</span>
                 </div>
               </div>
             </div>

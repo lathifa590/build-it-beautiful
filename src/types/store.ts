@@ -88,3 +88,13 @@ export interface StoreMetrics {
   orders_completed: number;
   revenue_amount: number;
 }
+
+export interface StoreMetricRow {
+  date: string;
+  listing_id: string | null;
+  store_views: number;
+  product_views: number;
+  checkout_started: number;
+  orders_completed: number;
+  revenue_amount: number;
+}

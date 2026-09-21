@@ -17,7 +17,10 @@ const StoreCheckout = () => {
     queryKey: ['storeOrder', orderId],
     queryFn: () => storeApi.getOrder(orderId as string),
     enabled: !!orderId,
-    refetchInterval: (data) => (data?.status === 'PENDING_REVIEW' || data?.status === 'PENDING_PAYMENT' ? 4000 : false),
+    refetchInterval: (query) => {
+      const s = (query.state.data as unknown as { status?: string })?.status;
+      return s === 'PENDING_REVIEW' || s === 'PENDING_PAYMENT' ? 4000 : false;
+    },
   });
 
   const confirmMutation = useMutation({
@@ -39,10 +42,11 @@ const StoreCheckout = () => {
   if (!order) return <div className="min-h-screen bg-[#f5f0e8] flex items-center justify-center font-bold text-gray-600">Pesanan tidak ditemukan.</div>;
 
   const sellerProfile = order.listing?.store_profile;
-  const bankName = sellerProfile?.bank_name || 'Bank BRI';
-  const accountNumber = sellerProfile?.bank_account_number || '364401036953533';
-  const accountName = sellerProfile?.bank_account_name || 'HUSNUL KHULUQ';
-  const sellerWhatsApp = sellerProfile?.whatsapp_number || '6288228511309';
+  const bankName = sellerProfile?.bank_name || '';
+  const accountNumber = sellerProfile?.bank_account_number || '';
+  const accountName = sellerProfile?.bank_account_name || '';
+  const sellerWhatsApp = sellerProfile?.whatsapp_number || '';
+  const bankInfoComplete = Boolean(bankName && accountNumber && accountName);
 
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
@@ -67,6 +71,10 @@ const StoreCheckout = () => {
   };
 
   const handleConfirmTransfer = () => {
+    if (!sellerWhatsApp) {
+      toast.error('Penjual belum mengatur nomor WhatsApp konfirmasi. Silakan hubungi penjual melalui halaman tokonya.');
+      return;
+    }
     const waUrl = buildWhatsAppUrl();
     window.open(waUrl, '_blank');
 
@@ -181,6 +189,7 @@ const StoreCheckout = () => {
               </div>
 
               {/* Box Info Pembayaran */}
+              {bankInfoComplete ? (
               <div className="bg-[#f8faff] border border-blue-100 rounded-2xl p-5 space-y-3.5">
                 <p className="text-xs font-black text-gray-400 tracking-wider text-center uppercase">
                   INFO PEMBAYARAN:

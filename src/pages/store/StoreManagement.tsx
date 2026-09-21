@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Store, ShoppingBag, Package, Ticket, ArrowLeft, LayoutDashboard, Menu, X } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { Store, ShoppingBag, Package, Ticket, ArrowLeft, LayoutDashboard, Menu, X, Sparkles, Rocket, ClipboardList } from 'lucide-react';
 import StoreDashboardTab from '@/components/store/StoreDashboardTab';
 import StoreProfileTab from '@/components/store/StoreProfileTab';
 import StoreListingsTab from '@/components/store/StoreListingsTab';
 import StoreOrdersTab from '@/components/store/StoreOrdersTab';
 import StoreCouponsTab from '@/components/store/StoreCouponsTab';
 import { useAuth } from '@/contexts/AuthContext';
+import { storeApi } from '@/lib/store-api';
 
 const TAB_LABELS: Record<string, string> = {
   dashboard: '🏪 Dashboard Toko',
@@ -20,19 +22,41 @@ const StoreManagement = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const navigate = useNavigate();
-  const { user, isAdmin, isLoading } = useAuth();
+  const { user, isLoading } = useAuth();
 
+  const { data: profile, isLoading: profileLoading } = useQuery({
+    queryKey: ['storeProfile', user?.id],
+    queryFn: () => storeApi.getMyStoreProfile(user!.id),
+    enabled: !!user?.id,
+  });
+
+  const { data: orders } = useQuery({
+    queryKey: ['storeOrders', profile?.store_id],
+    queryFn: () => storeApi.getMyStoreOrders(profile!.store_id),
+    enabled: !!profile?.store_id,
+  });
+
+  const pendingReviewCount = orders?.filter((o) => o.status === 'PENDING_REVIEW').length ?? 0;
+  const needsOnboarding = !profileLoading && !profile;
+
+  // Pengguna tanpa toko diarahkan ke tab profil untuk onboarding
   useEffect(() => {
-    // Fitur toko sekarang terbuka untuk publik
-  }, [user, isAdmin, isLoading, navigate]);
+    if (needsOnboarding && activeTab !== 'profile') {
+      setActiveTab('profile');
+    }
+  }, [needsOnboarding, activeTab]);
 
   // Tutup drawer ketika tab berubah
   useEffect(() => {
     setIsDrawerOpen(false);
   }, [activeTab]);
 
-  if (isLoading) {
-    return null;
+  if (isLoading || profileLoading) {
+    return (
+      <div className="bg-[#f5f0e8] min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#111]"></div>
+      </div>
+    );
   }
 
   const renderSidebarNavItems = () => (
@@ -52,6 +76,11 @@ const StoreManagement = () => {
       <div className={`store-nav-item ${activeTab === 'orders' ? 'active' : ''} cursor-pointer`} onClick={() => setActiveTab('orders')}>
         <Package className="w-5 h-5" />
         <span>Pesanan Masuk</span>
+        {pendingReviewCount > 0 && (
+          <span className="ml-auto min-w-[20px] h-5 px-1 flex items-center justify-center bg-[#c04a1a] text-white text-[10px] font-black rounded-full border-2 border-[#111]">
+            {pendingReviewCount}
+          </span>
+        )}
       </div>
       <div className={`store-nav-item ${activeTab === 'coupons' ? 'active' : ''} cursor-pointer`} onClick={() => setActiveTab('coupons')}>
         <Ticket className="w-5 h-5" />
@@ -59,6 +88,66 @@ const StoreManagement = () => {
       </div>
     </>
   );
+
+  // Panel onboarding untuk pengguna yang belum punya toko
+  const renderOnboarding = () => (
+    <div className="card mt-6">
+      <div className="card-body p-8 md:p-12 flex flex-col items-center text-center space-y-5">
+        <div className="w-20 h-20 bg-[#e8e0d0] border-2 border-[#111] rounded-2xl flex items-center justify-center shadow-[4px_4px_0px_0px_rgba(17,17,17,1)]">
+          <Rocket className="w-10 h-10 text-[#c04a1a]" />
+        </div>
+        <div className="space-y-2">
+          <h2 className="text-2xl font-black text-[#111]">Buka Toko Modul Ajar Anda! 🎉</h2>
+          <p className="text-sm font-semibold text-muted-foreground max-w-md">
+            Satu langkah terakhir: lengkapi nama toko, rekening pencairan, dan nomor WhatsApp Anda.
+            Setelah disimpan, toko Anda langsung punya alamat publik sendiri.
+          </p>
+        </div>
+        <ol className="text-left space-y-2 w-full max-w-sm text-sm font-semibold text-[#111]">
+          <li className="flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-[#c04a1a] shrink-0" /> Isi nama & alamat (slug) toko
+          </li>
+          <li className="flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-[#c04a1a] shrink-0" /> Masukkan rekening & WhatsApp pencairan
+          </li>
+          <li className="flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-[#c04a1a] shrink-0" /> Simpan, lalu unggah modul pertama Anda
+          </li>
+        </ol>
+        <button
+          className="btn-primary w-full sm:w-auto"
+          onClick={() => setActiveTab('profile')}
+        >
+          <Store className="w-4 h-4 mr-2 inline" />
+          Lengkapi Profil Toko Sekarang
+        </button>
+      </div>
+    </div>
+  );
+
+  const renderActiveTab = () => {
+    // Selama toko belum ada, selain tab profil tampilkan onboarding
+    if (needsOnboarding && activeTab !== 'profile') {
+      return renderOnboarding();
+    }
+    return (
+      <>
+        {activeTab === 'dashboard' && <StoreDashboardTab onNavigate={setActiveTab} />}
+        {activeTab === 'profile' && <StoreProfileTab />}
+        {activeTab === 'listings' && <StoreListingsTab />}
+        {activeTab === 'orders' && <StoreOrdersTab />}
+        {activeTab === 'coupons' && <StoreCouponsTab />}
+      </>
+    );
+  };
+
+  const bottomNavItems = [
+    { key: 'dashboard', label: 'Beranda', icon: <LayoutDashboard /> },
+    { key: 'listings', label: 'Katalog', icon: <ShoppingBag /> },
+    { key: 'orders', label: 'Pesanan', icon: <Package /> },
+    { key: 'coupons', label: 'Kupon', icon: <Ticket /> },
+    { key: 'profile', label: 'Profil', icon: <Store /> },
+  ];
 
   return (
     <div className="bg-[#f5f0e8] min-h-screen">
@@ -100,12 +189,8 @@ const StoreManagement = () => {
 
         {/* --- KONTEN UTAMA --- */}
         <div className="layout-content flex-1 min-w-0">
-          <div className="max-w-5xl mx-auto w-full">
-            {activeTab === 'dashboard' && <StoreDashboardTab />}
-            {activeTab === 'profile' && <StoreProfileTab />}
-            {activeTab === 'listings' && <StoreListingsTab />}
-            {activeTab === 'orders' && <StoreOrdersTab />}
-            {activeTab === 'coupons' && <StoreCouponsTab />}
+          <div className="max-w-5xl mx-auto w-full pb-24 md:pb-8">
+            {renderActiveTab()}
           </div>
         </div>
       </div>
@@ -135,26 +220,21 @@ const StoreManagement = () => {
 
       {/* ══ MOBILE BOTTOM NAV ══ */}
       <nav className="bottom-nav">
-        <button className={`bn-item ${activeTab === 'dashboard' ? 'active' : ''}`} onClick={() => setActiveTab('dashboard')}>
-          <LayoutDashboard />
-          Beranda
-        </button>
-        <button className={`bn-item ${activeTab === 'listings' ? 'active' : ''}`} onClick={() => setActiveTab('listings')}>
-          <ShoppingBag />
-          Katalog
-        </button>
-        <button className={`bn-item ${activeTab === 'orders' ? 'active' : ''}`} onClick={() => setActiveTab('orders')}>
-          <Package />
-          Pesanan
-        </button>
-        <button className={`bn-item ${activeTab === 'coupons' ? 'active' : ''}`} onClick={() => setActiveTab('coupons')}>
-          <Ticket />
-          Kupon
-        </button>
-        <button className={`bn-item ${activeTab === 'profile' ? 'active' : ''}`} onClick={() => setActiveTab('profile')}>
-          <Store />
-          Profil
-        </button>
+        {bottomNavItems.map(({ key, label, icon }) => (
+          <button
+            key={key}
+            className={`bn-item relative ${activeTab === key ? 'active' : ''}`}
+            onClick={() => setActiveTab(key)}
+          >
+            {icon}
+            {label}
+            {key === 'orders' && pendingReviewCount > 0 && (
+              <span className="absolute top-0.5 right-2 min-w-[16px] h-4 px-1 flex items-center justify-center bg-[#c04a1a] text-white text-[9px] font-black rounded-full">
+                {pendingReviewCount}
+              </span>
+            )}
+          </button>
+        ))}
       </nav>
 
     </div>

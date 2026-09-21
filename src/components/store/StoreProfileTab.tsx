@@ -21,22 +21,12 @@ const StoreProfileTab = () => {
   // Effect to sync remote profile to local edit state
   React.useEffect(() => {
     if (profile && !editingProfile) {
-      setEditingProfile({
-        ...profile,
-        bank_name: profile.bank_name || 'Bank BRI',
-        bank_account_number: profile.bank_account_number || '364401036953533',
-        bank_account_name: profile.bank_account_name || 'HUSNUL KHULUQ',
-        whatsapp_number: profile.whatsapp_number || '6288228511309',
-      });
+      setEditingProfile({ ...profile });
     } else if (!profile && !isLoading && !editingProfile) {
       setEditingProfile({
         owner_user_id: user?.id,
         status: 'ACTIVE',
         primary_color: '#c04a1a',
-        bank_name: 'Bank BRI',
-        bank_account_number: '364401036953533',
-        bank_account_name: 'HUSNUL KHULUQ',
-        whatsapp_number: '6288228511309',
       });
     }
   }, [profile, isLoading, editingProfile, user?.id]);
@@ -44,20 +34,7 @@ const StoreProfileTab = () => {
   // Mutations
   const mutation = useMutation({
     mutationFn: async (updatedProfile: Partial<StoreProfile>) => {
-      let finalAvatarUrl = updatedProfile.avatar_url;
-      let finalBannerUrl = updatedProfile.banner_desktop_url;
-
-      const dataToSave = { 
-        ...updatedProfile, 
-        bank_name: updatedProfile.bank_name || 'Bank BRI',
-        bank_account_number: updatedProfile.bank_account_number || '364401036953533',
-        bank_account_name: updatedProfile.bank_account_name || 'HUSNUL KHULUQ',
-        whatsapp_number: updatedProfile.whatsapp_number || '6288228511309',
-        avatar_url: finalAvatarUrl,
-        banner_desktop_url: finalBannerUrl
-      };
-
-      return storeApi.upsertStoreProfile(dataToSave);
+      return storeApi.upsertStoreProfile(updatedProfile);
     },
     onSuccess: (data) => {
       queryClient.setQueryData(['storeProfile', user?.id], data);
@@ -291,7 +268,7 @@ const StoreProfileTab = () => {
                 <input 
                   id="bank_account_number" 
                   type="text"
-                  placeholder="Misal: 364401036953533" 
+                  placeholder="Misal: 012345678901" 
                   value={editingProfile.bank_account_number || ''} 
                   onChange={(e) => setEditingProfile({...editingProfile, bank_account_number: e.target.value})}
                 />
@@ -302,7 +279,7 @@ const StoreProfileTab = () => {
                 <input 
                   id="bank_account_name" 
                   type="text"
-                  placeholder="Misal: HUSNUL KHULUQ" 
+                  placeholder="Misal: NAMA PEMILIK REKENING" 
                   value={editingProfile.bank_account_name || ''} 
                   onChange={(e) => setEditingProfile({...editingProfile, bank_account_name: e.target.value})}
                 />
