@@ -181,5 +181,55 @@ export const SEOPagesData: Record<string, Omit<LandingPageProps, 'slug'>> = {
     faqs: [
       { question: "Bisakah membuat modul untuk peminatan di MA?", answer: "Sangat bisa. Anda bisa spesifik menyebutkan materi peminatan seperti MIPA, IPS, Bahasa, atau Keagamaan (MAK) di prompt Anda." }
     ]
+  },
+  'generator-prota-promes': {
+    seoTitle: "Generator Prota & Promes Kurikulum Merdeka Otomatis AI | ModulAjar.Online",
+    seoDescription: "Aplikasi AI pembuat Program Tahunan (Prota) dan Program Semester (Promes) Kurikulum Merdeka otomatis. Hitung alokasi Jam Pelajaran (JP) dan distribusi materi secara instan.",
+    h1: "Generator Prota & Promes Kurikulum Merdeka Otomatis AI",
+    subheadline: "Otomatiskan penyusunan Program Tahunan (Prota) dan Program Semester (Promes). AI memetakan Capaian Pembelajaran (CP) dan Tujuan Pembelajaran (TP) langsung ke dalam distribusi pekan efektif dan jam pelajaran.",
+    showKbcBadge: false,
+    faqs: [
+      { question: "Apa itu Generator Prota & Promes AI?", answer: "Alat bantu kecerdasan buatan yang secara otomatis menyusun tabel distribusi Tujuan Pembelajaran (TP), materi pokok, dan alokasi Jam Pelajaran (JP) ke dalam pekan efektif semester 1 dan semester 2." },
+      { question: "Apakah perhitungan Jam Pelajaran (JP) otomatis dihitung?", answer: "Ya, sistem menghitung total JP semester dan mendistribusikannya secara proporsional sesuai bobot materi dan kalender pendidikan." },
+      { question: "Bisakah langsung diturunkan menjadi Modul Ajar mingguan?", answer: "Sangat bisa! Di ModulAjar.Online, jadwal Prota yang sudah dibuat dapat langsung di-generate menjadi Modul Ajar per pertemuan secara bersambung." },
+      { question: "Format file apa yang didukung?", answer: "Hasil Prota dan Promes dapat langsung di-export ke Microsoft Word (.docx) atau disalin dengan format tabel rapi yang siap cetak." }
+    ],
+    schema: JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Generator Prota & Promes AI",
+      "applicationCategory": "EducationalApplication",
+      "operatingSystem": "Web",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "IDR"
+      }
+    })
+  },
+  'generator-modul-ajar-deep-learning': {
+    seoTitle: "Generator Modul Ajar Deep Learning (Pembelajaran Mendalam) AI | ModulAjar.Online",
+    seoDescription: "Aplikasi AI pembuat Modul Ajar dengan pendekatan Deep Learning (Mindful, Meaningful, Joyful Learning). Rancang pembelajaran bermakna dan terarah sesuai standar Kemendikdasmen.",
+    h1: "Generator Modul Ajar Deep Learning (Pembelajaran Mendalam) AI",
+    subheadline: "Rancang modul ajar dengan pendekatan Pembelajaran Mendalam (Deep Learning) secara otomatis. Menghadirkan pembelajaran yang Mindful (sadar), Meaningful (bermakna), dan Joyful (menyenangkan) untuk siswa.",
+    showKbcBadge: false,
+    faqs: [
+      { question: "Apa itu pendekatan Deep Learning dalam Kurikulum Merdeka?", answer: "Deep Learning (Pembelajaran Mendalam) adalah pendekatan pedagogis yang berfokus pada 3 pilar utama: Mindful Learning (siswa fokus dan sadar tujuan belajar), Meaningful Learning (materi dikaitkan dengan konteks dunia nyata), dan Joyful Learning (suasana belajar yang menyenangkan dan menumbuhkan rasa ingin tahu)." },
+      { question: "Bagaimana AI ModulAjar.Online mengintegrasikan Deep Learning?", answer: "AI kami menyusun langkah pembelajaran yang memicu pemikiran tingkat tinggi (HOTS), refleksi bermakna, eksperimen kontekstual, dan asesmen autentik yang selaras dengan prinsip Pembelajaran Mendalam." },
+      { question: "Apakah pendekatan ini cocok untuk semua jenjang (SD, SMP, SMA)?", answer: "Ya, pendekatan ini sangat fleksibel dan dapat diimplementasikan mulai dari fase fondasi/PAUD hingga jenjang menengah atas (SMA/SMK/MA)." },
+      { question: "Apakah modul hasil generate bisa langsung dicetak?", answer: "Ya, dokumen langsung siap di-download dalam format Word (.docx) lengkap dengan komponen identitas, langkah deep learning, rubrik asesmen, dan LKPD." }
+    ],
+    schema: JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Generator Modul Ajar Deep Learning AI",
+      "applicationCategory": "EducationalApplication",
+      "operatingSystem": "Web",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "IDR"
+      }
+    })
   }
 };

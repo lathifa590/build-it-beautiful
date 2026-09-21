@@ -76,6 +76,8 @@ const App = () => (
                 <Route path="/modul-ajar-mi" element={<SEOPage explicitSlug="modul-ajar-mi" />} />
                 <Route path="/modul-ajar-mts" element={<SEOPage explicitSlug="modul-ajar-mts" />} />
                 <Route path="/modul-ajar-ma" element={<SEOPage explicitSlug="modul-ajar-ma" />} />
+                <Route path="/generator-prota-promes" element={<SEOPage explicitSlug="generator-prota-promes" />} />
+                <Route path="/generator-modul-ajar-deep-learning" element={<SEOPage explicitSlug="generator-modul-ajar-deep-learning" />} />
                 
                 {/* Blog Routes */}
                 <Route path="/blog" element={<BlogIndex />} />
