@@ -30,7 +30,8 @@ export const StoreBundleModal = ({
   prosemItems
 }: StoreBundleModalProps) => {
   const { user } = useAuth();
-  const formData = workspace.global_form_data || DEFAULT_FORM_DATA;
+  // Kolom global_form_data belum ada di tipe Workspace/DB — aman pakai fallback
+  const formData = (workspace as any).global_form_data || DEFAULT_FORM_DATA;
   const semester = semesterPlan.semester || 1;
   
   const completedMeetings = prosemItems.flatMap(item => item.meeting_slots).filter(s => s.status === 'completed').length;
@@ -82,7 +83,9 @@ Cocok untuk guru ${mapelStr} ${kelasStr} yang ingin hemat waktu persiapan mengaj
       const zipBlob = await generateBundleZip(workspace, semester, prosemItems, setProgressMsg);
       
       setProgressMsg('Mengunggah ke Toko...');
-      const zipFile = new File([zipBlob], `Paket_Modul_${formData.mataPelajaran}_Kelas_${formData.kelas}_Sem_${semester}.zip`, { type: 'application/zip' });
+      const mapelFile = (formData.mataPelajaran || workspace.subject || 'Modul').replace(/[^a-zA-Z0-9]/g, '_');
+      const kelasFile = formData.kelas || workspace.grade || '-';
+      const zipFile = new File([zipBlob], `Paket_Modul_${mapelFile}_Kelas_${kelasFile}_Sem_${semester}.zip`, { type: 'application/zip' });
       
       // Upload Zip
       const filePath = `${profile.store_id}/workspace_${Date.now()}_${zipFile.name}`;
