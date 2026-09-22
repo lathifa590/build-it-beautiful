@@ -4,6 +4,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { storeApi } from '@/lib/store-api';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import type { StoreOrder } from '@/types/store';
+import { StoreConfirmDialog } from './StoreConfirmDialog';
 
 const formatTanggal = (iso?: string) =>
   iso
@@ -15,6 +17,7 @@ const StoreOrdersTab = () => {
   const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState('ALL');
+  const [confirmOrder, setConfirmOrder] = useState<StoreOrder | null>(null);
 
   const { data: profile } = useQuery({
     queryKey: ['storeProfile', user?.id],
@@ -34,6 +37,7 @@ const StoreOrdersTab = () => {
     },
     onSuccess: () => {
       toast.success('Pembayaran berhasil dikonfirmasi');
+      setConfirmOrder(null);
       queryClient.invalidateQueries({ queryKey: ['storeOrders'] });
     },
     onError: (err: any) => {
@@ -152,11 +156,7 @@ const StoreOrdersTab = () => {
                       )}
                       {order.status !== 'SELESAI' && (
                         <button 
-                          onClick={() => {
-                            if (confirm(`Konfirmasi pembayaran untuk invoice ${order.invoice_number}? Pembeli akan langsung bisa mengunduh modul.`)) {
-                              confirmMutation.mutate(order.order_id);
-                            }
-                          }}
+                          onClick={() => setConfirmOrder(order)}
                           className="p-1.5 bg-green-100 hover:bg-green-200 border-2 border-green-800 rounded shadow-[2px_2px_0px_0px_rgba(22,101,52,1)] text-green-800 transition-all font-bold text-xs flex items-center gap-1 hover:translate-y-px hover:shadow-none"
                           disabled={confirmMutation.isPending}
                           title="Setujui Pembayaran"
@@ -215,11 +215,7 @@ const StoreOrdersTab = () => {
                     )}
                     {order.status !== 'SELESAI' && (
                       <button 
-                        onClick={() => {
-                          if (confirm(`Konfirmasi pembayaran untuk invoice ${order.invoice_number}?`)) {
-                            confirmMutation.mutate(order.order_id);
-                          }
-                        }}
+                        onClick={() => setConfirmOrder(order)}
                         className="px-2 py-1 bg-green-100 border-2 border-green-800 rounded shadow-[2px_2px_0px_0px_rgba(22,101,52,1)] text-green-800 font-bold text-[11px] flex items-center gap-1"
                         disabled={confirmMutation.isPending}
                       >
@@ -247,6 +243,20 @@ const StoreOrdersTab = () => {
           </p>
         </div>
       )}
+
+      <StoreConfirmDialog
+        open={!!confirmOrder}
+        title="Konfirmasi pembayaran?"
+        message={`Invoice ${confirmOrder?.invoice_number || ''} akan ditandai SELESAI dan pembeli langsung bisa mengunduh modulnya. Pastikan transfer sudah benar-benar masuk.`}
+        confirmLabel="Ya, Konfirmasi"
+        loading={confirmMutation.isPending}
+        onConfirm={() => {
+          if (confirmOrder) confirmMutation.mutate(confirmOrder.order_id);
+        }}
+        onClose={() => {
+          if (!confirmMutation.isPending) setConfirmOrder(null);
+        }}
+      />
     </div>
   );
 };

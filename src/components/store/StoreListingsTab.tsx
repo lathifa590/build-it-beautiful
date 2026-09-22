@@ -6,11 +6,21 @@ import { StoreListing } from '@/types/store';
 import { toast } from 'sonner';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { StoreListingEditModal } from './StoreListingEditModal';
+import { StoreConfirmDialog } from './StoreConfirmDialog';
+
+interface ConfirmAction {
+  title: string;
+  message: string;
+  confirmLabel: string;
+  danger?: boolean;
+  action: () => void;
+}
 
 const StoreListingsTab = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [isAddingNew, setIsAddingNew] = useState(false);
+  const [confirmAction, setConfirmAction] = useState<ConfirmAction | null>(null);
   
   const [formData, setFormData] = useState<Partial<StoreListing>>({
     status: 'PUBLISHED',
@@ -89,8 +99,7 @@ const StoreListingsTab = () => {
   const mutation = useMutation({
     mutationFn: async () => {
       if (!profile?.store_id) throw new Error("Profil toko tidak ditemukan");
-      
-      let previewUrl = formData.url_preview;
+
       let originalUrl = formData.url_modul_ajar;
 
       // Handle Original File Upload (Private Bucket)
@@ -103,7 +112,6 @@ const StoreListingsTab = () => {
       const listingData = {
         ...formData,
         store_id: profile.store_id,
-        preview_image_url: previewUrl,
         url_modul_ajar: originalUrl,
         price_amount: isFree ? 0 : (formData.price_amount || 0),
       };
@@ -414,7 +422,12 @@ const StoreListingsTab = () => {
                     className="kebab-dropdown-item"
                     onClick={() => {
                       setOpenDropdownId(null);
-                      if(confirm('Duplikat modul ajar ini?')) duplicateMutation.mutate(item);
+                      setConfirmAction({
+                        title: 'Duplikat modul ajar ini?',
+                        message: `Salinan "${item.title}" akan dibuat sebagai draf dengan judul "[Copy] ${item.title}".`,
+                        confirmLabel: 'Ya, Duplikat',
+                        action: () => duplicateMutation.mutate(item),
+                      });
                     }}
                   >
                     <Copy className="w-4 h-4" /> <span>Duplikat</span>
@@ -423,7 +436,13 @@ const StoreListingsTab = () => {
                     className="kebab-dropdown-item danger"
                     onClick={() => {
                       setOpenDropdownId(null);
-                      if(confirm('Yakin ingin menghapus modul ajar ini? PERINGATAN: riwayat pesanan yang terkait dengan modul ini juga akan terhapus.')) deleteMutation.mutate(item.listing_id);
+                      setConfirmAction({
+                        title: 'Hapus modul ajar ini?',
+                        message: `"${item.title}" akan dihapus permanen. PERINGATAN: riwayat pesanan yang terkait dengan modul ini juga akan terhapus.`,
+                        confirmLabel: 'Ya, Hapus',
+                        danger: true,
+                        action: () => deleteMutation.mutate(item.listing_id),
+                      });
                     }}
                   >
                     <Trash className="w-4 h-4" /> <span>Hapus</span>
@@ -473,6 +492,20 @@ const StoreListingsTab = () => {
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
         listing={editingListing}
+      />
+
+      <StoreConfirmDialog
+        open={!!confirmAction}
+        title={confirmAction?.title || ''}
+        message={confirmAction?.message || ''}
+        confirmLabel={confirmAction?.confirmLabel}
+        danger={confirmAction?.danger}
+        onConfirm={() => {
+          const act = confirmAction?.action;
+          setConfirmAction(null);
+          act?.();
+        }}
+        onClose={() => setConfirmAction(null)}
       />
     </div>
   );

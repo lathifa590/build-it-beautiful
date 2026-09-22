@@ -249,6 +249,14 @@ const StoreCheckout = () => {
                   </p>
                 </div>
               </div>
+              ) : (
+                <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5 text-center space-y-2">
+                  <p className="text-sm font-black text-amber-800">Detail rekening penjual belum tersedia</p>
+                  <p className="text-xs text-amber-700 font-semibold leading-relaxed">
+                    Penjual belum melengkapi informasi rekening pembayaran. Silakan hubungi penjual melalui WhatsApp di halaman tokonya untuk menyelesaikan pembayaran.
+                  </p>
+                </div>
+              )}
 
               {/* Action Button */}
               <button
