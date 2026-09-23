@@ -1,9 +1,10 @@
-import type { 
-  MateriPengetahuan, 
-  LintasDisiplinIlmu, 
-  KemitraanPembelajaran, 
-  LingkunganPembelajaranDetail, 
-  PemanfaatanDigitalDetail 
+import type {
+  FormData,
+  MateriPengetahuan,
+  LintasDisiplinIlmu,
+  KemitraanPembelajaran,
+  LingkunganPembelajaranDetail,
+  PemanfaatanDigitalDetail
 } from '@/types/modul';
 
 export const IDENTIFIKASI_FIELDS = [

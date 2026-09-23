@@ -219,25 +219,29 @@ export const generateWorkspaceMeetingDirect = async (
       const ag = autoFillRes?.data?.auto_generated || autoFillRes?.auto_generated;
       if (ag) {
         agData = ag;
+        // AI-first: hasil auto-fill menimpa isian lama (bukan sebaliknya) agar
+        // konten selalu kontekstual dengan materi pertemuan ini.
         if (ag.identifikasi_murid) {
-          if (!baseFormData.aspekPengetahuanAwal) baseFormData.aspekPengetahuanAwal = ag.identifikasi_murid.aspek_pengetahuan_awal || '';
-          if (!baseFormData.aspekMinat) baseFormData.aspekMinat = ag.identifikasi_murid.aspek_minat || '';
-          if (!baseFormData.aspekLatarBelakang) baseFormData.aspekLatarBelakang = ag.identifikasi_murid.aspek_latar_belakang || '';
-          if (!baseFormData.aspekKebutuhanBelajar) baseFormData.aspekKebutuhanBelajar = ag.identifikasi_murid.aspek_kebutuhan_belajar || '';
+          baseFormData.aspekPengetahuanAwal = ag.identifikasi_murid.aspek_pengetahuan_awal || baseFormData.aspekPengetahuanAwal || '';
+          baseFormData.aspekMinat = ag.identifikasi_murid.aspek_minat || baseFormData.aspekMinat || '';
+          baseFormData.aspekLatarBelakang = ag.identifikasi_murid.aspek_latar_belakang || baseFormData.aspekLatarBelakang || '';
+          baseFormData.aspekKebutuhanBelajar = ag.identifikasi_murid.aspek_kebutuhan_belajar || baseFormData.aspekKebutuhanBelajar || '';
         }
-        
+
         if (ag.materi_pengetahuan) {
           baseFormData.materiPengetahuan = {
-            faktual: baseFormData.materiPengetahuan?.faktual || ag.materi_pengetahuan.faktual || '',
-            konseptual: baseFormData.materiPengetahuan?.konseptual || ag.materi_pengetahuan.konseptual || '',
-            prosedural: baseFormData.materiPengetahuan?.prosedural || ag.materi_pengetahuan.prosedural || '',
-            metakognitif: baseFormData.materiPengetahuan?.metakognitif || ag.materi_pengetahuan.metakognitif || '',
+            faktual: ag.materi_pengetahuan.faktual || baseFormData.materiPengetahuan?.faktual || '',
+            konseptual: ag.materi_pengetahuan.konseptual || baseFormData.materiPengetahuan?.konseptual || '',
+            prosedural: ag.materi_pengetahuan.prosedural || baseFormData.materiPengetahuan?.prosedural || '',
+            metakognitif: ag.materi_pengetahuan.metakognitif || baseFormData.materiPengetahuan?.metakognitif || '',
           };
         }
         
-        baseFormData.dimensiProfilLulusan = baseFormData.dimensiProfilLulusan?.length ? baseFormData.dimensiProfilLulusan : (ag.dimensi_profil_lulusan || []);
+        baseFormData.dimensiProfilLulusan = (ag.dimensi_profil_lulusan?.length ? ag.dimensi_profil_lulusan : null)
+          || baseFormData.dimensiProfilLulusan || [];
         baseFormData.dimensiProfilLulusanDeskripsi = ag.dpl_deskripsi || '';
-        baseFormData.nilaiKarakter = baseFormData.nilaiKarakter?.length ? baseFormData.nilaiKarakter : (ag.nilai_karakter || []);
+        baseFormData.nilaiKarakter = (ag.nilai_karakter?.length ? ag.nilai_karakter : null)
+          || baseFormData.nilaiKarakter || [];
         baseFormData.kaitanKehidupan = ag.kaitan_kehidupan || '';
         baseFormData.pemahamanBermakna = ag.pemahaman_bermakna || '';
         baseFormData.topikPancaCinta = ag.topik_panca_cinta || [];
@@ -376,32 +380,32 @@ export const generateWorkspaceMeetingDirect = async (
         const modulAutoGen = resData.data?.auto_generated;
         if (modulAutoGen) {
           console.log('[autogen] auto_generated dari modul ditemukan, memperkaya formData');
-          // Isi field yang masih kosong dari auto_generated yang ada di respons modul
+          // AI-first: nilai dari respons modul menimpa isian lama bila tersedia
           if (modulAutoGen.identifikasi_murid) {
-            enrichedFormData.aspekPengetahuanAwal = enrichedFormData.aspekPengetahuanAwal || modulAutoGen.identifikasi_murid.aspek_pengetahuan_awal || '';
-            enrichedFormData.aspekMinat = enrichedFormData.aspekMinat || modulAutoGen.identifikasi_murid.aspek_minat || '';
-            enrichedFormData.aspekLatarBelakang = enrichedFormData.aspekLatarBelakang || modulAutoGen.identifikasi_murid.aspek_latar_belakang || '';
-            enrichedFormData.aspekKebutuhanBelajar = enrichedFormData.aspekKebutuhanBelajar || modulAutoGen.identifikasi_murid.aspek_kebutuhan_belajar || '';
+            enrichedFormData.aspekPengetahuanAwal = modulAutoGen.identifikasi_murid.aspek_pengetahuan_awal || enrichedFormData.aspekPengetahuanAwal || '';
+            enrichedFormData.aspekMinat = modulAutoGen.identifikasi_murid.aspek_minat || enrichedFormData.aspekMinat || '';
+            enrichedFormData.aspekLatarBelakang = modulAutoGen.identifikasi_murid.aspek_latar_belakang || enrichedFormData.aspekLatarBelakang || '';
+            enrichedFormData.aspekKebutuhanBelajar = modulAutoGen.identifikasi_murid.aspek_kebutuhan_belajar || enrichedFormData.aspekKebutuhanBelajar || '';
           }
           if (modulAutoGen.materi_pengetahuan) {
             enrichedFormData.materiPengetahuan = {
-              faktual: enrichedFormData.materiPengetahuan?.faktual || modulAutoGen.materi_pengetahuan.faktual || '',
-              konseptual: enrichedFormData.materiPengetahuan?.konseptual || modulAutoGen.materi_pengetahuan.konseptual || '',
-              prosedural: enrichedFormData.materiPengetahuan?.prosedural || modulAutoGen.materi_pengetahuan.prosedural || '',
-              metakognitif: enrichedFormData.materiPengetahuan?.metakognitif || modulAutoGen.materi_pengetahuan.metakognitif || '',
+              faktual: modulAutoGen.materi_pengetahuan.faktual || enrichedFormData.materiPengetahuan?.faktual || '',
+              konseptual: modulAutoGen.materi_pengetahuan.konseptual || enrichedFormData.materiPengetahuan?.konseptual || '',
+              prosedural: modulAutoGen.materi_pengetahuan.prosedural || enrichedFormData.materiPengetahuan?.prosedural || '',
+              metakognitif: modulAutoGen.materi_pengetahuan.metakognitif || enrichedFormData.materiPengetahuan?.metakognitif || '',
             };
           }
-          enrichedFormData.dimensiProfilLulusan = (enrichedFormData.dimensiProfilLulusan?.length ? enrichedFormData.dimensiProfilLulusan : null)
-            || modulAutoGen.dimensi_profil_lulusan || [];
-          enrichedFormData.dimensiProfilLulusanDeskripsi = enrichedFormData.dimensiProfilLulusanDeskripsi || modulAutoGen.dpl_deskripsi || '';
-          enrichedFormData.nilaiKarakter = (enrichedFormData.nilaiKarakter?.length ? enrichedFormData.nilaiKarakter : null)
-            || modulAutoGen.nilai_karakter || [];
-          enrichedFormData.kaitanKehidupan = enrichedFormData.kaitanKehidupan || modulAutoGen.kaitan_kehidupan || '';
+          enrichedFormData.dimensiProfilLulusan = (modulAutoGen.dimensi_profil_lulusan?.length ? modulAutoGen.dimensi_profil_lulusan : null)
+            || enrichedFormData.dimensiProfilLulusan || [];
+          enrichedFormData.dimensiProfilLulusanDeskripsi = modulAutoGen.dpl_deskripsi || enrichedFormData.dimensiProfilLulusanDeskripsi || '';
+          enrichedFormData.nilaiKarakter = (modulAutoGen.nilai_karakter?.length ? modulAutoGen.nilai_karakter : null)
+            || enrichedFormData.nilaiKarakter || [];
+          enrichedFormData.kaitanKehidupan = modulAutoGen.kaitan_kehidupan || enrichedFormData.kaitanKehidupan || '';
           enrichedFormData.pemahamanBermakna = enrichedFormData.pemahamanBermakna || resData.data?.pemahaman_bermakna || modulAutoGen.pemahaman_bermakna || '';
-          enrichedFormData.lintasDisiplinIlmu = Object.keys(enrichedFormData.lintasDisiplinIlmu || {}).length ? enrichedFormData.lintasDisiplinIlmu : (modulAutoGen.lintas_disiplin || {});
-          enrichedFormData.kemitraanPembelajaran = Object.keys(enrichedFormData.kemitraanPembelajaran || {}).length ? enrichedFormData.kemitraanPembelajaran : (modulAutoGen.kemitraan || {});
-          enrichedFormData.lingkunganPembelajaranDetail = Object.keys(enrichedFormData.lingkunganPembelajaranDetail || {}).length ? enrichedFormData.lingkunganPembelajaranDetail : (modulAutoGen.lingkungan || {});
-          enrichedFormData.pemanfaatanDigitalDetail = Object.keys(enrichedFormData.pemanfaatanDigitalDetail || {}).length ? enrichedFormData.pemanfaatanDigitalDetail : (modulAutoGen.pemanfaatan_digital || {});
+          enrichedFormData.lintasDisiplinIlmu = Object.keys(modulAutoGen.lintas_disiplin || {}).length ? modulAutoGen.lintas_disiplin : (enrichedFormData.lintasDisiplinIlmu || {});
+          enrichedFormData.kemitraanPembelajaran = Object.keys(modulAutoGen.kemitraan || {}).length ? modulAutoGen.kemitraan : (enrichedFormData.kemitraanPembelajaran || {});
+          enrichedFormData.lingkunganPembelajaranDetail = Object.keys(modulAutoGen.lingkungan || {}).length ? modulAutoGen.lingkungan : (enrichedFormData.lingkunganPembelajaranDetail || {});
+          enrichedFormData.pemanfaatanDigitalDetail = Object.keys(modulAutoGen.pemanfaatan_digital || {}).length ? modulAutoGen.pemanfaatan_digital : (enrichedFormData.pemanfaatanDigitalDetail || {});
         }
 
         // Bangun modulPreface dari agData atau modulAutoGen
