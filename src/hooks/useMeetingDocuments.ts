@@ -44,7 +44,14 @@ export function useMeetingDocuments(workspaceId: string, meetingId: string) {
           const doc = link.documents as any;
           if (doc && doc.document_type) {
             const versions = doc.document_versions;
-            const contentJson = Array.isArray(versions) ? versions[0]?.content_json : versions?.content_json;
+            let contentJson = Array.isArray(versions) ? versions[0]?.content_json : versions?.content_json;
+            if (typeof contentJson === 'string') {
+              try {
+                contentJson = JSON.parse(contentJson);
+              } catch (e) {
+                console.error("Failed to parse content_json string", e);
+              }
+            }
             docsMap[doc.document_type] = {
               document_id: doc.id,
               document_type: doc.document_type,

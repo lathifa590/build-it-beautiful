@@ -470,9 +470,9 @@ export const WorkspaceMeetingEditor: React.FC<WorkspaceMeetingEditorProps> = ({
         }
       });
       if (Object.keys(docsToInject).length > 0) {
-        // IMPORTANT: use v2Aktif.id (internal generator ID), NOT meetingId
-        // meetingId is the DB meeting UUID, but the generator assigns its own stable IDs
-        pertemuanV2.injectExternalDocuments(v2Aktif.id, docsToInject);
+        // Fallback to meetingId if v2Aktif.id is somehow incorrect
+        const targetId = v2Aktif?.id || meetingId;
+        pertemuanV2.injectExternalDocuments(targetId, docsToInject);
       }
       setHasInjectedDocs(true);
     }
