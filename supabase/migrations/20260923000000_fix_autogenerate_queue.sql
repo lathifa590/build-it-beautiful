@@ -1,6 +1,14 @@
 -- Fix autogenerate background queue: dedup, atomic claim, completion, cron fallback
 -- ponytail: minimal safety net; scale to dedicated worker / BullMQ when >100 jobs/min
 
+-- 0. Bersihkan duplikat yang sudah ada (sebelum bikin index unik)
+-- Simpan 1 terlama per (workspace, pertemuan, jenis), hapus sisanya
+WITH ranked AS (
+  SELECT id, ROW_NUMBER() OVER (PARTITION BY workspace_id, pertemuan_id, jenis_dokumen ORDER BY created_at ASC, id ASC) AS rn
+  FROM public.generation_queue WHERE status IN ('pending','processing')
+)
+DELETE FROM public.generation_queue WHERE id IN (SELECT id FROM ranked WHERE rn > 1);
+
 -- 1. Dedup: cegah enqueue ganda untuk dokumen yang masih pending/processing
 CREATE UNIQUE INDEX IF NOT EXISTS uq_generation_queue_pending
 ON public.generation_queue (workspace_id, pertemuan_id, jenis_dokumen)
