@@ -264,7 +264,7 @@ const StoreIndex = () => {
                           </div>
                         )}
                         <p className="text-xs font-semibold text-gray-600 mt-2 line-clamp-2">
-                          Modul ajar premium berkualitas. Tersedia dalam format file Word (.docx) yang dapat diedit sepenuhnya.
+                          {item.description || 'Modul ajar premium berkualitas. Tersedia dalam format file Word (.docx) yang dapat diedit sepenuhnya.'}
                         </p>
                       </div>
 
