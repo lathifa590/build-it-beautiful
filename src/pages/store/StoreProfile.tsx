@@ -335,7 +335,7 @@ const StoreProfilePage = () => {
                           <span className="text-emerald-700 font-extrabold">Format .docx</span>
                         </div>
                         <p className="text-xs font-semibold text-gray-600 mt-2 line-clamp-2">
-                          Modul ajar lengkap yang dapat diunduh dan diedit langsung sesuai kebutuhan administrasi sekolah Anda.
+                          {item.description || 'Modul ajar lengkap yang dapat diunduh dan diedit langsung sesuai kebutuhan administrasi sekolah Anda.'}
                         </p>
                       </div>
 
