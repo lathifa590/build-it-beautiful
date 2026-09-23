@@ -117,6 +117,17 @@ export const StoreListingEditModal = ({
               <option value="PUBLISHED">Aktif (PUBLISHED)</option>
               <option value="DRAFT">Draf (Sembunyikan)</option>
             </select>
+            <div className="mt-3">
+              <label className="flex items-center gap-2 cursor-pointer w-max">
+                <input 
+                  type="checkbox" 
+                  className="w-4 h-4 border-2 border-[#111] rounded"
+                  checked={listingData.show_in_global_marketplace ?? true}
+                  onChange={(e) => setListingData({...listingData, show_in_global_marketplace: e.target.checked})}
+                />
+                <span className="text-sm font-bold">Tampilkan di Global Marketplace</span>
+              </label>
+            </div>
           </div>
           
         </div>
