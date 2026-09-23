@@ -82,11 +82,17 @@ const StoreDetail = () => {
       <div className="container mx-auto px-4 mt-6 md:mt-10">
         <div className="bg-white rounded-2xl border-2 border-[#111] overflow-hidden flex flex-col md:flex-row shadow-[4px_4px_0_0_#111]">
           {/* Image Section */}
-          <div className="w-full md:w-5/12 lg:w-1/3 bg-gray-100 border-b-2 md:border-b-0 md:border-r-2 border-[#111] flex items-center justify-center relative aspect-square md:aspect-auto">
+          <div className="w-full md:w-5/12 lg:w-1/3 bg-white md:bg-[#f5f0e8] border-b-2 md:border-b-0 md:border-r-2 border-[#111] flex items-start md:items-center justify-center p-0 md:p-6">
              {listing.preview_image_url ? (
-               <img src={listing.preview_image_url} alt={listing.title} className="w-full h-full object-cover" />
+               <img 
+                 src={listing.preview_image_url} 
+                 alt={listing.title} 
+                 className="w-full aspect-[4/3] object-cover md:rounded-xl md:border-2 md:border-[#111] md:shadow-[4px_4px_0_0_#111]" 
+               />
              ) : (
-               <FileText className="w-24 h-24 text-gray-300" />
+               <div className="w-full aspect-[4/3] flex items-center justify-center bg-gray-100 md:bg-white md:rounded-xl md:border-2 md:border-[#111] md:shadow-[4px_4px_0_0_#111]">
+                 <FileText className="w-24 h-24 md:w-16 md:h-16 text-gray-300" />
+               </div>
              )}
           </div>
           

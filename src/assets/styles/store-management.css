@@ -593,13 +593,15 @@
 
 .product-card__thumb {
   position: relative;
-  height: 130px;
+  aspect-ratio: 4 / 3;
+  width: 100%;
   background: var(--color-surface-alt);
   border-bottom: 2.5px solid var(--color-border-bold);
   border-radius: 7px 7px 0 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
 }
 
 .product-card__thumb img {
