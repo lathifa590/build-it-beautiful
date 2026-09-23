@@ -27,9 +27,9 @@ export function useMeetingDocuments(workspaceId: string, meetingId: string) {
         .from('meeting_document_links')
         .select(`
           document_id,
-          documents (
+          documents!inner (
             id, document_type, title, current_version_id,
-            document_versions (
+            document_versions!fk_documents_current_version (
               content_json,
               version_number
             )
