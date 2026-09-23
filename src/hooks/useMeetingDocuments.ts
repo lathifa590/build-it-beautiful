@@ -29,8 +29,9 @@ export function useMeetingDocuments(workspaceId: string, meetingId: string) {
           document_id,
           documents (
             id, document_type, title, current_version_id,
-            document_versions!fk_documents_current_version (
-              content_json
+            document_versions (
+              content_json,
+              version_number
             )
           )
         `)
@@ -44,7 +45,16 @@ export function useMeetingDocuments(workspaceId: string, meetingId: string) {
           const doc = link.documents as any;
           if (doc && doc.document_type) {
             const versions = doc.document_versions;
-            let contentJson = Array.isArray(versions) ? versions[0]?.content_json : versions?.content_json;
+            
+            // Sort by version_number (descending) to get the latest version robustly
+            let latestVersion = null;
+            if (Array.isArray(versions) && versions.length > 0) {
+              latestVersion = versions.sort((a, b) => (b.version_number || 0) - (a.version_number || 0))[0];
+            } else if (versions && !Array.isArray(versions)) {
+              latestVersion = versions;
+            }
+
+            let contentJson = latestVersion?.content_json;
             if (typeof contentJson === 'string') {
               try {
                 contentJson = JSON.parse(contentJson);
