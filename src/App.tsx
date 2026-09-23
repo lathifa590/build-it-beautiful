@@ -86,11 +86,11 @@ const App = () => (
                 {/* Auth routes */}
                 <Route path="/auth" element={<Auth />} />
 
-                {/* Public Store routes (Temporarily Gated) */}
-                <Route path="/store" element={<StoreGate><StoreIndex /></StoreGate>} />
-                <Route path="/store/:storeSlug" element={<StoreGate><StoreProfile /></StoreGate>} />
-                <Route path="/store/item/:listingId" element={<StoreGate><StoreDetail /></StoreGate>} />
-                <Route path="/checkout/:orderId" element={<StoreGate><StoreCheckout /></StoreGate>} />
+                {/* Public Store routes */}
+                <Route path="/store" element={<StoreIndex />} />
+                <Route path="/store/:storeSlug" element={<StoreProfile />} />
+                <Route path="/store/item/:listingId" element={<StoreDetail />} />
+                <Route path="/checkout/:orderId" element={<ProtectedRoute><StoreCheckout /></ProtectedRoute>} />
                 
                 {/* Protected App routes */}
                 <Route
