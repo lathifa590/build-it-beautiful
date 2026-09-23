@@ -675,14 +675,6 @@ export const WorkspaceMeetingEditor: React.FC<WorkspaceMeetingEditorProps> = ({
 
       {/* Editor Main Content */}
       <div className="flex-1 flex flex-col md:flex-row min-h-0 overflow-hidden relative">
-        {/* DEV DEBUG OVERLAY - REMOVE LATER */}
-        {process.env.NODE_ENV === 'development' && (
-          <div className="absolute top-2 left-1/2 -translate-x-1/2 z-50 bg-red-100 text-red-800 text-xs p-2 font-mono shadow-lg border-2 border-red-900 pointer-events-none">
-            DEBUG: hasInjected={hasInjectedDocs ? 'yes' : 'no'}, 
-            loadedKeys={loadedDocsMap ? Object.keys(loadedDocsMap).join(',') : 'null'},
-            v2Aktif_id={v2Aktif?.id}
-          </div>
-        )}
         {!isPreviewFullscreen && (
           <div className={`flex-1 w-full md:w-[360px] xl:w-[400px] md:flex-none md:shrink-0 border-r-2 border-foreground overflow-y-auto bg-card p-4 pb-24 md:p-6 md:pb-6 z-20 shadow-[4px_0_0_rgba(0,0,0,1)] ${mobileTab === 'result' ? 'hidden md:block' : 'flex flex-col'}`}>
             <FormSection

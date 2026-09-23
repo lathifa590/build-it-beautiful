@@ -1398,6 +1398,7 @@ ${distribusiInfo}
 7. PENTING: Untuk field yang ditandai (AUTO-FILL), sertakan dalam output JSON dengan key "auto_generated" berisi semua field yang kamu generate. Setiap nilai WAJIB spesifik ke materi "${data.materi || '-'}" — bukan kalimat template yang sama antar modul:
 {
   "pemahaman_bermakna": "...",
+  "metode_pembelajaran": ["...", "..."],
   "pertemuan": [...],
   "auto_generated": {
     "identifikasi_murid": {
@@ -1530,6 +1531,8 @@ Kamu sedang membuat SATU PERTEMUAN saja (pertemuan ke-${pPertemuanIndex + 1} dar
 FORMAT OUTPUT JSON (WAJIB persis struktur nested berikut, JANGAN disederhanakan):
 {
   "nomorPertemuan": ${pPertemuanIndex + 1},
+  "pemahaman_bermakna": "...",
+  "metode_pembelajaran": ["...", "..."],
   "durasi": "${pPertemuanTarget.durasi || '90'} menit",
   "tahap_awal": {
     "judul": "PENGALAMAN BELAJAR AWAL",
