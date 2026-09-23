@@ -66,6 +66,15 @@ export default {
           materi: "hsl(var(--doc-materi))",
           refleksi: "hsl(var(--doc-refleksi))",
         },
+        brand: {
+          cream: '#f5f0e8',
+          orange: '#c04a1a',
+          dark: '#111111',
+          card: '#ffffff',
+          surfaceAlt: '#fafafa',
+          accentYellow: '#fec84b',
+          accentGreen: '#12b76a'
+        },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
