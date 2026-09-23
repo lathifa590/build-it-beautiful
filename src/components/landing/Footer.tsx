@@ -64,10 +64,21 @@ export const Footer = () => {
             </ul>
           </div>
 
-          {/* Kurikulum & Format */}
+          {/* Kurikulum & Sumber Belajar */}
           <div>
-            <h4 className="font-bold text-sm uppercase tracking-wider text-background/90 mb-4">Kurikulum & Format</h4>
+            <h4 className="font-bold text-sm uppercase tracking-wider text-background/90 mb-4">Sumber & Referensi</h4>
             <ul className="space-y-2 text-sm">
+              <li>
+                <Link to="/store" className="text-yellow-400 hover:text-yellow-300 transition-colors font-bold flex items-center gap-1.5">
+                  <ShoppingBag className="w-3.5 h-3.5" />
+                  Global Marketplace
+                </Link>
+              </li>
+              <li>
+                <Link to="/blog" className="text-background/70 hover:text-background transition-colors">
+                  Blog & Artikel Guru
+                </Link>
+              </li>
               <li>
                 <Link to="/kurikulum-merdeka" className="text-background/70 hover:text-background transition-colors">
                   Kurikulum Merdeka
@@ -86,11 +97,6 @@ export const Footer = () => {
               <li>
                 <Link to="/rpp-madrasah" className="text-background/70 hover:text-background transition-colors">
                   RPP Madrasah Kemenag
-                </Link>
-              </li>
-              <li>
-                <Link to="/blog" className="text-background/70 hover:text-background transition-colors">
-                  Blog & Artikel Guru
                 </Link>
               </li>
             </ul>
