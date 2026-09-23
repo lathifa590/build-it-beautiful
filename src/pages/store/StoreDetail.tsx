@@ -5,6 +5,7 @@ import { storeApi } from '@/lib/store-api';
 import { useAuth } from '@/contexts/AuthContext';
 import { ArrowLeft, Store, FileText, CheckCircle, Download } from 'lucide-react';
 import { toast } from 'sonner';
+import { SEOHead } from '@/components/seo/SEOHead';
 
 const StoreDetail = () => {
   const { listingId } = useParams();
@@ -62,6 +63,11 @@ const StoreDetail = () => {
 
   return (
     <div className="min-h-screen bg-[#f5f0e8] pb-12">
+      <SEOHead 
+        title={`${listing.title} | Global Marketplace ModulAjar.Online`}
+        description={listing.description ? listing.description.substring(0, 150) + '...' : `Beli dan unduh ${listing.title} oleh ${listing.store_profile?.store_name || 'Penjual'}.`}
+        canonical={`/store/item/${listing.listing_id}`}
+      />
       {/* Header */}
       <div className="bg-white border-b-2 border-[#111] sticky top-0 z-20">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">

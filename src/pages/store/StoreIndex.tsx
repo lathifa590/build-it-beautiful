@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { storeApi } from '@/lib/store-api';
 import { ShoppingBag, Search, FileText, Filter, ArrowRight } from 'lucide-react';
+import { SEOHead } from '@/components/seo/SEOHead';
 
 const CATEGORIES = [
   { id: 'ALL', label: 'Semua Kategori' },
@@ -31,6 +32,11 @@ const StoreIndex = () => {
 
   return (
     <div className="min-h-screen bg-[#f5f0e8] flex flex-col">
+      <SEOHead 
+        title="Global Marketplace Modul Ajar | ModulAjar.Online"
+        description="Temukan ribuan modul ajar, RPP, dan perangkat pembelajaran berkualitas dari guru-guru se-Indonesia. Beli dan jual dengan mudah dan aman."
+        canonical="/store"
+      />
       {/* ══ HERO SECTION ══ */}
       <div className="bg-[#111] text-white pt-20 pb-16 px-4 relative overflow-hidden">
         <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white to-transparent"></div>
