@@ -1,4 +1,4 @@
-import { Shield, Mail } from 'lucide-react';
+import { Shield, Mail, ShoppingBag } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export const Footer = () => {
