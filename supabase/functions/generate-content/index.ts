@@ -1277,15 +1277,16 @@ ATURAN PENTING:
         // Build auto-fill instruction for empty fields
         const autoFillInstruction = `
 INSTRUKSI AUTO-FILL (PENTING!):
-Jika data berikut KOSONG atau "-", buatkan secara CERDAS berdasarkan konteks pembelajaran:
+Jika data berikut KOSONG atau "-", buatkan secara CERDAS berdasarkan konteks pembelajaran.
+ATURAN KONTEKSTUALITAS: setiap deskripsi WAJIB menyebut/memerujuk MATERI "${data.materi || data.tujuanPembelajaran || 'topik ini'}" secara spesifik. DILARANG memakai kalimat template generik yang berlaku untuk semua materi.
 
 1. IDENTIFIKASI MURID (jika kosong):
-   - aspekPengetahuanAwal: Analisis prerequisite knowledge untuk murid ${data.fase} sebelum mempelajari ${data.tujuanPembelajaran || 'topik ini'}
+   - aspekPengetahuanAwal: Analisis prerequisite knowledge untuk murid ${data.fase} sebelum mempelajari ${data.materi || data.tujuanPembelajaran || 'topik ini'}
    - aspekMinat: Kaitkan dengan minat umum anak usia ${data.fase} terkait ${data.mataPelajaran}
    - aspekLatarBelakang: Karakteristik umum murid Indonesia fase ${data.fase}
    - aspekKebutuhanBelajar: Kebutuhan berdasarkan CP dan model ${selectedModel}
 
-2. JENIS PENGETAHUAN MATERI (jika kosong):
+2. JENIS PENGETAHUAN MATERI (jika kosong) — sebutkan istilah/konsep/istilah langkah SPESIFIK dari materi:
    - faktual: Data, fakta, terminologi terkait topik
    - konseptual: Konsep, prinsip, teori yang mendasari
    - prosedural: Langkah-langkah, cara, metode yang dipelajari
@@ -1297,13 +1298,13 @@ Jika data berikut KOSONG atau "-", buatkan secara CERDAS berdasarkan konteks pem
    - Pilih 3-5 nilai karakter yang terintegrasi
 
 5. LINTAS DISIPLIN ILMU (jika kosong):
-   - Identifikasi 2-3 mata pelajaran yang dapat diintegrasikan
+   - Identifikasi 2-3 mata pelajaran yang dapat diintegrasikan, dengan keterkaitan SPESIFIK ke materi (bukan sekadar "saling terkait")
 
 6. KEMITRAAN PEMBELAJARAN (jika kosong):
-   - Suggest stakeholder relevan berdasarkan topik
+   - Suggest stakeholder relevan berdasarkan topik (mis. instansi/figur yang benar-benar relevan dengan materi)
 
 7. LINGKUNGAN & DIGITAL (jika kosong):
-   - Sesuaikan dengan model pembelajaran ${selectedModel}
+   - Sesuaikan dengan model pembelajaran ${selectedModel} dan sebutkan alat/platform konkret yang relevan dengan materi
 `;
 
         // Check which fields are empty and need auto-fill
@@ -1394,7 +1395,7 @@ ${distribusiInfo}
 5. Total durasi di setiap pertemuan HARUS sesuai dengan durasi yang ditentukan
 6. Pastikan setiap kegiatan diberi label prinsip pembelajaran mendalam yang tepat
 
-7. PENTING: Untuk field yang ditandai (AUTO-FILL), sertakan dalam output JSON dengan key "auto_generated" berisi semua field yang kamu generate:
+7. PENTING: Untuk field yang ditandai (AUTO-FILL), sertakan dalam output JSON dengan key "auto_generated" berisi semua field yang kamu generate. Setiap nilai WAJIB spesifik ke materi "${data.materi || '-'}" — bukan kalimat template yang sama antar modul:
 {
   "pemahaman_bermakna": "...",
   "pertemuan": [...],
@@ -1420,12 +1421,21 @@ ${distribusiInfo}
     "nilai_karakter": ["Kritis dan Kreatif", "Kolaborasi"],
     "lintas_disiplin": {
       "ppkn": "...",
-      "ips": "..."
+      "ips": "...",
+      "matematika": "...",
+      "bahasa_indonesia": "...",
+      "seni_budaya": "...",
+      "prakarya": "...",
+      "penjaskes": "..."
     },
     "kemitraan": {
       "guru_bidang_studi_lain": "...",
       "orang_tua": "...",
-      "instansi_terkait": "..."
+      "tokoh_masyarakat": "...",
+      "instansi_terkait": "...",
+      "dunia_usaha": "...",
+      "perguruan_tinggi_lsm": "...",
+      "mgmp_komunitas_belajar": "..."
     },
     "lingkungan": {
       "ruang_fisik": "...",
@@ -1686,7 +1696,8 @@ ATURAN STRUKTUR (WAJIB):
 
         const pAutoFillInstructionPertemuan = `
 INSTRUKSI AUTO-FILL (PENTING!):
-Beberapa field masih kosong. WAJIB hasilkan field 'auto_generated' secara cerdas berdasarkan konteks pembelajaran:
+Beberapa field masih kosong. WAJIB hasilkan field 'auto_generated' secara cerdas berdasarkan konteks pembelajaran.
+ATURAN KONTEKSTUALITAS: setiap deskripsi WAJIB menyebut/memerujuk MATERI "${pData.materi || pData.tujuanPembelajaran || 'topik ini'}" secara spesifik. DILARANG memakai kalimat template generik yang berlaku untuk semua materi.
 
 1. IDENTIFIKASI MURID:
    - aspekPengetahuanAwal: Analisis prerequisite knowledge
@@ -1694,7 +1705,7 @@ Beberapa field masih kosong. WAJIB hasilkan field 'auto_generated' secara cerdas
    - aspekLatarBelakang: Karakteristik umum murid
    - aspekKebutuhanBelajar: Kebutuhan berdasarkan CP dan model
 
-2. JENIS PENGETAHUAN MATERI:
+2. JENIS PENGETAHUAN MATERI — sebutkan istilah/konsep SPESIFIK dari materi:
    - faktual: Data, fakta, terminologi terkait topik
    - konseptual: Konsep, prinsip, teori yang mendasari
    - prosedural: Langkah-langkah, cara, metode yang dipelajari
@@ -1703,10 +1714,10 @@ Beberapa field masih kosong. WAJIB hasilkan field 'auto_generated' secara cerdas
 3. DIMENSI PROFIL LULUSAN & NILAI KARAKTER:
    - Pilih 2-4 DPL dan 3-5 nilai karakter
 
-4. LINTAS DISIPLIN ILMU: identifikasi 1-3 mapel yang dapat diintegrasikan (isi string singkat, kosongkan jika tidak relevan)
-5. KEMITRAAN PEMBELAJARAN: pihak yang dapat berkolaborasi (guru lain, orang tua, instansi)
+4. LINTAS DISIPLIN ILMU: identifikasi 1-3 mapel yang dapat diintegrasikan dengan keterkaitan SPESIFIK ke materi (isi string singkat, kosongkan jika tidak relevan)
+5. KEMITRAAN PEMBELAJARAN: pihak yang dapat berkolaborasi (guru lain, orang tua, instansi) yang relevan dengan materi
 6. LINGKUNGAN PEMBELAJARAN: ruang fisik, virtual, dan budaya belajar sesuai model ${pSelectedModel}
-7. PEMANFAATAN DIGITAL: platform/alat digital untuk perencanaan, pelaksanaan, dan asesmen
+7. PEMANFAATAN DIGITAL: platform/alat digital KONKRET untuk perencanaan, pelaksanaan, dan asesmen yang relevan dengan materi
 
 Sisipkan key "auto_generated" SEJAJAR dengan "nomorPertemuan" dan "tahap_awal" di root level output JSON:
 {
@@ -1729,8 +1740,8 @@ Sisipkan key "auto_generated" SEJAJAR dengan "nomorPertemuan" dan "tahap_awal" d
     },
     "dimensi_profil_lulusan": ["DPL 3", "DPL 5"],
     "nilai_karakter": ["Kritis dan Kreatif"],
-    "lintas_disiplin": { "ppkn": "...", "ips": "..." },
-    "kemitraan": { "guru_bidang_studi_lain": "...", "orang_tua": "...", "instansi_terkait": "..." },
+    "lintas_disiplin": { "ppkn": "...", "ips": "...", "matematika": "...", "bahasa_indonesia": "...", "seni_budaya": "...", "prakarya": "...", "penjaskes": "..." },
+    "kemitraan": { "guru_bidang_studi_lain": "...", "orang_tua": "...", "tokoh_masyarakat": "...", "instansi_terkait": "...", "dunia_usaha": "...", "perguruan_tinggi_lsm": "...", "mgmp_komunitas_belajar": "..." },
     "lingkungan": { "ruang_fisik": "...", "ruang_virtual": "...", "budaya_belajar": "..." },
     "pemanfaatan_digital": { "perencanaan": "...", "pelaksanaan": "...", "asesmen": "..." }
   },
@@ -2794,39 +2805,75 @@ Berikan saran model, metode, DPL, dan nilai karakter yang paling sesuai.`;
         break;
 
       case "auto-fill": {
-        systemPrompt = `Kamu adalah asisten ahli pendidikan Indonesia yang membantu melengkapi data identifikasi murid, jenis pengetahuan, dimensi profil lulusan, nilai karakter, serta kaitan materi dengan kehidupan dan pemahaman bermakna untuk RPP/Modul Ajar.
-        
+        systemPrompt = `Kamu adalah asisten ahli pendidikan Indonesia yang membantu melengkapi data identifikasi murid, jenis pengetahuan, dimensi profil lulusan, nilai karakter, lintas disiplin ilmu, kemitraan, lingkungan pembelajaran, pemanfaatan teknologi digital, serta kaitan materi dengan kehidupan untuk RPP/Modul Ajar.
+
+ATURAN KONTEKSTUALITAS (PALING PENTING!):
+1. Setiap deskripsi WAJIB menyebutkan dan merujuk pada MATERI/TOPIK spesifik yang diberikan user secara eksplisit. Contoh: untuk materi "Teks Prosedur", tulis "murid mengenal langkah penyusunan teks prosedur melalui resep masakan", BUKAN "murid memahami konsep dasar materi".
+2. DILARANG menggunakan kalimat generik/template yang bisa dipakai untuk materi apa pun (mis. "murid memahami konsep dasar", "menggunakan teknologi dalam pembelajaran"). Setiap modul dengan materi berbeda HARUS menghasilkan deskripsi yang berbeda isinya.
+3. Identifikasi Murid boleh umum untuk aspek Latar Belakang (karakteristik murid Indonesia per fase), tetapi Pengetahuan Awal dan Kebutuhan Belajar WAJIB spesifik ke materi.
+4. Isi SEMUA key yang didefinisikan di skema output — jangan kembalikan objek kosong. Gunakan string kosong "" hanya jika benar-benar tidak relevan (mis. key KBC saat kurikulum bukan KBC).
+
 FORMAT OUTPUT JSON (WAJIB persis struktur berikut, tanpa tambahan/pengurangan struktur):
 {
   "auto_generated": {
     "identifikasi_murid": {
-      "aspek_pengetahuan_awal": "Analisis prerequisite knowledge singkat",
-      "aspek_minat": "Minat murid terkait topik",
+      "aspek_pengetahuan_awal": "Analisis prerequisite knowledge yang SPESIFIK ke materi",
+      "aspek_minat": "Minat murid yang relevan dengan materi",
       "aspek_latar_belakang": "Karakteristik latar belakang murid",
-      "aspek_kebutuhan_belajar": "Kebutuhan belajar murid"
+      "aspek_kebutuhan_belajar": "Kebutuhan belajar berdasarkan CP dan materi"
     },
     "materi_pengetahuan": {
-      "faktual": "Data, fakta, istilah terkait",
-      "konseptual": "Konsep, prinsip, definisi",
-      "prosedural": "Langkah-langkah, cara, urutan",
-      "metakognitif": "Refleksi, strategi kognitif"
+      "faktual": "Data, fakta, istilah SPESIFIK dari materi",
+      "konseptual": "Konsep, prinsip, definisi SPESIFIK dari materi",
+      "prosedural": "Langkah-langkah konkret terkait materi",
+      "metakognitif": "Strategi berpikir dan refleksi terkait materi"
     },
     "dimensi_profil_lulusan": ["DPL 1", "DPL 2"],
-    "dpl_deskripsi": "Deskripsi singkat bagaimana DPL di atas dikembangkan dalam pembelajaran ini",
+    "dpl_deskripsi": {
+      "DPL 1": "Deskripsi 1-2 kalimat bagaimana DPL ini diterapkan SPESIFIK dalam materi ini",
+      "DPL 2": "Deskripsi 1-2 kalimat bagaimana DPL ini diterapkan SPESIFIK dalam materi ini"
+    },
     "nilai_karakter": ["Nilai 1", "Nilai 2"],
-    "kaitan_kehidupan": "Kaitan kontekstual materi dengan kehidupan sehari-hari murid",
-    "pemahaman_bermakna": "Pemahaman bermakna (enduring understanding) yang akan didapat murid",
+    "kaitan_kehidupan": "Kaitan kontekstual MATERI dengan kehidupan sehari-hari murid",
+    "pemahaman_bermakna": "Pemahaman bermakna (enduring understanding) yang akan didapat murid dari MATERI ini",
+    "lintas_disiplin": {
+      "ppkn": "Keterkaitan PPKn dengan materi (kosongkan jika tidak relevan)",
+      "ips": "Keterkaitan IPS dengan materi",
+      "matematika": "Keterkaitan Matematika dengan materi",
+      "bahasa_indonesia": "Keterkaitan Bahasa Indonesia dengan materi",
+      "seni_budaya": "Keterkaitan Seni Budaya dengan materi",
+      "prakarya": "Keterkaitan Prakarya dengan materi",
+      "penjaskes": "Keterkaitan Penjaskes dengan materi"
+    },
+    "kemitraan": {
+      "guru_bidang_studi_lain": "Guru mapel mana yang relevan & bentuk kolaborasinya untuk MATERI ini",
+      "orang_tua": "Peran orang tua terkait MATERI ini",
+      "tokoh_masyarakat": "Tokoh masyarakat yang relevan (kosongkan jika tidak relevan)",
+      "instansi_terkait": "Instansi terkait MATERI ini (kosongkan jika tidak relevan)",
+      "dunia_usaha": "Dunia usaha terkait (kosongkan jika tidak relevan)",
+      "perguruan_tinggi_lsm": "Perguruan tinggi/LSM terkait (kosongkan jika tidak relevan)",
+      "mgmp_komunitas_belajar": "Peran MGMP/komunitas belajar"
+    },
+    "lingkungan": {
+      "ruang_fisik": "Pengaturan ruang kelas yang sesuai untuk MATERI dan model pembelajaran",
+      "ruang_virtual": "Platform digital untuk mendukung MATERI",
+      "budaya_belajar": "Budaya belajar yang ingin dibangun"
+    },
+    "pemanfaatan_digital": {
+      "perencanaan": "Alat digital untuk merencanakan pembelajaran MATERI ini",
+      "pelaksanaan": "Alat digital selama pembelajaran MATERI ini",
+      "asesmen": "Alat digital untuk menilai MATERI ini"
+    },
     "topik_panca_cinta": ["Cinta 1", "Cinta 2"],
-    "panca_cinta_deskripsi": "Deskripsi singkat integrasi panca cinta (hanya jika KBC)",
-    "materi_integrasi_kbc": "Penjelasan integrasi materi dengan nilai KBC (hanya jika KBC)",
-    "lintas_disiplin": {},
-    "kemitraan": {},
-    "lingkungan": {},
-    "pemanfaatan_digital": {}
+    "panca_cinta_deskripsi": {
+      "Cinta 1": "Deskripsi integrasi pilar ini dengan materi"
+    },
+    "materi_integrasi_kbc": "- **Cinta 1**: deskripsi integrasi dengan materi"
   }
 }
 
-Pilih 2-4 DPL dan 3-5 nilai karakter.`;
+Pilih 2-4 DPL dan 3-5 nilai karakter yang paling relevan dengan MATERI.
+Untuk key KBC (topik_panca_cinta, panca_cinta_deskripsi, materi_integrasi_kbc): isi HANYA jika kurikulum KBC — selain itu kembalikan array kosong / string kosong.`;
 
         userPrompt = `Buatkan kelengkapan data (auto-fill) untuk RPP berikut:
 Kurikulum: ${data.kurikulum === 'kbc' ? 'Kurikulum Berbasis Cinta (KBC)' : 'Kurikulum Merdeka'}
@@ -2835,10 +2882,16 @@ Materi: ${data.materi || '-'}
 Sub Materi: ${data.subMateri || '-'}
 Fase: ${data.fase || '-'}
 Kelas: ${data.kelas || '-'}
-Tujuan Pembelajaran: ${data.tujuanPembelajaran || '-'}
+
+Tujuan Pembelajaran:
+${data.tujuanPembelajaran || '-'}
+
+Capaian Pembelajaran (CP):
+${data.capaianPembelajaran || '(tidak tersedia)'}
+
 Model Pembelajaran: ${data.modelPembelajaran || '-'}
 
-Catatan: Jika kurikulum bukan KBC, biarkan field KBC (topik_panca_cinta, panca_cinta_deskripsi, materi_integrasi_kbc) kosong atau diisi dengan array kosong.`;
+INGAT: semua deskripsi harus spesifik dan berbeda untuk materi ini — tidak boleh kalimat umum yang sama untuk semua modul.`;
         break;
       }
 
