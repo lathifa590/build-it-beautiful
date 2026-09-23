@@ -541,8 +541,8 @@ export const usePertemuanGeneration = ({
 
       const { error } = await supabase.from('generation_queue').insert(insertData);
       if (error) {
-        console.error("Gagal memasukkan ke queue", error);
-        cbRef.current?.onNotify?.(`Gagal memasukkan ${insertData.length} dokumen ke antrean`, 'error');
+        const isDuplicate = (error as any)?.code === '23505' || String((error as any)?.message || '').includes('uq_generation_queue_pending');
+        if (isDuplicate) cbRef.current?.onNotify?.('Beberapa dokumen sudah ada di antrean — lewati duplikat.', 'error'); else { console.error('Gagal memasukkan ke queue', error); cbRef.current?.onNotify?.('Gagal memasukkan ' + insertData.length + ' dokumen ke antrean' + ((error as any)?.message ? ': ' + (error as any).message : ''), 'error'); }
         return false;
       }
 
@@ -659,3 +659,5 @@ export const usePertemuanGeneration = ({
     loadResult,
   };
 };
+
+
