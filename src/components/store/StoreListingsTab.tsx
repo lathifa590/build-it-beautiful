@@ -25,6 +25,7 @@ const StoreListingsTab = () => {
   const [formData, setFormData] = useState<Partial<StoreListing>>({
     status: 'PUBLISHED',
     price_amount: 0,
+    show_in_global_marketplace: true,
   });
   const [isFree, setIsFree] = useState(false);
   const [originalFile, setOriginalFile] = useState<File | null>(null);
@@ -241,6 +242,18 @@ const StoreListingsTab = () => {
                   <option value="PUBLISHED">Terbitkan Sekarang (langsung tampil)</option>
                   <option value="DRAFT">Simpan sebagai Draf (belum tampil)</option>
                 </select>
+                <div className="mt-3">
+                  <label className="flex items-center gap-2 cursor-pointer w-max">
+                    <input 
+                      type="checkbox" 
+                      className="w-4 h-4 border-2 border-[#111] rounded"
+                      checked={formData.show_in_global_marketplace ?? true}
+                      onChange={(e) => setFormData({...formData, show_in_global_marketplace: e.target.checked})}
+                    />
+                    <span className="text-sm font-bold">Tampilkan di Global Marketplace</span>
+                  </label>
+                  <p className="text-xs text-muted-foreground mt-1">Jika dicentang, modul ini akan muncul di halaman publik `/store`.</p>
+                </div>
               </div>
             </div>
 

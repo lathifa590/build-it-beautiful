@@ -40,6 +40,7 @@ export interface StoreListing {
   created_at: string;
   updated_at: string;
   published_at?: string;
+  show_in_global_marketplace?: boolean;
   store_profile?: StoreProfile;
 }
 

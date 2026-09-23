@@ -56,8 +56,10 @@ export const storeApi = {
   async getPublicListings(category?: string): Promise<StoreListing[]> {
     let query = supabase
       .from('modul_store_listings')
-      .select('*, store_profile:modul_store_profiles(*)')
-      .eq('status', 'PUBLISHED');
+      .select('*, store_profile:modul_store_profiles!inner(*)')
+      .eq('status', 'PUBLISHED')
+      .eq('show_in_global_marketplace', true)
+      .eq('modul_store_profiles.status', 'ACTIVE');
       
     if (category) {
       query = query.eq('category', category);
