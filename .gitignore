@@ -37,3 +37,6 @@ Revisi*.md
 ~$*
 scratch/
 
+# bun.lock - ignore to let Cloudflare Pages use package-lock.json (npm)
+bun.lock
+
