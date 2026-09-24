@@ -20,11 +20,11 @@ serve(async (req) => {
 
     // ponytail: atomic claim via RPC FOR UPDATE SKIP LOCKED; scale to dedicated queue when >100 jobs/min
     let jobs: any[] | null = null;
-    const { data: claimed, error: claimError } = await supabase.rpc("claim_generation_jobs", { p_limit: 3 });
+    const { data: claimed, error: claimError } = await supabase.rpc("claim_generation_jobs", { p_limit: 1 });
     if (claimError) {
       // fallback for DB before migration applied (select+update)
       console.warn("claim_generation_jobs failed, fallback:", claimError.message);
-      const { data: pending, error: fetchError } = await supabase.from("generation_queue").select("*").eq("status", "pending").order("created_at", { ascending: true }).limit(3);
+      const { data: pending, error: fetchError } = await supabase.from("generation_queue").select("*").eq("status", "pending").order("created_at", { ascending: true }).limit(1);
       if (fetchError) throw fetchError;
       if (!pending || pending.length === 0) {
         return new Response(JSON.stringify({ message: "No pending jobs" }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
