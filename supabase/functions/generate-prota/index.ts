@@ -284,12 +284,12 @@ Kembalikan HANYA JSON valid (tanpa markdown, tanpa teks pembuka/penutup) dengan 
 
     // Strictly adhere to .agents/rules/api-key.md (Experimental Tier Gemini models ONLY, NEVER gemini-1.5)
     const GEMINI_MODEL_CHAIN = [
-      "gemini-3.6-flash",
       "gemini-3.5-flash",
       "gemini-3.0-flash",
       "gemini-3.5-flash-lite",
       "gemini-2.5-flash",
       "gemini-2.5-flash-lite",
+      "gemini-1.5-flash"
     ];
 
     let resultData: any = null;
