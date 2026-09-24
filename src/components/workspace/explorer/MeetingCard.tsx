@@ -134,25 +134,40 @@ export const MeetingCard: React.FC<MeetingCardProps> = ({ slot, meetingIndex, on
         <span className={`text-xs font-medium ${cfg.color} hidden sm:block`}>{cfg.label}</span>
         
         {onGenerateClick && (
-          <button
-          onClick={handleGenerate}
-          disabled={isGenerating || slot.status === "completed"}
-          className={`
-            flex items-center gap-1.5 px-3 py-1 text-[11px] font-bold rounded-lg border-2
-            ${isGenerating ? 'bg-amber-100 text-amber-700 border-amber-300' 
-              : slot.status === "completed" ? 'bg-emerald-100 text-emerald-700 border-emerald-300'
-              : 'bg-amber-100/50 text-amber-600 border-amber-200 hover:bg-amber-100 hover:-translate-y-0.5'}
-            transition-all shadow-sm
-          `}
-        >
-          {isGenerating ? (
-            <><Loader2 className="w-3 h-3 animate-spin" /> {progressMsg || "Memproses..."}</>
-          ) : slot.status === "completed" ? (
-            <><Check className="w-3 h-3" /> Selesai</>
-          ) : (
-            <><Wand2 className="w-3 h-3 text-amber-500" /> Generate</>
-          )}
-        </button>
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={handleGenerate}
+              disabled={isGenerating || slot.status === "completed"}
+              className={`
+                flex items-center gap-1.5 px-3 py-1 text-[11px] font-bold rounded-lg border-2
+                ${isGenerating ? 'bg-amber-100 text-amber-700 border-amber-300' 
+                  : slot.status === "completed" ? 'bg-emerald-100 text-emerald-700 border-emerald-300'
+                  : 'bg-amber-100/50 text-amber-600 border-amber-200 hover:bg-amber-100 hover:-translate-y-0.5'}
+                transition-all shadow-sm
+              `}
+            >
+              {isGenerating ? (
+                <><Loader2 className="w-3 h-3 animate-spin" /> {progressMsg || "Memproses..."}</>
+              ) : slot.status === "completed" ? (
+                <><Check className="w-3 h-3" /> Selesai</>
+              ) : (
+                <><Wand2 className="w-3 h-3 text-amber-500" /> Generate</>
+              )}
+            </button>
+            
+            {slot.status === "completed" && !isGenerating && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleGenerate(e);
+                }}
+                className="flex items-center justify-center w-7 h-7 bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-600 rounded-lg shadow-sm transition-colors"
+                title="Generate Ulang Modul"
+              >
+                <Wand2 className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
         )}
         
         <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0" />
