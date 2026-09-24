@@ -18,7 +18,8 @@ export const exportProtaProsemToExcel = async (
   workspace: Workspace,
   protaData: ProtaData | null,
   prosemSem1: ProsemData | null,
-  prosemSem2: ProsemData | null
+  prosemSem2: ProsemData | null,
+  returnBuffer: boolean = false
 ) => {
   const wb = new ExcelJS.Workbook();
   wb.creator = "ModulAjar.Online";
@@ -201,6 +202,10 @@ export const exportProtaProsemToExcel = async (
   if (wb.worksheets.length === 0) {
     alert("Data Prota / Prosem kosong, tidak ada yang bisa diekspor.");
     return;
+  }
+
+  if (returnBuffer) {
+    return wb.xlsx.writeBuffer();
   }
 
   // Save the file
