@@ -39,6 +39,7 @@ export const StepCpTp: React.FC<StepCpTpProps> = ({ workspace, onNext, isLocked,
   const [isLoaded, setIsLoaded] = useState(false);
   const { confirm } = useConfirm();
   const [showCPSelector, setShowCPSelector] = useState(false);
+  const [isManualCp, setIsManualCp] = useState(false);
 
   const { generate: generateTp, isLoading: isGenerating, error: genError } = useTpGenerator();
 
@@ -128,6 +129,7 @@ export const StepCpTp: React.FC<StepCpTpProps> = ({ workspace, onNext, isLocked,
     });
     if (ok) {
       setCpContent("");
+      setIsManualCp(false);
       setTpItems([]);
       setShowCPSelector(true);
     }
@@ -298,23 +300,33 @@ export const StepCpTp: React.FC<StepCpTpProps> = ({ workspace, onNext, isLocked,
           {activeTab === 'cp' && (
             <div className="space-y-4 animate-in fade-in duration-200">
               <h3 className="section-heading">CAPAIAN PEMBELAJARAN</h3>
-              {cpContent ? (
+              {(cpContent || isManualCp) ? (
                 <div className="space-y-3">
                   <textarea
                     className="flex w-full rounded-md border border-slate-200 bg-slate-50 px-4 py-3 text-sm shadow-sm min-h-[150px] max-h-[400px] resize-y focus:bg-white transition-colors"
                     value={cpContent}
                     onChange={e => setCpContent(e.target.value)}
-                    placeholder="Teks Capaian Pembelajaran..."
+                    placeholder="Tulis Capaian Pembelajaran secara manual di sini..."
+                    autoFocus={isManualCp && !cpContent}
                   />
                   <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
-                    <button className="btn btn-secondary" onClick={() => setShowCpModal(true)}>Ganti CP</button>
-                    <Button onClick={() => setActiveTab('kalender')}>Lanjut ke Kalender</Button>
+                    <button className="btn btn-secondary" onClick={() => setShowCpModal(true)}>Ganti CP Resmi</button>
+                    <Button onClick={() => {
+                      if (!cpContent.trim()) {
+                        toast.error("Capaian Pembelajaran tidak boleh kosong.");
+                        return;
+                      }
+                      setActiveTab('kalender');
+                    }}>Lanjut ke Kalender</Button>
                   </div>
                 </div>
               ) : (
                 <div className="text-center py-12 border-2 border-dashed rounded-md bg-white">
                   <p className="text-sm text-muted-foreground mb-4">Belum ada CP yang dipilih</p>
-                  <Button onClick={() => setShowCpModal(true)}>Pilih CP Resmi</Button>
+                  <div className="flex items-center justify-center gap-3">
+                    <Button onClick={() => setShowCpModal(true)}>Pilih CP Resmi</Button>
+                    <Button variant="outline" onClick={() => setIsManualCp(true)}>Tulis CP Manual</Button>
+                  </div>
                 </div>
               )}
             </div>
