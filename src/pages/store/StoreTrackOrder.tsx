@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Search, Package, Clock, ArrowLeft, History, Loader2, ArrowRight } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { TopBar } from '@/components/landing/TopBar';
+import { Navbar } from '@/components/landing/Navbar';
 import { Footer } from '@/components/landing/Footer';
 
 export default function StoreTrackOrder() {
@@ -72,7 +72,7 @@ export default function StoreTrackOrder() {
 
   return (
     <div className="min-h-screen bg-[#f5f0e8] font-sans flex flex-col">
-      <TopBar />
+      <Navbar />
       
       <main className="flex-1 flex flex-col pt-24 pb-12 px-4 md:px-8">
         <div className="max-w-4xl mx-auto w-full grid md:grid-cols-[1fr_350px] gap-8">
