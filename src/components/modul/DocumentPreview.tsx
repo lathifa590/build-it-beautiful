@@ -1763,9 +1763,7 @@ export const DocumentPreview = ({
 
         {/* Langkah Pembelajaran Section */}
         <div style={{ marginBottom: '30px' }}>
-          <div style={{ backgroundColor: '#e2e8f0', padding: '8px', fontWeight: 'bold', marginBottom: '16px', border: '1px solid black' }}>
-            XI. PENGALAMAN BELAJAR (LANGKAH PEMBELAJARAN)
-          </div>
+
 
           {/* Status progress per pertemuan — hanya untuk flow V1 sequential */}
           {!v2Mode && (() => {
@@ -1814,12 +1812,19 @@ export const DocumentPreview = ({
                     <col style={{ width: '70%' }} />
                     <col style={{ width: '15%' }} />
                   </colgroup>
-                  <tbody>
+                  <thead>
+                    <tr style={{ backgroundColor: '#e2e8f0' }}>
+                      <th colSpan={3} style={{ border: '1px solid black', padding: '8px', textAlign: 'left', fontWeight: 'bold' }}>
+                        XI. PENGALAMAN BELAJAR (LANGKAH PEMBELAJARAN)
+                      </th>
+                    </tr>
                     <tr style={{ backgroundColor: '#f1f5f9', textAlign: 'center' }}>
                       <th style={{ border: '1px solid black', padding: '6px' }}>PERTEMUAN</th>
                       <th style={{ border: '1px solid black', padding: '6px' }}>FOKUS / MATERI UTAMA</th>
                       <th style={{ border: '1px solid black', padding: '6px' }}>DURASI</th>
                     </tr>
+                  </thead>
+                  <tbody>
                     {safePertemuan.map((pertemuan, index) => (
                       <tr key={`ringkasan-${index}`}>
                         <td style={{ border: '1px solid black', padding: '8px', textAlign: 'center', fontWeight: 'bold' }}>{pertemuan.nomorPertemuan}</td>
@@ -1835,6 +1840,9 @@ export const DocumentPreview = ({
                 </table>
               ) : (
                 <div style={{ width: '100%' }}>
+                  <div style={{ backgroundColor: '#e2e8f0', padding: '8px', fontWeight: 'bold', marginBottom: '16px', border: '1px solid black' }}>
+                    XI. PENGALAMAN BELAJAR (LANGKAH PEMBELAJARAN)
+                  </div>
                   {safePertemuan.map((pertemuan, index) =>
                     renderPertemuanAsNarasi(pertemuan, index, outputFormat, isDetailedFormat(pertemuan))
                   )}
@@ -1854,12 +1862,19 @@ export const DocumentPreview = ({
                 <col style={{ width: '67%' }} />
                 <col style={{ width: '15%' }} />
               </colgroup>
-              <tbody>
+              <thead>
+                <tr style={{ backgroundColor: '#e2e8f0' }}>
+                  <th colSpan={3} style={{ border: '1px solid black', padding: '8px', textAlign: 'left', fontWeight: 'bold' }}>
+                        XI. PENGALAMAN BELAJAR (LANGKAH PEMBELAJARAN)
+                  </th>
+                </tr>
                 <tr style={{ backgroundColor: '#f1f5f9', textAlign: 'center' }}>
                   <th style={{ border: '1px solid black', padding: '6px' }}>TAHAP</th>
                   <th style={{ border: '1px solid black', padding: '6px' }}>KEGIATAN & PRINSIP</th>
                   <th style={{ border: '1px solid black', padding: '6px' }}>DURASI</th>
                 </tr>
+              </thead>
+              <tbody>
                 {safePertemuan.map((pertemuan, index) =>
                   isDetailedFormat(pertemuan)
                     ? renderDetailedPertemuanAsTableRows(pertemuan as PertemuanDataDetail, index, true, formData.modelPembelajaran)
