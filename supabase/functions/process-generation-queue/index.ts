@@ -17,10 +17,42 @@ serve(async (req) => {
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } });
+    let targetWorkspaceId: string | undefined;
+    try {
+      const reqClone = req.clone();
+      const body = await reqClone.json();
+      targetWorkspaceId = body?.workspace_id;
+    } catch (e) {
+      // Ignore if body is not JSON
+    }
 
     // ponytail: atomic claim via RPC FOR UPDATE SKIP LOCKED; scale to dedicated queue when >100 jobs/min
     let jobs: any[] | null = null;
-    const { data: claimed, error: claimError } = await supabase.rpc("claim_generation_jobs", { p_limit: 1 });
+    
+    if (targetWorkspaceId) {
+      // Try to manually claim jobs for this specific workspace first
+      const { data: pending, error: fetchError } = await supabase
+        .from("generation_queue")
+        .select("*")
+        .eq("status", "pending")
+        .eq("workspace_id", targetWorkspaceId)
+        .order("created_at", { ascending: true })
+        .limit(1);
+        
+      if (!fetchError && pending && pending.length > 0) {
+        const ids = pending.map((j: any) => j.id);
+        const { data: updated } = await supabase
+          .from("generation_queue")
+          .update({ status: "processing" })
+          .in("id", ids)
+          .select();
+        jobs = updated;
+      }
+    }
+
+    // Fallback to RPC if no workspace specified or no jobs found for workspace
+    if (!jobs || jobs.length === 0) {
+      const { data: claimed, error: claimError } = await supabase.rpc("claim_generation_jobs", { p_limit: 1 });
     if (claimError) {
       // fallback for DB before migration applied (select+update)
       console.warn("claim_generation_jobs failed, fallback:", claimError.message);
@@ -33,7 +65,8 @@ serve(async (req) => {
       await supabase.from("generation_queue").update({ status: "processing" }).in("id", ids);
       jobs = pending;
     } else {
-      jobs = claimed as any[];
+        jobs = claimed as any[];
+      }
     }
 
     if (!jobs || jobs.length === 0) {
