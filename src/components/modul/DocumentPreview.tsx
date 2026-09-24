@@ -1120,27 +1120,45 @@ export const DocumentPreview = ({
                   Identitas Umum
                 </td>
                 <td style={{ border: '1px solid black', padding: '6px', verticalAlign: 'top' }}>
-                  <div>
-                    <strong>Nama Penyusun:</strong> {formData.namaPenyusun}
-                  </div>
-                  <div>
-                    <strong>Sekolah:</strong> {formData.sekolah}
-                  </div>
-                  <div>
-                    <strong>Mata Pelajaran:</strong> {formData.mataPelajaran}
-                  </div>
-                  <div>
-                    <strong>Materi:</strong> {formData.materi} {formData.subMateri && `- ${formData.subMateri}`}
-                  </div>
-                  <div>
-                    <strong>Kelas/Fase:</strong> {formData.kelas} / {formData.fase}
-                  </div>
-                  <div>
-                    <strong>Semester:</strong> {formData.semester}
-                  </div>
-                  <div>
-                    <strong>Jumlah Pertemuan:</strong> {formData.pertemuan.length} ({getTotalDurasi(formData)} Menit)
-                  </div>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', border: 'none' }}>
+                    <tbody>
+                      <tr>
+                        <td style={{ width: '140px', padding: '2px 0', border: 'none', verticalAlign: 'top' }}><strong>Nama Penyusun</strong></td>
+                        <td style={{ width: '10px', padding: '2px 0', border: 'none', verticalAlign: 'top' }}>:</td>
+                        <td style={{ padding: '2px 0', border: 'none', verticalAlign: 'top' }}>{formData.namaPenyusun}</td>
+                      </tr>
+                      <tr>
+                        <td style={{ padding: '2px 0', border: 'none', verticalAlign: 'top' }}><strong>Sekolah</strong></td>
+                        <td style={{ padding: '2px 0', border: 'none', verticalAlign: 'top' }}>:</td>
+                        <td style={{ padding: '2px 0', border: 'none', verticalAlign: 'top' }}>{formData.sekolah}</td>
+                      </tr>
+                      <tr>
+                        <td style={{ padding: '2px 0', border: 'none', verticalAlign: 'top' }}><strong>Mata Pelajaran</strong></td>
+                        <td style={{ padding: '2px 0', border: 'none', verticalAlign: 'top' }}>:</td>
+                        <td style={{ padding: '2px 0', border: 'none', verticalAlign: 'top' }}>{formData.mataPelajaran}</td>
+                      </tr>
+                      <tr>
+                        <td style={{ padding: '2px 0', border: 'none', verticalAlign: 'top' }}><strong>Materi</strong></td>
+                        <td style={{ padding: '2px 0', border: 'none', verticalAlign: 'top' }}>:</td>
+                        <td style={{ padding: '2px 0', border: 'none', verticalAlign: 'top' }}>{formData.materi} {formData.subMateri && `- ${formData.subMateri}`}</td>
+                      </tr>
+                      <tr>
+                        <td style={{ padding: '2px 0', border: 'none', verticalAlign: 'top' }}><strong>Kelas/Fase</strong></td>
+                        <td style={{ padding: '2px 0', border: 'none', verticalAlign: 'top' }}>:</td>
+                        <td style={{ padding: '2px 0', border: 'none', verticalAlign: 'top' }}>{formData.kelas} / {formData.fase}</td>
+                      </tr>
+                      <tr>
+                        <td style={{ padding: '2px 0', border: 'none', verticalAlign: 'top' }}><strong>Semester</strong></td>
+                        <td style={{ padding: '2px 0', border: 'none', verticalAlign: 'top' }}>:</td>
+                        <td style={{ padding: '2px 0', border: 'none', verticalAlign: 'top' }}>{formData.semester}</td>
+                      </tr>
+                      <tr>
+                        <td style={{ padding: '2px 0', border: 'none', verticalAlign: 'top' }}><strong>Jumlah Pertemuan</strong></td>
+                        <td style={{ padding: '2px 0', border: 'none', verticalAlign: 'top' }}>:</td>
+                        <td style={{ padding: '2px 0', border: 'none', verticalAlign: 'top' }}>{formData.pertemuan.length} ({getTotalDurasi(formData)} Menit)</td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </td>
               </tr>
               
