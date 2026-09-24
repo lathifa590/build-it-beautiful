@@ -285,8 +285,9 @@ h1{font-size:14pt;font-weight:bold;margin:10px 0}
 
 export const exportKktpToWord = (
   kktpData: KKTPData,
-  formData: { mataPelajaran?: string; fase?: string; kelas?: string; namaPenyusun?: string; nipPenyusun?: string; kepalaSekolah?: string; nipKepalaSekolah?: string }
-): void => {
+  formData: { mataPelajaran?: string; fase?: string; kelas?: string; namaPenyusun?: string; nipPenyusun?: string; kepalaSekolah?: string; nipKepalaSekolah?: string },
+  returnBlob: boolean = false
+): Blob | void => {
   if (!kktpData?.kktp?.length) return;
 
   const hs = 'background:#0D7C8F;color:white;font-weight:bold;padding:8px;border:1px solid #333;text-align:center;font-size:9.5pt';
@@ -361,6 +362,8 @@ h1{font-size:15pt;font-weight:bold;margin:8px 0}
   const blob = new Blob(['\ufeff', preHtml + contentHTML + '</body></html>'], {
     type: 'application/msword',
   });
+
+  if (returnBlob) return blob;
 
   const link = document.createElement('a');
   link.href = URL.createObjectURL(blob);

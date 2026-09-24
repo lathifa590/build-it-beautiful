@@ -47,6 +47,7 @@ const StoreProfile = lazy(() => import("./pages/store/StoreProfile"));
 const StoreDetail = lazy(() => import("./pages/store/StoreDetail"));
 const StoreManagement = lazy(() => import("./pages/store/StoreManagement"));
 const StoreCheckout = lazy(() => import("./pages/store/StoreCheckout"));
+const StoreTrackOrder = lazy(() => import("./pages/store/StoreTrackOrder"));
 
 const queryClient = new QueryClient();
 
@@ -90,8 +91,8 @@ const App = () => (
                 <Route path="/store" element={<StoreIndex />} />
                 <Route path="/store/:storeSlug" element={<StoreProfile />} />
                 <Route path="/store/item/:listingId" element={<StoreDetail />} />
-                <Route path="/checkout/:orderId" element={<ProtectedRoute><StoreCheckout /></ProtectedRoute>} />
-                
+                <Route path="/checkout/:orderId" element={<StoreCheckout />} />
+                <Route path="/lacak-pesanan" element={<StoreTrackOrder />} />
                 {/* Protected App routes */}
                 <Route
                   path="/app/*"

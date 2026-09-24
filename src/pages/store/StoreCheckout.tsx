@@ -41,6 +41,27 @@ const StoreCheckout = () => {
   if (isLoading) return <div className="min-h-screen bg-[#f5f0e8] flex items-center justify-center font-bold text-gray-600">Memuat data pesanan...</div>;
   if (!order) return <div className="min-h-screen bg-[#f5f0e8] flex items-center justify-center font-bold text-gray-600">Pesanan tidak ditemukan.</div>;
 
+  React.useEffect(() => {
+    if (order) {
+      try {
+        const historyStr = localStorage.getItem('my_store_orders');
+        let history = historyStr ? JSON.parse(historyStr) : [];
+        const exists = history.find((h: any) => h.order_id === order.order_id);
+        if (!exists) {
+          history.push({
+            order_id: order.order_id,
+            invoice_number: order.invoice_number,
+            title: order.listing?.title,
+            created_at: order.created_at,
+          });
+          localStorage.setItem('my_store_orders', JSON.stringify(history));
+        }
+      } catch (err) {
+        console.error("Gagal simpan riwayat ke localstorage", err);
+      }
+    }
+  }, [order?.order_id]);
+
   const sellerProfile = order.listing?.store_profile;
   const bankName = sellerProfile?.bank_name || '';
   const accountNumber = sellerProfile?.bank_account_number || '';
@@ -111,6 +132,17 @@ const StoreCheckout = () => {
           <ArrowLeft className="w-4 h-4" />
           BATAL / KEMBALI
         </button>
+
+        {order.status !== 'SELESAI' && (
+          <div className="bg-amber-50 border-2 border-amber-500 rounded-xl p-3 mb-4 shadow-[4px_4px_0_0_#d97706] animate-in fade-in slide-in-from-top-4 duration-500">
+            <p className="text-xs font-bold text-amber-900 flex gap-2">
+              <span className="text-amber-500 text-sm">⚠️</span> 
+              <span>
+                PENTING: Simpan URL halaman ini, <i>Screenshot</i>, atau catat <span className="text-amber-700 bg-amber-100 px-1 rounded border border-amber-300">Invoice ID</span> Anda untuk melacak pesanan jika browser tertutup.
+              </span>
+            </p>
+          </div>
+        )}
 
         {/* Ringkasan Singkat Pesanan */}
         <div className="bg-white rounded-2xl border-2 border-[#111] p-4 mb-4 shadow-[4px_4px_0_0_#111] flex items-center gap-3">
