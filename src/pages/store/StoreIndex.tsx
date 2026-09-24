@@ -130,6 +130,7 @@ const StoreIndex = () => {
           <nav className="border-t-[2px] border-brand-dark/20 py-2.5 flex items-center justify-between text-xs md:text-sm font-bold overflow-x-auto gap-4 no-scrollbar">
             <div className="flex items-center gap-2 whitespace-nowrap">
               <a href="#katalog" className="px-3 py-1 bg-brand-dark text-white rounded neo-border-sm neo-shadow-sm font-bold">Semua Kategori</a>
+              <Link to="/lacak-pesanan" className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded neo-border-sm neo-shadow-sm font-bold transition-colors">Lacak Pesanan Saya</Link>
               <a href="#cara-beli" className="px-3 py-1 bg-white hover:bg-brand-cream rounded neo-border-sm font-semibold transition-colors">Cara Pembelian</a>
               <a href="#bantuan" className="px-3 py-1 bg-white hover:bg-brand-cream rounded neo-border-sm font-semibold transition-colors">Pusat Bantuan</a>
             </div>
