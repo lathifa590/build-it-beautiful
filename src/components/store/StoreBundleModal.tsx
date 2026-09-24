@@ -5,7 +5,7 @@ import { storeApi } from '@/lib/store-api';
 import { StoreListing } from '@/types/store';
 import { toast } from 'sonner';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { exportProtaToWord, exportProsemToWord } from '@/lib/export-word';
+import { exportProtaToWord, exportProsemToWord, exportKktpToWord } from '@/lib/export-word';
 import { Store, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import type { Workspace } from '@/types/workspace';
@@ -66,6 +66,8 @@ Cocok untuk guru ${mapelStr} ${kelasStr} yang ingin hemat waktu persiapan mengaj
   });
 
   const [progressMsg, setProgressMsg] = useState('');
+  const [includeExtras, setIncludeExtras] = useState(true);
+  const [extrasFormat, setExtrasFormat] = useState<'word' | 'excel_word'>('excel_word');
 
   const { data: profile } = useQuery({
     queryKey: ['storeProfile', user?.id],
@@ -81,11 +83,76 @@ Cocok untuk guru ${mapelStr} ${kelasStr} yang ingin hemat waktu persiapan mengaj
       setProgressMsg('Mengumpulkan data Program Tahunan & Semester...');
       
       const zipBlob = await generateBundleZip(workspace, semester, prosemItems, setProgressMsg);
+      let finalZipBlob = zipBlob;
+      
+      if (includeExtras) {
+        setProgressMsg('Mengumpulkan dokumen pendukung...');
+        const { data: plans } = await supabase
+          .from("curriculum_plans")
+          .select("*")
+          .eq("workspace_id", workspace.id)
+          .in("type", ["prota", "prosem", "kktp"]);
+          
+        let protaData = null;
+        let prosemSem1 = null;
+        let prosemSem2 = null;
+        let kktpData = null;
+        
+        if (plans) {
+          const pt = plans.find((p: any) => p.type === 'prota');
+          if (pt?.content) protaData = pt.content;
+          
+          const ps1 = plans.find((p: any) => p.type === 'prosem' && p.semester === 1);
+          if (ps1?.content) prosemSem1 = ps1.content;
+          
+          const ps2 = plans.find((p: any) => p.type === 'prosem' && p.semester === 2);
+          if (ps2?.content) prosemSem2 = ps2.content;
+          
+          const kktp = plans.find((p: any) => p.type === 'kktp');
+          if (kktp?.content) kktpData = kktp.content;
+        }
+        
+        if (protaData || prosemSem1 || prosemSem2 || kktpData) {
+          setProgressMsg('Memproses dokumen pendukung...');
+          const zip = await JSZip.loadAsync(zipBlob);
+          
+          if (extrasFormat === 'word') {
+            if (protaData) {
+              const b = exportProtaToWord(protaData as any, formData, true) as Blob;
+              if (b) zip.file(`Program_Tahunan_${mapelStr}.doc`, b);
+            }
+            if (prosemSem1) {
+              const b = exportProsemToWord(prosemSem1 as any, formData, 1, true) as Blob;
+              if (b) zip.file(`Program_Semester_1_${mapelStr}.doc`, b);
+            }
+            if (prosemSem2) {
+              const b = exportProsemToWord(prosemSem2 as any, formData, 2, true) as Blob;
+              if (b) zip.file(`Program_Semester_2_${mapelStr}.doc`, b);
+            }
+          } else if (extrasFormat === 'excel_word') {
+            if (protaData || prosemSem1 || prosemSem2) {
+              const { exportProtaProsemToExcel } = await import('@/lib/export-excel');
+              const buffer = await exportProtaProsemToExcel(workspace, protaData as any, prosemSem1 as any, prosemSem2 as any, true);
+              if (buffer) {
+                zip.file(`Prota_Prosem_${mapelStr}.xlsx`, buffer);
+              }
+            }
+          }
+          
+          if (kktpData) {
+            const b = exportKktpToWord(kktpData as any, formData, true) as Blob;
+            if (b) zip.file(`KKTP_${mapelStr}.doc`, b);
+          }
+          
+          setProgressMsg('Menyusun ulang ZIP...');
+          finalZipBlob = await zip.generateAsync({ type: 'blob' });
+        }
+      }
       
       setProgressMsg('Mengunggah ke Toko...');
       const mapelFile = (formData.mataPelajaran || workspace.subject || 'Modul').replace(/[^a-zA-Z0-9]/g, '_');
       const kelasFile = formData.kelas || workspace.grade || '-';
-      const zipFile = new File([zipBlob], `Paket_Modul_${mapelFile}_Kelas_${kelasFile}_Sem_${semester}.zip`, { type: 'application/zip' });
+      const zipFile = new File([finalZipBlob], `Paket_Modul_${mapelFile}_Kelas_${kelasFile}_Sem_${semester}.zip`, { type: 'application/zip' });
       
       // Upload Zip
       const filePath = `${profile.store_id}/workspace_${Date.now()}_${zipFile.name}`;
@@ -167,6 +234,48 @@ Cocok untuk guru ${mapelStr} ${kelasStr} yang ingin hemat waktu persiapan mengaj
                 <option value="SMA/SMK">SMA/SMK</option>
               </select>
             </div>
+          </div>
+
+          <div className="mt-4 p-4 border-2 border-[#111] rounded-lg bg-white">
+            <label className="flex items-center gap-2 cursor-pointer font-bold text-[#111]">
+              <input 
+                type="checkbox" 
+                checked={includeExtras}
+                onChange={(e) => setIncludeExtras(e.target.checked)}
+                className="w-5 h-5 accent-[#ff5e5e] border-2 border-[#111] rounded cursor-pointer"
+              />
+              Sertakan Kelengkapan Dokumen (Prota, Prosem, KKTP)
+            </label>
+            {includeExtras && (
+              <div className="mt-3 ml-7">
+                <label className="block text-sm font-bold text-[#111] mb-2">Pilih Format Dokumen Pendukung:</label>
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 cursor-pointer text-sm">
+                    <input 
+                      type="radio" 
+                      name="extrasFormat"
+                      value="excel_word"
+                      checked={extrasFormat === 'excel_word'}
+                      onChange={() => setExtrasFormat('excel_word')}
+                      className="accent-[#111] cursor-pointer"
+                    />
+                    <span>Excel (.xlsx) untuk Prota/Prosem & Word untuk KKTP <span className="text-gray-500 font-normal">(Rekomendasi)</span></span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer text-sm">
+                    <input 
+                      type="radio" 
+                      name="extrasFormat"
+                      value="word"
+                      checked={extrasFormat === 'word'}
+                      onChange={() => setExtrasFormat('word')}
+                      className="accent-[#111] cursor-pointer"
+                    />
+                    <span>Word (.doc) untuk Semua (Prota, Prosem, KKTP)</span>
+                  </label>
+                </div>
+                <p className="mt-2 text-xs text-gray-500">Sistem akan secara otomatis mengambil kelengkapan dari ruang kerja saat ini.</p>
+              </div>
+            )}
           </div>
         </div>
         
