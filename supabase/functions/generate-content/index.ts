@@ -287,6 +287,7 @@ serve(async (req) => {
     // Determine endpoint based on which key we're using
     // Native Gemini API for user keys, Lovable AI gateway for default
     const GEMINI_MODEL_CHAIN = [
+      "gemini-3.6-flash",
       "gemini-3.5-flash",
       "gemini-3.0-flash",
       "gemini-3.5-flash-lite",

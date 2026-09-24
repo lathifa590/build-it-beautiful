@@ -1,9 +1,11 @@
 import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors';
 
 const MODEL_CHAIN = [
-  'gemini-2.5-flash',
+  'gemini-3.6-flash',
+  'gemini-3.5-flash',
   'gemini-3-flash-preview',
   'gemini-3.5-flash-lite',
+  'gemini-2.5-flash',
 ];
 
 const SYSTEM_PROMPT = `You are a Master Image Prompt Engineer for Indonesian K-12 educational materials (worksheets, question banks, teaching materials).
