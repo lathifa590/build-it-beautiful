@@ -11,6 +11,7 @@ import { useConfirm } from '@/contexts/ConfirmContext';
 import { StorePublishModal } from '../store/StorePublishModal';
 import { Store } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
 
 export const WorkspaceDashboard = ({ 
   onNavigate,
@@ -39,6 +40,8 @@ export const WorkspaceDashboard = ({
   const [isPublishModalOpen, setIsPublishModalOpen] = React.useState(false);
   const [isEnqueuing, setIsEnqueuing] = React.useState(false);
   const [queueStats, setQueueStats] = useState({ pending: 0, processing: 0, completed: 0, failed: 0, total: 0 });
+  const { data: subStatus } = useSubscriptionStatus();
+  const { workspaces } = useWorkspace();
 
   useEffect(() => {
     if (!activeWorkspace?.id) return;
@@ -102,7 +105,17 @@ export const WorkspaceDashboard = ({
         <p className="text-muted-foreground mb-6">
           Silakan pilih atau buat Workspace baru untuk mulai merencanakan pembelajaran. Workspace memisahkan data antar kelas dan mata pelajaran.
         </p>
-        <button className="btn btn-primary" onClick={() => setIsCreateModalOpen(true)}>
+        <button className="btn btn-primary" onClick={() => {
+          const isPro = subStatus?.isPro;
+          const limit = isPro ? 10 : 3;
+          if (workspaces.length >= limit) {
+            toast.error(`Batas maksimal Workspace tercapai (${limit} Workspace).`, {
+              description: isPro ? "Anda telah mencapai batas maksimal Workspace untuk akun PRO." : "Hapus Workspace lama untuk membuat baru, atau upgrade ke PRO."
+            });
+            return;
+          }
+          setIsCreateModalOpen(true);
+        }}>
           Buat Workspace Pertama
         </button>
         <CreateWorkspaceModal isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)} />
