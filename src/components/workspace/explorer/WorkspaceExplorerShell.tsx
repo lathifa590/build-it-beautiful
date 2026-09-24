@@ -108,13 +108,16 @@ export const WorkspaceExplorerShell: React.FC<WorkspaceExplorerShellProps> = ({
   useEffect(() => {
     // Jika ada antrean tapi tidak ada yang diproses, asumsikan webhook terhenti dan trigger manual
     if (queueStats.pending > 0 && queueStats.processing === 0 && canAccessAutoGenerate) {
-      const timer = setTimeout(() => {
-        console.log("Memicu ulang process-generation-queue karena antrean terhenti...");
-        supabase.functions.invoke('process-generation-queue').catch(console.error);
+      console.log("Memicu ulang process-generation-queue karena antrean terhenti...");
+      supabase.functions.invoke('process-generation-queue', { body: { workspace_id: workspace.id } }).catch(console.error);
+      
+      const timer = setInterval(() => {
+        console.log("Memicu ulang process-generation-queue berkala...");
+        supabase.functions.invoke('process-generation-queue', { body: { workspace_id: workspace.id } }).catch(console.error);
       }, 5000);
-      return () => clearTimeout(timer);
+      return () => clearInterval(timer);
     }
-  }, [queueStats.pending, queueStats.processing, canAccessAutoGenerate]);
+  }, [queueStats.pending, queueStats.processing, canAccessAutoGenerate, workspace?.id]);
 
   const totalTopics = Object.values(prosemItems).reduce((s, items) => s + items.length, 0);
   const totalJp = Object.values(prosemItems).reduce(
