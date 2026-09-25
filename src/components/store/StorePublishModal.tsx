@@ -30,8 +30,11 @@ export const StorePublishModal = ({
 }: StorePublishModalProps) => {
   const { user } = useAuth();
   
+  const rawKelas = formData.kelas || '';
+  const kelasStr = rawKelas.toLowerCase().startsWith('kelas') ? rawKelas : (rawKelas ? `Kelas ${rawKelas}` : '');
+
   const [listingData, setListingData] = useState<Partial<StoreListing>>({
-    title: `Paket Lengkap ${formData.mataPelajaran || ''} Kelas ${formData.kelas || ''}`,
+    title: `[LENGKAP] Modul Ajar ${formData.mataPelajaran || ''} ${kelasStr} Fase ${formData.fase || ''}`.trim(),
     description: '', // Will be set by useEffect
     price_amount: 50000,
     category: 'UMUM', // default
@@ -55,7 +58,7 @@ export const StorePublishModal = ({
       ? included.slice(0, -1).join(', ') + ' dan ' + included[included.length - 1] 
       : included[0] || 'dokumen perencanaan';
 
-    const autoDesc = `Paket dokumen perencanaan pembelajaran lengkap berisi ${textList} untuk ${formData.mataPelajaran || ''} Kelas ${formData.kelas || ''} Fase ${formData.fase || ''}.`;
+    const autoDesc = `Paket dokumen perencanaan pembelajaran lengkap berisi ${textList} untuk ${formData.mataPelajaran || ''} ${kelasStr} Fase ${formData.fase || ''}.`;
     
     setListingData(prev => ({ ...prev, description: autoDesc }));
   }, [includeProta, includeProsem, includeKktp, formData.mataPelajaran, formData.kelas, formData.fase, isDescEdited]);
