@@ -171,7 +171,7 @@ export const StorePublishModal = ({
                   disabled={!protaData}
                   onChange={(e) => setIncludeProta(e.target.checked)}
                 />
-                <span className={\`text-sm font-medium \${!protaData ? 'text-gray-400' : 'text-gray-700'}\`}>
+                <span className={`text-sm font-medium ${!protaData ? 'text-gray-400' : 'text-gray-700'}`}>
                   Program Tahunan (Prota) {!protaData && '(Belum Dibuat)'}
                 </span>
               </label>
@@ -184,7 +184,7 @@ export const StorePublishModal = ({
                   disabled={!prosemSem1 && !prosemSem2}
                   onChange={(e) => setIncludeProsem(e.target.checked)}
                 />
-                <span className={\`text-sm font-medium \${(!prosemSem1 && !prosemSem2) ? 'text-gray-400' : 'text-gray-700'}\`}>
+                <span className={`text-sm font-medium ${(!prosemSem1 && !prosemSem2) ? 'text-gray-400' : 'text-gray-700'}`}>
                   Program Semester (Prosem) {(!prosemSem1 && !prosemSem2) && '(Belum Dibuat)'}
                 </span>
               </label>
@@ -197,7 +197,7 @@ export const StorePublishModal = ({
                   disabled={!kktpData}
                   onChange={(e) => setIncludeKktp(e.target.checked)}
                 />
-                <span className={\`text-sm font-medium \${!kktpData ? 'text-gray-400' : 'text-gray-700'}\`}>
+                <span className={`text-sm font-medium ${!kktpData ? 'text-gray-400' : 'text-gray-700'}`}>
                   Kriteria Ketercapaian Tujuan Pembelajaran (KKTP) {!kktpData && '(Belum Dibuat)'}
                 </span>
               </label>
