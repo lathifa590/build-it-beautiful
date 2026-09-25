@@ -127,7 +127,11 @@ const App = () => (
                 >
                   <Route index element={<Index />} />
                   <Route path="workspace/*" element={<Index />} />
-                  <Route path="blog-management" element={<BlogManagement />} />
+                  <Route path="blog-management" element={
+                    <StoreGate>
+                      <BlogManagement />
+                    </StoreGate>
+                  } />
                   <Route path="*" element={<Index />} />
                 </Route>
 
