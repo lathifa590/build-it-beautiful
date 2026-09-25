@@ -89,7 +89,7 @@ import { normalizeBankSoalImages } from '@/lib/bank-soal-normalize';
 import { buildContextKey, pickContextFields, JENIS_DOKUMEN_ORDER } from '@/lib/pertemuan-generation';
 import type { JenisDokumenPertemuan } from '@/types/modul';
 
-import { LogOut, Shield, User, Settings, Store, ShoppingBag, MoreVertical, RotateCcw, Maximize2, Minimize2, Plus, X, FileDown, Image as ImageIcon, RefreshCw, Lock, School } from 'lucide-react';
+import { LogOut, Shield, User, Settings, Store, ShoppingBag, MoreVertical, RotateCcw, Maximize2, Minimize2, Plus, X, FileDown, Image as ImageIcon, RefreshCw, Lock, School, Globe } from 'lucide-react';
 import {
   DropdownMenu as HeaderMoreMenu,
   DropdownMenuContent as HeaderMoreMenuContent,
@@ -2767,18 +2767,8 @@ img{max-width:100%}
         onOpenChange={setShowWorkspaceUpsell}
       />
 
-      {/* Header with user actions */}
+      {/* Toolbar / Actions */}
       <header className="flex-shrink-0 bg-card border-b-2 border-foreground px-4 py-3 flex flex-wrap gap-3 items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-primary rounded-xl border-2 border-foreground flex items-center justify-center shadow-brutal-sm">
-            <span className="text-primary-foreground font-extrabold text-lg">📚</span>
-          </div>
-          <div>
-            <h1 className="font-extrabold text-lg">ModulAjar.Online</h1>
-            <p className="text-xs text-muted-foreground hidden sm:block">Kurikulum Merdeka - Pembelajaran Mendalam & KBC</p>
-          </div>
-        </div>
-
         {/* App Mode Switcher */}
         <div className="flex bg-muted p-1 rounded-lg border-2 border-foreground/10 mx-auto md:mx-0 order-last md:order-none w-full md:w-auto justify-center">
           <button
@@ -2860,137 +2850,7 @@ img{max-width:100%}
           )}
 
 
-          {/* Desktop ≥ md: full button row */}
-          <div className="hidden md:flex items-center gap-2 sm:gap-3">
-            {isAgencyOwner && (
-              <Link
-                to="/agency"
-                className="flex items-center gap-2 px-3 py-2 text-sm font-medium bg-orange-100 text-orange-700 border-2 border-orange-300 rounded-lg hover:bg-orange-200 transition-colors"
-                title="Dashboard Reseller / Agency"
-              >
-                <Store className="w-4 h-4" />
-                <span>Reseller</span>
-              </Link>
-            )}
-            <Link
-              to="/app/store-management"
-              className="flex items-center gap-2 px-3 py-2 text-sm font-medium bg-blue-50 text-blue-700 border-2 border-blue-200 rounded-lg hover:bg-blue-100 transition-colors"
-              title="Kelola Toko & Karya"
-            >
-              <ShoppingBag className="w-4 h-4" />
-              <span className="hidden sm:inline">Toko Saya</span>
-            </Link>
-
-            {isFeatureAllowed && (
-              <Link
-                to="/sekolah"
-                className="flex items-center gap-2 px-3 py-2 text-sm font-medium bg-orange-50 text-orange-700 border-2 border-orange-200 rounded-lg hover:bg-orange-100 transition-colors"
-                title={school ? `Dashboard Sekolah: ${school.name}` : "Mode Sekolah"}
-              >
-                <School className="w-4 h-4 text-primary" />
-                <span className="hidden sm:inline">Sekolah</span>
-              </Link>
-            )}
-
-            {isAdmin && (
-              <Link
-                to="/admin"
-                className="flex items-center gap-2 px-3 py-2 text-sm font-medium bg-primary/10 text-primary border-2 border-primary/30 rounded-lg hover:bg-primary/20 transition-colors"
-              >
-                <Shield className="w-4 h-4" />
-                <span>Admin</span>
-              </Link>
-            )}
-
-            <Link
-              to="/settings"
-              className="p-2 text-muted-foreground hover:text-foreground hover:bg-secondary rounded-lg transition-colors"
-              title="Pengaturan API Key"
-            >
-              <Settings className="w-5 h-5" />
-            </Link>
-
-            <div className="flex items-center gap-2 px-3 py-2 bg-secondary rounded-lg border-2 border-foreground/20">
-              <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
-                <User className="w-4 h-4 text-primary" />
-              </div>
-              <span className="text-sm font-medium max-w-[120px] truncate">
-                {user?.email?.split('@')[0]}
-              </span>
-            </div>
-
-            <button
-              onClick={handleSignOut}
-              className="p-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
-              title="Keluar"
-            >
-              <LogOut className="w-5 h-5" />
-            </button>
-          </div>
-
-          {/* Mobile < md: overflow menu */}
-          <div className="md:hidden">
-            <HeaderMoreMenu>
-              <HeaderMoreMenuTrigger asChild>
-                <button
-                  aria-label="Menu"
-                  className="p-2 text-muted-foreground hover:text-foreground hover:bg-secondary rounded-lg transition-colors border-2 border-foreground/20"
-                >
-                  <MoreVertical className="w-5 h-5" />
-                </button>
-              </HeaderMoreMenuTrigger>
-              <HeaderMoreMenuContent align="end" className="w-56">
-                <div className="px-2 py-1.5 text-xs text-muted-foreground truncate">
-                  {user?.email}
-                </div>
-                <HeaderMoreMenuSeparator />
-                {isAgencyOwner && (
-                  <HeaderMoreMenuItem asChild>
-                    <Link to="/agency" className="flex items-center gap-2 cursor-pointer">
-                      <Store className="w-4 h-4 text-orange-600" />
-                      <span>Dashboard Reseller</span>
-                    </Link>
-                  </HeaderMoreMenuItem>
-                )}
-                <HeaderMoreMenuItem asChild>
-                  <Link to="/app/store-management" className="flex items-center gap-2 cursor-pointer">
-                    <ShoppingBag className="w-4 h-4 text-blue-600" />
-                    <span>Toko Saya</span>
-                  </Link>
-                </HeaderMoreMenuItem>
-                {isFeatureAllowed && (
-                  <HeaderMoreMenuItem asChild>
-                    <Link to="/sekolah" className="flex items-center gap-2 cursor-pointer">
-                      <School className="w-4 h-4 text-orange-600" />
-                      <span>{school?.name || "Mode Sekolah"}</span>
-                    </Link>
-                  </HeaderMoreMenuItem>
-                )}
-                {isAdmin && (
-                  <HeaderMoreMenuItem asChild>
-                    <Link to="/admin" className="flex items-center gap-2 cursor-pointer">
-                      <Shield className="w-4 h-4 text-primary" />
-                      <span>Admin</span>
-                    </Link>
-                  </HeaderMoreMenuItem>
-                )}
-                <HeaderMoreMenuItem asChild>
-                  <Link to="/settings" className="flex items-center gap-2 cursor-pointer">
-                    <Settings className="w-4 h-4" />
-                    <span>Pengaturan</span>
-                  </Link>
-                </HeaderMoreMenuItem>
-                <HeaderMoreMenuSeparator />
-                <HeaderMoreMenuItem
-                  onClick={handleSignOut}
-                  className="text-destructive focus:text-destructive cursor-pointer"
-                >
-                  <LogOut className="w-4 h-4 mr-2" />
-                  Keluar
-                </HeaderMoreMenuItem>
-              </HeaderMoreMenuContent>
-            </HeaderMoreMenu>
-          </div>
+          {/* Top navigation actions are now moved to AppSidebar, keeping this clean */}
         </div>
       </header>
 
