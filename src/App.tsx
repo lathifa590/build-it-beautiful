@@ -13,6 +13,7 @@ import { AdminRoute } from "@/components/auth/AdminRoute";
 import { AgencyRoute } from "@/components/auth/AgencyRoute";
 import { StoreGate } from "@/components/auth/StoreGate";
 import { SchoolPilotRoute } from "@/components/auth/SchoolPilotRoute";
+import { AppLayout } from "@/components/layout/AppLayout";
 import { Suspense, lazy } from "react";
 import { PageLoader } from "@/components/ui/PageLoader";
 
@@ -46,6 +47,7 @@ const StoreIndex = lazy(() => import("./pages/store/StoreIndex"));
 const StoreProfile = lazy(() => import("./pages/store/StoreProfile"));
 const StoreDetail = lazy(() => import("./pages/store/StoreDetail"));
 const StoreManagement = lazy(() => import("./pages/store/StoreManagement"));
+const BlogManagement = lazy(() => import("./pages/blog/BlogManagement"));
 const StoreCheckout = lazy(() => import("./pages/store/StoreCheckout"));
 const StoreTrackOrder = lazy(() => import("./pages/store/StoreTrackOrder"));
 
@@ -93,15 +95,18 @@ const App = () => (
                 <Route path="/store/item/:listingId" element={<StoreDetail />} />
                 <Route path="/checkout/:orderId" element={<StoreCheckout />} />
                 <Route path="/lacak-pesanan" element={<StoreTrackOrder />} />
-                {/* Protected App routes */}
-                <Route
-                  path="/app/*"
+                {/* Protected Store Management (Outside AppLayout to avoid double sidebar) */}
+                <Route 
+                  path="/app/store-management" 
                   element={
                     <ProtectedRoute>
-                      <Index />
+                      <StoreGate>
+                        <StoreManagement />
+                      </StoreGate>
                     </ProtectedRoute>
-                  }
+                  } 
                 />
+
                 <Route
                   path="/settings"
                   element={
@@ -110,18 +115,21 @@ const App = () => (
                     </ProtectedRoute>
                   }
                 />
-                
-                {/* Protected Store Management */}
-                  <Route 
-                    path="/app/store-management" 
-                    element={
-                      <ProtectedRoute>
-                        <StoreGate>
-                          <StoreManagement />
-                        </StoreGate>
-                      </ProtectedRoute>
-                    } 
-                  />
+
+                {/* Protected App routes (Wrapped in AppLayout) */}
+                <Route
+                  path="/app"
+                  element={
+                    <ProtectedRoute>
+                      <AppLayout />
+                    </ProtectedRoute>
+                  }
+                >
+                  <Route index element={<Index />} />
+                  <Route path="workspace/*" element={<Index />} />
+                  <Route path="blog-management" element={<BlogManagement />} />
+                  <Route path="*" element={<Index />} />
+                </Route>
 
                 {/* Mode Sekolah Routes (Deploy Terbatas: Admin & jagofeed@gmail.com) */}
                 <Route
