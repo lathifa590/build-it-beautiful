@@ -658,10 +658,20 @@ label, .field-label {
   box-shadow: var(--shadow-lg);
   padding: 16px 20px;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
   color: #ffffff;
   margin-bottom: 16px;
+}
+
+@media (min-width: 640px) {
+  .semester-header {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0;
+  }
 }
 
 .semester-header.sem-2 {

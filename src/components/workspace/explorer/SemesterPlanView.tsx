@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import { BookOpen, PlusCircle, ChevronDown, Layers, BarChart3, Store, Download, Loader2 } from "lucide-react";
+import { BookOpen, PlusCircle, ChevronDown, Layers, BarChart3, Store, Download, Loader2, Newspaper } from "lucide-react";
 import type { CurriculumPlanDB, ProsemItemDB, MeetingSlotDB } from "@/hooks/useProsemData";
 import { TopicRow } from "./TopicRow";
 import { StoreBundleModal } from "@/components/store/StoreBundleModal";
+import { BlogMarketingModal } from "./BlogMarketingModal";
 import type { Workspace } from "@/types/workspace";
 import { generateBundleZip } from "@/lib/bundle-generator";
 import { toast } from "sonner";
@@ -26,6 +27,7 @@ export const SemesterPlanView: React.FC<SemesterPlanViewProps> = ({
 }) => {
   const [collapsed, setCollapsed] = useState(false);
   const [isBundleModalOpen, setIsBundleModalOpen] = useState(false);
+  const [isBlogModalOpen, setIsBlogModalOpen] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadProgress, setDownloadProgress] = useState("");
 
@@ -101,7 +103,7 @@ export const SemesterPlanView: React.FC<SemesterPlanViewProps> = ({
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 w-full sm:w-auto flex-wrap sm:flex-nowrap justify-end">
           {/* Progress badge instead of circular progress per DESIGN_SYSTEM.md */}
           <div className="semester-progress-badge">
             {progress}%
@@ -126,6 +128,15 @@ export const SemesterPlanView: React.FC<SemesterPlanViewProps> = ({
               >
                 <Store className="w-4 h-4" />
                 <span className="hidden sm:inline">Ke Toko</span>
+              </button>
+              
+              <button
+                onClick={() => setIsBlogModalOpen(true)}
+                className="p-2 rounded-lg bg-purple-100 hover:bg-purple-200 text-purple-600 border-2 border-purple-200 transition-colors flex items-center gap-1 text-sm font-bold shadow-sm"
+                title="Promosi via Blog SEO"
+              >
+                <Newspaper className="w-4 h-4" />
+                <span className="hidden sm:inline">Blog SEO</span>
               </button>
             </>
           )}
@@ -197,7 +208,15 @@ export const SemesterPlanView: React.FC<SemesterPlanViewProps> = ({
         semesterPlan={plan}
         prosemItems={items}
       />
-
+      
+      {/* Blog Marketing Modal */}
+      <BlogMarketingModal 
+        isOpen={isBlogModalOpen}
+        onClose={() => setIsBlogModalOpen(false)}
+        sourceType="semester"
+        sourceId={workspace.id + "-sem" + plan.semester}
+        sourceTitle={`Perangkat Ajar Semester ${plan.semester} - ${workspace.global_form_data?.mataPelajaran || workspace.subject}`}
+      />
 
     </section>
   );

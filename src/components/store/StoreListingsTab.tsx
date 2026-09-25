@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Upload, FileText, Download, Edit, Copy, Trash, Search, Eye, ShoppingBag, Link, MoreVertical } from 'lucide-react';
+import { Plus, Upload, FileText, Download, Edit, Copy, Trash, Search, Eye, ShoppingBag, Link, MoreVertical, Newspaper } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { storeApi } from '@/lib/store-api';
 import { StoreListing } from '@/types/store';
@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { StoreListingEditModal } from './StoreListingEditModal';
 import { StoreConfirmDialog } from './StoreConfirmDialog';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ConfirmAction {
   title: string;
@@ -34,6 +35,7 @@ const StoreListingsTab = () => {
   const [editingListing, setEditingListing] = useState<StoreListing | null>(null);
 
   const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
+  const [isGeneratingBlog, setIsGeneratingBlog] = useState<string | null>(null);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -173,6 +175,35 @@ const StoreListingsTab = () => {
       return;
     }
     mutation.mutate();
+  };
+
+  const handleGenerateBlog = async (item: StoreListing) => {
+    try {
+      setIsGeneratingBlog(item.listing_id);
+      setOpenDropdownId(null);
+      toast.info('Sedang membuat artikel SEO...');
+      
+      const { data, error } = await supabase.functions.invoke('generate-blog-from-store', {
+        body: { listing_id: item.listing_id }
+      });
+
+      if (error) throw error;
+      
+      toast.success('Artikel SEO berhasil dibuat!', {
+        description: data.article.title,
+        action: {
+          label: 'Lihat',
+          onClick: () => window.open(`/blog/${data.article.slug}`, '_blank')
+        }
+      });
+    } catch (err: any) {
+      console.error(err);
+      toast.error('Gagal membuat artikel', {
+        description: err.message || 'Pastikan API Key Gemini sudah ter-set.'
+      });
+    } finally {
+      setIsGeneratingBlog(null);
+    }
   };
 
   const filteredListings = listings?.filter(item => {
@@ -430,6 +461,17 @@ const StoreListingsTab = () => {
                     }}
                   >
                     <Link className="w-4 h-4" /> <span>Bagikan</span>
+                  </div>
+                  <div 
+                    className={`kebab-dropdown-item ${isGeneratingBlog === item.listing_id ? 'opacity-50 pointer-events-none' : ''}`}
+                    onClick={() => {
+                      if (isGeneratingBlog !== item.listing_id) {
+                        handleGenerateBlog(item);
+                      }
+                    }}
+                  >
+                    <Newspaper className="w-4 h-4" /> 
+                    <span>{isGeneratingBlog === item.listing_id ? 'Membuat Artikel...' : 'Buat Artikel SEO'}</span>
                   </div>
                   <div 
                     className="kebab-dropdown-item"

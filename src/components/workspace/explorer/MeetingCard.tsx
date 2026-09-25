@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { CheckCircle2, Circle, BookOpen, PlayCircle, ChevronRight, Edit2, Check, X, Wand2, Loader2 } from "lucide-react";
+import { CheckCircle2, Circle, BookOpen, PlayCircle, ChevronRight, Edit2, Check, X, Wand2, Loader2, Newspaper } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import type { MeetingSlotDB } from "@/hooks/useProsemData";
+import { BlogMarketingModal } from "./BlogMarketingModal";
 
 const STATUS_CONFIG = {
   planned:    { label: "Direncanakan",    icon: Circle,       color: "text-muted-foreground", bg: "bg-muted/50" },
@@ -26,6 +27,7 @@ export const MeetingCard: React.FC<MeetingCardProps> = ({ slot, meetingIndex, on
   const [isSaving, setIsSaving] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [progressMsg, setProgressMsg] = useState("");
+  const [isBlogModalOpen, setIsBlogModalOpen] = useState(false);
 
   const handleGenerate = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -167,11 +169,31 @@ export const MeetingCard: React.FC<MeetingCardProps> = ({ slot, meetingIndex, on
                 <Wand2 className="w-3.5 h-3.5" />
               </button>
             )}
+            
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsBlogModalOpen(true);
+              }}
+              className="flex items-center justify-center w-7 h-7 bg-purple-50 hover:bg-purple-100 border border-purple-200 text-purple-600 rounded-lg shadow-sm transition-colors"
+              title="Promosi via Blog SEO"
+            >
+              <Newspaper className="w-3.5 h-3.5" />
+            </button>
           </div>
         )}
         
         <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0" />
       </div>
+      
+      {/* Blog Marketing Modal for Meeting */}
+      <BlogMarketingModal 
+        isOpen={isBlogModalOpen}
+        onClose={() => setIsBlogModalOpen(false)}
+        sourceType="meeting"
+        sourceId={slot.id}
+        sourceTitle={slot.title || `Pertemuan ${meetingIndex}`}
+      />
     </div>
   );
 };
