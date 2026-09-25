@@ -73,8 +73,9 @@ export const MeetingCard: React.FC<MeetingCardProps> = ({ slot, meetingIndex, on
   };
 
   return (
-    <div
-      onClick={() => {
+    <>
+      <div
+        onClick={() => {
         if (!isEditing) onClick?.(slot);
       }}
       className={`
@@ -186,6 +187,8 @@ export const MeetingCard: React.FC<MeetingCardProps> = ({ slot, meetingIndex, on
         <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0" />
       </div>
       
+      </div>
+      
       {/* Blog Marketing Modal for Meeting */}
       <BlogMarketingModal 
         isOpen={isBlogModalOpen}
@@ -194,6 +197,6 @@ export const MeetingCard: React.FC<MeetingCardProps> = ({ slot, meetingIndex, on
         sourceId={slot.id}
         sourceTitle={slot.title || `Pertemuan ${meetingIndex}`}
       />
-    </div>
+    </>
   );
 };
