@@ -162,7 +162,11 @@ export const CTASection = () => {
               </li>
               <li className="flex items-start gap-3">
                 <Check className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-                <span className="text-sm">Manajemen File Terstruktur</span>
+                <span className="text-sm">Toko Digital (Jual Modul)</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <Check className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+                <span className="text-sm">Blog SEO & Marketing</span>
               </li>
               <li className="flex items-start gap-3">
                 <Check className="w-5 h-5 text-primary shrink-0 mt-0.5" />

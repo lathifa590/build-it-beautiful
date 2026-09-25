@@ -16,8 +16,8 @@ interface WorkspaceUpsellDialogProps {
 
 const WA_NUMBER = '6288228511309';
 const WA_PREFILL = encodeURIComponent(
-  'Halo, saya ingin mengaktifkan fitur PRO (Workspace & Perencanaan)! 👑\n' +
-  'Saya tertarik untuk upgrade ke lisensi penuh agar bisa membuat Prota, Prosem, dan manajemen kelas terpusat.\n' +
+  'Halo, saya ingin mengaktifkan fitur PRO (Workspace, Toko & Blog)! 👑\n' +
+  'Saya tertarik untuk upgrade ke lisensi penuh agar bisa membuka fitur Workspace, Toko, dan Blog SEO.\n' +
   'Mohon info cara upgrade. Terima kasih!'
 );
 const WA_LINK = `https://wa.me/${WA_NUMBER}?text=${WA_PREFILL}`;
@@ -27,6 +27,8 @@ const BENEFITS = [
   'Generate Prota & Prosem Otomatis',
   'Penjadwalan Pertemuan Cerdas',
   'Simpan & kelola dokumen tanpa batas',
+  'Toko Digital (Jualan Modul)',
+  'Fitur Blog SEO & Marketing',
 ];
 
 export const WorkspaceUpsellDialog = ({ open, onOpenChange }: WorkspaceUpsellDialogProps) => {
@@ -55,8 +57,8 @@ export const WorkspaceUpsellDialog = ({ open, onOpenChange }: WorkspaceUpsellDia
             <DialogDescription className="text-white/90 text-sm font-medium mt-2 leading-relaxed text-left">
               Aplikasi ModulAjar saat ini sudah punya <strong className="text-white">Mode Workspace!</strong> 🎉<br/><br/>
               <strong>Apa bedanya dengan mode cepat yang saat ini?</strong><br/>
-              Di Mode Workspace, Bapak/Ibu bisa menyimpan semua modul ajar secara terpusat dan rapi, membuat Prota, Prosem, serta menerbitkan modul ke Store.<br/><br/>
-              Fitur Workspace ini khusus untuk <strong>Akun PRO</strong> ya, sedangkan akun Bapak/Ibu saat ini masih Standar. Yuk upgrade sekarang!
+              Di Mode Workspace, Bapak/Ibu bisa menyimpan semua modul ajar secara terpusat dan rapi, membuat Prota, Prosem, serta menerbitkan modul ke <strong>Toko Digital</strong> dan mengelola promosi via <strong>Blog SEO</strong>.<br/><br/>
+              Fitur Workspace, Toko, dan Blog ini khusus untuk <strong>Akun PRO</strong> ya, sedangkan akun Bapak/Ibu saat ini masih Standar. Yuk upgrade sekarang!
             </DialogDescription>
           </DialogHeader>
         </div>
