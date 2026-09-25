@@ -12,11 +12,15 @@ import { id } from 'date-fns/locale';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { Link, useNavigate } from 'react-router-dom';
+import { BlogEditorModal } from './BlogEditorModal';
 
 export default function BlogManagement() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+
+  const [editingArticle, setEditingArticle] = useState<BlogArticle | null>(null);
+  const [isEditorOpen, setIsEditorOpen] = useState(false);
 
   // For this initial version, since we don't have author_id in the table, 
   // we fetch all articles if user is admin, or we might just show all articles where author_name matches their name.
@@ -163,7 +167,10 @@ export default function BlogManagement() {
                             variant="outline" 
                             size="sm" 
                             className="h-8 border-2 text-xs"
-                            onClick={() => toast.info('Fitur Editor Artikel sedang dalam pengembangan!')}
+                            onClick={() => {
+                              setEditingArticle(article);
+                              setIsEditorOpen(true);
+                            }}
                           >
                             <FileEdit className="w-3.5 h-3.5 mr-1" /> Edit
                           </Button>
@@ -189,6 +196,14 @@ export default function BlogManagement() {
           )}
         </CardContent>
       </Card>
+
+      {/* Blog Editor Modal */}
+      <BlogEditorModal 
+        isOpen={isEditorOpen}
+        onClose={() => setIsEditorOpen(false)}
+        article={editingArticle}
+        onSuccess={() => queryClient.invalidateQueries({ queryKey: ['my_blog_articles'] })}
+      />
     </div>
   );
 }
