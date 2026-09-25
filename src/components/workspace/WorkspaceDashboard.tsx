@@ -268,6 +268,7 @@ export const WorkspaceDashboard = ({
         protaData={protaData}
         prosemSem1={prosemSem1}
         prosemSem2={prosemSem2}
+        kktpData={kktpData}
         formData={{
           mataPelajaran: activeWorkspace.subject,
           kelas: activeWorkspace.grade,
