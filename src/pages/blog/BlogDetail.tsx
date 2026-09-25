@@ -188,7 +188,7 @@ export default function BlogDetail() {
           {/* Article Content - rendered with tailwind typography plugin (prose) */}
           <div className="prose prose-lg prose-slate max-w-none prose-headings:font-bold prose-headings:text-slate-900 prose-a:text-indigo-600 hover:prose-a:text-indigo-800 prose-img:rounded-xl">
             <ReactMarkdown remarkPlugins={[remarkGfm]}>
-              {article.content}
+              {article.content.replace(/^\s*#\s+[^\n]+\n/, '')}
             </ReactMarkdown>
           </div>
           
