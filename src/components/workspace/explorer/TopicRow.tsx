@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { ChevronDown, ChevronRight, BookOpen, Target, Layers } from "lucide-react";
+import { ChevronDown, ChevronRight, BookOpen, Target, Layers, Newspaper } from "lucide-react";
 import type { ProsemItemDB, MeetingSlotDB } from "@/hooks/useProsemData";
 import { MeetingCard } from "./MeetingCard";
+import { BlogMarketingModal } from "./BlogMarketingModal";
 
 interface TopicRowProps {
   item: ProsemItemDB;
@@ -13,6 +14,7 @@ interface TopicRowProps {
 
 export const TopicRow: React.FC<TopicRowProps> = ({ item, globalMeetingStart, onMeetingClick, onEditProsem, onGenerateClick }) => {
   const [open, setOpen] = useState(false);
+  const [isBlogModalOpen, setIsBlogModalOpen] = useState(false);
 
   const completedSlots = item.meeting_slots.filter(s => s.status === "completed").length;
   const totalSlots = item.meeting_slots.length;
@@ -77,6 +79,18 @@ export const TopicRow: React.FC<TopicRowProps> = ({ item, globalMeetingStart, on
               {totalSlots} ptm
             </span>
           )}
+          
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsBlogModalOpen(true);
+            }}
+            className="p-1 rounded text-purple-600 bg-purple-50 hover:bg-purple-100 transition-colors"
+            title="Promosi Topik via Blog SEO"
+          >
+            <Newspaper className="w-4 h-4" />
+          </button>
+          
           {open
             ? <ChevronDown className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
             : <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
@@ -117,6 +131,15 @@ export const TopicRow: React.FC<TopicRowProps> = ({ item, globalMeetingStart, on
           )}
         </div>
       )}
+      
+      {/* Blog Marketing Modal for Topic */}
+      <BlogMarketingModal 
+        isOpen={isBlogModalOpen}
+        onClose={() => setIsBlogModalOpen(false)}
+        sourceType="topic"
+        sourceId={item.id}
+        sourceTitle={item.materi_pokok}
+      />
     </div>
   );
 };
