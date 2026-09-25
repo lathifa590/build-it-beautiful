@@ -5,9 +5,9 @@ import { storeApi } from '@/lib/store-api';
 import { StoreListing } from '@/types/store';
 import { toast } from 'sonner';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { exportProtaToWord, exportProsemToWord } from '@/lib/export-word';
-import type { ProtaData, ProsemData, FormData } from '@/types/modul';
-import { Store } from 'lucide-react';
+import { exportProtaToWord, exportProsemToWord, exportKktpToWord } from '@/lib/export-word';
+import type { ProtaData, ProsemData, FormData, KKTPData } from '@/types/modul';
+import { Store, FileText, CheckSquare, Square } from 'lucide-react';
 
 interface StorePublishModalProps {
   isOpen: boolean;
@@ -15,6 +15,7 @@ interface StorePublishModalProps {
   protaData: ProtaData | null;
   prosemSem1: ProsemData | null;
   prosemSem2: ProsemData | null;
+  kktpData: KKTPData | null;
   formData: FormData;
 }
 
@@ -24,17 +25,40 @@ export const StorePublishModal = ({
   protaData,
   prosemSem1,
   prosemSem2,
+  kktpData,
   formData
 }: StorePublishModalProps) => {
   const { user } = useAuth();
   
   const [listingData, setListingData] = useState<Partial<StoreListing>>({
     title: `Paket Lengkap ${formData.mataPelajaran || ''} Kelas ${formData.kelas || ''}`,
-    description: `Paket dokumen perencanaan pembelajaran lengkap berisi Program Tahunan dan Program Semester untuk ${formData.mataPelajaran || ''} Kelas ${formData.kelas || ''} Fase ${formData.fase || ''}.`,
+    description: '', // Will be set by useEffect
     price_amount: 50000,
     category: 'UMUM', // default
     status: 'PUBLISHED',
   });
+
+  const [includeProta, setIncludeProta] = useState(!!protaData);
+  const [includeProsem, setIncludeProsem] = useState(!!prosemSem1 || !!prosemSem2);
+  const [includeKktp, setIncludeKktp] = useState(!!kktpData);
+  const [isDescEdited, setIsDescEdited] = useState(false);
+
+  React.useEffect(() => {
+    if (isDescEdited) return;
+
+    const included = [];
+    if (includeProta) included.push('Program Tahunan');
+    if (includeProsem) included.push('Program Semester');
+    if (includeKktp) included.push('KKTP');
+
+    const textList = included.length > 1 
+      ? included.slice(0, -1).join(', ') + ' dan ' + included[included.length - 1] 
+      : included[0] || 'dokumen perencanaan';
+
+    const autoDesc = `Paket dokumen perencanaan pembelajaran lengkap berisi ${textList} untuk ${formData.mataPelajaran || ''} Kelas ${formData.kelas || ''} Fase ${formData.fase || ''}.`;
+    
+    setListingData(prev => ({ ...prev, description: autoDesc }));
+  }, [includeProta, includeProsem, includeKktp, formData.mataPelajaran, formData.kelas, formData.fase, isDescEdited]);
 
   const { data: profile, isLoading: profileLoading } = useQuery({
     queryKey: ['storeProfile', user?.id],
@@ -50,21 +74,27 @@ export const StorePublishModal = ({
       const zip = new JSZip();
       
       // Add Prota
-      if (protaData) {
+      if (includeProta && protaData) {
         const protaBlob = exportProtaToWord(protaData, formData, true) as Blob;
         if (protaBlob) zip.file(`Program_Tahunan_${formData.mataPelajaran}.doc`, protaBlob);
       }
       
       // Add Prosem Sem 1
-      if (prosemSem1) {
+      if (includeProsem && prosemSem1) {
         const prosem1Blob = exportProsemToWord(prosemSem1, formData, 1, true) as Blob;
         if (prosem1Blob) zip.file(`Program_Semester_1_${formData.mataPelajaran}.doc`, prosem1Blob);
       }
       
       // Add Prosem Sem 2
-      if (prosemSem2) {
+      if (includeProsem && prosemSem2) {
         const prosem2Blob = exportProsemToWord(prosemSem2, formData, 2, true) as Blob;
         if (prosem2Blob) zip.file(`Program_Semester_2_${formData.mataPelajaran}.doc`, prosem2Blob);
+      }
+
+      // Add KKTP
+      if (includeKktp && kktpData) {
+        const kktpBlob = exportKktpToWord(kktpData, formData, true) as Blob;
+        if (kktpBlob) zip.file(`KKTP_${formData.mataPelajaran}.doc`, kktpBlob);
       }
       
       const zipBlob = await zip.generateAsync({ type: "blob" });
@@ -128,11 +158,58 @@ export const StorePublishModal = ({
           </div>
           
           <div className="field-group">
+            <label>Pilih Isi Paket (ZIP)</label>
+            <div className="flex flex-col gap-2 mt-1">
+              <label className="flex items-center gap-2 cursor-pointer p-2 hover:bg-black/5 rounded-md border border-transparent hover:border-black/10 transition-colors">
+                <input 
+                  type="checkbox" 
+                  className="w-4 h-4 text-[#0D7C8F] rounded focus:ring-[#0D7C8F]"
+                  checked={includeProta}
+                  disabled={!protaData}
+                  onChange={(e) => setIncludeProta(e.target.checked)}
+                />
+                <span className={\`text-sm font-medium \${!protaData ? 'text-gray-400' : 'text-gray-700'}\`}>
+                  Program Tahunan (Prota) {!protaData && '(Belum Dibuat)'}
+                </span>
+              </label>
+              
+              <label className="flex items-center gap-2 cursor-pointer p-2 hover:bg-black/5 rounded-md border border-transparent hover:border-black/10 transition-colors">
+                <input 
+                  type="checkbox" 
+                  className="w-4 h-4 text-[#0D7C8F] rounded focus:ring-[#0D7C8F]"
+                  checked={includeProsem}
+                  disabled={!prosemSem1 && !prosemSem2}
+                  onChange={(e) => setIncludeProsem(e.target.checked)}
+                />
+                <span className={\`text-sm font-medium \${(!prosemSem1 && !prosemSem2) ? 'text-gray-400' : 'text-gray-700'}\`}>
+                  Program Semester (Prosem) {(!prosemSem1 && !prosemSem2) && '(Belum Dibuat)'}
+                </span>
+              </label>
+
+              <label className="flex items-center gap-2 cursor-pointer p-2 hover:bg-black/5 rounded-md border border-transparent hover:border-black/10 transition-colors">
+                <input 
+                  type="checkbox" 
+                  className="w-4 h-4 text-[#0D7C8F] rounded focus:ring-[#0D7C8F]"
+                  checked={includeKktp}
+                  disabled={!kktpData}
+                  onChange={(e) => setIncludeKktp(e.target.checked)}
+                />
+                <span className={\`text-sm font-medium \${!kktpData ? 'text-gray-400' : 'text-gray-700'}\`}>
+                  Kriteria Ketercapaian Tujuan Pembelajaran (KKTP) {!kktpData && '(Belum Dibuat)'}
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <div className="field-group">
             <label>Deskripsi</label>
             <textarea 
-              rows={3}
+              rows={4}
               value={listingData.description || ''}
-              onChange={e => setListingData({...listingData, description: e.target.value})}
+              onChange={e => {
+                setIsDescEdited(true);
+                setListingData({...listingData, description: e.target.value});
+              }}
             />
           </div>
           
@@ -161,9 +238,7 @@ export const StorePublishModal = ({
           
           <div className="bg-amber-50 border-2 border-amber-200 rounded-md p-3">
             <p className="text-xs font-semibold text-amber-800">
-              Isi Paket Otomatis (ZIP):
-              <br/>- Program Tahunan
-              <br/>- Program Semester (1 & 2)
+              Info Paket ZIP: File-file yang dicentang di atas akan otomatis dibundel menjadi satu file .zip untuk pembeli.
             </p>
             <p className="text-xs text-amber-700 mt-1 italic">
               *Modul Ajar Harian belum disertakan pada auto-zip versi ini.
