@@ -39,8 +39,9 @@ export const StoreBundleModal = ({
   const tahunAjaran = workspace.academic_year || '';
   const semLabel = semester === 1 ? 'Ganjil' : 'Genap';
   const mapelStr = formData.mataPelajaran || workspace.subject || '';
-  const kelasStr = formData.kelas || (workspace.grade ? `Kelas ${workspace.grade}` : '');
-  const faseStr = formData.fase || workspace.phase || '';
+  const rawKelas = formData.kelas || workspace.grade || '';
+  const kelasStr = rawKelas.toLowerCase().startsWith('kelas') ? rawKelas : (rawKelas ? `Kelas ${rawKelas}` : '');
+  const faseStr = workspace.phase || formData.fase || '';
   
   const topikList = prosemItems
     .filter(item => item.meeting_slots.some(s => s.status === 'completed'))
@@ -48,7 +49,7 @@ export const StoreBundleModal = ({
     .join('\n');
 
   const [listingData, setListingData] = useState<Partial<StoreListing>>({
-    title: `[LENGKAP] ${mapelStr} ${kelasStr} Fase ${faseStr} Semester ${semLabel} ${tahunAjaran}`,
+    title: `[LENGKAP] Modul Ajar ${mapelStr} ${kelasStr} Fase ${faseStr} Semester ${semLabel} ${tahunAjaran}`.trim(),
     description: `Paket Modul Ajar ${mapelStr} lengkap untuk ${kelasStr} Fase ${faseStr} Semester ${semLabel}${tahunAjaran ? ` T.A. ${tahunAjaran}` : ''}.
 
 ✅ Isi paket:
