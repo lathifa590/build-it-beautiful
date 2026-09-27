@@ -12,6 +12,7 @@ import { id } from 'date-fns/locale';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Button } from '@/components/ui/button';
+import { BlogUpsellPopup } from '@/components/blog/BlogUpsellPopup';
 
 export default function BlogDetail() {
   const { slug } = useParams();
@@ -209,6 +210,7 @@ export default function BlogDetail() {
       </main>
 
       <Footer />
+      <BlogUpsellPopup />
     </div>
   );
 }
