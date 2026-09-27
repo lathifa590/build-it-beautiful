@@ -19,9 +19,10 @@ Dokumen ini disusun sebagai **Bahan Tutorial Langkah Demi Langkah (Step-by-Step)
 9. **[Tutorial 5]** [Ekspor Dokumen & Gabung Multipertemuan (V2)](#9-tutorial-5-ekspor-dokumen--gabung-multipertemuan-v2)
 10. [Pengaturan Profil Guru & Kop Surat](#10-pengaturan-profil-guru--kop-surat)
 11. [Manajemen Arsip & Duplikasi Workspace](#11-manajemen-arsip--duplikasi-workspace)
-12. [Panduan Kemitraan & Reseller](#12-panduan-kemitraan--reseller)
-13. [FAQ & Troubleshooting](#13-faq--troubleshooting)
-14. [Kontak & Dukungan](#14-kontak--dukungan)
+12. [Manajemen Toko & Blog (Khusus Pro)](#12-manajemen-toko--blog-khusus-pro)
+13. [Panduan Kemitraan & Reseller](#13-panduan-kemitraan--reseller)
+14. [FAQ & Troubleshooting](#14-faq--troubleshooting)
+15. [Kontak & Dukungan](#15-kontak--dukungan)
 
 ---
 
@@ -62,7 +63,7 @@ Sistem langganan terbaru ModulAjar.Online dibagi menjadi 3 tingkatan, yang dapat
   Sama seperti Paket Lite, memberikan akses **Mode Cepat** (tanpa fitur manajemen kelas/Workspace) dengan masa aktif 1 tahun penuh. Cocok untuk kebutuhan pembuatan modul yang instan tanpa terikat kalender akademik.
 
 - **3. Paket Pro (Rp 197.000 / tahun):** 
-  *Highly Recommended!* Anda mendapatkan semua fitur Paket Standar DITAMBAH akses penuh ke **Mode Workspace**. Mode ini membuka fitur Manajemen Dokumen Terstruktur, pembuatan Prota & Prosem, KKTP, auto-save per pertemuan, dan integrasi penuh selama setahun ajaran.
+  *Highly Recommended!* Anda mendapatkan semua fitur Paket Standar DITAMBAH akses penuh ke **Mode Workspace**. Mode ini membuka fitur Manajemen Dokumen Terstruktur, pembuatan Prota & Prosem, KKTP, auto-save per pertemuan, dan integrasi penuh selama setahun ajaran. **[Terbaru] Anda juga mendapatkan akses eksklusif ke manajemen Toko Digital dan Blog Edukasi SEO.**
 
 ---
 
@@ -130,6 +131,7 @@ Setelah masuk ke Workspace, Anda melihat sebuah *Dashboard*. Di situ terdapat du
 ### Langkah 3: Perencanaan (Step 1 - CP & TP)
 1. Aplikasi menampilkan antarmuka pemilihan **Capaian Pembelajaran (CP)**.
 2. Centang Capaian Pembelajaran dan Tujuan Pembelajaran (TP) dari database kementerian yang ingin Anda ajarkan **selama 1 tahun penuh**.
+3. **[Baru]** Jika mapel Anda spesifik atau merupakan Muatan Lokal (Mulok), Anda dapat menggunakan fitur input CP secara manual.
 
 ### Langkah 4: Perencanaan (Step 2 - Prota)
 1. Di layar Prota, deretan TP yang Anda pilih tadi akan berjejer.
@@ -159,8 +161,9 @@ Setelah merencanakan jadwal setahun, kembali ke Workspace. Anda akan disambut ol
 
 ### Meeting Editor (Editor Pertemuan)
 1. Karena Anda berangkat dari Prosem, seluruh target belajar untuk hari itu sudah **Terisi Otomatis** di editor. Anda tidak perlu mengetik lagi.
-2. Klik **Generate Modul** khusus untuk hari tersebut. 
+2. Klik **Generate Modul** khusus untuk hari tersebut. Jika proses *generate* tersendat di antrean (queue), Anda dapat membatalkannya melalui tombol *Cancel Queue*.
 3. Voila! AI akan membuatkan Modul Ajar yang presisi hanya untuk jadwal pertemuan di minggu tersebut. Progres persentase Workspace Anda akan otomatis naik.
+4. **[Baru]** Jika modul untuk pertemuan tersebut sudah selesai di-generate namun Anda ingin memuatnya ulang sepenuhnya, Anda bisa menggunakan tombol *Regenerate* cadangan (fallback).
 
 ---
 
@@ -222,7 +225,7 @@ Dokumen resmi butuh kop surat yang elegan.
 
 ## 11. Manajemen Arsip & Duplikasi Workspace
 
-Tahun ajaran berganti, Workspace Anda di beranda mulai penuh.
+Tahun ajaran berganti, Workspace Anda di beranda mulai penuh. *(Catatan: Sistem kini memberlakukan batasan maksimal jumlah Workspace aktif yang berbeda antara pengguna Paket Free dan Pro).*
 
 ### Mengarsipkan Workspace (Archive)
 1. Di halaman `/app/workspace`, pada kartu Workspace, klik tombol "Titik Tiga (⋮)".
@@ -237,7 +240,23 @@ Anda mengajar "Matematika Kelas 4" tahun lalu, dan tahun ini masih mengajar kela
 
 ---
 
-## 12. Panduan Kemitraan & Reseller
+## 12. Manajemen Toko & Blog (Khusus Pro)
+
+ModulAjar.Online kini menghadirkan fitur Toko dan Blog terintegrasi khusus untuk pengguna **Paket Pro**. Fitur ini sangat bermanfaat jika Anda ingin mendistribusikan, menjual, atau mempublikasikan karya dan tulisan Anda.
+
+### A. Fitur Toko (Digital Store)
+- **Manajemen Produk:** Anda bisa mengatur katalog produk atau layanan digital edukasi secara mandiri.
+- **Optimasi Deskripsi:** Sistem akan membantu merapikan deskripsi produk agar lebih terstruktur dan menarik bagi pengunjung.
+- **Paket Bundling:** Saat menjual modul, Anda memiliki opsi untuk langsung menyertakan dokumen Prota, Prosem, dan KKTP ke dalam paket *(bundle)* penjualan di Toko.
+
+### B. Fitur Blog & SEO Otomatis
+- **Artikel RPP SEO:** Teknologi otomasi ini memungkinkan modul atau RPP yang telah dibuat disulap menjadi artikel blog ramah mesin pencari (SEO) secara instan.
+- **Editor Blog Terintegrasi:** Tersedia ruang pengeditan (*Blog Editor*) yang komprehensif, memungkinkan Anda memoles artikel dengan pemformatan yang kaya sebelum diterbitkan.
+- **Blog Marketing:** Fitur ini menautkan langsung konten blog Anda dengan ajakan bertindak (CTA) spesifik untuk meningkatkan interaksi pembaca.
+
+---
+
+## 13. Panduan Kemitraan & Reseller
 
 Kami memiliki program afiliasi *(Agency)*. Jika Anda adalah Reseller, Anda mendapat akses ke menu dasbor khusus.
 
@@ -247,7 +266,7 @@ Kami memiliki program afiliasi *(Agency)*. Jika Anda adalah Reseller, Anda menda
 
 ---
 
-## 13. FAQ & Troubleshooting
+## 14. FAQ & Troubleshooting
 
 ### ❓ Saya sudah memilih banyak pertemuan di Mode Cepat, tapi kenapa hasilnya cuma satu pertemuan panjang?
 Perhatikan navigasi dokumen di layar tengah-atas! Di V2, agar tidak terlalu panjang (*scroll of death*), kami memecah tampilan menjadi tombol tab `[Pertemuan 1]`, `[Pertemuan 2]`, dsb. Anda harus mengklik masing-masing tab untuk melihat hasil pertemuan tersebut.
@@ -263,7 +282,7 @@ Ini bisa terjadi apabila gambar masih dalam proses *rendering* (loading) tapi An
 
 ---
 
-## 14. Kontak & Dukungan
+## 15. Kontak & Dukungan
 
 Apabila Anda mengalami kendala atau *bug* teknis yang belum terjawab dalam panduan ini, jangan ragu untuk berinteraksi dengan tim kami:
 

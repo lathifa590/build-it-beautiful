@@ -9,6 +9,18 @@ import { Footer } from '@/components/landing/Footer';
 import { Calendar, Clock, ArrowRight } from 'lucide-react';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
+import { BlogUpsellPopup } from '@/components/blog/BlogUpsellPopup';
+
+const cardColors = [
+  'bg-amber-700',
+  'bg-emerald-700',
+  'bg-slate-800',
+  'bg-purple-800',
+  'bg-teal-700',
+  'bg-indigo-700',
+  'bg-rose-700',
+  'bg-cyan-800'
+];
 
 export default function BlogIndex() {
   const { data: articles, isLoading } = useQuery({
@@ -60,7 +72,7 @@ export default function BlogIndex() {
             </div>
           ) : articles && articles.length > 0 ? (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {articles.map((article) => (
+              {articles.map((article, index) => (
                 <Link to={`/blog/${article.slug}`} key={article.id} className="group">
                   <article className="bg-white rounded-2xl h-full flex flex-col overflow-hidden shadow-sm border border-slate-200 hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
                     {article.featured_image_url ? (
@@ -72,8 +84,11 @@ export default function BlogIndex() {
                         />
                       </div>
                     ) : (
-                      <div className="w-full h-48 bg-gradient-to-br from-indigo-100 to-blue-50 flex items-center justify-center">
-                        <span className="text-indigo-300 font-medium text-lg">ModulAjar.Online</span>
+                      <div className={`w-full h-48 relative overflow-hidden flex flex-col justify-center p-6 ${cardColors[index % cardColors.length]}`}>
+                        <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '16px 16px' }}></div>
+                        <h3 className="text-white font-bold text-xl leading-snug drop-shadow-md line-clamp-3 relative z-10 group-hover:scale-105 transition-transform duration-500">
+                          {article.title}
+                        </h3>
                       </div>
                     )}
                     
@@ -124,6 +139,7 @@ export default function BlogIndex() {
       </main>
 
       <Footer />
+      <BlogUpsellPopup />
     </div>
   );
 }
