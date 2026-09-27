@@ -36,13 +36,12 @@ export const BlogUpsellPopup = () => {
       </button>
       
       {/* Area Banner */}
-      <div className="bg-gradient-to-br from-indigo-600 via-purple-600 to-indigo-800 p-6 flex flex-col items-center justify-center text-white relative overflow-hidden">
-        {/* Pola background */}
-        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '16px 16px' }}></div>
-        
-        <Sparkles className="w-10 h-10 mb-2 text-indigo-200 relative z-10" />
-        <h3 className="font-extrabold text-xl mb-1 text-center relative z-10">Bebas Ribet Bikin RPP!</h3>
-        <p className="text-indigo-100 text-sm text-center relative z-10">Gunakan AI Asisten Guru</p>
+      <div className="w-full relative overflow-hidden bg-slate-100">
+        <img 
+          src="/thumbnail-app.png" 
+          alt="ModulAjar.Online" 
+          className="w-full h-auto object-cover"
+        />
       </div>
 
       <div className="p-5">
