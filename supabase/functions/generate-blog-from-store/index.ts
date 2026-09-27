@@ -223,7 +223,7 @@ Instruksi Konten:
         keyword_target: listing.title,
         status: 'published',
         published_at: new Date().toISOString(),
-        author_name: listing.modul_store_profiles.store_name || 'AI ModulAjar',
+        author_name: listing.modul_store_profiles.store_name || 'Tim ModulAjar Online',
         is_auto_generated: true,
         generation_prompt: userPrompt,
         reading_time_minutes: readingTime,

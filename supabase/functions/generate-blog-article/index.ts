@@ -209,7 +209,7 @@ Instruksi Konten:
         keyword_target: queueItem.keyword,
         status: 'published',
         published_at: new Date().toISOString(),
-        author_name: 'AI ModulAjar',
+        author_name: 'Tim ModulAjar Online',
         is_auto_generated: true,
         generation_prompt: userPrompt,
         reading_time_minutes: readingTime
