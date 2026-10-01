@@ -1,146 +1,238 @@
-import { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { StatCard } from '@/components/admin/StatCard';
-import { Users, UserPlus, FileText, Activity, Sparkles, TrendingUp } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import {
+  Users,
+  UserPlus,
+  FileText,
+  Activity,
+  Sparkles,
+  TrendingUp,
+  School,
+  Building2,
+  Settings,
+  ShieldCheck,
+  Zap,
+} from 'lucide-react';
+import {
+  useDashboardAnalytics,
+  TimeRangeOption,
+} from '@/components/admin/dashboard/useDashboardAnalytics';
+import { DashboardFilter } from '@/components/admin/dashboard/DashboardFilter';
+import { UserGrowthChart } from '@/components/admin/dashboard/UserGrowthChart';
+import { UserSegmentationCard } from '@/components/admin/dashboard/UserSegmentationCard';
+import { ExpiringSubscriptionsCard } from '@/components/admin/dashboard/ExpiringSubscriptionsCard';
+import { RecentUsersCard } from '@/components/admin/dashboard/RecentUsersCard';
+import { format, subDays } from 'date-fns';
 
 const AdminDashboard = () => {
-  const [stats, setStats] = useState({
-    totalUsers: 0,
-    newUsersThisWeek: 0,
-    totalProfiles: 0,
-    totalGenerations: 0,
-    weeklyGenerations: 0,
-  });
-  const [isLoading, setIsLoading] = useState(true);
+  const [timeRange, setTimeRange] = useState<TimeRangeOption>('7d');
+  const [customStartDate, setCustomStartDate] = useState<string>(
+    format(subDays(new Date(), 30), 'yyyy-MM-dd')
+  );
+  const [customEndDate, setCustomEndDate] = useState<string>(
+    format(new Date(), 'yyyy-MM-dd')
+  );
 
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const weekAgo = new Date();
-        weekAgo.setDate(weekAgo.getDate() - 7);
-
-        // Fetch all stats in parallel
-        const [
-          userCountResult,
-          newUsersResult,
-          profileCountResult,
-          generationCountResult,
-          weeklyGenerationsResult
-        ] = await Promise.all([
-          supabase.from('profiles').select('*', { count: 'exact', head: true }),
-          supabase.from('profiles').select('*', { count: 'exact', head: true }).gte('created_at', weekAgo.toISOString()),
-          supabase.from('teacher_profiles').select('*', { count: 'exact', head: true }),
-          supabase.from('generation_logs').select('*', { count: 'exact', head: true }),
-          supabase.from('generation_logs').select('*', { count: 'exact', head: true }).gte('created_at', weekAgo.toISOString()),
-        ]);
-
-        setStats({
-          totalUsers: userCountResult.count || 0,
-          newUsersThisWeek: newUsersResult.count || 0,
-          totalProfiles: profileCountResult.count || 0,
-          totalGenerations: generationCountResult.count || 0,
-          weeklyGenerations: weeklyGenerationsResult.count || 0,
-        });
-      } catch (error) {
-        console.error('Error fetching stats:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchStats();
-  }, []);
+  const {
+    isLoading,
+    isRefreshing,
+    dateBounds,
+    metrics,
+    chartData,
+    expiringCustomers,
+    recentUsers,
+    refetch,
+    exportToCSV,
+  } = useDashboardAnalytics(timeRange, customStartDate, customEndDate);
 
   return (
     <AdminLayout>
-      <div className="space-y-4 md:space-y-8">
+      <div className="space-y-6 md:space-y-8 pb-12">
         {/* Page Header */}
-        <div>
-          <h1 className="text-2xl md:text-3xl font-extrabold text-foreground">Dashboard</h1>
-          <p className="text-sm md:text-base text-muted-foreground mt-1">
-            Selamat datang di panel administrasi Perangkat Ajar
-          </p>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <h1 className="text-2xl md:text-3xl font-extrabold text-foreground tracking-tight flex items-center gap-2">
+              <Zap className="w-7 h-7 text-primary fill-primary/20" /> Dashboard Administrasi
+            </h1>
+            <p className="text-sm md:text-base text-muted-foreground mt-1">
+              Pantau tren pertumbuhan pengguna, performa sistem, dan aktivitas modul ajar
+            </p>
+          </div>
         </div>
 
-        {/* Stats Grid - 2 cols on mobile, 3 on tablet, 6 on desktop */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4">
+        {/* Global Filter & Actions */}
+        <DashboardFilter
+          timeRange={timeRange}
+          setTimeRange={setTimeRange}
+          customStartDate={customStartDate}
+          setCustomStartDate={setCustomStartDate}
+          customEndDate={customEndDate}
+          setCustomEndDate={setCustomEndDate}
+          onRefresh={refetch}
+          onExport={exportToCSV}
+          isRefreshing={isRefreshing}
+          activeLabel={dateBounds.label}
+        />
+
+        {/* Stats Grid - 6 KPI cards with responsive columns & trend metrics */}
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4">
           <StatCard
             title="Total Pengguna"
-            value={isLoading ? '...' : stats.totalUsers}
+            value={isLoading ? '...' : metrics.totalUsers.toLocaleString('id-ID')}
             icon={Users}
-            description="Terdaftar"
+            description="Semua waktu"
             color="primary"
           />
+
           <StatCard
             title="Pengguna Baru"
-            value={isLoading ? '...' : stats.newUsersThisWeek}
+            value={isLoading ? '...' : metrics.periodNewUsers.toLocaleString('id-ID')}
             icon={UserPlus}
-            description="7 hari terakhir"
+            description={`Periode: ${dateBounds.label}`}
+            trend={
+              timeRange !== 'all'
+                ? {
+                    value: metrics.userGrowthTrend.value,
+                    isPositive: metrics.userGrowthTrend.isPositive,
+                    label: metrics.userGrowthTrend.label,
+                  }
+                : undefined
+            }
             color="success"
           />
+
           <StatCard
-            title="Total Profil"
-            value={isLoading ? '...' : stats.totalProfiles}
-            icon={FileText}
-            description="Profil guru"
+            title="Rata-rata Pendaftaran"
+            value={isLoading ? '...' : `${metrics.dailyAverageNewUsers}`}
+            icon={TrendingUp}
+            description="Pengguna per hari"
             color="info"
           />
+
           <StatCard
-            title="Total Konten"
-            value={isLoading ? '...' : stats.totalGenerations}
-            icon={Sparkles}
-            description="Konten dibuat"
+            title="Aktivasi Profil"
+            value={isLoading ? '...' : `${metrics.activationRate}%`}
+            icon={FileText}
+            description={`${metrics.totalTeacherProfiles} profil guru`}
             color="primary"
           />
+
           <StatCard
-            title="Konten Minggu Ini"
-            value={isLoading ? '...' : stats.weeklyGenerations}
-            icon={TrendingUp}
-            description="7 hari terakhir"
-            color="success"
+            title="Total Konten"
+            value={isLoading ? '...' : metrics.totalGenerationsAllTime.toLocaleString('id-ID')}
+            icon={Sparkles}
+            description="Semua modul dibuat"
+            color="warning"
           />
+
           <StatCard
-            title="Status Sistem"
-            value="Aktif"
+            title="Konten Periode Ini"
+            value={isLoading ? '...' : metrics.periodGenerations.toLocaleString('id-ID')}
             icon={Activity}
-            description="Semua layanan"
+            description="Generasi dibuat"
+            trend={
+              timeRange !== 'all'
+                ? {
+                    value: metrics.generationGrowthTrend.value,
+                    isPositive: metrics.generationGrowthTrend.isPositive,
+                    label: metrics.generationGrowthTrend.label,
+                  }
+                : undefined
+            }
             color="success"
           />
         </div>
 
-        {/* Quick Actions */}
+        {/* Row 2: Analytics & Charts */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Main User Growth Chart (Takes 2 Columns on desktop) */}
+          <div className="lg:col-span-2">
+            <UserGrowthChart
+              growthSeries={chartData.growthSeries}
+              dayOfWeekDistribution={chartData.dayOfWeekDistribution}
+              peakRegistration={chartData.peakRegistration}
+              dailyAverageNewUsers={metrics.dailyAverageNewUsers}
+              periodNewUsers={metrics.periodNewUsers}
+              activeLabel={dateBounds.label}
+            />
+          </div>
+
+          {/* User Segmentation & Funnel (Takes 1 Column on desktop) */}
+          <div className="lg:col-span-1">
+            <UserSegmentationCard
+              allowedStats={metrics.allowedCustomerStats}
+              totalUsers={metrics.totalUsers}
+              totalTeacherProfiles={metrics.totalTeacherProfiles}
+              activationRate={metrics.activationRate}
+            />
+          </div>
+        </div>
+
+        {/* Row 3: Actionable Cards (Recent Users & Subscriptions Watchlist) */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <RecentUsersCard users={recentUsers} />
+          <ExpiringSubscriptionsCard customers={expiringCustomers} />
+        </div>
+
+        {/* Row 4: Quick Navigation / Aksi Cepat */}
         <div className="bg-card border-2 border-foreground rounded-xl p-4 md:p-6 shadow-brutal">
-          <h2 className="text-base md:text-lg font-bold mb-3 md:mb-4">Aksi Cepat</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-base md:text-lg font-extrabold text-foreground">
+              Aksi Cepat & Navigasi Modul
+            </h2>
+            <span className="text-xs text-muted-foreground font-semibold">Pintasan Cepat</span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
             <a
               href="/admin/users"
-              className="p-3 md:p-4 bg-secondary border-2 border-foreground/30 rounded-lg hover:border-foreground hover:shadow-brutal-sm transition-all flex items-center gap-3"
+              className="p-3 md:p-4 bg-secondary border-2 border-foreground/30 rounded-lg hover:border-foreground hover:shadow-brutal-sm transition-all flex items-center gap-3 group"
             >
-              <Users className="w-5 h-5 md:w-6 md:h-6 text-primary flex-shrink-0" />
+              <div className="p-2.5 bg-primary/10 rounded-lg border border-primary/30 group-hover:bg-primary group-hover:text-white transition-colors">
+                <Users className="w-5 h-5 text-primary group-hover:text-white" />
+              </div>
               <div className="min-w-0">
-                <p className="font-bold text-sm md:text-base">Kelola Pengguna</p>
-                <p className="text-xs md:text-sm text-muted-foreground truncate">Lihat dan edit pengguna</p>
+                <p className="font-extrabold text-sm md:text-base text-foreground">Kelola Pengguna</p>
+                <p className="text-xs text-muted-foreground truncate">Lihat data & reset akses</p>
               </div>
             </a>
+
             <a
               href="/admin/customers"
-              className="p-3 md:p-4 bg-secondary border-2 border-foreground/30 rounded-lg hover:border-foreground hover:shadow-brutal-sm transition-all flex items-center gap-3"
+              className="p-3 md:p-4 bg-secondary border-2 border-foreground/30 rounded-lg hover:border-foreground hover:shadow-brutal-sm transition-all flex items-center gap-3 group"
             >
-              <FileText className="w-5 h-5 md:w-6 md:h-6 text-info flex-shrink-0" />
+              <div className="p-2.5 bg-info/10 rounded-lg border border-info/30 group-hover:bg-info group-hover:text-white transition-colors">
+                <FileText className="w-5 h-5 text-info group-hover:text-white" />
+              </div>
               <div className="min-w-0">
-                <p className="font-bold text-sm md:text-base">Pelanggan Lama</p>
-                <p className="text-xs md:text-sm text-muted-foreground truncate">Kelola whitelist</p>
+                <p className="font-extrabold text-sm md:text-base text-foreground">Pelanggan Lama</p>
+                <p className="text-xs text-muted-foreground truncate">Whitelist & perpanjangan</p>
               </div>
             </a>
+
+            <a
+              href="/admin/schools"
+              className="p-3 md:p-4 bg-secondary border-2 border-foreground/30 rounded-lg hover:border-foreground hover:shadow-brutal-sm transition-all flex items-center gap-3 group"
+            >
+              <div className="p-2.5 bg-emerald-500/10 rounded-lg border border-emerald-500/30 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                <School className="w-5 h-5 text-emerald-700 group-hover:text-white" />
+              </div>
+              <div className="min-w-0">
+                <p className="font-extrabold text-sm md:text-base text-foreground">Sekolah & B2B</p>
+                <p className="text-xs text-muted-foreground truncate">Supervisi & paket sekolah</p>
+              </div>
+            </a>
+
             <a
               href="/admin/settings"
-              className="p-3 md:p-4 bg-secondary border-2 border-foreground/30 rounded-lg hover:border-foreground hover:shadow-brutal-sm transition-all flex items-center gap-3"
+              className="p-3 md:p-4 bg-secondary border-2 border-foreground/30 rounded-lg hover:border-foreground hover:shadow-brutal-sm transition-all flex items-center gap-3 group"
             >
-              <Activity className="w-5 h-5 md:w-6 md:h-6 text-success flex-shrink-0" />
+              <div className="p-2.5 bg-purple-500/10 rounded-lg border border-purple-500/30 group-hover:bg-purple-600 group-hover:text-white transition-colors">
+                <Settings className="w-5 h-5 text-purple-700 group-hover:text-white" />
+              </div>
               <div className="min-w-0">
-                <p className="font-bold text-sm md:text-base">Pengaturan</p>
-                <p className="text-xs md:text-sm text-muted-foreground truncate">Konfigurasi sistem</p>
+                <p className="font-extrabold text-sm md:text-base text-foreground">Pengaturan</p>
+                <p className="text-xs text-muted-foreground truncate">Konfigurasi API & sistem</p>
               </div>
             </a>
           </div>

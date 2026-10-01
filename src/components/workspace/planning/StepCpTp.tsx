@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -216,10 +217,11 @@ export const StepCpTp: React.FC<StepCpTpProps> = ({ workspace, onNext, isLocked,
       });
 
       if (saveErr) {
-        alert(saveErr.message || "Gagal menyimpan Tujuan Pembelajaran");
+        toast.error(saveErr.message || "Gagal menyimpan Tujuan Pembelajaran");
         return;
       }
 
+      toast.success("Tujuan Pembelajaran berhasil disimpan!");
       onNext();
     } catch (err: any) {
       alert("Error: " + err.message);
