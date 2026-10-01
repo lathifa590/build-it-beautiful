@@ -8,6 +8,7 @@ import { CPSelectorModal } from "@/components/modul/CPSelectorModal";
 import { supabase } from "@/integrations/supabase/client";
 import { Workspace } from "@/types/workspace";
 import { useTpGenerator } from '@/hooks/useTpGenerator';
+import { useTopicGenerator } from '@/hooks/useTopicGenerator';
 import { useConfirm } from '@/contexts/ConfirmContext';
 import { KalenderPendidikanForm } from "@/components/modul/KalenderPendidikanForm";
 import type { KalenderPendidikan } from "@/types/modul";
@@ -43,6 +44,7 @@ export const StepCpTp: React.FC<StepCpTpProps> = ({ workspace, onNext, isLocked,
   const [isManualCp, setIsManualCp] = useState(false);
 
   const { generate: generateTp, isLoading: isGenerating, error: genError } = useTpGenerator();
+  const { generate: generateTopics, isLoading: isGeneratingTopics, error: topicGenError } = useTopicGenerator();
 
   // 1. Load existing data if any
   useEffect(() => {
@@ -171,6 +173,35 @@ export const StepCpTp: React.FC<StepCpTpProps> = ({ workspace, onNext, isLocked,
         description: item.description
       }));
       setTpItems(newTpItems);
+    }
+  };
+
+  const handleGenerateTopics = async () => {
+    if (ruangLingkupMateri.trim().length > 0) {
+      const confirmed = await confirm({
+        title: "Generate Ulang Topik Materi?",
+        description: "Daftar topik / ruang lingkup materi saat ini akan diganti dengan hasil rekomendasi AI. Lanjutkan?",
+        confirmText: "Lanjutkan",
+        variant: "destructive"
+      });
+      if (!confirmed) return;
+    }
+
+    const result = await generateTopics({
+      mataPelajaran: workspace.subject,
+      fase: workspace.phase,
+      kelas: workspace.grade,
+      cp: cpContent,
+      kalender: kalenderData,
+    });
+
+    if (result) {
+      setRuangLingkupMateri(result);
+      toast.success("Topik materi berhasil dibuat dengan AI!", {
+        description: "Anda dapat meninjau dan mengedit materi tersebut secara bebas sebelum lanjut ke Tujuan Pembelajaran."
+      });
+    } else {
+      toast.error(topicGenError || "Gagal menyusun topik materi dengan AI. Silakan coba lagi.");
     }
   };
 
@@ -354,16 +385,30 @@ export const StepCpTp: React.FC<StepCpTpProps> = ({ workspace, onNext, isLocked,
           {/* Tab: Ruang Lingkup Materi */}
           {activeTab === 'ruangLingkup' && (
             <div className="space-y-4 animate-in fade-in duration-200">
-              <h3 className="section-heading">TOPIK / RUANG LINGKUP MATERI</h3>
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-2">
+                <h3 className="section-heading flex-1 m-0">TOPIK / RUANG LINGKUP MATERI</h3>
+                <Button
+                  type="button"
+                  disabled={isGeneratingTopics}
+                  onClick={() => { if (isLocked && onShowUpsell) onShowUpsell(); else handleGenerateTopics(); }}
+                  className="flex-none gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white shadow-sm"
+                >
+                  {isGeneratingTopics ? (
+                    <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Menyusun Topik...</>
+                  ) : (
+                    <><Wand2 className="w-4 h-4 mr-2 text-amber-200" /> Buat Topik dengan AI</>
+                  )}
+                </Button>
+              </div>
+
               <div className="bg-white rounded-md border border-slate-200 p-5">
                 <p className="text-sm text-slate-500 mb-4">
                   Ketikkan topik atau materi spesifik yang akan diajarkan dari CP ini, pisahkan dengan koma atau baris
-                  baru (misal: <i>Procedure Text, Narrative Text</i>). Ini akan sangat membantu AI memecah CP yang
-                  terlalu luas menjadi belasan Tujuan Pembelajaran yang lebih riil. (Sifatnya Opsional)
+                  baru (misal: <i>Procedure Text, Narrative Text</i>). Anda juga dapat klik tombol <b>Buat Topik dengan AI</b> di atas untuk menghasilkan daftar topik otomatis berdasarkan mata pelajaran, fase, dan kelas sesuai kurikulum terbaru, lalu mengeditnya secara manual. (Sifatnya Opsional)
                 </p>
                 <Textarea
-                  className="min-h-[150px] border-slate-200 focus:border-primary/50 text-slate-700 placeholder:text-slate-400"
-                  placeholder="Masukkan ruang lingkup materi di sini..."
+                  className="min-h-[170px] border-slate-200 focus:border-primary/50 text-slate-700 placeholder:text-slate-400 font-mono text-sm leading-relaxed"
+                  placeholder="Masukkan ruang lingkup materi di sini atau klik 'Buat Topik dengan AI' di atas...&#10;Contoh:&#10;1. Bab 1: Menemukan Ide Pokok dalam Cerita&#10;2. Bab 2: Mengenal Teks Prosedur&#10;3. Bab 3: Menulis Surat Pribadi"
                   value={ruangLingkupMateri}
                   onChange={(e) => setRuangLingkupMateri(e.target.value)}
                 />

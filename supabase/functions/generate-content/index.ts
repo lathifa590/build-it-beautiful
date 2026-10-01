@@ -2696,6 +2696,45 @@ KELAS: ${data.kelas || '(tidak diisi)'}
 ${jpUserInstruction}`;
         break;
 
+      case "ruang-lingkup":
+      case "topik-materi":
+        systemPrompt = `Kamu adalah pakar kurikulum pendidikan Indonesia yang menguasai Kurikulum Merdeka (Kemendikbudristek) dan Kurikulum Madrasah (Kemenag) terbaru, khususnya silabus materi, buku teks utama, dan Capaian Pembelajaran (CP).
+
+TUGAS UTAMA:
+Menyusun daftar Topik / Ruang Lingkup Materi pokok untuk 1 tahun ajaran penuh (mencakup Semester 1 dan Semester 2) berdasarkan Mata Pelajaran, Fase, Kelas, dan CP yang diberikan.
+
+PANDUAN PENYUSUNAN TOPIK:
+1. Rujuk materi pokok dan bab pembelajaran standar resmi Kurikulum Merdeka (buku teks siswa/guru Kemdikbud/Kemenag) yang relevan untuk jenjang kelas tersebut.
+2. Buat sekitar 6 sampai 12 topik/bab pokok secara menyeluruh untuk 1 tahun ajaran (dibagi seimbang antara Semester 1 dan Semester 2).
+3. Setiap baris topik harus berupa unit materi/bab yang spesifik, padat, dan jelas (contoh: "Bab 1: Menemukan Ide Pokok dan Cerita Fiksi", "Bab 2: Struktur dan Ciri Teks Prosedur", dll).
+4. Jangan menuliskan penjelasan panjang berbelit-belit. Cukup judul bab/materi pokok yang jelas agar guru dapat dengan mudah mengedit atau menambahkan catatan.
+5. Format teks_gabungan: sajikan setiap topik dalam baris baru bernomor urut 1 sampai selesai (1. ..., 2. ..., dst.) agar langsung rapi di dalam textarea formulir perencanaan.
+
+FORMAT OUTPUT JSON:
+{
+  "daftar_topik": [
+    {
+      "nomor": 1,
+      "semester": 1,
+      "topik": "Bab 1: ..."
+    }
+  ],
+  "teks_gabungan": "1. Bab 1: ...\\n2. Bab 2: ...\\n..."
+}`;
+
+        userPrompt = `Susunkan daftar Topik / Ruang Lingkup Materi pembelajaran untuk 1 tahun ajaran berdasarkan data berikut:
+
+MATA PELAJARAN: ${data.mataPelajaran || '(tidak diisi)'}
+FASE: ${data.fase || '(tidak diisi)'}
+KELAS: ${data.kelas || '(tidak diisi)'}
+
+CAPAIAN PEMBELAJARAN (CP):
+${data.capaianPembelajaran ? data.capaianPembelajaran : '(Tidak ada teks CP khusus yang dilampirkan, gunakan standar Capaian Pembelajaran resmi Kurikulum Merdeka / Kemenag terbaru untuk mapel, fase, dan kelas ini)'}
+
+INSTRUKSI:
+Buatkan daftar topik/ruang lingkup materi pokok untuk Semester 1 dan Semester 2. Pastikan 'teks_gabungan' berisi daftar topik baris per baris bernomor urut rapi.`;
+        break;
+
       case "kontekstualisasi-cp":
         systemPrompt = `Kamu adalah ahli kurikulum pendidikan Indonesia yang memahami Capaian Pembelajaran (CP) Kurikulum Merdeka secara mendalam.
 
@@ -3013,6 +3052,8 @@ Jahit ke seksi/konten yang sudah ada — JANGAN buat seksi baru di luar struktur
       bankSoal: 16000,
       tindakLanjut: 5000,
       'tujuan-pembelajaran': 10000,
+      'ruang-lingkup': 4000,
+      'topik-materi': 4000,
       'kontekstualisasi-cp': 1000,
       'suggest-desain-pembelajaran': 2000,
       'edit-section': 4000
