@@ -17,13 +17,16 @@ interface UserSegmentationCardProps {
 }
 
 const TIER_COLORS: Record<string, string> = {
-  lifetime: '#ea580c', // primary orange
-  annual: '#0284c7',   // blue
+  lifetime: '#ea580c',     // primary orange
+  annual: '#0284c7',       // blue
   tahunan: '#0284c7',
-  trial: '#8b5cf6',    // purple
-  sekolah: '#10b981',  // emerald
-  agency: '#f59e0b',   // amber
-  lainnya: '#64748b',  // slate
+  pro_annual: '#6366f1',   // indigo
+  pro_lifetime: '#d97706', // amber
+  lite: '#0d9488',         // teal
+  trial: '#8b5cf6',        // purple
+  sekolah: '#10b981',      // emerald
+  agency: '#f59e0b',       // amber
+  lainnya: '#64748b',      // slate
 };
 
 const CustomPieTooltip = ({ active, payload }: any) => {
@@ -54,6 +57,9 @@ export const UserSegmentationCard: React.FC<UserSegmentationCardProps> = ({
   const pieData = tierEntries.map(([tier, count]) => {
     let cleanName = tier;
     if (tier === 'annual' || tier === 'tahunan') cleanName = 'Tahunan';
+    else if (tier === 'pro_annual') cleanName = 'Pro Tahunan';
+    else if (tier === 'pro_lifetime') cleanName = 'Pro Lifetime';
+    else if (tier === 'lite') cleanName = 'Lite (6 Bulan)';
     else if (tier === 'lifetime') cleanName = 'Lifetime';
     else if (tier === 'trial') cleanName = 'Trial';
 

@@ -50,10 +50,16 @@ export const useAddAllowedCustomer = () => {
     mutationFn: async (customer: NewCustomerInput) => {
       const accountType = customer.account_type || 'annual';
       let expiresAt = customer.subscription_expires_at ?? null;
-      if (accountType === 'annual' && !expiresAt) {
-        const d = new Date();
-        d.setFullYear(d.getFullYear() + 1);
-        expiresAt = d.toISOString();
+      if (!expiresAt) {
+        if (accountType === 'annual' || accountType === 'pro_annual') {
+          const d = new Date();
+          d.setFullYear(d.getFullYear() + 1);
+          expiresAt = d.toISOString();
+        } else if (accountType === 'lite') {
+          const d = new Date();
+          d.setMonth(d.getMonth() + 6);
+          expiresAt = d.toISOString();
+        }
       }
 
       const { error } = await supabase
@@ -154,15 +160,19 @@ export const useExtendSubscription = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (input: { id: string; currentExpiresAt: string | null; years?: number }) => {
-      const { id, currentExpiresAt, years = 1 } = input;
+    mutationFn: async (input: { id: string; currentExpiresAt: string | null; months?: number; years?: number }) => {
+      const { id, currentExpiresAt, months, years } = input;
       const base = currentExpiresAt && new Date(currentExpiresAt) > new Date()
         ? new Date(currentExpiresAt)
         : new Date();
-      base.setFullYear(base.getFullYear() + years);
+      if (months) {
+        base.setMonth(base.getMonth() + months);
+      } else {
+        base.setFullYear(base.getFullYear() + (years ?? 1));
+      }
       const { error } = await supabase
         .from('allowed_customers')
-        .update({ subscription_expires_at: base.toISOString(), account_type: 'annual' } as any)
+        .update({ subscription_expires_at: base.toISOString() } as any)
         .eq('id', id);
       if (error) throw error;
     },

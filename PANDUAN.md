@@ -56,8 +56,8 @@ Tidak hanya sekadar RPP, sistem kami mengotomatisasi seluruh administrasi Anda:
 
 Sistem langganan terbaru ModulAjar.Online dibagi menjadi 3 tingkatan, yang dapat Anda cek di menu **Settings (Pengaturan)**:
 
-- **1. Paket Lite (Rp 49.000 / 3 bulan):** 
-  Mendapatkan akses penuh **Mode Cepat**, pembuatan Modul Multi-Pertemuan untuk uji coba atau pemakaian jangka pendek selama 3 bulan. Fitur Workspace Perencanaan (Prota/Prosem) terkunci.
+- **1. Paket Lite (Rp 99.000 / 6 bulan):** 
+  Mendapatkan akses penuh **Mode Cepat**, pembuatan Modul Multi-Pertemuan untuk uji coba atau pemakaian jangka menengah selama 6 bulan penuh. Fitur Workspace Perencanaan (Prota/Prosem) terkunci.
   
 - **2. Paket Standar (Rp 149.000 / tahun):** 
   Sama seperti Paket Lite, memberikan akses **Mode Cepat** (tanpa fitur manajemen kelas/Workspace) dengan masa aktif 1 tahun penuh. Cocok untuk kebutuhan pembuatan modul yang instan tanpa terikat kalender akademik.
