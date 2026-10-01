@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
-export type AccountType = 'lifetime' | 'annual' | 'trial' | 'regular' | 'pro_annual' | 'pro_lifetime' | 'unknown';
+export type AccountType = 'lifetime' | 'annual' | 'trial' | 'regular' | 'pro_annual' | 'pro_lifetime' | 'lite' | 'unknown';
 
 export interface SubscriptionStatus {
   accountType: AccountType;
@@ -13,6 +13,7 @@ export interface SubscriptionStatus {
   isCritical: boolean;     // <= 7 days or expired
   isLifetime: boolean;
   isAnnual: boolean;
+  isLite: boolean;
   isTrial: boolean;
   isPro: boolean;
 }
@@ -49,7 +50,8 @@ export const useSubscriptionStatus = () => {
 
       let daysLeft: number | null = null;
       let isExpired = false;
-      if ((accountType === 'annual' || accountType === 'pro_annual') && expiresAt) {
+      const isExpiringType = accountType === 'annual' || accountType === 'pro_annual' || accountType === 'lite';
+      if (isExpiringType && expiresAt) {
         const diffMs = new Date(expiresAt).getTime() - Date.now();
         daysLeft = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
         isExpired = diffMs <= 0;
@@ -67,6 +69,7 @@ export const useSubscriptionStatus = () => {
         isCritical,
         isLifetime: accountType === 'lifetime' || accountType === 'regular' || accountType === 'pro_lifetime',
         isAnnual: accountType === 'annual' || accountType === 'pro_annual',
+        isLite: accountType === 'lite',
         isTrial: accountType === 'trial',
         isPro: accountType === 'pro_annual' || accountType === 'pro_lifetime',
       };

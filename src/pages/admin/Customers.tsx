@@ -50,9 +50,49 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 
-type FilterType = 'all' | 'lifetime' | 'annual' | 'trial' | 'expiring' | 'expired';
+type FilterType = 'all' | 'lifetime' | 'annual' | 'lite' | 'trial' | 'expiring' | 'expired';
 
-const ANNUAL_PRICE = 149_000;
+export const PRICING = {
+  lite: {
+    price: 99_000,
+    periodLabel: '6 bulan',
+    durationMonths: 6,
+    mrr: 99_000 / 6, // 16.500/bulan
+    annualRev: 99_000 * 2, // 198.000 disetahunkan
+    label: 'Paket Lite',
+  },
+  annual: {
+    price: 149_000,
+    periodLabel: 'tahun',
+    durationMonths: 12,
+    mrr: 149_000 / 12, // 12.417/bulan
+    annualRev: 149_000,
+    label: 'Paket Standar',
+  },
+  pro_annual: {
+    price: 197_000,
+    periodLabel: 'tahun',
+    durationMonths: 12,
+    mrr: 197_000 / 12, // 16.417/bulan
+    annualRev: 197_000,
+    label: 'Paket Pro',
+  },
+};
+
+export const getDefaultExpiryDate = (accountType: string): string => {
+  const now = new Date();
+  if (accountType === 'lite') {
+    const d = new Date(now);
+    d.setMonth(d.getMonth() + 6);
+    return d.toISOString().slice(0, 10);
+  }
+  if (accountType === 'annual' || accountType === 'pro_annual') {
+    const d = new Date(now);
+    d.setFullYear(d.getFullYear() + 1);
+    return d.toISOString().slice(0, 10);
+  }
+  return '';
+};
 
 const formatDate = (dateString: string | null) => {
   if (!dateString) return '-';
@@ -71,6 +111,14 @@ const computeStatus = (c: AllowedCustomer) => {
   if (c.account_type === 'trial') {
     return { label: 'Trial', tone: 'trial' as const, daysLeft: null };
   }
+  if (c.account_type === 'lite') {
+    if (!c.subscription_expires_at) return { label: 'Lite', tone: 'lite' as const, daysLeft: null };
+    const diffMs = new Date(c.subscription_expires_at).getTime() - Date.now();
+    const daysLeft = Math.ceil(diffMs / 86400000);
+    if (daysLeft <= 0) return { label: 'Expired', tone: 'expired' as const, daysLeft };
+    if (daysLeft <= 30) return { label: `${daysLeft}h lagi`, tone: 'expiring' as const, daysLeft };
+    return { label: 'Lite Aktif', tone: 'lite' as const, daysLeft };
+  }
   if (c.account_type === 'annual' || c.account_type === 'pro_annual') {
     if (!c.subscription_expires_at) return { label: c.account_type === 'pro_annual' ? 'PRO Tahunan' : 'Tahunan', tone: 'annual' as const, daysLeft: null };
     const diffMs = new Date(c.subscription_expires_at).getTime() - Date.now();
@@ -87,6 +135,7 @@ const TYPE_BADGE: Record<string, string> = {
   pro_lifetime: 'bg-amber-100 text-amber-800 border-amber-300',
   annual: 'bg-blue-100 text-blue-800 border-blue-300',
   pro_annual: 'bg-indigo-100 text-indigo-800 border-indigo-300',
+  lite: 'bg-teal-100 text-teal-800 border-teal-300',
   expiring: 'bg-yellow-100 text-yellow-800 border-yellow-400',
   expired: 'bg-red-100 text-red-800 border-red-400',
   trial: 'bg-purple-100 text-purple-700 border-purple-300',
@@ -111,7 +160,7 @@ const AdminCustomers = () => {
     name: '',
     phone: '',
     account_type: 'annual',
-    subscription_expires_at: '',
+    subscription_expires_at: getDefaultExpiryDate('annual'),
   });
   const [addMode, setAddMode] = useState<'single' | 'batch'>('single');
   const [batchText, setBatchText] = useState('');
@@ -121,31 +170,68 @@ const AdminCustomers = () => {
   const stats = useMemo(() => {
     const list = customers || [];
     const lifetime = list.filter((c) => c.account_type === 'lifetime' || c.account_type === 'regular' || c.account_type === 'pro_lifetime').length;
-    const annualActive = list.filter((c) => {
-      if ((c.account_type !== 'annual' && c.account_type !== 'pro_annual') || !c.subscription_expires_at) return false;
-      const d = Math.ceil((new Date(c.subscription_expires_at).getTime() - Date.now()) / 86400000);
-      return d > 30;
-    }).length;
-    const expiringSoon = list.filter((c) => {
-      if ((c.account_type !== 'annual' && c.account_type !== 'pro_annual') || !c.subscription_expires_at) return false;
-      const d = Math.ceil((new Date(c.subscription_expires_at).getTime() - Date.now()) / 86400000);
-      return d > 0 && d <= 30;
-    }).length;
-    const expired = list.filter((c) => {
-      if ((c.account_type !== 'annual' && c.account_type !== 'pro_annual') || !c.subscription_expires_at) return false;
-      return new Date(c.subscription_expires_at).getTime() <= Date.now();
-    }).length;
     const trial = list.filter((c) => c.account_type === 'trial').length;
-    const annualTotal = annualActive + expiringSoon;
+
+    let annualActive = 0;
+    let proActive = 0;
+    let liteActive = 0;
+    let expiringSoon = 0;
+    let expired = 0;
+    let totalMRR = 0;
+    let totalYearlyRev = 0;
+
+    list.forEach((c) => {
+      const isExpiring = c.account_type === 'annual' || c.account_type === 'pro_annual' || c.account_type === 'lite';
+      if (!isExpiring) return;
+
+      if (!c.subscription_expires_at) {
+        if (c.account_type === 'lite') liteActive++;
+        else if (c.account_type === 'pro_annual') proActive++;
+        else annualActive++;
+        return;
+      }
+
+      const diffMs = new Date(c.subscription_expires_at).getTime() - Date.now();
+      const d = Math.ceil(diffMs / 86400000);
+
+      if (d <= 0) {
+        expired++;
+        return;
+      }
+
+      if (d <= 30) {
+        expiringSoon++;
+      }
+
+      if (c.account_type === 'lite') {
+        liteActive++;
+        totalMRR += PRICING.lite.mrr;
+        totalYearlyRev += PRICING.lite.annualRev;
+      } else if (c.account_type === 'pro_annual') {
+        proActive++;
+        totalMRR += PRICING.pro_annual.mrr;
+        totalYearlyRev += PRICING.pro_annual.annualRev;
+      } else {
+        annualActive++;
+        totalMRR += PRICING.annual.mrr;
+        totalYearlyRev += PRICING.annual.annualRev;
+      }
+    });
+
+    const activePayingTotal = liteActive + annualActive + proActive;
+
     return {
       total: list.length,
       lifetime,
       annualActive,
+      proActive,
+      liteActive,
+      activePayingTotal,
       expiringSoon,
       expired,
       trial,
-      mrr: annualTotal * (ANNUAL_PRICE / 12),
-      yearlyRev: annualTotal * ANNUAL_PRICE,
+      mrr: totalMRR,
+      yearlyRev: totalYearlyRev,
     };
   }, [customers]);
 
@@ -153,14 +239,16 @@ const AdminCustomers = () => {
     .filter((c) => {
       if (filter === 'lifetime') return c.account_type === 'lifetime' || c.account_type === 'regular' || c.account_type === 'pro_lifetime';
       if (filter === 'annual') return c.account_type === 'annual' || c.account_type === 'pro_annual';
+      if (filter === 'lite') return c.account_type === 'lite';
       if (filter === 'trial') return c.account_type === 'trial';
+      const isExpiring = c.account_type === 'annual' || c.account_type === 'pro_annual' || c.account_type === 'lite';
       if (filter === 'expiring') {
-        if ((c.account_type !== 'annual' && c.account_type !== 'pro_annual') || !c.subscription_expires_at) return false;
+        if (!isExpiring || !c.subscription_expires_at) return false;
         const d = Math.ceil((new Date(c.subscription_expires_at).getTime() - Date.now()) / 86400000);
         return d > 0 && d <= 30;
       }
       if (filter === 'expired') {
-        if ((c.account_type !== 'annual' && c.account_type !== 'pro_annual') || !c.subscription_expires_at) return false;
+        if (!isExpiring || !c.subscription_expires_at) return false;
         return new Date(c.subscription_expires_at).getTime() <= Date.now();
       }
       return true;
@@ -220,7 +308,13 @@ const AdminCustomers = () => {
           : null,
       });
       toast.success('Pelanggan berhasil ditambahkan');
-      setNewCustomer({ email: '', name: '', phone: '', account_type: 'annual', subscription_expires_at: '' });
+      setNewCustomer({
+        email: '',
+        name: '',
+        phone: '',
+        account_type: 'annual',
+        subscription_expires_at: getDefaultExpiryDate('annual'),
+      });
       setShowAddModal(false);
     } catch (e: any) {
       toast.error(e.message || 'Gagal menambahkan pelanggan');
@@ -298,11 +392,12 @@ const AdminCustomers = () => {
   const handleSaveEdit = async () => {
     if (!editTarget) return;
     try {
+      const isTimed = editForm.account_type === 'annual' || editForm.account_type === 'pro_annual' || editForm.account_type === 'lite';
       await updateCustomer.mutateAsync({
         id: editTarget.id,
         account_type: editForm.account_type,
         subscription_expires_at:
-          (editForm.account_type === 'annual' || editForm.account_type === 'pro_annual') && editForm.subscription_expires_at
+          isTimed && editForm.subscription_expires_at
             ? new Date(editForm.subscription_expires_at).toISOString()
             : null,
       });
@@ -315,8 +410,13 @@ const AdminCustomers = () => {
 
   const handleExtend = async (c: AllowedCustomer) => {
     try {
-      await extendSub.mutateAsync({ id: c.id, currentExpiresAt: c.subscription_expires_at });
-      toast.success(`Langganan ${c.name} diperpanjang +1 tahun`);
+      if (c.account_type === 'lite') {
+        await extendSub.mutateAsync({ id: c.id, currentExpiresAt: c.subscription_expires_at, months: 6 });
+        toast.success(`Langganan ${c.name} diperpanjang +6 bulan`);
+      } else {
+        await extendSub.mutateAsync({ id: c.id, currentExpiresAt: c.subscription_expires_at, years: 1 });
+        toast.success(`Langganan ${c.name} diperpanjang +1 tahun`);
+      }
     } catch (e: any) {
       toast.error(e.message);
     }
@@ -401,26 +501,35 @@ const AdminCustomers = () => {
               <TrendingUp className="w-6 h-6" />
             </div>
             <div>
-              <p className="text-sm text-muted-foreground font-medium">Proyeksi Tahunan (Pelanggan Tahunan Aktif)</p>
+              <p className="text-sm text-muted-foreground font-medium">Proyeksi Pendapatan (Pelanggan Berbayar Aktif)</p>
               <p className="text-2xl sm:text-3xl font-extrabold">
-                Rp {stats.yearlyRev.toLocaleString('id-ID')}
+                Rp {Math.round(stats.yearlyRev).toLocaleString('id-ID')}
               </p>
               <p className="text-xs text-muted-foreground">
                 ≈ Rp {Math.round(stats.mrr).toLocaleString('id-ID')} / bulan setara MRR
               </p>
             </div>
           </div>
-          <div className="text-xs text-muted-foreground sm:text-right">
-            <p>Harga per akun: <strong className="text-foreground">Rp {ANNUAL_PRICE.toLocaleString('id-ID')}</strong> / tahun</p>
-            <p>Jumlah aktif: <strong className="text-foreground">{stats.annualActive + stats.expiringSoon}</strong> tahunan</p>
+          <div className="text-xs text-muted-foreground sm:text-right space-y-1">
+            <p>
+              Aktif:{' '}
+              <strong className="text-foreground">{stats.activePayingTotal} akun</strong> (
+              <span className="text-teal-700 font-semibold">{stats.liteActive} Lite</span>,{' '}
+              <span className="text-blue-700 font-semibold">{stats.annualActive} Standar</span>,{' '}
+              <span className="text-indigo-700 font-semibold">{stats.proActive} Pro</span>)
+            </p>
+            <p className="opacity-80">
+              Lite: Rp 99k/6bln • Standar: Rp 149k/thn • Pro: Rp 197k/thn
+            </p>
           </div>
         </div>
 
         {/* Stats — clickable filters */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
           <StatCard icon={Users} label="Total" value={stats.total} tone="bg-primary/10 text-primary" onClick={() => setFilter('all')} />
           <StatCard icon={InfinityIcon} label="Lifetime" value={stats.lifetime} tone="bg-amber-100 text-amber-700" onClick={() => setFilter('lifetime')} />
-          <StatCard icon={Calendar} label="Tahunan Aktif" value={stats.annualActive} tone="bg-blue-100 text-blue-700" onClick={() => setFilter('annual')} />
+          <StatCard icon={Calendar} label="Tahunan Aktif" value={stats.annualActive + stats.proActive} tone="bg-blue-100 text-blue-700" onClick={() => setFilter('annual')} />
+          <StatCard icon={Clock} label="Lite Aktif" value={stats.liteActive} tone="bg-teal-100 text-teal-700" onClick={() => setFilter('lite')} />
           <StatCard icon={Clock} label="≤ 30 Hari" value={stats.expiringSoon} tone="bg-yellow-100 text-yellow-700" onClick={() => setFilter('expiring')} />
           <StatCard icon={AlertTriangle} label="Expired" value={stats.expired} tone="bg-red-100 text-red-700" onClick={() => setFilter('expired')} />
           <StatCard icon={UserCheck} label="Trial" value={stats.trial} tone="bg-purple-100 text-purple-700" onClick={() => setFilter('trial')} />
@@ -443,7 +552,7 @@ const AdminCustomers = () => {
               onClick={() => setFilter('all')}
               className="flex items-center gap-2 px-4 py-3 bg-foreground text-background border-2 border-foreground rounded-lg text-sm font-bold"
             >
-              Filter: {filter}
+              Filter: {filter === 'annual' ? 'Tahunan' : filter === 'lite' ? 'Lite' : filter}
               <X className="w-3.5 h-3.5" />
             </button>
           )}
@@ -499,7 +608,10 @@ const AdminCustomers = () => {
                             {isLifetime && <InfinityIcon className="w-3 h-3" />}
                             {customer.account_type === 'regular' ? 'Lifetime' :
                               customer.account_type === 'lifetime' ? 'Lifetime' :
+                              customer.account_type === 'pro_lifetime' ? 'PRO Lifetime' :
+                              customer.account_type === 'pro_annual' ? 'PRO Tahunan' :
                               customer.account_type === 'annual' ? 'Tahunan' :
+                              customer.account_type === 'lite' ? 'Lite (6 Bulan)' :
                               customer.account_type === 'trial' ? 'Trial' : customer.account_type}
                           </span>
                         </TableCell>
@@ -532,12 +644,12 @@ const AdminCustomers = () => {
                         </TableCell>
                         <TableCell className="text-right">
                           <div className="flex justify-end gap-1">
-                            {customer.account_type === 'annual' && (
+                            {(customer.account_type === 'annual' || customer.account_type === 'pro_annual' || customer.account_type === 'lite') && (
                               <button
                                 onClick={() => handleExtend(customer)}
                                 disabled={extendSub.isPending}
                                 className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                title="Perpanjang +1 tahun"
+                                title={customer.account_type === 'lite' ? 'Perpanjang +6 bulan' : 'Perpanjang +1 tahun'}
                               >
                                 <CalendarPlus className="w-4 h-4" />
                               </button>
@@ -572,13 +684,14 @@ const AdminCustomers = () => {
           <div className="flex items-start gap-3">
             <FileSpreadsheet className="w-5 h-5 text-muted-foreground flex-shrink-0 mt-0.5" />
             <div className="text-sm text-muted-foreground">
-              <p className="font-medium text-foreground">Catatan Tipe Akun</p>
+              <p className="font-medium text-foreground">Catatan Tipe Akun & Tarif</p>
               <p>
-                <strong>Lifetime</strong> = pelanggan lama (akses selamanya, tidak akan expired).
-                <strong> Tahunan</strong> = paket Rp 149.000 / tahun, otomatis dicek expiry-nya.
-                <strong> Trial</strong> = kuota terbatas per hari.
+                <strong>Lite</strong> = Rp 99.000 / 6 bulan (Mode Cepat).
+                <strong> Standar</strong> = Rp 149.000 / tahun (Mode Cepat).
+                <strong> Pro</strong> = Rp 197.000 / tahun (Mode Workspace + Toko Digital).
+                <strong> Lifetime</strong> = Akses selamanya (tidak akan expired).
               </p>
-              <p className="mt-1">Import CSV & sync Lynk.id otomatis menambahkan sebagai <strong>Tahunan</strong> dengan masa aktif 1 tahun dari sekarang.</p>
+              <p className="mt-1">Saat menambahkan akun, tanggal kedaluwarsa otomatis terisi sesuai durasi paket (Lite: +6 bulan, Standar/Pro: +1 tahun).</p>
             </div>
           </div>
         </div>
@@ -632,26 +745,50 @@ const AdminCustomers = () => {
                   <label className="block text-xs font-bold uppercase text-muted-foreground mb-2">Tipe Akun</label>
                   <select
                     value={newCustomer.account_type}
-                    onChange={(e) => setNewCustomer({ ...newCustomer, account_type: e.target.value })}
+                    onChange={(e) => {
+                      const nextType = e.target.value;
+                      setNewCustomer({
+                        ...newCustomer,
+                        account_type: nextType,
+                        subscription_expires_at: getDefaultExpiryDate(nextType),
+                      });
+                    }}
                     className="w-full px-4 py-3 border-2 border-foreground/30 rounded-lg focus:border-foreground outline-none bg-background"
                   >
-                    <option value="annual">Tahunan (Biasa)</option>
+                    <option value="annual">Paket Standar (Tahunan) - Rp 149.000 / thn</option>
+                    <option value="pro_annual">Paket Pro (Tahunan) - Rp 197.000 / thn</option>
+                    <option value="lite">Paket Lite (6 Bulan) - Rp 99.000 / 6 bln</option>
                     <option value="lifetime">Lifetime (Biasa)</option>
-                    <option value="pro_annual">Tahunan (PRO Workspace)</option>
                     <option value="pro_lifetime">Lifetime (PRO Workspace)</option>
                     <option value="trial">Trial (Kuota Terbatas)</option>
                   </select>
                 </div>
-                {(newCustomer.account_type === 'annual' || newCustomer.account_type === 'pro_annual') && (
+                {(newCustomer.account_type === 'annual' || newCustomer.account_type === 'pro_annual' || newCustomer.account_type === 'lite') && (
                   <div>
-                    <label className="block text-xs font-bold uppercase text-muted-foreground mb-2">Tanggal Berakhir</label>
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="text-xs font-bold uppercase text-muted-foreground">Tanggal Berakhir</label>
+                      <span className="text-[11px] font-semibold text-primary">
+                        {newCustomer.account_type === 'lite' ? '⚡ Otomatis +6 Bulan' : '⚡ Otomatis +1 Tahun'}
+                      </span>
+                    </div>
                     <input
                       type="date"
                       value={newCustomer.subscription_expires_at}
                       onChange={(e) => setNewCustomer({ ...newCustomer, subscription_expires_at: e.target.value })}
-                      className="w-full px-4 py-3 border-2 border-foreground/30 rounded-lg focus:border-foreground outline-none bg-background"
+                      className="w-full px-4 py-3 border-2 border-foreground/30 rounded-lg focus:border-foreground outline-none bg-background font-medium"
                     />
-                    <p className="text-xs text-muted-foreground mt-1">Kosongkan untuk auto +1 tahun dari sekarang</p>
+                    <p className="text-xs text-muted-foreground mt-1.5 flex items-center gap-1">
+                      <span>💡</span>
+                      {newCustomer.subscription_expires_at
+                        ? `Masa aktif s/d ${formatDate(newCustomer.subscription_expires_at)} (Dihitung otomatis)`
+                        : 'Pilih tanggal atau kosongkan untuk auto-hitung'}
+                    </p>
+                  </div>
+                )}
+                {(newCustomer.account_type === 'lifetime' || newCustomer.account_type === 'pro_lifetime') && (
+                  <div className="p-3 bg-amber-50 border border-amber-300 rounded-lg text-xs text-amber-900 flex items-center gap-2">
+                    <InfinityIcon className="w-4 h-4 shrink-0" />
+                    <span>Akun ini memiliki <strong>Akses Selamanya</strong> tanpa masa kedaluwarsa.</span>
                   </div>
                 )}
                 <div className="flex gap-3 pt-2">
@@ -712,24 +849,41 @@ const AdminCustomers = () => {
                 <label className="block text-xs font-bold uppercase text-muted-foreground mb-2">Tipe Akun</label>
                 <select
                   value={editForm.account_type}
-                  onChange={(e) => setEditForm({ ...editForm, account_type: e.target.value })}
+                  onChange={(e) => {
+                    const nextType = e.target.value;
+                    setEditForm({
+                      ...editForm,
+                      account_type: nextType,
+                      subscription_expires_at: editForm.subscription_expires_at || getDefaultExpiryDate(nextType),
+                    });
+                  }}
                   className="w-full px-4 py-3 border-2 border-foreground/30 rounded-lg focus:border-foreground outline-none bg-background"
                 >
-                  <option value="annual">Tahunan (Biasa)</option>
+                  <option value="annual">Paket Standar (Tahunan) - Rp 149.000 / thn</option>
+                  <option value="pro_annual">Paket Pro (Tahunan) - Rp 197.000 / thn</option>
+                  <option value="lite">Paket Lite (6 Bulan) - Rp 99.000 / 6 bln</option>
                   <option value="lifetime">Lifetime (Biasa)</option>
-                  <option value="pro_annual">Tahunan (PRO Workspace)</option>
                   <option value="pro_lifetime">Lifetime (PRO Workspace)</option>
                   <option value="trial">Trial</option>
                 </select>
               </div>
-              {(editForm.account_type === 'annual' || editForm.account_type === 'pro_annual') && (
+              {(editForm.account_type === 'annual' || editForm.account_type === 'pro_annual' || editForm.account_type === 'lite') && (
                 <div>
-                  <label className="block text-xs font-bold uppercase text-muted-foreground mb-2">Tanggal Berakhir</label>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="text-xs font-bold uppercase text-muted-foreground">Tanggal Berakhir</label>
+                    <button
+                      type="button"
+                      onClick={() => setEditForm({ ...editForm, subscription_expires_at: getDefaultExpiryDate(editForm.account_type) })}
+                      className="text-[11px] font-bold text-primary hover:underline"
+                    >
+                      Set Otomatis Sesuai Paket
+                    </button>
+                  </div>
                   <input
                     type="date"
                     value={editForm.subscription_expires_at}
                     onChange={(e) => setEditForm({ ...editForm, subscription_expires_at: e.target.value })}
-                    className="w-full px-4 py-3 border-2 border-foreground/30 rounded-lg focus:border-foreground outline-none bg-background"
+                    className="w-full px-4 py-3 border-2 border-foreground/30 rounded-lg focus:border-foreground outline-none bg-background font-medium"
                   />
                 </div>
               )}

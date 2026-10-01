@@ -14,20 +14,21 @@ const formatDate = (iso: string) =>
 export const SubscriptionStatusBanner = ({ compact = false }: { compact?: boolean }) => {
   const { data } = useSubscriptionStatus();
 
-  if (!data || !data.isAnnual || !data.expiresAt) return null;
+  if (!data || (!data.isAnnual && !data.isLite) || !data.expiresAt) return null;
 
   const { daysLeft, isExpired, isExpiringSoon, isCritical, expiresAt } = data;
 
   // Healthy: hide unless explicitly opted in via compact (settings page)
   if (!isCritical && !isExpiringSoon && !compact) return null;
 
+  const planLabel = data.isLite ? 'Lite' : 'Tahunan';
   let tone: 'green' | 'amber' | 'red' = 'green';
   let title = '';
   let message = '';
 
   if (isExpired) {
     tone = 'red';
-    title = 'Langganan Tahunan Berakhir';
+    title = `Langganan ${planLabel} Berakhir`;
     message = `Berakhir pada ${formatDate(expiresAt)}. Perpanjang sekarang untuk lanjut menggunakan semua fitur.`;
   } else if (isCritical) {
     tone = 'red';
@@ -39,7 +40,7 @@ export const SubscriptionStatusBanner = ({ compact = false }: { compact?: boolea
     message = `Berakhir pada ${formatDate(expiresAt)}. Perpanjang sekarang untuk hemat dan tidak repot.`;
   } else {
     tone = 'green';
-    title = 'Langganan Tahunan Aktif';
+    title = `Langganan ${planLabel} Aktif`;
     message = `Berakhir pada ${formatDate(expiresAt)} (${daysLeft} hari lagi).`;
   }
 
