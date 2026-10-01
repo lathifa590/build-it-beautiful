@@ -97,6 +97,10 @@ export const WorkspaceDashboard = ({
     else toast.error('Gagal mengarsipkan workspace.');
   };
 
+  const isSuperAdmin = isAdmin || user?.email?.toLowerCase() === 'jagofeed@gmail.com';
+  const isPro = subStatus?.isPro || isSuperAdmin;
+  const limit = isPro ? 10 : 3;
+
   if (!activeWorkspace) {
     return (
       <div className="flex flex-col items-center justify-center h-[60vh] text-center max-w-md mx-auto">
@@ -106,11 +110,11 @@ export const WorkspaceDashboard = ({
           Silakan pilih atau buat Workspace baru untuk mulai merencanakan pembelajaran. Workspace memisahkan data antar kelas dan mata pelajaran.
         </p>
         <button className="btn btn-primary" onClick={() => {
-          const isPro = subStatus?.isPro;
-          const limit = isPro ? 10 : 3;
-          if (workspaces.length >= limit) {
+          if (!isSuperAdmin && workspaces.length >= limit) {
             toast.error(`Batas maksimal Workspace tercapai (${limit} Workspace).`, {
-              description: isPro ? "Anda telah mencapai batas maksimal Workspace untuk akun PRO." : "Hapus Workspace lama untuk membuat baru, atau upgrade ke PRO."
+              description: isPro 
+                ? "Anda telah mencapai batas maksimal Workspace untuk akun PRO (10 Workspace)." 
+                : "Hapus Workspace lama untuk membuat baru, atau upgrade ke PRO."
             });
             return;
           }
@@ -222,6 +226,14 @@ export const WorkspaceDashboard = ({
               </DropdownMenuItem>
               <DropdownMenuItem 
                 onClick={async () => {
+                  if (!isSuperAdmin && workspaces.length >= limit) {
+                    toast.error(`Batas maksimal Workspace tercapai (${limit} Workspace).`, {
+                      description: isPro 
+                        ? "Anda telah mencapai batas maksimal Workspace untuk akun PRO (10 Workspace)." 
+                        : "Hapus Workspace lama untuk membuat baru, atau upgrade ke PRO untuk batas yang lebih tinggi (hingga 10 Workspace)."
+                    });
+                    return;
+                  }
                   const newYear = await prompt({
                     title: "Duplikasi Workspace",
                     description: "Masukkan Tahun Ajaran baru",
