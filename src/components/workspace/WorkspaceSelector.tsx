@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { CreateWorkspaceModal } from './CreateWorkspaceModal';
 import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
+import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
 export const WorkspaceSelector = () => {
@@ -21,15 +22,19 @@ export const WorkspaceSelector = () => {
   const isRootExplorer = location.pathname === '/app/workspace' || location.pathname === '/app/workspace/';
   const { activeWorkspace, workspaces, setActiveWorkspace } = useWorkspace();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const { user, isAdmin } = useAuth();
   const { data: subStatus } = useSubscriptionStatus();
   
+  const isSuperAdmin = isAdmin || user?.email?.toLowerCase() === 'jagofeed@gmail.com';
+  const isPro = subStatus?.isPro || isSuperAdmin;
+  const limit = isPro ? 10 : 3;
+  
   const handleCreateWorkspace = () => {
-    const isPro = subStatus?.isPro;
-    const limit = isPro ? 10 : 3;
-    
-    if (workspaces.length >= limit) {
+    if (!isSuperAdmin && workspaces.length >= limit) {
       toast.error(`Batas maksimal Workspace tercapai (${limit} Workspace).`, {
-        description: isPro ? "Anda telah mencapai batas maksimal Workspace untuk akun PRO." : "Hapus Workspace lama untuk membuat baru, atau upgrade ke PRO untuk batas yang lebih tinggi."
+        description: isPro 
+          ? "Anda telah mencapai batas maksimal Workspace untuk akun PRO (10 Workspace)." 
+          : "Hapus Workspace lama untuk membuat baru, atau upgrade ke PRO untuk batas yang lebih tinggi (hingga 10 Workspace)."
       });
       return;
     }

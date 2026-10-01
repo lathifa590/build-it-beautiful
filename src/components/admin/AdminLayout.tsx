@@ -151,7 +151,7 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
         {/* Sidebar Footer */}
         <div className="absolute bottom-0 left-0 right-0 p-4 border-t-2 border-foreground/20">
           <Link
-            to="/"
+            to="/app"
             className="flex items-center gap-3 px-4 py-3 rounded-lg border-2 border-transparent hover:bg-secondary hover:border-foreground/20 transition-all mb-2"
           >
             <Home className="w-5 h-5 flex-shrink-0" />

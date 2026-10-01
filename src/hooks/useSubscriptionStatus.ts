@@ -19,10 +19,11 @@ export interface SubscriptionStatus {
 }
 
 export const useSubscriptionStatus = () => {
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
+  const isSuperAdmin = isAdmin || user?.email?.toLowerCase() === 'jagofeed@gmail.com';
 
   return useQuery<SubscriptionStatus>({
-    queryKey: ['subscription-status', user?.id],
+    queryKey: ['subscription-status', user?.id, isSuperAdmin],
     enabled: !!user,
     staleTime: 60_000,
     queryFn: async () => {
@@ -67,11 +68,11 @@ export const useSubscriptionStatus = () => {
         isExpired,
         isExpiringSoon,
         isCritical,
-        isLifetime: accountType === 'lifetime' || accountType === 'regular' || accountType === 'pro_lifetime',
+        isLifetime: isSuperAdmin || accountType === 'lifetime' || accountType === 'regular' || accountType === 'pro_lifetime',
         isAnnual: accountType === 'annual' || accountType === 'pro_annual',
         isLite: accountType === 'lite',
         isTrial: accountType === 'trial',
-        isPro: accountType === 'pro_annual' || accountType === 'pro_lifetime',
+        isPro: isSuperAdmin || accountType === 'pro_annual' || accountType === 'pro_lifetime',
       };
     },
   });
