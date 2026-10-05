@@ -9,6 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { BlogArticle, ArticleStatus } from '@/types/blog';
 import { Loader2 } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface BlogEditorModalProps {
   isOpen: boolean;
@@ -18,6 +19,7 @@ interface BlogEditorModalProps {
 }
 
 export const BlogEditorModal = ({ isOpen, onClose, article, onSuccess }: BlogEditorModalProps) => {
+  const { user } = useAuth();
   const [isSaving, setIsSaving] = useState(false);
   const [formData, setFormData] = useState<Partial<BlogArticle>>({});
 
@@ -32,6 +34,16 @@ export const BlogEditorModal = ({ isOpen, onClose, article, onSuccess }: BlogEdi
         status: article.status || 'draft',
         featured_image_url: article.featured_image_url || '',
       });
+    } else {
+      setFormData({
+        title: '',
+        slug: '',
+        content: '',
+        excerpt: '',
+        category: '',
+        status: 'draft',
+        featured_image_url: '',
+      });
     }
   }, [article, isOpen]);
 
@@ -40,8 +52,6 @@ export const BlogEditorModal = ({ isOpen, onClose, article, onSuccess }: BlogEdi
   };
 
   const handleSave = async () => {
-    if (!article) return;
-    
     if (!formData.title?.trim() || !formData.slug?.trim() || !formData.content?.trim()) {
       toast.error('Judul, Slug, dan Konten tidak boleh kosong.');
       return;
@@ -50,32 +60,67 @@ export const BlogEditorModal = ({ isOpen, onClose, article, onSuccess }: BlogEdi
     try {
       setIsSaving(true);
       
-      const { error } = await supabase
-        .from('blog_articles')
-        .update({
-          title: formData.title.trim(),
-          slug: formData.slug.trim(),
-          content: formData.content,
-          excerpt: formData.excerpt?.trim() || null,
-          category: formData.category?.trim() || null,
-          status: formData.status as ArticleStatus,
-          featured_image_url: formData.featured_image_url?.trim() || null,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', article.id);
+      if (article) {
+        const { error } = await supabase
+          .from('blog_articles')
+          .update({
+            title: formData.title.trim(),
+            slug: formData.slug.trim(),
+            content: formData.content,
+            excerpt: formData.excerpt?.trim() || null,
+            category: formData.category?.trim() || null,
+            status: formData.status as ArticleStatus,
+            featured_image_url: formData.featured_image_url?.trim() || null,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', article.id);
 
-      if (error) {
-        if (error.code === '23505') { // unique_violation
-          throw new Error('Slug sudah digunakan oleh artikel lain.');
+        if (error) {
+          if (error.code === '23505') { // unique_violation
+            throw new Error('Slug sudah digunakan oleh artikel lain.');
+          }
+          throw error;
         }
-        throw error;
+        toast.success('Artikel berhasil diperbarui!');
+      } else {
+        let authorName = user?.user_metadata?.full_name || 'Admin ModulAjar';
+        if (user) {
+          const { data: profile } = await supabase
+            .from('modul_store_profiles')
+            .select('store_name')
+            .eq('owner_user_id', user.id)
+            .maybeSingle();
+          if (profile?.store_name) {
+            authorName = profile.store_name;
+          }
+        }
+
+        const { error } = await supabase
+          .from('blog_articles')
+          .insert({
+            title: formData.title.trim(),
+            slug: formData.slug.trim(),
+            content: formData.content,
+            excerpt: formData.excerpt?.trim() || null,
+            category: formData.category?.trim() || null,
+            status: formData.status as ArticleStatus,
+            featured_image_url: formData.featured_image_url?.trim() || null,
+            author_name: authorName,
+          });
+
+        if (error) {
+          if (error.code === '23505') { // unique_violation
+            throw new Error('Slug sudah digunakan oleh artikel lain.');
+          }
+          throw error;
+        }
+        toast.success('Artikel berhasil dibuat!');
       }
 
-      toast.success('Artikel berhasil diperbarui!');
       onSuccess();
       onClose();
     } catch (err: any) {
-      console.error('Error updating article:', err);
+      console.error('Error saving article:', err);
       toast.error(err.message || 'Gagal menyimpan perubahan.');
     } finally {
       setIsSaving(false);
