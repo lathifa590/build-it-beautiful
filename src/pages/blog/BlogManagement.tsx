@@ -84,7 +84,10 @@ export default function BlogManagement() {
           <p className="text-slate-500 mt-1">Kelola artikel pemasaran Anda yang dihasilkan oleh AI.</p>
         </div>
         
-        <Button onClick={() => navigate('/app/workspace')} className="gap-2 shadow-sm font-bold">
+        <Button onClick={() => {
+          setEditingArticle(null);
+          setIsEditorOpen(true);
+        }} className="gap-2 shadow-sm font-bold">
           <Plus className="w-4 h-4" />
           Buat Artikel Baru
         </Button>
