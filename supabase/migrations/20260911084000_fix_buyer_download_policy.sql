@@ -1,6 +1,7 @@
 
 -- Fix buyer_id bug: column does not exist in modul_store_orders
 DROP POLICY IF EXISTS "Buyers can download files" ON storage.objects;
+DROP POLICY IF EXISTS "Authenticated users can download purchased files" ON storage.objects;
 
 CREATE POLICY "Authenticated users can download purchased files"
 ON storage.objects FOR SELECT
