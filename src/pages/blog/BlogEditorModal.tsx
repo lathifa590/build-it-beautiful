@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo, lazy, Suspense } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,8 +10,14 @@ import { toast } from 'sonner';
 import { BlogArticle, ArticleStatus } from '@/types/blog';
 import { Loader2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+
+// Dynamic import untuk mengatasi isu CJS/ESM react-quill di Vite production
+const ReactQuill = lazy(() => {
+  return import('react-quill').then((module) => {
+    return { default: module.default || module };
+  });
+});
 
 interface BlogEditorModalProps {
   isOpen: boolean;
@@ -29,7 +35,9 @@ export const BlogEditorModal = ({ isOpen, onClose, article, onSuccess }: BlogEdi
   const imageHandler = () => {
     const url = prompt('Masukkan URL Gambar:');
     if (url) {
-      const quill = quillRef.current?.getEditor();
+      // NOTE: dengan lazy load, mendapatkan ref getEditor sedikit tricky,
+      // pastikan quillRef.current bukan undefined sebelum memanggil getEditor
+      const quill = (quillRef.current as any)?.getEditor?.();
       if (quill) {
         const range = quill.getSelection();
         quill.insertEmbed(range?.index || 0, 'image', url);
@@ -236,15 +244,17 @@ export const BlogEditorModal = ({ isOpen, onClose, article, onSuccess }: BlogEdi
           <div className="space-y-2 flex-1 flex flex-col h-full mb-10">
             <Label htmlFor="content">Konten <span className="text-red-500">*</span></Label>
             <div className="flex-1 min-h-[350px]">
-              <ReactQuill 
-                ref={quillRef}
-                theme="snow"
-                value={formData.content || ''}
-                onChange={(value) => handleChange('content', value)}
-                placeholder="Tulis konten artikel Anda di sini..."
-                className="h-[300px] pb-10"
-                modules={modules}
-              />
+              <Suspense fallback={<div className="h-[300px] flex items-center justify-center border rounded bg-slate-50 text-slate-400"><Loader2 className="w-6 h-6 animate-spin" /></div>}>
+                <ReactQuill 
+                  ref={quillRef as any}
+                  theme="snow"
+                  value={formData.content || ''}
+                  onChange={(value) => handleChange('content', value)}
+                  placeholder="Tulis konten artikel Anda di sini..."
+                  className="h-[300px] pb-10"
+                  modules={modules}
+                />
+              </Suspense>
             </div>
           </div>
         </div>
