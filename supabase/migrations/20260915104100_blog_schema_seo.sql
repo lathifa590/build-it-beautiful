@@ -1,11 +1,20 @@
 -- Migration: Blog System & SEO Queues Schema
 
 -- 1. Create ENUMs
-CREATE TYPE article_status AS ENUM ('draft', 'published', 'scheduled');
-CREATE TYPE queue_status AS ENUM ('queued', 'processing', 'done', 'failed');
+DO $$ BEGIN
+    CREATE TYPE article_status AS ENUM ('draft', 'published', 'scheduled');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
+
+DO $$ BEGIN
+    CREATE TYPE queue_status AS ENUM ('queued', 'processing', 'done', 'failed');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
 
 -- 2. Create blog_articles table
-CREATE TABLE public.blog_articles (
+CREATE TABLE IF NOT EXISTS public.blog_articles (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     slug TEXT UNIQUE NOT NULL,
     title TEXT NOT NULL,
@@ -30,7 +39,7 @@ CREATE TABLE public.blog_articles (
 );
 
 -- 3. Create seo_keyword_queue table
-CREATE TABLE public.seo_keyword_queue (
+CREATE TABLE IF NOT EXISTS public.seo_keyword_queue (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     keyword TEXT NOT NULL,
     keyword_secondary TEXT[],
@@ -42,7 +51,7 @@ CREATE TABLE public.seo_keyword_queue (
 );
 
 -- 4. Create cron_job_logs table
-CREATE TABLE public.cron_job_logs (
+CREATE TABLE IF NOT EXISTS public.cron_job_logs (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     job_name TEXT NOT NULL,
     status TEXT NOT NULL,
@@ -51,15 +60,21 @@ CREATE TABLE public.cron_job_logs (
 );
 
 -- 5. Indexes for performance
-CREATE INDEX idx_blog_articles_status ON public.blog_articles(status);
-CREATE INDEX idx_blog_articles_category ON public.blog_articles(category);
-CREATE INDEX idx_blog_articles_published_at ON public.blog_articles(published_at DESC);
-CREATE INDEX idx_seo_keyword_queue_status_priority ON public.seo_keyword_queue(status, priority);
+CREATE INDEX IF NOT EXISTS idx_blog_articles_status ON public.blog_articles(status);
+CREATE INDEX IF NOT EXISTS idx_blog_articles_category ON public.blog_articles(category);
+CREATE INDEX IF NOT EXISTS idx_blog_articles_published_at ON public.blog_articles(published_at DESC);
+CREATE INDEX IF NOT EXISTS idx_seo_keyword_queue_status_priority ON public.seo_keyword_queue(status, priority);
 
 -- 6. Row Level Security (RLS)
 ALTER TABLE public.blog_articles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.seo_keyword_queue ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.cron_job_logs ENABLE ROW LEVEL SECURITY;
+
+-- blog_articles policies
+DROP POLICY IF EXISTS "Public can read published articles" ON public.blog_articles;
+DROP POLICY IF EXISTS "Admins can manage articles" ON public.blog_articles;
+DROP POLICY IF EXISTS "Admins can manage keyword queue" ON public.seo_keyword_queue;
+DROP POLICY IF EXISTS "Admins can manage cron logs" ON public.cron_job_logs;
 
 -- blog_articles policies
 CREATE POLICY "Public can read published articles" 
