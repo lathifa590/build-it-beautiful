@@ -58,6 +58,7 @@ ANTI-SLOP COPYWRITING RULES (PENTING KARENA DIBACA OLEH GURU):
 3. **JANGAN GUNAKAN EM-DASH (—)**: Gunakan koma, titik, atau tanda kurung biasa untuk jeda/tambahan info.
 4. **HINDARI CHATBOT TONE & SIGNPOSTING**: Jangan gunakan penutup seperti "I hope this helps!", "You're welcome", atau pembuka meta-komentar seperti "Let's dive in", "Here's what you need to know", "Honestly?". Langsung to the point.
 5. **JANGAN MEMBERI SIFAT MANUSIA PADA BENDA**: Contoh buruk: "dashboard mengerti kebutuhanmu". Contoh baik: "dashboard menampilkan data kebutuhanmu".
+6. **GUNAKAN POV KITA (ORANG PERTAMA JAMAK)**: Posisikan dirimu sebagai sesama guru. Jangan gunakan kata "Anda" atau "Kalian" untuk memanggil pembaca. Gunakan "Kita" (contoh: "Kita sebagai guru seringkali...", BUKAN "Anda sebagai guru...").
 
 STRUKTUR ARTIKEL WAJIB (Jangan gunakan format baku/template robot):
 1. **Hook & Masalah Nyata:** Mulai dengan cerita, empati, atau fakta tentang kerepotan dan masalah nyata yang dialami guru (seperti kehabisan waktu, administrasi berbelit, dll). Jangan langsung sebut fitur di awal.
