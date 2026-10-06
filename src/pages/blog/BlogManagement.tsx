@@ -16,7 +16,7 @@ import { BlogEditorModal } from './BlogEditorModal';
 import { AdminFeatureArticleModal } from './AdminFeatureArticleModal';
 
 export default function BlogManagement() {
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -24,7 +24,7 @@ export default function BlogManagement() {
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
 
-  const isAdmin = user?.email === 'jagofeed@gmail.com';
+  const isAuthorizedAdmin = isAdmin || user?.email?.trim().toLowerCase() === 'jagofeed@gmail.com';
 
   // For this initial version, since we don't have author_id in the table, 
   // we fetch all articles if user is admin, or we might just show all articles where author_name matches their name.
@@ -89,7 +89,7 @@ export default function BlogManagement() {
         </div>
         
         <div className="flex items-center gap-2 flex-wrap justify-end">
-          {isAdmin && (
+          {isAuthorizedAdmin && (
             <Button onClick={() => setIsAdminModalOpen(true)} variant="outline" className="gap-2 shadow-sm font-bold border-indigo-200 text-indigo-700 hover:bg-indigo-50">
               <Wand2 className="w-4 h-4" />
               AI Promo Generator
