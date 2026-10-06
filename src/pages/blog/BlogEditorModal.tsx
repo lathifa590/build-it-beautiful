@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,6 +10,8 @@ import { toast } from 'sonner';
 import { BlogArticle, ArticleStatus } from '@/types/blog';
 import { Loader2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 interface BlogEditorModalProps {
   isOpen: boolean;
@@ -22,6 +24,33 @@ export const BlogEditorModal = ({ isOpen, onClose, article, onSuccess }: BlogEdi
   const { user } = useAuth();
   const [isSaving, setIsSaving] = useState(false);
   const [formData, setFormData] = useState<Partial<BlogArticle>>({});
+  const quillRef = useRef<ReactQuill>(null);
+
+  const imageHandler = () => {
+    const url = prompt('Masukkan URL Gambar:');
+    if (url) {
+      const quill = quillRef.current?.getEditor();
+      if (quill) {
+        const range = quill.getSelection();
+        quill.insertEmbed(range?.index || 0, 'image', url);
+      }
+    }
+  };
+
+  const modules = useMemo(() => ({
+    toolbar: {
+      container: [
+        [{ 'header': [1, 2, 3, false] }],
+        ['bold', 'italic', 'underline', 'strike', 'blockquote'],
+        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+        ['link', 'image', 'video'],
+        ['clean']
+      ],
+      handlers: {
+        image: imageHandler
+      }
+    }
+  }), []);
 
   useEffect(() => {
     if (article) {
@@ -204,15 +233,19 @@ export const BlogEditorModal = ({ isOpen, onClose, article, onSuccess }: BlogEdi
             />
           </div>
 
-          <div className="space-y-2 flex-1 flex flex-col h-full">
-            <Label htmlFor="content">Konten (Markdown didukung) <span className="text-red-500">*</span></Label>
-            <Textarea 
-              id="content"
-              value={formData.content || ''}
-              onChange={(e) => handleChange('content', e.target.value)}
-              placeholder="Tulis konten artikel Anda di sini..."
-              className="flex-1 min-h-[300px] font-mono text-sm leading-relaxed"
-            />
+          <div className="space-y-2 flex-1 flex flex-col h-full mb-10">
+            <Label htmlFor="content">Konten <span className="text-red-500">*</span></Label>
+            <div className="flex-1 min-h-[350px]">
+              <ReactQuill 
+                ref={quillRef}
+                theme="snow"
+                value={formData.content || ''}
+                onChange={(value) => handleChange('content', value)}
+                placeholder="Tulis konten artikel Anda di sini..."
+                className="h-[300px] pb-10"
+                modules={modules}
+              />
+            </div>
           </div>
         </div>
 
