@@ -97,7 +97,7 @@ export const BlogEditorModal = ({ isOpen, onClose, article, onSuccess }: BlogEdi
     try {
       setIsSaving(true);
       
-      if (article) {
+      if (article && article.id) {
         const { error } = await supabase
           .from('blog_articles')
           .update({
