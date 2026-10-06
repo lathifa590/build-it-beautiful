@@ -6,13 +6,14 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { FileEdit, Globe, Trash2, Megaphone, Eye, Calendar, Link as LinkIcon, Plus, Loader2 } from 'lucide-react';
+import { FileEdit, Globe, Trash2, Megaphone, Eye, Calendar, Link as LinkIcon, Plus, Loader2, Wand2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { Link, useNavigate } from 'react-router-dom';
 import { BlogEditorModal } from './BlogEditorModal';
+import { AdminFeatureArticleModal } from './AdminFeatureArticleModal';
 
 export default function BlogManagement() {
   const { user } = useAuth();
@@ -21,6 +22,9 @@ export default function BlogManagement() {
 
   const [editingArticle, setEditingArticle] = useState<BlogArticle | null>(null);
   const [isEditorOpen, setIsEditorOpen] = useState(false);
+  const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
+
+  const isAdmin = user?.email === 'jagofeed@gmail.com';
 
   // For this initial version, since we don't have author_id in the table, 
   // we fetch all articles if user is admin, or we might just show all articles where author_name matches their name.
@@ -84,13 +88,21 @@ export default function BlogManagement() {
           <p className="text-slate-500 mt-1">Kelola artikel pemasaran Anda yang dihasilkan oleh AI.</p>
         </div>
         
-        <Button onClick={() => {
-          setEditingArticle(null);
-          setIsEditorOpen(true);
-        }} className="gap-2 shadow-sm font-bold">
-          <Plus className="w-4 h-4" />
-          Buat Artikel Baru
-        </Button>
+        <div className="flex items-center gap-2 flex-wrap justify-end">
+          {isAdmin && (
+            <Button onClick={() => setIsAdminModalOpen(true)} variant="outline" className="gap-2 shadow-sm font-bold border-indigo-200 text-indigo-700 hover:bg-indigo-50">
+              <Wand2 className="w-4 h-4" />
+              AI Promo Generator
+            </Button>
+          )}
+          <Button onClick={() => {
+            setEditingArticle(null);
+            setIsEditorOpen(true);
+          }} className="gap-2 shadow-sm font-bold">
+            <Plus className="w-4 h-4" />
+            Buat Artikel Baru
+          </Button>
+        </div>
       </div>
 
       <Card className="border-2 shadow-sm overflow-hidden">
@@ -206,6 +218,14 @@ export default function BlogManagement() {
         onClose={() => setIsEditorOpen(false)}
         article={editingArticle}
         onSuccess={() => queryClient.invalidateQueries({ queryKey: ['my_blog_articles'] })}
+      />
+      <AdminFeatureArticleModal 
+        isOpen={isAdminModalOpen}
+        onClose={() => setIsAdminModalOpen(false)}
+        onGenerated={(draft) => {
+          setEditingArticle(draft as BlogArticle);
+          setIsEditorOpen(true);
+        }}
       />
     </div>
   );
