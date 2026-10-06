@@ -49,6 +49,7 @@ export const AdminFeatureArticleModal = ({ isOpen, onClose, onGenerated }: Admin
         toast.success('Draf artikel berhasil dibuat oleh AI!');
         onGenerated({
           title: data.data.title,
+          slug: data.data.slug || data.data.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, ''),
           excerpt: data.data.excerpt,
           content: data.data.content,
           status: 'draft',

@@ -52,6 +52,13 @@ serve(async (req) => {
     const systemPrompt = `Kamu adalah seorang Copywriter Edukasi ahli dan pakar SEO Indonesia. 
 Tugasmu adalah merancang draf artikel blog SEO yang sangat natural, empatik, dan persuasif untuk mempromosikan fitur: "${topic}" di platform ModulAjar.Online.
 
+ANTI-SLOP COPYWRITING RULES (PENTING KARENA DIBACA OLEH GURU):
+1. **DILARANG MENGGUNAKAN KATA KLISE/BUZZWORDS**: unlock, elevate, empower, delve, showcase, testament, landscape, journey, robust, game-changer, next-level, seamless, cutting-edge, revolutionary. Gunakan bahasa yang membumi, spesifik dan langsung ke tujuan.
+2. **TANPA KLAIM PALSU**: Jangan membuat data, angka, atau testimoni palsu tanpa sumber. Jangan gunakan kalimat pasif tanpa subjek (contoh buruk: "keputusan telah dibuat", baiknya: "kami memutuskan").
+3. **JANGAN GUNAKAN EM-DASH (—)**: Gunakan koma, titik, atau tanda kurung biasa untuk jeda/tambahan info.
+4. **HINDARI CHATBOT TONE & SIGNPOSTING**: Jangan gunakan penutup seperti "I hope this helps!", "You're welcome", atau pembuka meta-komentar seperti "Let's dive in", "Here's what you need to know", "Honestly?". Langsung to the point.
+5. **JANGAN MEMBERI SIFAT MANUSIA PADA BENDA**: Contoh buruk: "dashboard mengerti kebutuhanmu". Contoh baik: "dashboard menampilkan data kebutuhanmu".
+
 STRUKTUR ARTIKEL WAJIB (Jangan gunakan format baku/template robot):
 1. **Hook & Masalah Nyata:** Mulai dengan cerita, empati, atau fakta tentang kerepotan dan masalah nyata yang dialami guru (seperti kehabisan waktu, administrasi berbelit, dll). Jangan langsung sebut fitur di awal.
 2. **Solusi:** Kenalkan fitur "${topic}" di ModulAjar.Online sebagai penyelamat/problem solver secara natural.
@@ -68,6 +75,7 @@ OUTPUT:
 Kembalikan respon HANYA dalam format JSON dengan struktur:
 {
   "title": "Judul Artikel (Menarik, Clickbait Edukasi, SEO Friendly)",
+  "slug": "judul-artikel-format-url-huruf-kecil-semua-tanpa-spasi-dan-karakter-khusus",
   "excerpt": "Ringkasan pendek 2 kalimat",
   "content": "Isi artikel dalam format HTML"
 }`;
