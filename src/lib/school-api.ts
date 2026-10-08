@@ -11,6 +11,9 @@ import type {
   SchoolSupervisionReportItem,
   SchoolWorkspaceDocument,
   SchoolWorkspaceDocumentDetail,
+  SchoolSharedWorkspace,
+  SchoolWorkspaceMeetingItem,
+  SchoolMeetingFullDetail,
 } from "@/types/school";
 
 export const schoolApi = {
@@ -814,6 +817,72 @@ export const schoolApi = {
     }
 
     return (data as any) || { success: false, message: 'Respon tidak valid' };
+  },
+
+  /**
+   * Mengambil daftar workspace dewan guru di sekolah (Level 1: Shared Drive)
+   */
+  async getSchoolSharedWorkspaces(
+    schoolId: string,
+    filters?: {
+      teacher_id?: string;
+      subject?: string;
+      search?: string;
+    }
+  ): Promise<SchoolSharedWorkspace[]> {
+    const { data, error } = await supabase.rpc('get_school_shared_workspaces', {
+      _school_id: schoolId,
+      _teacher_id: filters?.teacher_id || null,
+      _subject: filters?.subject || null,
+      _search: filters?.search || null,
+    });
+
+    if (error) {
+      console.error('Error fetching school shared workspaces:', error);
+      return [];
+    }
+
+    return (data as unknown as SchoolSharedWorkspace[]) || [];
+  },
+
+  /**
+   * Mengambil daftar pertemuan dalam workspace sekolah (Level 2: Folder Pertemuan)
+   */
+  async getSchoolWorkspaceMeetings(
+    schoolId: string,
+    workspaceId: string
+  ): Promise<SchoolWorkspaceMeetingItem[]> {
+    const { data, error } = await supabase.rpc('get_school_workspace_meetings', {
+      _school_id: schoolId,
+      _workspace_id: workspaceId,
+    });
+
+    if (error) {
+      console.error('Error fetching school workspace meetings:', error);
+      return [];
+    }
+
+    return (data as unknown as SchoolWorkspaceMeetingItem[]) || [];
+  },
+
+  /**
+   * Mengambil detail lengkap satu pertemuan beserta 6 komponen pembelajarannya (Level 3: Viewer Utuh)
+   */
+  async getSchoolMeetingFullDetail(
+    schoolId: string,
+    meetingId: string
+  ): Promise<SchoolMeetingFullDetail | null> {
+    const { data, error } = await supabase.rpc('get_school_meeting_full_detail', {
+      _school_id: schoolId,
+      _meeting_id: meetingId,
+    });
+
+    if (error) {
+      console.error('Error fetching school meeting full detail:', error);
+      return null;
+    }
+
+    return (data as unknown as SchoolMeetingFullDetail) || null;
   },
 };
 
