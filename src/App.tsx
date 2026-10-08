@@ -39,6 +39,7 @@ const SekolahStandar = lazy(() => import("./pages/sekolah/Standar"));
 const SekolahExport = lazy(() => import("./pages/sekolah/Export"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const SEOPage = lazy(() => import("./pages/landing/SEOPage"));
+const PaketSekolahPage = lazy(() => import("./pages/landing/PaketSekolahPage"));
 const BlogIndex = lazy(() => import("./pages/blog/BlogIndex"));
 const BlogDetail = lazy(() => import("./pages/blog/BlogDetail"));
 
@@ -67,6 +68,7 @@ const App = () => (
               <Routes>
                 {/* Public Landing Page */}
                 <Route path="/" element={<Landing />} />
+                <Route path="/paketsekolah" element={<PaketSekolahPage />} />
                 
                 {/* SEO Landing Pages */}
                 <Route path="/generator-modul-ajar" element={<SEOPage explicitSlug="generator-modul-ajar" />} />
