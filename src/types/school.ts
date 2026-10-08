@@ -140,3 +140,43 @@ export interface SchoolDocumentComment {
   created_at: string;
 }
 
+export interface SchoolWorkspaceDocument {
+  document_id: string;
+  workspace_id: string;
+  title: string;
+  document_type: string;
+  status: string;
+  subject: string;
+  grade: string;
+  phase: string;
+  academic_year: string;
+  teacher_id: string;
+  teacher_name: string;
+  teacher_email: string;
+  teacher_role: string;
+  is_shared_to_bank: boolean;
+  school_document_id?: string | null;
+  bank_status?: string | null;
+  is_official_template?: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface SchoolWorkspaceDocumentDetail {
+  id: string;
+  workspace_id: string;
+  title: string;
+  document_type: string;
+  status: string;
+  subject: string;
+  grade: string;
+  phase: string;
+  academic_year: string;
+  teacher_id: string;
+  teacher_name: string;
+  teacher_email: string;
+  content_json: Record<string, any>;
+  created_at: string;
+  error?: string;
+}
+
