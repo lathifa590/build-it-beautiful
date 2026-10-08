@@ -180,3 +180,76 @@ export interface SchoolWorkspaceDocumentDetail {
   error?: string;
 }
 
+export interface SchoolSharedWorkspace {
+  workspace_id: string;
+  subject: string;
+  grade: string;
+  phase: string;
+  academic_year: string;
+  user_id: string;
+  teacher_name: string;
+  teacher_email: string;
+  teacher_avatar: string | null;
+  teacher_role: string;
+  total_meetings: number;
+  total_planned_jp: number;
+  completed_jp: number;
+  completed_meetings: number;
+  ready_docs: number;
+  created_at: string;
+}
+
+export interface SchoolWorkspaceMeetingItem {
+  meeting_id: string;
+  workspace_id: string;
+  sequence: number;
+  title: string;
+  planned_jp: number;
+  status: string;
+  has_modul: boolean;
+  has_lkpd: boolean;
+  has_asesmen: boolean;
+  has_soal: boolean;
+  has_materi: boolean;
+  has_refleksi: boolean;
+  completed_docs_count: number;
+  materi_pokok: string;
+  is_in_school_bank: boolean;
+}
+
+export interface SchoolMeetingFullDetail {
+  meeting: {
+    id: string;
+    workspace_id: string;
+    sequence: number;
+    title: string;
+    planned_jp: number;
+    status: string;
+    materi_pokok: string;
+    tp_snapshot?: any;
+  };
+  workspace: {
+    id: string;
+    subject: string;
+    grade: string;
+    phase: string;
+    academic_year: string;
+    teacher_id: string;
+    teacher_name: string;
+    teacher_email: string;
+    teacher_role: string;
+    jp_duration_minutes?: number;
+  };
+  documents: {
+    modul?: { document_id: string; title: string; status: string; content_json: any };
+    lkpd?: { document_id: string; title: string; status: string; content_json: any };
+    asesmen?: { document_id: string; title: string; status: string; content_json: any };
+    soal?: { document_id: string; title: string; status: string; content_json: any };
+    materi?: { document_id: string; title: string; status: string; content_json: any };
+    refleksi?: { document_id: string; title: string; status: string; content_json: any };
+    form_data?: { document_id: string; title: string; status: string; content_json: any };
+  };
+  error?: string;
+}
+
+
