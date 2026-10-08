@@ -216,8 +216,16 @@ function SekolahExportContent() {
                             <div className="font-bold text-foreground">{item.display_name}</div>
                             <div className="text-[10px] text-muted-foreground font-mono">{item.email}</div>
                           </td>
-                          <td className="px-3 py-2.5 text-center font-bold">{item.total_workspaces}</td>
-                          <td className="px-3 py-2.5 text-center font-bold">{item.total_jp_planned} JP</td>
+                          <td className="px-3 py-2.5 text-center font-bold">
+                            {item.total_jp_completed && item.total_jp_completed > 0 ? (
+                              <span>
+                                <span className="text-primary">{item.total_jp_completed}</span>
+                                <span className="text-muted-foreground text-[10px]"> / {item.total_jp_planned} JP</span>
+                              </span>
+                            ) : (
+                              <span>{item.total_jp_planned} JP</span>
+                            )}
+                          </td>
                           <td className="px-3 py-2.5 text-center font-bold text-primary">{item.total_modules_ready}</td>
                           <td className="px-3 py-2.5 text-center font-bold text-emerald-700">{item.total_approved_modules}</td>
                           <td className="px-3 py-2.5 text-center font-bold font-mono">

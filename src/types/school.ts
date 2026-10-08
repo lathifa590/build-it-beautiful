@@ -36,6 +36,7 @@ export interface SchoolSupervisionReportItem {
   school_role: string;
   total_workspaces: number;
   total_jp_planned: number;
+  total_jp_completed?: number;
   total_modules_ready: number;
   total_shared_to_bank: number;
   total_approved_modules: number;
@@ -82,6 +83,7 @@ export interface SchoolMemberProgress {
   school_role: SchoolRole;
   workspace_count: number;
   total_planned_jp: number;
+  completed_jp?: number;
   modul_ready_count: number;
   progress_percent?: number;
 }

@@ -672,12 +672,15 @@ export const schoolApi = {
         school_role: p.school_role || 'guru',
         total_workspaces: Number(p.workspace_count || 0),
         total_jp_planned: Number(p.total_planned_jp || 0),
+        total_jp_completed: Number(p.completed_jp || 0),
         total_modules_ready: Number(p.modul_ready_count || 0),
         total_shared_to_bank: 0,
         total_approved_modules: Number(p.modul_ready_count || 0),
-        compliance_percent: Number(p.workspace_count || 0) > 0
-          ? Math.min(100, Math.round((Number(p.modul_ready_count || 0) / (Number(p.workspace_count || 0) * 2)) * 100))
-          : 0,
+        compliance_percent: Number(p.progress_percent !== undefined
+          ? p.progress_percent
+          : (Number(p.total_planned_jp || 0) > 0
+              ? Math.min(100, Math.round((Number(p.completed_jp || 0) / Number(p.total_planned_jp || 0)) * 100))
+              : 0)),
       }));
     }
 
