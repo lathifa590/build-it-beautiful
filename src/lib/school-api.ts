@@ -9,6 +9,8 @@ import type {
   SchoolDocumentComment,
   SchoolDocumentStatus,
   SchoolSupervisionReportItem,
+  SchoolWorkspaceDocument,
+  SchoolWorkspaceDocumentDetail,
 } from "@/types/school";
 
 export const schoolApi = {
@@ -720,6 +722,98 @@ export const schoolApi = {
     }
 
     return updated as unknown as School;
+  },
+
+  /**
+   * Mengambil seluruh dokumen workspace milik guru sekolah (Fase Opsi 2 Bank Modul)
+   */
+  async getSchoolWorkspaceDocuments(
+    schoolId: string,
+    filters?: {
+      teacher_id?: string;
+      subject?: string;
+      doc_type?: string;
+      search?: string;
+    }
+  ): Promise<SchoolWorkspaceDocument[]> {
+    const { data, error } = await supabase.rpc('get_school_workspace_documents', {
+      _school_id: schoolId,
+      _teacher_id: filters?.teacher_id || null,
+      _subject: filters?.subject || null,
+      _doc_type: filters?.doc_type || null,
+      _search: filters?.search || null,
+    });
+
+    if (error) {
+      console.error('Error fetching school workspace documents:', error);
+      return [];
+    }
+
+    return (data as unknown as SchoolWorkspaceDocument[]) || [];
+  },
+
+  /**
+   * Mengambil detail dan konten JSON dokumen workspace untuk pratinjau
+   */
+  async getSchoolWorkspaceDocumentDetail(
+    schoolId: string,
+    documentId: string
+  ): Promise<SchoolWorkspaceDocumentDetail | null> {
+    const { data, error } = await supabase.rpc('get_school_workspace_document_detail', {
+      _school_id: schoolId,
+      _document_id: documentId,
+    });
+
+    if (error) {
+      console.error('Error fetching workspace document detail:', error);
+      return null;
+    }
+
+    return (data as unknown as SchoolWorkspaceDocumentDetail) || null;
+  },
+
+  /**
+   * Memasukkan / mempromosikan dokumen dari workspace guru ke Bank Modul Sekolah
+   */
+  async promoteWorkspaceDocToBank(
+    schoolId: string,
+    documentId: string,
+    isTemplate: boolean = false,
+    notes?: string
+  ): Promise<{ success: boolean; message: string; school_document_id?: string }> {
+    const { data, error } = await supabase.rpc('promote_workspace_doc_to_school_bank', {
+      _school_id: schoolId,
+      _document_id: documentId,
+      _is_template: isTemplate,
+      _notes: notes || null,
+    });
+
+    if (error) {
+      console.error('Error promoting workspace doc to bank:', error);
+      return { success: false, message: error.message || 'Gagal menambahkan ke Bank Sekolah' };
+    }
+
+    return (data as any) || { success: false, message: 'Respon tidak valid' };
+  },
+
+  /**
+   * Memasukkan seluruh dokumen workspace guru secara massal ke Bank Modul Sekolah (Waka/Kepsek)
+   */
+  async bulkPromoteWorkspaceDocsToBank(
+    schoolId: string,
+    workspaceId?: string
+  ): Promise<{ success: boolean; message: string; count?: number }> {
+    const { data, error } = await supabase.rpc('bulk_promote_workspace_docs_to_school_bank', {
+      _school_id: schoolId,
+      _workspace_id: workspaceId || null,
+    });
+
+    if (error) {
+      console.error('Error bulk promoting workspace docs:', error);
+      return { success: false, message: error.message || 'Gagal menambahkan secara massal' };
+    }
+
+    return (data as any) || { success: false, message: 'Respon tidak valid' };
   },
 };
 
