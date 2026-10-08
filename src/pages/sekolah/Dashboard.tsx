@@ -106,16 +106,18 @@ function SekolahDashboardContent() {
     const totalTeachers = progressList.length;
     const totalWorkspaces = progressList.reduce((sum, item) => sum + Number(item.workspace_count || 0), 0);
     const totalPlannedJP = progressList.reduce((sum, item) => sum + Number(item.total_planned_jp || 0), 0);
+    const totalCompletedJP = progressList.reduce((sum, item) => sum + Number(item.completed_jp || 0), 0);
     const totalModulReady = progressList.reduce((sum, item) => sum + Number(item.modul_ready_count || 0), 0);
 
-    const completionPercent = totalWorkspaces > 0
-      ? Math.min(100, Math.round((totalModulReady / (totalWorkspaces * 4)) * 100))
+    const completionPercent = totalPlannedJP > 0
+      ? Math.min(100, Math.round((totalCompletedJP / totalPlannedJP) * 100))
       : 0;
 
     return {
       totalTeachers,
       totalWorkspaces,
       totalPlannedJP,
+      totalCompletedJP,
       totalModulReady,
       completionPercent,
     };
@@ -286,8 +288,20 @@ function SekolahDashboardContent() {
           </div>
 
           <div className="bg-[#eef2ff] border-2 border-foreground rounded-2xl p-4 sm:p-5 shadow-brutal flex flex-col justify-between">
-            <span className="text-[11px] font-black uppercase tracking-wider text-blue-900">JP Terencana</span>
-            <span className="text-3xl sm:text-4xl font-black text-[#1d4ed8] mt-2">{stats.totalPlannedJP}</span>
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-black uppercase tracking-wider text-blue-900">JP Terencana</span>
+              {stats.totalCompletedJP > 0 && (
+                <span className="text-[10px] font-black text-blue-800 bg-blue-100 border border-blue-300 px-2 py-0.5 rounded-full">
+                  {stats.completionPercent}% Tuntas
+                </span>
+              )}
+            </div>
+            <div className="mt-2 flex items-baseline gap-1">
+              <span className="text-3xl sm:text-4xl font-black text-[#1d4ed8]">
+                {stats.totalCompletedJP > 0 ? `${stats.totalCompletedJP}/${stats.totalPlannedJP}` : stats.totalPlannedJP}
+              </span>
+              <span className="text-xs font-bold text-blue-900">JP</span>
+            </div>
           </div>
 
           <div className="bg-[#fefce8] border-2 border-foreground rounded-2xl p-4 sm:p-5 shadow-brutal flex flex-col justify-between">
@@ -396,19 +410,23 @@ function SekolahDashboardContent() {
                         filteredProgressList.map((item) => {
                           const wsCount = Number(item.workspace_count || 0);
                           const plannedJP = Number(item.total_planned_jp || 0);
+                          const completedJP = Number(item.completed_jp || 0);
                           const modulReady = Number(item.modul_ready_count || 0);
 
-                          const percent = wsCount > 0 ? Math.min(100, Math.round((modulReady / Math.max(1, wsCount * 2)) * 100)) : 0;
+                          // Progres dihitung berbasis rasio JP riil (sinkron dengan halaman Workspace)
+                          const percent = item.progress_percent !== undefined
+                            ? Number(item.progress_percent)
+                            : (plannedJP > 0 ? Math.min(100, Math.round((completedJP / plannedJP) * 100)) : 0);
 
                           const statusColor =
                             percent >= 70
                               ? 'bg-emerald-500 text-white'
-                              : percent >= 30
+                              : percent >= 25
                               ? 'bg-amber-500 text-white'
                               : 'bg-rose-500 text-white';
 
                           const statusLabel =
-                            percent >= 70 ? 'Lengkap' : percent >= 30 ? 'Sedang Dikerjakan' : 'Baru Mulai';
+                            percent >= 70 ? 'Lengkap' : percent >= 25 ? 'Sedang Dikerjakan' : 'Baru Mulai';
 
                           return (
                             <tr key={item.user_id} className="hover:bg-muted/40 transition-colors">
@@ -434,8 +452,15 @@ function SekolahDashboardContent() {
                                 {wsCount}
                               </td>
 
-                              <td className="px-4 py-3.5 text-center font-bold text-muted-foreground">
-                                {plannedJP} JP
+                              <td className="px-4 py-3.5 text-center font-bold">
+                                {completedJP > 0 ? (
+                                  <div>
+                                    <span className="text-primary font-black">{completedJP}</span>
+                                    <span className="text-muted-foreground text-xs font-semibold"> / {plannedJP} JP</span>
+                                  </div>
+                                ) : (
+                                  <span className="text-muted-foreground">{plannedJP} JP</span>
+                                )}
                               </td>
 
                               <td className="px-4 py-3.5 text-center font-bold text-emerald-600">
