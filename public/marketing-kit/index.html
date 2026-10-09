@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>ModulAjar.Online — Generator Modul Ajar AI & RPP Kurikulum Merdeka Resmi</title>
+  <meta name="description" content="Aplikasi cerdas pembuat Modul Ajar Kurikulum Merdeka, Pembelajaran Mendalam (Deep Learning), LKPD, Asesmen, Prota & Promes otomatis dalam 2 menit. Siap cetak & export Word.">
+  <link rel="icon" type="image/webp" href="https://modulajar.online/logo-web.webp">
+
+  <!-- Open Graph / Meta Share -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="ModulAjar.Online — Generator Modul Ajar AI & RPP Kurikulum Merdeka">
+  <meta property="og:description" content="Buat Modul Ajar, LKPD, Asesmen, Prota & Promes otomatis dalam hitungan menit. Format resmi Kemdikbud & Kemenag RI.">
+  <meta property="og:image" content="https://modulajar.online/logo-web.webp">
+
+  <!-- Google Font: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Tailwind Custom Config to match ModulAjar.Online Neo-Brutalist Theme -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Plus Jakarta Sans', 'sans-serif'],
+          },
+          colors: {
+            background: '#FAF8F5',
+            foreground: '#1A1A1A',
+            card: '#FFFFFF',
+            primary: {
+              DEFAULT: '#D25424',
+              hover: '#B5441A',
+              light: '#FDEEE8',
+              foreground: '#FFFFFF',
+            },
+            secondary: {
+              DEFAULT: '#E9EEF4',
+              foreground: '#1A1A1A',
+            },
+            muted: {
+              DEFAULT: '#F3F4F6',
+              foreground: '#64748B',
+            },
+          },
+          boxShadow: {
+            'brutal': '6px 6px 0px 0px rgba(0, 0, 0, 1)',
+            'brutal-sm': '3px 3px 0px 0px rgba(0, 0, 0, 1)',
+            'brutal-lg': '8px 8px 0px 0px rgba(0, 0, 0, 1)',
+            'brutal-hover': '2px 2px 0px 0px rgba(0, 0, 0, 1)',
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #FAF8F5;
+      color: #1A1A1A;
+    }
+    .bg-grid-pattern {
+      background-image: radial-gradient(rgba(0, 0, 0, 0.08) 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+  </style>
+</head>
+
+<body class="min-h-screen bg-background text-foreground antialiased selection:bg-primary/20 selection:text-primary">
+
+  <!-- ======================================================== -->
+  <!-- TOP ANNOUNCEMENT BAR -->
+  <!-- ======================================================== -->
+  <div class="bg-primary text-primary-foreground text-xs md:text-sm font-bold py-2.5 px-4 text-center border-b-2 border-foreground flex items-center justify-center gap-2">
+    <span class="bg-white/20 px-2 py-0.5 rounded text-[11px] uppercase tracking-wider">Promo Khusus</span>
+    <span>Akses Resmi Paket Standar 1 Tahun Penuh — Hemat Waktu Administrasi 90%!</span>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- NAVBAR -->
+  <!-- ======================================================== -->
+  <nav class="sticky top-0 z-40 bg-card/95 backdrop-blur-md border-b-2 border-foreground">
+    <div class="max-w-7xl mx-auto px-4 md:px-6">
+      <div class="flex items-center justify-between h-16 md:h-20">
+        
+        <!-- Logo -->
+        <a href="#" class="flex items-center gap-3">
+          <div class="bg-white p-1.5 rounded-lg border-2 border-foreground shadow-brutal-sm">
+            <img src="https://modulajar.online/logo-web.webp" alt="ModulAjar Logo" class="w-6 h-6 md:w-7 md:h-7 object-contain">
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-lg md:text-xl font-extrabold text-foreground">ModulAjar.Online</span>
+              <span class="hidden sm:inline-block bg-primary/10 text-primary border border-primary/30 px-2 py-0.5 rounded text-[10px] font-bold">
+                Mitra Resmi
+              </span>
+            </div>
+            <p class="text-[9px] md:text-[10px] font-bold text-muted-foreground hidden sm:block">
+              Kurikulum Merdeka • Pembelajaran Mendalam & KBC Kemenag
+            </p>
+          </div>
+        </a>
+
+        <!-- Desktop Navigation -->
+        <div class="hidden md:flex items-center gap-7">
+          <a href="#fitur" class="text-sm font-bold text-muted-foreground hover:text-foreground transition-colors">Fitur</a>
+          <a href="#keunggulan" class="text-sm font-bold text-muted-foreground hover:text-foreground transition-colors">Keunggulan</a>
+          <a href="#kurikulum" class="text-sm font-bold text-muted-foreground hover:text-foreground transition-colors">Kurikulum</a>
+          <a href="#paket" class="text-sm font-bold text-muted-foreground hover:text-foreground transition-colors">Harga Paket</a>
+          <a href="#testimoni" class="text-sm font-bold text-muted-foreground hover:text-foreground transition-colors">Testimoni</a>
+          <a href="#faq" class="text-sm font-bold text-muted-foreground hover:text-foreground transition-colors">FAQ</a>
+        </div>
+
+        <!-- Desktop CTA -->
+        <div class="hidden md:flex items-center gap-3">
+          <a href="#paket" class="border-2 border-foreground rounded-xl px-4 py-2 font-bold text-sm bg-card hover:bg-secondary transition-all shadow-brutal-sm">
+            Lihat Paket
+          </a>
+          <a href="#" class="wa-order-btn bg-primary text-primary-foreground border-2 border-foreground rounded-xl px-5 py-2 font-bold text-sm shadow-brutal-sm hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-brutal-hover transition-all flex items-center gap-2">
+            <span>Pesan Sekarang</span>
+            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </a>
+        </div>
+
+        <!-- Mobile Menu Toggle Button -->
+        <button id="mobileMenuBtn" class="md:hidden p-2 rounded-lg border-2 border-foreground hover:bg-secondary" aria-label="Menu">
+          <i data-lucide="menu" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Mobile Dropdown Menu -->
+      <div id="mobileMenu" class="hidden md:hidden pb-4 pt-2 border-t-2 border-foreground/10 space-y-2">
+        <a href="#fitur" class="block py-2 text-sm font-bold text-muted-foreground hover:text-foreground">Fitur Unggulan</a>
+        <a href="#keunggulan" class="block py-2 text-sm font-bold text-muted-foreground hover:text-foreground">Keunggulan</a>
+        <a href="#kurikulum" class="block py-2 text-sm font-bold text-muted-foreground hover:text-foreground">Dukungan Kurikulum</a>
+        <a href="#paket" class="block py-2 text-sm font-bold text-muted-foreground hover:text-foreground">Paket Standar (1 Tahun)</a>
+        <a href="#testimoni" class="block py-2 text-sm font-bold text-muted-foreground hover:text-foreground">Testimoni Guru</a>
+        <a href="#faq" class="block py-2 text-sm font-bold text-muted-foreground hover:text-foreground">Tanya Jawab</a>
+        <div class="pt-2">
+          <a href="#" class="wa-order-btn w-full bg-primary text-primary-foreground border-2 border-foreground rounded-xl py-2.5 font-bold text-sm shadow-brutal-sm flex items-center justify-center gap-2">
+            <span>Pesan via WhatsApp</span>
+            <i data-lucide="message-circle" class="w-4 h-4"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ======================================================== -->
+  <!-- HERO SECTION -->
+  <!-- ======================================================== -->
+  <section class="relative py-14 md:py-24 lg:py-28 overflow-hidden">
+    <div class="absolute inset-0 bg-grid-pattern opacity-60"></div>
+    
+    <div class="relative max-w-7xl mx-auto px-4 md:px-6">
+      <div class="grid lg:grid-cols-2 gap-12 items-center">
+        
+        <!-- Left Column: Copywriting -->
+        <div class="text-center lg:text-left">
+          
+          <!-- Badge -->
+          <div class="inline-flex items-center gap-2 px-4 py-1.5 bg-primary/10 border-2 border-primary/30 rounded-full mb-6">
+            <i data-lucide="zap" class="w-4 h-4 text-primary"></i>
+            <span class="text-xs md:text-sm font-extrabold text-primary">Cepat, Praktis & 100% Sesuai Aturan</span>
+          </div>
+
+          <!-- Main Headline -->
+          <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-foreground leading-[1.15] mb-6">
+            Generator Modul Ajar <br class="hidden sm:block">
+            <span class="text-primary">& Perangkat Ajar AI</span>
+          </h1>
+
+          <!-- Subheadline -->
+          <p class="text-base sm:text-lg md:text-xl text-muted-foreground mb-8 max-w-xl mx-auto lg:mx-0 leading-relaxed font-medium">
+            Aplikasi cerdas pembuat <strong>Modul Ajar (RPM)</strong>, <strong>LKPD</strong>, <strong>Asesmen</strong>, hingga <strong>Prota & Promes</strong> otomatis. 
+            Mendukung penuh <strong>Kurikulum Merdeka</strong>, pendekatan <strong>Deep Learning</strong>, dan <strong>KBC Kemenag</strong> dengan fitur <strong>Edit AI</strong> & export <strong>Word (.docx)</strong> instan.
+          </p>
+
+          <!-- Action Buttons -->
+          <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+            <a href="#" class="wa-order-btn w-full sm:w-auto text-base md:text-lg px-8 py-4 bg-primary text-primary-foreground border-2 border-foreground rounded-xl shadow-brutal hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-brutal-hover transition-all font-extrabold flex items-center justify-center gap-2">
+              <span>Berlangganan Sekarang</span>
+              <i data-lucide="arrow-right" class="w-5 h-5"></i>
+            </a>
+            <a href="#fitur" class="w-full sm:w-auto text-base md:text-lg px-8 py-4 bg-card text-foreground border-2 border-foreground rounded-xl shadow-brutal-sm hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-brutal-hover transition-all font-bold flex items-center justify-center">
+              Pelajari Fitur
+            </a>
+          </div>
+
+          <!-- Trust Checkmarks -->
+          <div class="mt-6 flex flex-wrap justify-center lg:justify-start gap-x-5 gap-y-2 text-xs md:text-sm font-bold text-muted-foreground">
+            <span class="flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4 text-emerald-600"></i> Akses Penuh 1 Tahun</span>
+            <span class="flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4 text-emerald-600"></i> Export Word & PDF</span>
+            <span class="flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4 text-emerald-600"></i> Format Resmi Diakui</span>
+          </div>
+
+          <!-- Agency Partner Badge -->
+          <div class="mt-8 p-3.5 bg-card border-2 border-foreground rounded-xl shadow-brutal-sm max-w-md mx-auto lg:mx-0 flex items-center gap-3 text-left">
+            <div class="w-10 h-10 rounded-lg bg-emerald-100 border-2 border-foreground flex items-center justify-center flex-shrink-0">
+              <i data-lucide="shield-check" class="w-6 h-6 text-emerald-700"></i>
+            </div>
+            <div>
+              <p class="text-xs font-bold text-muted-foreground">Layanan Disediakan Oleh:</p>
+              <p class="text-sm font-extrabold text-foreground" id="agencyNameText">Mitra Agency Resmi ModulAjar.Online</p>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Right Column: Interactive App Preview Mockup -->
+        <div class="relative w-full max-w-lg mx-auto">
+          <div class="bg-card border-2 border-foreground rounded-2xl shadow-brutal p-5 sm:p-7">
+            
+            <!-- Window Bar -->
+            <div class="flex items-center justify-between pb-4 mb-5 border-b-2 border-foreground/20">
+              <div class="flex gap-2">
+                <div class="w-3.5 h-3.5 rounded-full bg-red-500 border border-black/30"></div>
+                <div class="w-3.5 h-3.5 rounded-full bg-amber-400 border border-black/30"></div>
+                <div class="w-3.5 h-3.5 rounded-full bg-emerald-500 border border-black/30"></div>
+              </div>
+              <span class="text-xs font-mono font-bold text-muted-foreground bg-muted px-2.5 py-0.5 rounded border border-foreground/20">
+                modulajar.online/app
+              </span>
+            </div>
+
+            <!-- Tabs Simulation -->
+            <div class="flex gap-1.5 overflow-x-auto pb-3 mb-4 text-xs font-bold">
+              <span class="px-3 py-1.5 bg-primary text-primary-foreground rounded-lg border-2 border-foreground shadow-brutal-sm">Modul (RPM)</span>
+              <span class="px-3 py-1.5 bg-muted text-muted-foreground rounded-lg border border-foreground/20">LKPD</span>
+              <span class="px-3 py-1.5 bg-muted text-muted-foreground rounded-lg border border-foreground/20">Asesmen</span>
+              <span class="px-3 py-1.5 bg-muted text-muted-foreground rounded-lg border border-foreground/20">Bank Soal</span>
+              <span class="px-3 py-1.5 bg-muted text-muted-foreground rounded-lg border border-foreground/20">Prota & Promes</span>
+            </div>
+
+            <!-- Document Card Preview -->
+            <div class="bg-background border-2 border-foreground/40 rounded-xl p-4 space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] font-extrabold bg-blue-100 text-blue-800 px-2 py-0.5 rounded border border-blue-300">
+                  Kurikulum Merdeka — Fase D (Kelas 7)
+                </span>
+                <span class="text-[11px] font-bold text-emerald-700 flex items-center gap-1">
+                  <i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Siap Cetak
+                </span>
+              </div>
+              
+              <h4 class="font-extrabold text-sm sm:text-base text-foreground leading-snug">
+                MODUL AJAR: Ekosistem & Keanekaragaman Hayati
+              </h4>
+              
+              <div class="grid grid-cols-2 gap-2 text-xs text-muted-foreground font-medium pt-1">
+                <div class="p-2 bg-card rounded border border-foreground/15">
+                  <span class="block font-bold text-foreground">Alokasi Waktu:</span> 3 JP (120 Menit)
+                </div>
+                <div class="p-2 bg-card rounded border border-foreground/15">
+                  <span class="block font-bold text-foreground">Model Belajar:</span> Problem-Based Learning
+                </div>
+              </div>
+
+              <!-- Content Snippet -->
+              <div class="text-xs text-muted-foreground p-3 bg-card rounded-lg border border-foreground/15 space-y-1.5">
+                <div class="flex items-center gap-1.5 font-bold text-foreground text-[11px]">
+                  <i data-lucide="sparkles" class="w-3.5 h-3.5 text-primary"></i>
+                  <span>Langkah Pembelajaran Berdiferensiasi & Deep Learning</span>
+                </div>
+                <p class="text-[11px] leading-relaxed">
+                  1. Kegiatan Awal: Apersepsi pemantik minat kontekstual.<br>
+                  2. Kegiatan Inti: Eksplorasi materi, LKPD kelompok & diskusi terarah.<br>
+                  3. Penutup: Refleksi bersama, asesmen formatif & tindak lanjut.
+                </p>
+              </div>
+
+              <!-- Action Sim -->
+              <div class="flex items-center justify-between pt-2">
+                <span class="text-[11px] font-mono text-muted-foreground">Format: .DOCX / .PDF</span>
+                <div class="flex gap-2">
+                  <span class="px-2.5 py-1 bg-emerald-600 text-white rounded text-xs font-extrabold flex items-center gap-1 shadow-sm">
+                    <i data-lucide="file-down" class="w-3.5 h-3.5"></i> Unduh Word
+                  </span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================== -->
+  <!-- STATS SECTION -->
+  <!-- ======================================================== -->
+  <section class="py-12 md:py-16 bg-muted/60 border-y-2 border-foreground/20">
+    <div class="max-w-7xl mx-auto px-4 md:px-6">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
+        
+        <div class="text-center">
+          <div class="inline-flex items-center justify-center w-12 h-12 bg-blue-100 text-blue-700 rounded-xl mb-3 border-2 border-foreground/20">
+            <i data-lucide="users" class="w-6 h-6"></i>
+          </div>
+          <div class="text-3xl md:text-4xl font-extrabold text-foreground mb-1">10.000+</div>
+          <div class="text-xs md:text-sm font-bold text-muted-foreground">Guru Terbantu</div>
+        </div>
+
+        <div class="text-center">
+          <div class="inline-flex items-center justify-center w-12 h-12 bg-emerald-100 text-emerald-700 rounded-xl mb-3 border-2 border-foreground/20">
+            <i data-lucide="file-text" class="w-6 h-6"></i>
+          </div>
+          <div class="text-3xl md:text-4xl font-extrabold text-foreground mb-1">50.000+</div>
+          <div class="text-xs md:text-sm font-bold text-muted-foreground">Dokumen Dibuat</div>
+        </div>
+
+        <div class="text-center">
+          <div class="inline-flex items-center justify-center w-12 h-12 bg-purple-100 text-purple-700 rounded-xl mb-3 border-2 border-foreground/20">
+            <i data-lucide="school" class="w-6 h-6"></i>
+          </div>
+          <div class="text-3xl md:text-4xl font-extrabold text-foreground mb-1">2.500+</div>
+          <div class="text-xs md:text-sm font-bold text-muted-foreground">Sekolah & Madrasah</div>
+        </div>
+
+        <div class="text-center">
+          <div class="inline-flex items-center justify-center w-12 h-12 bg-primary/20 text-primary rounded-xl mb-3 border-2 border-foreground/20">
+            <i data-lucide="thumbs-up" class="w-6 h-6"></i>
+          </div>
+          <div class="text-3xl md:text-4xl font-extrabold text-foreground mb-1">99%</div>
+          <div class="text-xs md:text-sm font-bold text-muted-foreground">Tingkat Kepuasan</div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================== -->
+  <!-- FEATURES SECTION (PAKET STANDAR) -->
+  <!-- ======================================================== -->
+  <section id="fitur" class="py-16 md:py-24 scroll-mt-20">
+    <div class="max-w-7xl mx-auto px-4 md:px-6">
+      
+      <!-- Section Header -->
+      <div class="text-center mb-12 md:mb-16">
+        <h2 class="text-3xl md:text-4xl font-extrabold text-foreground mb-4">
+          Fitur Lengkap Paket Standar dalam Satu Aplikasi
+        </h2>
+        <p class="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto font-medium">
+          Seluruh kebutuhan administrasi perangkat ajar Anda selesai dalam sekejap tanpa ribet copas sana-sini.
+        </p>
+      </div>
+
+      <!-- Features Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-7">
+        
+        <!-- Feature 1 -->
+        <div class="bg-card border-2 border-foreground rounded-2xl p-6 shadow-brutal hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-brutal-hover transition-all">
+          <div class="w-12 h-12 bg-blue-100 border-2 border-blue-400 rounded-xl flex items-center justify-center mb-4 text-blue-700">
+            <i data-lucide="book-open" class="w-6 h-6"></i>
+          </div>
+          <h3 class="text-lg md:text-xl font-extrabold text-foreground mb-2">Modul Ajar (RPM)</h3>
+          <p class="text-sm text-muted-foreground leading-relaxed">
+            Rencana Pembelajaran Mendalam sesuai format resmi Kurikulum Merdeka dan KBC (Kurikulum Berbasis Cinta) Kemenag.
+          </p>
+        </div>
+
+        <!-- Feature 2 -->
+        <div class="bg-card border-2 border-foreground rounded-2xl p-6 shadow-brutal hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-brutal-hover transition-all">
+          <div class="w-12 h-12 bg-emerald-100 border-2 border-emerald-400 rounded-xl flex items-center justify-center mb-4 text-emerald-700">
+            <i data-lucide="file-text" class="w-6 h-6"></i>
+          </div>
+          <h3 class="text-lg md:text-xl font-extrabold text-foreground mb-2">LKPD Deep Learning</h3>
+          <p class="text-sm text-muted-foreground leading-relaxed">
+            Lembar Kerja Peserta Didik interaktif dengan pendekatan Higher Order Thinking Skills (HOTS) siap cetak.
+          </p>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="bg-card border-2 border-foreground rounded-2xl p-6 shadow-brutal hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-brutal-hover transition-all">
+          <div class="w-12 h-12 bg-amber-100 border-2 border-amber-400 rounded-xl flex items-center justify-center mb-4 text-amber-700">
+            <i data-lucide="clipboard-check" class="w-6 h-6"></i>
+          </div>
+          <h3 class="text-lg md:text-xl font-extrabold text-foreground mb-2">Asesmen Lengkap</h3>
+          <p class="text-sm text-muted-foreground leading-relaxed">
+            Asesmen Diagnostik (Awal), Formatif, dan Sumatif lengkap dengan rubrik penilaian dalam 1 kali generate.
+          </p>
+        </div>
+
+        <!-- Feature 4 -->
+        <div class="bg-card border-2 border-foreground rounded-2xl p-6 shadow-brutal hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-brutal-hover transition-all">
+          <div class="w-12 h-12 bg-purple-100 border-2 border-purple-400 rounded-xl flex items-center justify-center mb-4 text-purple-700">
+            <i data-lucide="database" class="w-6 h-6"></i>
+          </div>
+          <h3 class="text-lg md:text-xl font-extrabold text-foreground mb-2">Bank Soal HOTS</h3>
+          <p class="text-sm text-muted-foreground leading-relaxed">
+            Pilihan Ganda, Isian, Essay, dan Tes Kemampuan Akademik berjenjang taksonomi Bloom (C1 hingga C6).
+          </p>
+        </div>
+
+        <!-- Feature 5 -->
+        <div class="bg-card border-2 border-foreground rounded-2xl p-6 shadow-brutal hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-brutal-hover transition-all">
+          <div class="w-12 h-12 bg-cyan-100 border-2 border-cyan-400 rounded-xl flex items-center justify-center mb-4 text-cyan-700">
+            <i data-lucide="calendar-range" class="w-6 h-6"></i>
+          </div>
+          <div class="flex items-center gap-2 mb-2">
+            <h3 class="text-lg md:text-xl font-extrabold text-foreground">Program Tahunan (Prota)</h3>
+            <span class="bg-primary text-primary-foreground text-[10px] font-bold px-1.5 py-0.5 rounded">Baru</span>
+          </div>
+          <p class="text-sm text-muted-foreground leading-relaxed">
+            Distribusi Tujuan Pembelajaran (TP), Jam Pelajaran (JP), dan Dimensi Profil Lulusan otomatis per semester dari CP.
+          </p>
+        </div>
+
+        <!-- Feature 6 -->
+        <div class="bg-card border-2 border-foreground rounded-2xl p-6 shadow-brutal hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-brutal-hover transition-all">
+          <div class="w-12 h-12 bg-indigo-100 border-2 border-indigo-400 rounded-xl flex items-center justify-center mb-4 text-indigo-700">
+            <i data-lucide="calendar-days" class="w-6 h-6"></i>
+          </div>
+          <div class="flex items-center gap-2 mb-2">
+            <h3 class="text-lg md:text-xl font-extrabold text-foreground">Program Semester (Promes)</h3>
+            <span class="bg-primary text-primary-foreground text-[10px] font-bold px-1.5 py-0.5 rounded">Baru</span>
+          </div>
+          <p class="text-sm text-muted-foreground leading-relaxed">
+            Grid jadwal mingguan terintegrasi dengan event PTS, PAS, dan kalender pendidikan otomatis.
+          </p>
+        </div>
+
+        <!-- Feature 7 -->
+        <div class="bg-card border-2 border-foreground rounded-2xl p-6 shadow-brutal hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-brutal-hover transition-all">
+          <div class="w-12 h-12 bg-rose-100 border-2 border-rose-400 rounded-xl flex items-center justify-center mb-4 text-rose-700">
+            <i data-lucide="target" class="w-6 h-6"></i>
+          </div>
+          <h3 class="text-lg md:text-xl font-extrabold text-foreground mb-2">Kriteria KKTP</h3>
+          <p class="text-sm text-muted-foreground leading-relaxed">
+            Kriteria Ketercapaian Tujuan Pembelajaran dengan rubrik 4 level deskriptor auto-generate dari Prota.
+          </p>
+        </div>
+
+        <!-- Feature 8 -->
+        <div class="bg-card border-2 border-foreground rounded-2xl p-6 shadow-brutal hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-brutal-hover transition-all">
+          <div class="w-12 h-12 bg-sky-100 border-2 border-sky-400 rounded-xl flex items-center justify-center mb-4 text-sky-700">
+            <i data-lucide="layers" class="w-6 h-6"></i>
+          </div>
+          <h3 class="text-lg md:text-xl font-extrabold text-foreground mb-2">Multi-Pertemuan</h3>
+          <p class="text-sm text-muted-foreground leading-relaxed">
+            Bisa generate rencana pembelajaran langsung untuk banyak pertemuan (misalnya 10 pertemuan) dalam sekali proses.
+          </p>
+        </div>
+
+        <!-- Feature 9 -->
+        <div class="bg-card border-2 border-foreground rounded-2xl p-6 shadow-brutal hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-brutal-hover transition-all">
+          <div class="w-12 h-12 bg-pink-100 border-2 border-pink-400 rounded-xl flex items-center justify-center mb-4 text-pink-700">
+            <i data-lucide="sparkles" class="w-6 h-6"></i>
+          </div>
+          <h3 class="text-lg md:text-xl font-extrabold text-foreground mb-2">Edit AI & Regenerate</h3>
+          <p class="text-sm text-muted-foreground leading-relaxed">
+            Bebas edit teks langsung atau instruksikan AI untuk merevisi bagian tertentu tanpa harus mengulang dari awal.
+          </p>
+        </div>
+
+        <!-- Feature 10 -->
+        <div class="bg-card border-2 border-foreground rounded-2xl p-6 shadow-brutal hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-brutal-hover transition-all">
+          <div class="w-12 h-12 bg-teal-100 border-2 border-teal-400 rounded-xl flex items-center justify-center mb-4 text-teal-700">
+            <i data-lucide="refresh-cw" class="w-6 h-6"></i>
+          </div>
+          <h3 class="text-lg md:text-xl font-extrabold text-foreground mb-2">Refleksi & Remedial</h3>
+          <p class="text-sm text-muted-foreground leading-relaxed">
+            Dilengkapi lembar refleksi guru & murid serta skenario pembelajaran remedial dan pengayaan otomatis.
+          </p>
+        </div>
+
+        <!-- Feature 11 -->
+        <div class="bg-card border-2 border-foreground rounded-2xl p-6 shadow-brutal hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-brutal-hover transition-all">
+          <div class="w-12 h-12 bg-orange-100 border-2 border-orange-400 rounded-xl flex items-center justify-center mb-4 text-orange-700">
+            <i data-lucide="file-down" class="w-6 h-6"></i>
+          </div>
+          <h3 class="text-lg md:text-xl font-extrabold text-foreground mb-2">Export Word (.docx) & PDF</h3>
+          <p class="text-sm text-muted-foreground leading-relaxed">
+            Unduh dokumen rapi dengan margin standar, tabel presisi, dan 100% bisa diedit kembali di laptop Anda.
+          </p>
+        </div>
+
+        <!-- Feature 12 -->
+        <div class="bg-card border-2 border-foreground rounded-2xl p-6 shadow-brutal hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-brutal-hover transition-all">
+          <div class="w-12 h-12 bg-violet-100 border-2 border-violet-400 rounded-xl flex items-center justify-center mb-4 text-violet-700">
+            <i data-lucide="copy" class="w-6 h-6"></i>
+          </div>
+          <h3 class="text-lg md:text-xl font-extrabold text-foreground mb-2">Kop & Identitas Sekolah</h3>
+          <p class="text-sm text-muted-foreground leading-relaxed">
+            Sematkan nama sekolah, logo dinas/yayasan, tanda tangan kepala sekolah & NIP otomatis pada header dokumen.
+          </p>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ======================================================== -->
+  <!-- WHY US SECTION -->
+  <!-- ======================================================== -->
+  <section id="keunggulan" class="py-16 md:py-24 scroll-mt-20" style="background-color: hsl(18, 75%, 47%);">
+    <div class="max-w-7xl mx-auto px-4 md:px-6">
+      
+      <!-- Section Header -->
+      <div class="text-center mb-12 md:mb-16">
+        <h2 class="text-3xl md:text-4xl font-extrabold text-white mb-4">
+          Mengapa Memilih ModulAjar.Online?
+        </h2>
+        <p class="text-base md:text-lg text-white/80 max-w-2xl mx-auto font-medium">
+          Platform yang dirancang khusus untuk kebutuhan guru Indonesia dengan teknologi AI terdepan.
+        </p>
+      </div>
+
+      <!-- Reasons Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+        
+        <div class="bg-white/10 backdrop-blur-sm border-2 border-white/20 rounded-xl p-5 text-white shadow-sm">
+          <div class="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center mb-3">
+            <i data-lucide="brain" class="w-5 h-5 text-white"></i>
+          </div>
+          <span class="text-xs font-bold text-yellow-300 block mb-1">Gemini 2.5 Pro</span>
+          <h4 class="font-extrabold text-base mb-2">AI Cerdas Berbahasa Edukatif</h4>
+          <p class="text-xs text-white/80 leading-relaxed">Ditenagai model AI terbaru Google yang memahami kurikulum dan istilah pedagogi Indonesia.</p>
+        </div>
+
+        <div class="bg-white/10 backdrop-blur-sm border-2 border-white/20 rounded-xl p-5 text-white shadow-sm">
+          <div class="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center mb-3">
+            <i data-lucide="clock" class="w-5 h-5 text-white"></i>
+          </div>
+          <span class="text-xs font-bold text-yellow-300 block mb-1">Menit, Bukan Hari</span>
+          <h4 class="font-extrabold text-base mb-2">Hemat Waktu 90%</h4>
+          <p class="text-xs text-white/80 leading-relaxed">Ketik materi & pilih jenjang, perangkat ajar 1 semester selesai dalam sekejap tanpa lembur malam.</p>
+        </div>
+
+        <div class="bg-white/10 backdrop-blur-sm border-2 border-white/20 rounded-xl p-5 text-white shadow-sm">
+          <div class="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center mb-3">
+            <i data-lucide="file-check" class="w-5 h-5 text-white"></i>
+          </div>
+          <span class="text-xs font-bold text-yellow-300 block mb-1">Kemdikbud & Kemenag</span>
+          <h4 class="font-extrabold text-base mb-2">Standar Format Resmi</h4>
+          <p class="text-xs text-white/80 leading-relaxed">Format dokumen sesuai rambu-rambu pengawas dan panduan pembelajaran Kurikulum Merdeka.</p>
+        </div>
+
+        <div class="bg-white/10 backdrop-blur-sm border-2 border-white/20 rounded-xl p-5 text-white shadow-sm">
+          <div class="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center mb-3">
+            <i data-lucide="zap" class="w-5 h-5 text-white"></i>
+          </div>
+          <span class="text-xs font-bold text-yellow-300 block mb-1">HOTS & RPM</span>
+          <h4 class="font-extrabold text-base mb-2">Deep Learning Ready</h4>
+          <p class="text-xs text-white/80 leading-relaxed">Modul dan asesmen langsung mengadopsi prinsip pembelajaran mendalam bermakna.</p>
+        </div>
+
+        <div class="bg-white/10 backdrop-blur-sm border-2 border-white/20 rounded-xl p-5 text-white shadow-sm">
+          <div class="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center mb-3">
+            <i data-lucide="file-down" class="w-5 h-5 text-white"></i>
+          </div>
+          <span class="text-xs font-bold text-yellow-300 block mb-1">Word & PDF</span>
+          <h4 class="font-extrabold text-base mb-2">Export Siap Pakai</h4>
+          <p class="text-xs text-white/80 leading-relaxed">Format Microsoft Word rapi, tabel presisi, dan langsung siap dicetak atau diserahkan ke kepala sekolah.</p>
+        </div>
+
+        <div class="bg-white/10 backdrop-blur-sm border-2 border-white/20 rounded-xl p-5 text-white shadow-sm">
+          <div class="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center mb-3">
+            <i data-lucide="badge-check" class="w-5 h-5 text-white"></i>
+          </div>
+          <span class="text-xs font-bold text-yellow-300 block mb-1">Akses 1 Tahun Penuh</span>
+          <h4 class="font-extrabold text-base mb-2">365 Hari Bebas Pakai</h4>
+          <p class="text-xs text-white/80 leading-relaxed">Gunakan sepuasnya untuk semester ganjil dan genap tanpa batasan jumlah pertemuan.</p>
+        </div>
+
+        <div class="bg-white/10 backdrop-blur-sm border-2 border-white/20 rounded-xl p-5 text-white shadow-sm">
+          <div class="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center mb-3">
+            <i data-lucide="globe" class="w-5 h-5 text-white"></i>
+          </div>
+          <span class="text-xs font-bold text-yellow-300 block mb-1">100% Berbasis Web</span>
+          <h4 class="font-extrabold text-base mb-2">Tanpa Perlu Install</h4>
+          <p class="text-xs text-white/80 leading-relaxed">Cukup buka browser Chrome di laptop, HP, atau tablet Anda. Tidak membebani memori perangkat.</p>
+        </div>
+
+        <div class="bg-white/10 backdrop-blur-sm border-2 border-white/20 rounded-xl p-5 text-white shadow-sm">
+          <div class="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center mb-3">
+            <i data-lucide="monitor" class="w-5 h-5 text-white"></i>
+          </div>
+          <span class="text-xs font-bold text-yellow-300 block mb-1">Multi-Device</span>
+          <h4 class="font-extrabold text-base mb-2">Akses Di Mana Saja</h4>
+          <p class="text-xs text-white/80 leading-relaxed">Bisa dikerjakan dari ruang guru, rumah, atau saat rapat MGMP hanya lewat smartphone.</p>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ======================================================== -->
+  <!-- CURRICULUM SECTION -->
+  <!-- ======================================================== -->
+  <section id="kurikulum" class="py-16 md:py-24 bg-slate-50 border-b-2 border-foreground/15 scroll-mt-20">
+    <div class="max-w-5xl mx-auto px-4 md:px-6">
+      
+      <div class="text-center mb-12">
+        <h2 class="text-3xl md:text-4xl font-extrabold text-foreground mb-4">
+          Mendukung 2 Kurikulum Resmi Nasional
+        </h2>
+        <p class="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
+          Aplikasi pertama yang secara native mengadopsi standar Kemendikbudristek dan Kemenag RI.
+        </p>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-8">
+        
+        <!-- Kurikulum Merdeka -->
+        <div class="bg-card rounded-2xl p-7 md:p-8 border-2 border-foreground shadow-brutal">
+          <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-5 text-blue-700 border-2 border-foreground/20">
+            <i data-lucide="book-open" class="w-6 h-6"></i>
+          </div>
+          <h3 class="text-2xl font-extrabold text-foreground mb-1">Kurikulum Merdeka</h3>
+          <p class="text-blue-700 font-bold text-sm mb-5">Standar Kemendikbudristek RI</p>
+          
+          <div class="flex flex-wrap gap-2 mb-6">
+            <span class="px-2.5 py-1 bg-slate-100 text-slate-800 rounded-lg text-xs font-bold border border-slate-300">PAUD / TK</span>
+            <span class="px-2.5 py-1 bg-slate-100 text-slate-800 rounded-lg text-xs font-bold border border-slate-300">SD (Fase A-C)</span>
+            <span class="px-2.5 py-1 bg-slate-100 text-slate-800 rounded-lg text-xs font-bold border border-slate-300">SMP (Fase D)</span>
+            <span class="px-2.5 py-1 bg-slate-100 text-slate-800 rounded-lg text-xs font-bold border border-slate-300">SMA/SMK (Fase E-F)</span>
+          </div>
+
+          <ul class="space-y-2.5 text-sm font-medium text-muted-foreground">
+            <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600"></i> Profil Pelajar Pancasila & Pembelajaran Berdiferensiasi</li>
+            <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600"></i> Pemetaan Capaian Pembelajaran (CP) Resmi Terbaru</li>
+            <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600"></i> Alur Tujuan Pembelajaran (ATP) & Modul Terpadu</li>
+          </ul>
+        </div>
+
+        <!-- KBC Kemenag -->
+        <div class="bg-card rounded-2xl p-7 md:p-8 border-2 border-foreground shadow-brutal relative overflow-hidden">
+          <div class="absolute top-0 right-0 bg-emerald-600 text-white text-[11px] font-extrabold px-3 py-1 rounded-bl-xl border-l-2 border-b-2 border-foreground">
+            KHUSUS MADRASAH
+          </div>
+          <div class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center mb-5 text-emerald-700 border-2 border-foreground/20">
+            <i data-lucide="heart" class="w-6 h-6"></i>
+          </div>
+          <h3 class="text-2xl font-extrabold text-foreground mb-1">KBC Kemenag</h3>
+          <p class="text-emerald-700 font-bold text-sm mb-5">Kurikulum Berbasis Cinta (Kemenag RI)</p>
+
+          <div class="flex flex-wrap gap-2 mb-6">
+            <span class="px-2.5 py-1 bg-emerald-50 text-emerald-800 rounded-lg text-xs font-bold border border-emerald-300">RA</span>
+            <span class="px-2.5 py-1 bg-emerald-50 text-emerald-800 rounded-lg text-xs font-bold border border-emerald-300">Madrasah Ibtidaiyah (MI)</span>
+            <span class="px-2.5 py-1 bg-emerald-50 text-emerald-800 rounded-lg text-xs font-bold border border-emerald-300">MTs</span>
+            <span class="px-2.5 py-1 bg-emerald-50 text-emerald-800 rounded-lg text-xs font-bold border border-emerald-300">Madrasah Aliyah (MA)</span>
+          </div>
+
+          <ul class="space-y-2.5 text-sm font-medium text-muted-foreground">
+            <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600"></i> Rahmatan Lil 'Alamin & Nilai Karakter Islami</li>
+            <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600"></i> Mata Pelajaran PAI: Akidah Akhlak, Fikih, SKI, Qur'an Hadis</li>
+            <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600"></i> Bahasa Arab & Mapel Umum Sesuai KMA Terbaru</li>
+          </ul>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ======================================================== -->
+  <!-- PRICING SECTION (PAKET STANDAR FOKUS AGENCY) -->
+  <!-- ======================================================== -->
+  <section id="paket" class="py-16 md:py-24 relative overflow-hidden scroll-mt-20">
+    <div class="absolute inset-0 bg-grid-pattern opacity-40"></div>
+
+    <div class="relative max-w-4xl mx-auto px-4 md:px-6">
+      
+      <!-- Section Header -->
+      <div class="text-center mb-10 md:mb-14">
+        <div class="inline-flex items-center gap-2 px-4 py-1.5 bg-primary/10 border-2 border-primary/30 rounded-full mb-4">
+          <i data-lucide="sparkles" class="w-4 h-4 text-primary"></i>
+          <span class="text-xs md:text-sm font-extrabold text-primary">Penawaran Eksklusif Guru</span>
+        </div>
+        <h2 class="text-3xl md:text-5xl font-extrabold text-foreground mb-4">
+          Investasi Cerdas untuk Waktu Anda
+        </h2>
+        <p class="text-base md:text-lg text-muted-foreground max-w-xl mx-auto">
+          Dapatkan akses penuh Paket Standar ModulAjar.Online selama 1 tahun penuh dengan harga sangat terjangkau.
+        </p>
+      </div>
+
+      <!-- Featured Pricing Card -->
+      <div class="bg-card border-3 border-foreground rounded-3xl shadow-brutal-lg p-6 sm:p-10 relative overflow-hidden">
+        
+        <!-- Popular Badge -->
+        <div class="bg-primary text-primary-foreground font-black text-xs md:text-sm py-2 px-8 uppercase tracking-widest text-center border-b-2 border-foreground -mx-6 sm:-mx-10 -mt-6 sm:-mt-10 mb-8 flex items-center justify-center gap-2">
+          <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+          <span>PILIHAN TERBAIK GURU INDONESIA — AKSES 1 TAHUN PENUH</span>
+          <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+        </div>
+
+        <div class="grid md:grid-cols-12 gap-8 items-center">
+          
+          <!-- Left: Pricing Overview -->
+          <div class="md:col-span-5 text-center md:text-left border-b md:border-b-0 md:border-r-2 border-foreground/15 pb-8 md:pb-0 md:pr-8">
+            <h3 class="text-2xl md:text-3xl font-extrabold text-foreground mb-2">Paket Standar Resmi</h3>
+            <p class="text-xs md:text-sm text-muted-foreground font-medium mb-5">
+              Solusi komplit bagi guru TK, SD, SMP, SMA, SMK, dan Madrasah.
+            </p>
+
+            <div class="mb-4">
+              <span class="text-xs font-bold text-muted-foreground line-through block" id="regularPriceText">Rp 250.000</span>
+              <div class="flex items-baseline justify-center md:justify-start gap-1">
+                <span class="text-4xl md:text-5xl font-black text-primary" id="productPriceText">Rp 149.000</span>
+                <span class="text-sm font-extrabold text-muted-foreground">/ tahun</span>
+              </div>
+            </div>
+
+            <p class="text-xs text-muted-foreground mb-6 font-medium bg-secondary/50 p-2.5 rounded-xl border border-foreground/10">
+              ⚡ Hanya sekitar <strong>Rp 12.400 / bulan</strong> (Kurang dari harga secangkir kopi untuk hemat ratusan jam kerja!)
+            </p>
+
+            <!-- Order Button -->
+            <a href="#" class="wa-order-btn w-full bg-primary text-primary-foreground border-2 border-foreground rounded-2xl py-4 px-6 font-extrabold text-base shadow-brutal hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-brutal-hover transition-all flex items-center justify-center gap-2">
+              <span>Pesan & Aktifkan Sekarang</span>
+              <i data-lucide="message-circle" class="w-5 h-5"></i>
+            </a>
+
+            <div class="mt-4 text-center">
+              <p class="text-[11px] text-muted-foreground">
+                🔒 Aktivasi Cepat • Tanpa Biaya Tersembunyi
+              </p>
+            </div>
+          </div>
+
+          <!-- Right: Included Features -->
+          <div class="md:col-span-7">
+            <h4 class="text-base font-extrabold text-foreground mb-4 flex items-center gap-2">
+              <i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-600"></i>
+              <span>Seluruh Fitur yang Anda Dapatkan:</span>
+            </h4>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs md:text-sm font-semibold">
+              <div class="flex items-start gap-2">
+                <i data-lucide="check" class="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5"></i>
+                <span>Akses 1 Tahun Penuh (365 Hari)</span>
+              </div>
+              <div class="flex items-start gap-2">
+                <i data-lucide="check" class="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5"></i>
+                <span>Modul Ajar Deep Learning</span>
+              </div>
+              <div class="flex items-start gap-2">
+                <i data-lucide="check" class="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5"></i>
+                <span>LKPD Kreatif Siap Cetak</span>
+              </div>
+              <div class="flex items-start gap-2">
+                <i data-lucide="check" class="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5"></i>
+                <span>Asesmen Diagnostik & Formatif</span>
+              </div>
+              <div class="flex items-start gap-2">
+                <i data-lucide="check" class="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5"></i>
+                <span>Bank Soal HOTS (C1-C6)</span>
+              </div>
+              <div class="flex items-start gap-2">
+                <i data-lucide="check" class="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5"></i>
+                <span>Program Tahunan (Prota) Otomatis</span>
+              </div>
+              <div class="flex items-start gap-2">
+                <i data-lucide="check" class="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5"></i>
+                <span>Program Semester (Promes) Otomatis</span>
+              </div>
+              <div class="flex items-start gap-2">
+                <i data-lucide="check" class="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5"></i>
+                <span>Rubrik KKTP 4 Level Deskriptor</span>
+              </div>
+              <div class="flex items-start gap-2">
+                <i data-lucide="check" class="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5"></i>
+                <span>Export Microsoft Word (.docx) & PDF</span>
+              </div>
+              <div class="flex items-start gap-2">
+                <i data-lucide="check" class="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5"></i>
+                <span>Fitur Edit AI per Bagian Dokumen</span>
+              </div>
+              <div class="flex items-start gap-2">
+                <i data-lucide="check" class="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5"></i>
+                <span>Dukungan Madrasah KBC Kemenag</span>
+              </div>
+              <div class="flex items-start gap-2">
+                <i data-lucide="check" class="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5"></i>
+                <span>Bantuan & Support Aktivasi Akun</span>
+              </div>
+            </div>
+
+            <!-- Guarantee Notice -->
+            <div class="mt-6 p-3.5 bg-emerald-50 border border-emerald-300 rounded-xl flex items-center gap-3">
+              <i data-lucide="award" class="w-8 h-8 text-emerald-700 flex-shrink-0"></i>
+              <p class="text-xs text-emerald-900 font-medium">
+                <strong>Garansi Lisensi Resmi:</strong> Akun Anda dijamin aktif dan langsung terhubung dengan server resmi ModulAjar.Online.
+              </p>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ======================================================== -->
+  <!-- TESTIMONIALS SECTION -->
+  <!-- ======================================================== -->
+  <section id="testimoni" class="py-16 md:py-24 bg-muted/40 border-t-2 border-foreground/15 scroll-mt-20">
+    <div class="max-w-7xl mx-auto px-4 md:px-6">
+      
+      <div class="text-center mb-12">
+        <h2 class="text-3xl md:text-4xl font-extrabold text-foreground mb-4">
+          Apa Kata Rekan Guru?
+        </h2>
+        <p class="text-base md:text-lg text-muted-foreground max-w-xl mx-auto">
+          Ribuan guru telah merasakan ringannya beban administrasi dengan ModulAjar.Online.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        
+        <div class="bg-card border-2 border-foreground rounded-2xl p-6 shadow-brutal">
+          <div class="flex items-center gap-1 text-amber-500 mb-3">
+            <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+            <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+            <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+            <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+            <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+          </div>
+          <p class="text-sm text-foreground italic mb-4 leading-relaxed font-medium">
+            "Sangat membantu saya membuat modul pembelajaran terstruktur. Yang biasanya butuh waktu 3 hari, sekarang 10 menit beres dan hasilnya rapi siap print!"
+          </p>
+          <div class="flex items-center gap-3 pt-3 border-t border-foreground/15">
+            <div class="w-10 h-10 rounded-full bg-blue-100 border border-foreground/20 flex items-center justify-center font-bold text-base">👨‍🏫</div>
+            <div>
+              <p class="text-sm font-bold text-foreground">Budi Santoso, S.Pd.</p>
+              <p class="text-xs text-muted-foreground">Guru Matematika SMP</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-card border-2 border-foreground rounded-2xl p-6 shadow-brutal">
+          <div class="flex items-center gap-1 text-amber-500 mb-3">
+            <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+            <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+            <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+            <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+            <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+          </div>
+          <p class="text-sm text-foreground italic mb-4 leading-relaxed font-medium">
+            "Tidak perlu lagi berjam-jam membuat LKPD dan Asesmen. Cukup input materi pokok, AI langsung susun dokumen berkualitas. Murid-murid jadi lebih antusias!"
+          </p>
+          <div class="flex items-center gap-3 pt-3 border-t border-foreground/15">
+            <div class="w-10 h-10 rounded-full bg-emerald-100 border border-foreground/20 flex items-center justify-center font-bold text-base">👩‍🏫</div>
+            <div>
+              <p class="text-sm font-bold text-foreground">Siti Rahayu, M.Pd.</p>
+              <p class="text-xs text-muted-foreground">Guru IPA SD</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-card border-2 border-foreground rounded-2xl p-6 shadow-brutal">
+          <div class="flex items-center gap-1 text-amber-500 mb-3">
+            <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+            <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+            <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+            <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+            <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+          </div>
+          <p class="text-sm text-foreground italic mb-4 leading-relaxed font-medium">
+            "Sebagai guru madrasah, saya sangat bersyukur ada dukungan Kurikulum Berbasis Cinta (KBC). Nilai akhlak dan Fikihnya nyambung banget. Rekomendasi wajib!"
+          </p>
+          <div class="flex items-center gap-3 pt-3 border-t border-foreground/15">
+            <div class="w-10 h-10 rounded-full bg-purple-100 border border-foreground/20 flex items-center justify-center font-bold text-base">👨‍💼</div>
+            <div>
+              <p class="text-sm font-bold text-foreground">Ahmad Fauzi, S.Pd.I.</p>
+              <p class="text-xs text-muted-foreground">Guru PAI MTs</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ======================================================== -->
+  <!-- FAQ SECTION (FOKUS PAKET STANDAR) -->
+  <!-- ======================================================== -->
+  <section id="faq" class="py-16 md:py-24 bg-card border-t-2 border-foreground/15 scroll-mt-20">
+    <div class="max-w-3xl mx-auto px-4 md:px-6">
+      
+      <div class="text-center mb-12">
+        <h2 class="text-3xl md:text-4xl font-extrabold text-foreground mb-4">
+          Pertanyaan yang Sering Diajukan
+        </h2>
+        <p class="text-base md:text-lg text-muted-foreground">
+          Semua jawaban penting sebelum Anda mengaktifkan akun Paket Standar.
+        </p>
+      </div>
+
+      <div class="space-y-4">
+        
+        <!-- FAQ 1 -->
+        <div class="faq-item bg-background border-2 border-foreground rounded-2xl p-5 shadow-brutal-sm cursor-pointer transition-all">
+          <div class="flex items-center justify-between font-bold text-base md:text-lg">
+            <span>Apa itu ModulAjar.Online?</span>
+            <i data-lucide="chevron-down" class="faq-icon w-5 h-5 transition-transform duration-200"></i>
+          </div>
+          <div class="faq-content hidden pt-3 text-sm md:text-base text-muted-foreground leading-relaxed border-t border-foreground/10 mt-3 font-medium">
+            ModulAjar.Online adalah platform berbasis AI pintar (Google Gemini 2.5 Pro) yang dirancang khusus untuk membantu guru Indonesia menyusun seluruh administrasi pembelajaran (Modul Ajar, LKPD, Asesmen, Bank Soal, Prota, dan Promes) sesuai format resmi Kurikulum Merdeka dan KBC secara instan.
+          </div>
+        </div>
+
+        <!-- FAQ 2 -->
+        <div class="faq-item bg-background border-2 border-foreground rounded-2xl p-5 shadow-brutal-sm cursor-pointer transition-all">
+          <div class="flex items-center justify-between font-bold text-base md:text-lg">
+            <span>Berapa lama masa aktif akun Paket Standar?</span>
+            <i data-lucide="chevron-down" class="faq-icon w-5 h-5 transition-transform duration-200"></i>
+          </div>
+          <div class="faq-content hidden pt-3 text-sm md:text-base text-muted-foreground leading-relaxed border-t border-foreground/10 mt-3 font-medium">
+            Masa aktif Paket Standar adalah <strong>1 Tahun Penuh (365 hari)</strong> sejak tanggal aktivasi akun Anda. Selama 1 tahun tersebut, Anda dapat menggunakan seluruh generator perangkat ajar untuk semua jenjang kelas yang Anda ampu tanpa batasan semester.
+          </div>
+        </div>
+
+        <!-- FAQ 3 -->
+        <div class="faq-item bg-background border-2 border-foreground rounded-2xl p-5 shadow-brutal-sm cursor-pointer transition-all">
+          <div class="flex items-center justify-between font-bold text-base md:text-lg">
+            <span>Apakah aplikasi ini harus diunduh atau di-install di laptop?</span>
+            <i data-lucide="chevron-down" class="faq-icon w-5 h-5 transition-transform duration-200"></i>
+          </div>
+          <div class="faq-content hidden pt-3 text-sm md:text-base text-muted-foreground leading-relaxed border-t border-foreground/10 mt-3 font-medium">
+            Tidak perlu! ModulAjar.Online 100% berbasis cloud (web). Anda cukup membuka peramban web seperti Google Chrome dari laptop, tablet, maupun smartphone (HP) Anda.
+          </div>
+        </div>
+
+        <!-- FAQ 4 -->
+        <div class="faq-item bg-background border-2 border-foreground rounded-2xl p-5 shadow-brutal-sm cursor-pointer transition-all">
+          <div class="flex items-center justify-between font-bold text-base md:text-lg">
+            <span>Apakah dokumen bisa diedit dan diunduh ke Microsoft Word?</span>
+            <i data-lucide="chevron-down" class="faq-icon w-5 h-5 transition-transform duration-200"></i>
+          </div>
+          <div class="faq-content hidden pt-3 text-sm md:text-base text-muted-foreground leading-relaxed border-t border-foreground/10 mt-3 font-medium">
+            Ya, tentu saja! Dokumen yang dihasilkan dapat langsung di-export ke format Word (.docx) dan PDF. Anda bisa langsung mengedit font, tabel, atau menambahkan kop surat sekolah sebelum dicetak.
+          </div>
+        </div>
+
+        <!-- FAQ 5 -->
+        <div class="faq-item bg-background border-2 border-foreground rounded-2xl p-5 shadow-brutal-sm cursor-pointer transition-all">
+          <div class="flex items-center justify-between font-bold text-base md:text-lg">
+            <span>Bagaimana cara pemesanan dan proses aktivasinya?</span>
+            <i data-lucide="chevron-down" class="faq-icon w-5 h-5 transition-transform duration-200"></i>
+          </div>
+          <div class="faq-content hidden pt-3 text-sm md:text-base text-muted-foreground leading-relaxed border-t border-foreground/10 mt-3 font-medium">
+            Sangat mudah dan cepat! Klik tombol "Pesan via WhatsApp", lakukan pembayaran ke rekening mitra agency kami, lalu berikan alamat email Anda. Akun Anda akan diaktifkan secara instan dalam waktu beberapa menit saja!
+          </div>
+        </div>
+
+        <!-- FAQ 6 -->
+        <div class="faq-item bg-background border-2 border-foreground rounded-2xl p-5 shadow-brutal-sm cursor-pointer transition-all">
+          <div class="flex items-center justify-between font-bold text-base md:text-lg">
+            <span>Apakah format dokumen diakui oleh Pengawas & Kepala Sekolah?</span>
+            <i data-lucide="chevron-down" class="faq-icon w-5 h-5 transition-transform duration-200"></i>
+          </div>
+          <div class="faq-content hidden pt-3 text-sm md:text-base text-muted-foreground leading-relaxed border-t border-foreground/10 mt-3 font-medium">
+            Ya, format yang dihasilkan telah dirancang presisi mengikuti regulasi Capaian Pembelajaran (CP) terbaru Kemdikbudristek, pendekatan Deep Learning, dan regulasi KMA Kemenag RI untuk madrasah.
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ======================================================== -->
+  <!-- FINAL BOTTOM CTA SECTION -->
+  <!-- ======================================================== -->
+  <section class="py-16 md:py-20 bg-primary text-primary-foreground border-t-2 border-foreground text-center relative overflow-hidden">
+    <div class="relative max-w-4xl mx-auto px-4 md:px-6 space-y-6">
+      
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 bg-white/20 rounded-full text-xs md:text-sm font-extrabold">
+        <i data-lucide="clock" class="w-4 h-4"></i>
+        <span>Jangan Biarkan Waktu Berharga Anda Habis untuk Ngetik RPP!</span>
+      </div>
+
+      <h2 class="text-3xl sm:text-4xl md:text-5xl font-extrabold leading-tight">
+        Mulai Bikin Perangkat Ajar Lebih Cepat, Rapi & Menyenangkan Hari Ini
+      </h2>
+
+      <p class="text-base sm:text-lg text-white/90 max-w-2xl mx-auto font-medium">
+        Ambil lisensi resmi Paket Standar Anda sekarang juga. Hubungi mitra agency kami via WhatsApp untuk aktivasi instan.
+      </p>
+
+      <div class="pt-2 flex flex-col sm:flex-row gap-4 justify-center items-center">
+        <a href="#" class="wa-order-btn w-full sm:w-auto bg-white text-foreground border-2 border-foreground rounded-2xl py-4 px-8 font-extrabold text-base md:text-lg shadow-brutal hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-brutal-hover transition-all flex items-center justify-center gap-2">
+          <i data-lucide="message-circle" class="w-5 h-5 text-emerald-600"></i>
+          <span>Hubungi Kami via WhatsApp</span>
+        </a>
+      </div>
+
+      <div class="pt-4 flex flex-wrap justify-center gap-6 text-xs text-white/80 font-bold">
+        <span>✓ Garansi Akun Resmi</span>
+        <span>✓ Panduan Penggunaan Lengkap</span>
+        <span>✓ Bantuan Teknis Responsif</span>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ======================================================== -->
+  <!-- FOOTER -->
+  <!-- ======================================================== -->
+  <footer class="bg-card border-t-2 border-foreground py-10">
+    <div class="max-w-7xl mx-auto px-4 md:px-6">
+      <div class="flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
+        
+        <div class="flex items-center gap-3">
+          <div class="bg-white p-1 rounded-lg border-2 border-foreground shadow-brutal-sm">
+            <img src="https://modulajar.online/logo-web.webp" alt="ModulAjar Logo" class="w-6 h-6 object-contain">
+          </div>
+          <div>
+            <span class="font-extrabold text-base text-foreground">ModulAjar.Online</span>
+            <p class="text-xs text-muted-foreground">Mitra Agency & Reseller Resmi Indonesia</p>
+          </div>
+        </div>
+
+        <div class="text-xs text-muted-foreground font-medium max-w-md">
+          Website pemasaran ini dikelola resmi oleh <strong id="agencyFooterText">Mitra Agency</strong> untuk memfasilitasi aktivasi lisensi resmi Paket Standar ModulAjar.Online bagi pendidik di seluruh Indonesia.
+        </div>
+
+        <div class="text-xs text-muted-foreground">
+          © <span id="currentYear">2026</span> ModulAjar.Online. All rights reserved.
+        </div>
+
+      </div>
+    </div>
+  </footer>
+
+  <!-- ======================================================== -->
+  <!-- FLOATING STICKY WHATSAPP BUTTON -->
+  <!-- ======================================================== -->
+  <div class="fixed bottom-5 right-5 z-50">
+    <a href="#" class="wa-order-btn bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs sm:text-sm px-4 py-3 rounded-full border-2 border-foreground shadow-brutal hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-brutal-hover transition-all flex items-center gap-2 group">
+      <i data-lucide="message-circle" class="w-5 h-5 fill-current"></i>
+      <span class="hidden sm:inline">Pesan via WhatsApp</span>
+      <span class="sm:hidden">Pesan</span>
+    </a>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- JAVASCRIPT & KONFIGURASI AGENCY -->
+  <!-- ======================================================== -->
+  <script>
+    // =========================================================================
+    // ⚙️ KONFIGURASI MITRA AGENCY (CUKUP UBAH BAGIAN INI SAJA!)
+    // =========================================================================
+    const AGENCY_CONFIG = {
+      // 1. Nama Agency / Brand Reseller Anda:
+      agencyName: "Mitra Agency Resmi ModulAjar",
+
+      // 2. Nomor WhatsApp Anda (Gunakan format internasional tanpa tanda +, contoh: 6281234567890):
+      whatsappNumber: "6288228511309",
+
+      // 3. Harga Jual Paket Standar yang Anda Tawarkan:
+      productPrice: "Rp 149.000",
+
+      // 4. Harga Coret (Normal):
+      regularPrice: "Rp 250.000",
+
+      // 5. Template pesan otomatis saat calon pembeli klik tombol:
+      orderMessage: "Halo Admin 👋\n\nSaya tertarik untuk memesan *Paket Standar ModulAjar.Online (1 Tahun)*.\nMohon informasi nomor rekening dan cara aktivasinya ya. Terima kasih!"
+    };
+
+    // =========================================================================
+    // SCRIPT LOGIC (OTOMATIS MENGUPDATE SEMUA TOMBOL & LINK DI HALAMAN)
+    // =========================================================================
+    document.addEventListener("DOMContentLoaded", function () {
+      // Update Lucide Icons
+      if (window.lucide) {
+        lucide.createIcons();
+      }
+
+      // Update Teks Nama Agency
+      const agencyNameEl = document.getElementById("agencyNameText");
+      if (agencyNameEl) agencyNameEl.textContent = AGENCY_CONFIG.agencyName;
+
+      const agencyFooterEl = document.getElementById("agencyFooterText");
+      if (agencyFooterEl) agencyFooterEl.textContent = AGENCY_CONFIG.agencyName;
+
+      // Update Harga
+      const productPriceEl = document.getElementById("productPriceText");
+      if (productPriceEl) productPriceEl.textContent = AGENCY_CONFIG.productPrice;
+
+      const regularPriceEl = document.getElementById("regularPriceText");
+      if (regularPriceEl) regularPriceEl.textContent = AGENCY_CONFIG.regularPrice;
+
+      // Update Tahun Footer
+      const yearEl = document.getElementById("currentYear");
+      if (yearEl) yearEl.textContent = new Date().getFullYear();
+
+      // Generate Link WhatsApp Resmi
+      const waUrl = "https://wa.me/" + AGENCY_CONFIG.whatsappNumber + "?text=" + encodeURIComponent(AGENCY_CONFIG.orderMessage);
+
+      // Terapkan ke semua tombol pemesanan WhatsApp
+      const waButtons = document.querySelectorAll(".wa-order-btn");
+      waButtons.forEach(function (btn) {
+        btn.setAttribute("href", waUrl);
+        btn.setAttribute("target", "_blank");
+        btn.setAttribute("rel", "noopener noreferrer");
+      });
+
+      // Mobile Menu Toggle
+      const mobileBtn = document.getElementById("mobileMenuBtn");
+      const mobileMenu = document.getElementById("mobileMenu");
+      if (mobileBtn && mobileMenu) {
+        mobileBtn.addEventListener("click", function () {
+          mobileMenu.classList.toggle("hidden");
+        });
+        
+        // Tutup menu saat link diklik
+        const mobileLinks = mobileMenu.querySelectorAll("a");
+        mobileLinks.forEach(function (link) {
+          link.addEventListener("click", function () {
+            mobileMenu.classList.add("hidden");
+          });
+        });
+      }
+
+      // FAQ Accordion Interaktif
+      const faqItems = document.querySelectorAll(".faq-item");
+      faqItems.forEach(function (item) {
+        item.addEventListener("click", function () {
+          const content = item.querySelector(".faq-content");
+          const icon = item.querySelector(".faq-icon");
+          const isOpened = !content.classList.contains("hidden");
+
+          // Tutup semua yang lain
+          faqItems.forEach(function (otherItem) {
+            otherItem.querySelector(".faq-content").classList.add("hidden");
+            otherItem.querySelector(".faq-icon").style.transform = "rotate(0deg)";
+          });
+
+          // Toggle item ini
+          if (!isOpened) {
+            content.classList.remove("hidden");
+            icon.style.transform = "rotate(180deg)";
+          }
+        });
+      });
+    });
+  </script>
+
+</body>
+</html>
