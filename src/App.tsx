@@ -29,6 +29,7 @@ const AdminCustomers = lazy(() => import("./pages/admin/Customers"));
 const AdminAgencyPackages = lazy(() => import("./pages/admin/AgencyPackages"));
 const AdminAgencyOwners = lazy(() => import("./pages/admin/AgencyOwners"));
 const AdminAgencyPromos = lazy(() => import("./pages/admin/AgencyPromos"));
+const AdminAgencyMaterials = lazy(() => import("./pages/admin/AgencyMaterials"));
 const AdminSchools = lazy(() => import("./pages/admin/Schools"));
 const SekolahKalender = lazy(() => import("./pages/sekolah/Kalender"));
 const SekolahDashboard = lazy(() => import("./pages/sekolah/Dashboard"));
@@ -40,6 +41,7 @@ const SekolahExport = lazy(() => import("./pages/sekolah/Export"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const SEOPage = lazy(() => import("./pages/landing/SEOPage"));
 const PaketSekolahPage = lazy(() => import("./pages/landing/PaketSekolahPage"));
+const PaketAgencyPage = lazy(() => import("./pages/landing/PaketAgencyPage"));
 const BlogIndex = lazy(() => import("./pages/blog/BlogIndex"));
 const BlogDetail = lazy(() => import("./pages/blog/BlogDetail"));
 
@@ -69,6 +71,8 @@ const App = () => (
                 {/* Public Landing Page */}
                 <Route path="/" element={<Landing />} />
                 <Route path="/paketsekolah" element={<PaketSekolahPage />} />
+                <Route path="/paketagency" element={<PaketAgencyPage />} />
+                <Route path="/paket-agency" element={<PaketAgencyPage />} />
                 
                 {/* SEO Landing Pages */}
                 <Route path="/generator-modul-ajar" element={<SEOPage explicitSlug="generator-modul-ajar" />} />
@@ -257,6 +261,14 @@ const App = () => (
                   element={
                     <AdminRoute>
                       <AdminAgencyPromos />
+                    </AdminRoute>
+                  }
+                />
+                <Route
+                  path="/admin/agency/materials"
+                  element={
+                    <AdminRoute>
+                      <AdminAgencyMaterials />
                     </AdminRoute>
                   }
                 />

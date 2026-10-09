@@ -99,6 +99,16 @@ export const Footer = () => {
                   RPP Madrasah Kemenag
                 </Link>
               </li>
+              <li>
+                <Link to="/paketagency" className="text-amber-400 hover:text-amber-300 transition-colors font-bold flex items-center gap-1.5">
+                  Paket Lisensi Agency
+                </Link>
+              </li>
+              <li>
+                <Link to="/paketsekolah" className="text-background/70 hover:text-background transition-colors">
+                  Paket Sekolah
+                </Link>
+              </li>
             </ul>
           </div>
 

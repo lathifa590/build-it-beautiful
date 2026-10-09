@@ -64,6 +64,12 @@ export const Navbar = () => {
             >
               Blog
             </Link>
+            <Link
+              to="/paketagency"
+              className="text-sm font-extrabold text-amber-800 bg-amber-100/80 px-2.5 py-1 rounded-md border border-amber-300/80 hover:bg-amber-200/80 transition-colors shadow-sm"
+            >
+              Lisensi Agency
+            </Link>
           </div>
 
           {/* Desktop CTA */}
@@ -124,6 +130,13 @@ export const Navbar = () => {
               className="block w-full text-left px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
             >
               Blog
+            </Link>
+            <Link
+              to="/paketagency"
+              onClick={() => setIsMenuOpen(false)}
+              className="block w-full text-left px-4 py-2 text-sm font-bold text-amber-800 bg-amber-50 rounded-lg hover:bg-amber-100 transition-colors"
+            >
+              💼 Lisensi Agency &amp; Reseller
             </Link>
             <div className="pt-3 space-y-2 px-4">
               <Link to="/auth" className="block">
