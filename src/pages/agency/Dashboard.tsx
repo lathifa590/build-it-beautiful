@@ -6,6 +6,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Loader2, Store, Users, Mail, ShoppingCart, LogOut, Home,
   CheckCircle2, Clock, XCircle, Send, MessageCircle, Sparkles, AlertTriangle, RotateCw,
+  Megaphone, ExternalLink, Copy, Check,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useConfirm } from '@/contexts/ConfirmContext';
@@ -96,11 +97,26 @@ export default function AgencyDashboard() {
     },
   });
 
+  const { data: materials } = useQuery({
+    queryKey: ['agency-materials-active'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('agency_materials' as any)
+        .select('*')
+        .eq('is_active', true)
+        .order('sort_order', { ascending: true })
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      return (data || []) as any[];
+    },
+  });
+
   const refresh = async () => {
     await Promise.all([
       qc.refetchQueries({ queryKey: ['agency-owner-self', user?.id] }),
       qc.refetchQueries({ queryKey: ['agency-invites', owner?.id] }),
       qc.refetchQueries({ queryKey: ['agency-members', owner?.id] }),
+      qc.refetchQueries({ queryKey: ['agency-materials-active'] }),
     ]);
   };
 
@@ -185,6 +201,9 @@ export default function AgencyDashboard() {
 
         {/* Restock CTA */}
         <RestockCard owner={owner} packages={packages || []} />
+
+        {/* Materi Promosi untuk Agency */}
+        <PromotionalMaterialsCard materials={materials || []} />
 
         {/* Invite form */}
         <InviteForm owner={owner} onInvited={refresh} />
@@ -412,4 +431,119 @@ function ReinviteButton({ email, tier, owner, onDone }: { email: string; tier: s
     </button>
   );
 }
+
+function PromotionalMaterialsCard({ materials }: { materials: any[] }) {
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  if (!materials || materials.length === 0) return null;
+
+  const copyText = (text: string, id: string, msg: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedId(id);
+    toast.success(msg);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
+  return (
+    <div className="bg-card border-2 border-foreground rounded-xl p-4 md:p-5 shadow-brutal-sm space-y-4">
+      <div className="flex items-center justify-between flex-wrap gap-2 border-b-2 border-foreground/10 pb-3">
+        <div className="flex items-center gap-2.5">
+          <div className="w-9 h-9 rounded-xl bg-primary/20 border-2 border-foreground flex items-center justify-center shadow-brutal-sm flex-shrink-0">
+            <Megaphone className="w-5 h-5 text-primary" />
+          </div>
+          <div>
+            <h3 className="font-extrabold text-base flex items-center gap-2">
+              Materi & Amunisi Promosi Agency
+              <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-500/30">
+                Resmi
+              </span>
+            </h3>
+            <p className="text-xs text-muted-foreground">
+              Akses materi desain, brosur promosi, dan copywriting untuk membantu penjualan Paket Standar Anda.
+            </p>
+          </div>
+        </div>
+        <span className="text-xs font-bold px-2 py-0.5 rounded border border-foreground/30 bg-secondary/50">
+          {materials.length} Amunisi Tersedia
+        </span>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        {materials.map((m: any) => (
+          <div
+            key={m.id}
+            className="border-2 border-foreground rounded-xl p-4 bg-background flex flex-col justify-between space-y-3 hover:shadow-brutal-sm transition-all"
+          >
+            <div className="space-y-2">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-xs font-extrabold px-2 py-0.5 rounded bg-primary/15 border border-foreground/30 text-foreground">
+                  {m.category || 'Materi Promosi'}
+                </span>
+                <button
+                  onClick={() => copyText(m.url, `url-${m.id}`, 'Link materi berhasil disalin')}
+                  className="text-xs text-muted-foreground hover:text-foreground inline-flex items-center gap-1 font-bold transition-colors"
+                  title="Salin Link"
+                >
+                  {copiedId === `url-${m.id}` ? (
+                    <>
+                      <Check className="w-3.5 h-3.5 text-emerald-600" />
+                      <span className="text-emerald-600">Tersalin</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-3.5 h-3.5" />
+                      <span>Salin Link</span>
+                    </>
+                  )}
+                </button>
+              </div>
+
+              <h4 className="font-extrabold text-sm text-foreground leading-snug">{m.title}</h4>
+
+              {m.description && (
+                <div className="space-y-1.5">
+                  <p className="text-xs text-muted-foreground leading-relaxed whitespace-pre-line bg-secondary/30 p-2.5 rounded-lg border border-foreground/10">
+                    {m.description}
+                  </p>
+                  <div className="flex justify-end">
+                    <button
+                      onClick={() => copyText(m.description, `desc-${m.id}`, 'Teks copywriting berhasil disalin')}
+                      className="text-[11px] text-primary hover:underline font-bold inline-flex items-center gap-1"
+                      title="Salin teks deskripsi atau copywriting"
+                    >
+                      {copiedId === `desc-${m.id}` ? (
+                        <>
+                          <Check className="w-3 h-3 text-emerald-600" />
+                          <span className="text-emerald-600">Copywriting Tersalin!</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-3 h-3" />
+                          <span>Salin Teks Copy</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="pt-2 border-t border-foreground/10">
+              <a
+                href={m.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full bg-primary text-primary-foreground border-2 border-foreground rounded-lg py-2 px-3 text-xs font-extrabold shadow-brutal-sm hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all flex items-center justify-center gap-1.5"
+              >
+                <span>{m.button_label || 'Buka Materi'}</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </a>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 

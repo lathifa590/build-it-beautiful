@@ -15,6 +15,7 @@ import {
   Store,
   Sparkles,
   School,
+  Megaphone,
 } from 'lucide-react';
 
 
@@ -34,6 +35,7 @@ const superAdminItems = [
   { icon: Package, label: 'Paket Agency', path: '/admin/agency/packages' },
   { icon: Store, label: 'Reseller', path: '/admin/agency/owners' },
   { icon: Sparkles, label: 'Promo Agency', path: '/admin/agency/promos' },
+  { icon: Megaphone, label: 'Materi Promosi', path: '/admin/agency/materials' },
 ];
 
 export const AdminLayout = ({ children }: AdminLayoutProps) => {
