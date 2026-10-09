@@ -16,6 +16,7 @@ import { SchoolPilotRoute } from "@/components/auth/SchoolPilotRoute";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Suspense, lazy } from "react";
 import { PageLoader } from "@/components/ui/PageLoader";
+import { ErrorBoundary } from "@/components/common/ErrorBoundary";
 
 const AgencyDashboard = lazy(() => import("./pages/agency/Dashboard"));
 const Landing = lazy(() => import("./pages/Landing"));
@@ -66,8 +67,9 @@ const App = () => (
               <ConfirmProvider>
               <Toaster />
               <Sonner />
-              <Suspense fallback={<PageLoader />}>
-              <Routes>
+              <ErrorBoundary>
+                <Suspense fallback={<PageLoader />}>
+                <Routes>
                 {/* Public Landing Page */}
                 <Route path="/" element={<Landing />} />
                 <Route path="/paketsekolah" element={<PaketSekolahPage />} />
@@ -288,6 +290,7 @@ const App = () => (
                 <Route path="*" element={<NotFound />} />
               </Routes>
               </Suspense>
+              </ErrorBoundary>
               </ConfirmProvider>
             </TooltipProvider>
           </SchoolProvider>
