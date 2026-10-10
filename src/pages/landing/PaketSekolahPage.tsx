@@ -45,7 +45,7 @@ const WA_DEMO_TEXT = `Halo Admin ModulAjar.Online 👋
 
 Saya Kepala Sekolah / Waka Kurikulum dari [Nama Sekolah].
 
-Kami tertarik dengan Program Sekolah Perintis "Mode Sekolah" (Rp 1.500.000/tahun untuk 25 guru).
+Kami tertarik dengan Paket Sekolah "Mode Sekolah" (Rp 1.500.000/tahun untuk 25 guru).
 
 Mohon info jadwal demo 15 menit & cara aktivasi paketnya. Terima kasih!`;
 const WA_DEMO_LINK = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(WA_DEMO_TEXT)}`;
@@ -314,12 +314,12 @@ const steps = [
   },
 ];
 
-const perintisBenefits = [
+const schoolBenefits = [
   '25 akun guru aktif 1 tahun penuh (Mode Cepat + Modul Multi-Pertemuan + Kurikulum Merdeka & KBC)',
   'Semua fitur Mode Sekolah: Dashboard Monitoring, Kalender Waka, Bank Modul, Kop & Standar, Rekap Supervisi',
-  'Harga terkunci — tidak akan naik selama tetap berlangganan',
-  'Request fitur diprioritaskan — sekolah perintis adalah penguji kami',
-  'Bantuan onboarding langsung via WhatsApp',
+  'Penyimpanan cloud aman tanpa batas durasi selama langganan aktif',
+  'Layanan bantuan prioritas & pendampingan onboarding langsung via WhatsApp/Zoom',
+  'Faktur & invoice resmi atas nama sekolah/yayasan untuk SPJ dana BOS',
 ];
 
 const faqs = [
@@ -345,7 +345,7 @@ const faqs = [
   },
   {
     q: 'Apakah guru perlu pelatihan khusus?',
-    a: 'Tidak. Alur bagi guru sama persis dengan aplikasi ModulAjar yang sudah biasa mereka pakai. Waka Kurikulum mendapat onboarding singkat via WhatsApp/Zoom dan siap dipandu sampai jalan sendiri.',
+    a: 'Tidak. Alur bagi guru sama persis dengan aplikasi ModulAjar yang sudah biasa mereka pakai. Waka Kurikulum mendapat onboarding singkat via WhatsApp/Zoom dan siap dipandu sampai mandiri.',
   },
   {
     q: 'Bagaimana jika guru kami lebih dari 25 orang?',
@@ -356,12 +356,12 @@ const faqs = [
     a: 'Aman. Data sekolah hanya dapat dilihat oleh anggota sekolah Anda sendiri, dengan peran terpisah antara Guru, Waka Kurikulum, dan Kepala Sekolah. Sekolah lain tidak dapat mengakses data Anda.',
   },
   {
-    q: 'Apakah semua fitur sudah benar-benar berjalan?',
-    a: 'Ya. Enam fitur di atas sudah aktif dan dipakai hari ini — bukan roadmap. Yang membuat harga perintis lebih murah karena Mode Sekolah masih terus kami sempurnakan bersama sekolah perintis: masukan Anda diprioritaskan.',
+    q: 'Apakah semua 6 fitur sudah langsung aktif saat kami berlangganan?',
+    a: 'Ya. Seluruh 6 fitur inti (Dashboard Monitoring, Bank Modul & Shared Drive, Kalender Waka, Kop & Standar Sekolah, Rekap Supervisi Dinas, dan Manajemen Dewan Guru) sudah aktif 100% dan langsung dapat digunakan seketika setelah paket sekolah diaktifkan.',
   },
   {
-    q: 'Kapan harga normal berlaku & apa untungnya ikut perintis?',
-    a: 'Setelah program perintis selesai, harga normal mulai Rp 1.200.000/tahun (15 guru) hingga Rp 3.500.000/tahun (50 guru). Sekolah perintis mengunci harga Rp 1.500.000 untuk 25 guru — selama tetap berlangganan, harga tidak pernah naik.',
+    q: 'Bagaimana proses onboarding dan pendampingan untuk sekolah kami?',
+    a: 'Tim kami akan mendampingi Waka Kurikulum dan Kepala Sekolah melalui sesi demo dan onboarding via WhatsApp atau Zoom sampai seluruh guru aktif dan sistem berjalan mandiri di sekolah Anda.',
   },
 ];
 
@@ -445,7 +445,7 @@ export default function PaketSekolahPage() {
     <div className="min-h-screen bg-background">
       <SEOHead
         title="Paket Sekolah — Mode Sekolah ModulAjar.Online"
-        description="Satu paket untuk 25 guru: Dashboard Monitoring, Kalender Waka terpusat, Bank Modul Sekolah, Kop & Standar resmi, dan Rekap Supervisi Dinas siap cetak. Khusus 10 sekolah perintis pertama."
+        description="Satu paket untuk 25 guru: Dashboard Monitoring, Kalender Waka terpusat, Bank Modul Sekolah, Kop & Standar resmi, dan Rekap Supervisi Dinas siap cetak."
         canonical="/paketsekolah"
         schema={FAQ_SCHEMA}
       />
@@ -462,7 +462,7 @@ export default function PaketSekolahPage() {
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-50 border-2 border-emerald-600 rounded-full mb-6">
                 <School className="w-4 h-4 text-emerald-700" />
                 <span className="text-sm font-bold text-emerald-700">
-                  Program Uji Coba — Sekolah Perintis (10 Kuota)
+                  Solusi Manajemen Kurikulum — Mode Sekolah Resmi
                 </span>
               </div>
 
@@ -866,22 +866,21 @@ export default function PaketSekolahPage() {
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-50 border-2 border-emerald-600 rounded-full mb-4">
               <Star className="w-4 h-4 fill-current text-emerald-600" />
               <span className="text-sm font-bold text-emerald-700">
-                Sekolah Perintis — Hanya 10 Sekolah Pertama
+                Paket Lisensi Tahunan Sekolah
               </span>
             </div>
             <h2 className="text-3xl md:text-4xl font-extrabold text-foreground mb-4">
-              Harga Perintis, Terkunci Selama Menjadi Anggota.
+              Investasi Efisien untuk Mutu Kurikulum Sekolah Anda.
             </h2>
             <p className="text-lg text-muted-foreground">
-              Harga normal akan berlaku setelah launching resmi. Sekolah perintis tidak pernah
-              terkena kenaikan harga.
+              Satu langganan tahunan untuk 25 guru aktif penuh. Hemat, transparan, dan siap invoice resmi untuk pelaporan anggaran belanja sekolah.
             </p>
           </div>
 
           <div className="relative bg-card border-4 border-primary rounded-2xl shadow-[8px_8px_0px_0px_hsl(var(--primary))] p-6 md:p-10 max-w-2xl mx-auto">
             <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-6 pb-6 border-b-2 border-foreground/10">
               <div>
-                <h3 className="text-2xl font-extrabold text-foreground">Paket Sekolah Perintis</h3>
+                <h3 className="text-2xl font-extrabold text-foreground">Paket Lisensi Sekolah</h3>
                 <p className="text-muted-foreground text-sm">
                   Untuk satu sekolah — kapasitas 25 guru aktif penuh
                 </p>
@@ -899,7 +898,7 @@ export default function PaketSekolahPage() {
             </div>
 
             <ul className="space-y-3 mb-8">
-              {perintisBenefits.map((b) => (
+              {schoolBenefits.map((b) => (
                 <li key={b} className="flex items-start gap-3">
                   <Check className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
                   <span className="text-sm text-foreground">{b}</span>
@@ -908,8 +907,7 @@ export default function PaketSekolahPage() {
               <li className="flex items-start gap-3">
                 <Check className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
                 <span className="text-sm text-foreground">
-                  Guru tambahan: <strong>Rp 90.000/guru/tahun</strong> — kapan saja, tanpa naik
-                  paket
+                  Guru tambahan: <strong>Rp 90.000/guru/tahun</strong> — fleksibel kapan saja sesuai kebutuhan
                 </span>
               </li>
             </ul>
@@ -920,28 +918,17 @@ export default function PaketSekolahPage() {
                 className="w-full text-lg px-8 py-6 border-2 border-foreground shadow-brutal hover:shadow-brutal-hover hover:translate-x-[2px] hover:translate-y-[2px] transition-all gap-2"
               >
                 <MessageCircle className="w-5 h-5" />
-                Amankan Slot Sekolah Perintis
+                Konsultasi & Aktivasi Paket Sekolah
                 <ArrowRight className="w-5 h-5" />
               </Button>
             </a>
           </div>
 
           <div className="max-w-2xl mx-auto mt-8 space-y-3">
-            <div className="bg-secondary/40 border-2 border-foreground/20 rounded-xl p-4 text-sm text-muted-foreground">
-              <p className="font-bold text-foreground mb-1">
-                Harga normal setelah launching resmi (sebagai pembanding):
-              </p>
+            <div className="bg-emerald-50 border-2 border-emerald-600 rounded-xl p-4 text-sm text-emerald-950 flex gap-3 shadow-sm">
+              <ShieldCheck className="w-5 h-5 text-emerald-700 shrink-0 mt-0.5" />
               <p>
-                Sekolah Kecil (15 guru) Rp 1.200.000 · Sekolah Reguler (30 guru) Rp 2.250.000 ·
-                Sekolah Plus (50 guru) Rp 3.500.000 · Yayasan/Gugus 50+ guru: hubungi kami.
-              </p>
-            </div>
-            <div className="bg-amber-50 border-2 border-amber-500 rounded-xl p-4 text-sm text-amber-900 flex gap-3">
-              <Lock className="w-5 h-5 shrink-0 mt-0.5" />
-              <p>
-                <strong>Transparansi:</strong> beberapa bagian Mode Sekolah masih terus kami
-                sempurnakan bersama sekolah perintis. Itulah kenapa harganya sangat terjangkau — Anda ikut
-                membentuknya, dan masukan Anda diprioritaskan.
+                <strong>Legalitas & SPJ Resmi:</strong> Pembayaran dapat diproses menggunakan invoice resmi atas nama sekolah/yayasan, sah dan dapat dipertanggungjawabkan dalam laporan anggaran belanja kurikulum (BOS). Onboarding dipandu hingga sekolah berjalan mandiri.
               </p>
             </div>
           </div>
@@ -984,15 +971,14 @@ export default function PaketSekolahPage() {
         <div className="max-w-4xl mx-auto px-4 md:px-6 text-center">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 border-2 border-primary/30 rounded-full mb-6">
             <Zap className="w-4 h-4 text-primary" />
-            <span className="text-sm font-bold text-primary">Slot Terbatas (10 Sekolah)</span>
+            <span className="text-sm font-bold text-primary">Solusi Kurikulum Terpadu & Terintegrasi</span>
           </div>
           <h2 className="text-3xl md:text-5xl font-extrabold text-foreground mb-4">
-            Jadilah 1 dari 10 Sekolah Perintis.
+            Modernkan Tata Kelola Kurikulum Sekolah Anda Hari Ini.
           </h2>
           <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Demo 15 menit via WhatsApp/Zoom khusus Kepala Sekolah & Waka Kurikulum. Tanpa
-            komitmen — lihat langsung bagaimana Mode Sekolah mengurangi beban administrasi
-            sekolah Anda.
+            Jadwalkan demo singkat 15 menit via WhatsApp/Zoom khusus Kepala Sekolah & Waka Kurikulum. Tanpa
+            komitmen — lihat langsung bagaimana Mode Sekolah menghemat waktu dan menyinkronkan seluruh perangkat ajar dewan guru.
           </p>
           <a href={WA_DEMO_LINK} target="_blank" rel="noopener noreferrer">
             <Button
@@ -1000,7 +986,7 @@ export default function PaketSekolahPage() {
               className="text-lg px-10 py-6 border-2 border-foreground shadow-brutal hover:shadow-brutal-hover hover:translate-x-[2px] hover:translate-y-[2px] transition-all gap-2"
             >
               <MessageCircle className="w-5 h-5" />
-              Chat Admin — Jadwalkan Demo
+              Chat Admin — Jadwalkan Demo & Aktivasi
             </Button>
           </a>
           <div className="mt-6 flex flex-wrap justify-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
@@ -1008,7 +994,7 @@ export default function PaketSekolahPage() {
               <ShieldCheck className="w-4 h-4 text-green-600" /> Data sekolah terpisah & aman
             </span>
             <span className="flex items-center gap-1">
-              <Clock className="w-4 h-4 text-green-600" /> Onboarding dipandu sampai jalan
+              <Clock className="w-4 h-4 text-green-600" /> Onboarding dipandu sampai mandiri
             </span>
             <span className="flex items-center gap-1">
               <GraduationCap className="w-4 h-4 text-green-600" /> Dibuat untuk Kurikulum Merdeka & KBC
