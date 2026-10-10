@@ -22,9 +22,10 @@ interface WorkspaceSettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
   workspace: Workspace;
+  onSuccess?: () => void;
 }
 
-export const WorkspaceSettingsModal = ({ isOpen, onClose, workspace }: WorkspaceSettingsModalProps) => {
+export const WorkspaceSettingsModal = ({ isOpen, onClose, workspace, onSuccess }: WorkspaceSettingsModalProps) => {
   const { updateWorkspace } = useWorkspace();
   const { user, isAdmin } = useAuth();
   const { school, schoolCalendar, isSchoolActive, isFeatureAllowed } = useSchool();
@@ -33,6 +34,10 @@ export const WorkspaceSettingsModal = ({ isOpen, onClose, workspace }: Workspace
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
+    subject: workspace.subject || '',
+    grade: workspace.grade || '',
+    phase: workspace.phase || '',
+    academic_year: workspace.academic_year || '',
     jp_duration_minutes: workspace.jp_duration_minutes || 45,
     weekly_jp_pattern: workspace.weekly_jp_pattern || '',
   });
@@ -52,6 +57,10 @@ export const WorkspaceSettingsModal = ({ isOpen, onClose, workspace }: Workspace
   useEffect(() => {
     if (isOpen) {
       setFormData({
+        subject: workspace.subject || '',
+        grade: workspace.grade || '',
+        phase: workspace.phase || '',
+        academic_year: workspace.academic_year || '',
         jp_duration_minutes: workspace.jp_duration_minutes || 45,
         weekly_jp_pattern: workspace.weekly_jp_pattern || '',
       });
@@ -111,6 +120,7 @@ export const WorkspaceSettingsModal = ({ isOpen, onClose, workspace }: Workspace
       });
       if (success) {
         toast.success('Pengaturan Workspace berhasil disimpan.');
+        onSuccess?.();
         return true;
       } else {
         toast.error('Gagal menyimpan pengaturan Workspace.');
@@ -176,6 +186,68 @@ export const WorkspaceSettingsModal = ({ isOpen, onClose, workspace }: Workspace
             )}
           </DialogHeader>
           <div className="grid gap-6 py-4">
+            {/* Identitas Workspace */}
+            <div className="space-y-4 p-4 rounded-xl border border-muted bg-muted/20">
+              <h4 className="font-bold text-sm text-foreground flex items-center gap-2">
+                Identitas Workspace
+              </h4>
+              <div className="field-group">
+                <label htmlFor="subject" className="text-xs font-bold text-muted-foreground uppercase">Mata Pelajaran</label>
+                <input
+                  type="text"
+                  id="subject"
+                  name="subject"
+                  value={formData.subject}
+                  onChange={handleChange}
+                  placeholder="Contoh: IPAS, Bahasa Indonesia"
+                  required
+                  className="input-field"
+                />
+              </div>
+
+              <div className="grid grid-cols-3 gap-3">
+                <div className="field-group">
+                  <label htmlFor="grade" className="text-xs font-bold text-muted-foreground uppercase">Kelas</label>
+                  <input
+                    type="text"
+                    id="grade"
+                    name="grade"
+                    value={formData.grade}
+                    onChange={handleChange}
+                    placeholder="Contoh: 5"
+                    required
+                    className="input-field"
+                  />
+                </div>
+                <div className="field-group">
+                  <label htmlFor="phase" className="text-xs font-bold text-muted-foreground uppercase">Fase</label>
+                  <input
+                    type="text"
+                    id="phase"
+                    name="phase"
+                    value={formData.phase}
+                    onChange={handleChange}
+                    placeholder="Contoh: C"
+                    required
+                    className="input-field"
+                  />
+                </div>
+                <div className="field-group">
+                  <label htmlFor="academic_year" className="text-xs font-bold text-muted-foreground uppercase">Tahun Ajaran</label>
+                  <input
+                    type="text"
+                    id="academic_year"
+                    name="academic_year"
+                    value={formData.academic_year}
+                    onChange={handleChange}
+                    placeholder="2026/2027"
+                    required
+                    className="input-field"
+                  />
+                </div>
+              </div>
+            </div>
+
             <div className="field-group">
               <label htmlFor="jp_duration_minutes">Durasi 1 JP (Menit)</label>
               <input
