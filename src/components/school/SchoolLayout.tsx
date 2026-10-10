@@ -268,19 +268,19 @@ export const SchoolLayout: React.FC<SchoolLayoutProps> = ({
         {/* Page Container */}
         <main className="p-4 sm:p-6 lg:p-8 max-w-6xl mx-auto space-y-6">
           {(pageTitle || headerActions) && (
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <div>
-                <h1 className="text-2xl sm:text-3xl font-black text-foreground tracking-tight">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 pb-3 sm:pb-4 border-b-2 border-foreground/10">
+              <div className="min-w-0">
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-foreground tracking-tight">
                   {pageTitle || school?.name}
                 </h1>
                 {pageDescription && (
-                  <p className="text-xs sm:text-sm text-muted-foreground font-medium mt-1">
+                  <p className="text-xs sm:text-sm text-muted-foreground font-medium mt-1 leading-relaxed">
                     {pageDescription}
                   </p>
                 )}
               </div>
               {headerActions && (
-                <div className="flex items-center gap-2 shrink-0">
+                <div className="flex items-center gap-2 shrink-0 self-start sm:self-auto pt-1 sm:pt-0">
                   {headerActions}
                 </div>
               )}
