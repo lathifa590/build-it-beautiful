@@ -207,20 +207,52 @@ export const storeApi = {
     return data as StoreCoupon[];
   },
 
-  async validateCoupon(storeId: string, code: string): Promise<StoreCoupon | null> {
+  async validateCoupon(
+    storeId: string, 
+    code: string, 
+    listingId?: string, 
+    purchaseAmount?: number
+  ): Promise<{ valid: boolean; coupon?: StoreCoupon; message?: string }> {
+    const cleanCode = code.trim().toUpperCase();
     const { data, error } = await supabase
       .from('modul_store_coupons')
       .select('*')
       .eq('store_id', storeId)
-      .eq('code', code.toUpperCase())
+      .eq('code', cleanCode)
       .eq('status', 'ACTIVE')
       .maybeSingle();
 
-    if (error) {
-      console.error('Error validating coupon:', error);
-      return null;
+    if (error || !data) {
+      return { valid: false, message: 'Kode kupon tidak ditemukan atau tidak aktif' };
     }
-    return data as StoreCoupon;
+
+    const coupon = data as StoreCoupon;
+
+    // Check usage limit
+    if (coupon.usage_limit > 0 && (coupon.used_count || 0) >= coupon.usage_limit) {
+      return { valid: false, message: 'Kupon ini sudah mencapai batas pemakaian maksimal' };
+    }
+
+    // Check minimum purchase
+    if (purchaseAmount !== undefined && coupon.min_purchase > 0 && purchaseAmount < coupon.min_purchase) {
+      return { 
+        valid: false, 
+        message: `Minimum pembelian untuk kupon ini adalah Rp${coupon.min_purchase.toLocaleString('id-ID')}` 
+      };
+    }
+
+    // Check product scope (if coupon is specific to certain listings)
+    if (coupon.scope_type === 'SPECIFIC' && listingId) {
+      const allowedIds = Array.isArray(coupon.applicable_listing_ids) ? coupon.applicable_listing_ids : [];
+      if (!allowedIds.includes(listingId)) {
+        return { 
+          valid: false, 
+          message: 'Kupon ini tidak berlaku untuk modul ajar yang dipilih' 
+        };
+      }
+    }
+
+    return { valid: true, coupon };
   },
   
   async upsertCoupon(coupon: Partial<StoreCoupon>): Promise<StoreCoupon | null> {
@@ -235,6 +267,38 @@ export const storeApi = {
       throw error;
     }
     return data as StoreCoupon;
+  },
+
+  async deleteCoupon(couponId: string): Promise<boolean> {
+    const { error } = await supabase
+      .from('modul_store_coupons')
+      .delete()
+      .eq('coupon_id', couponId);
+
+    if (error) {
+      console.error('Error deleting coupon:', error);
+      throw error;
+    }
+    return true;
+  },
+
+  async incrementCouponUsage(couponId: string): Promise<void> {
+    try {
+      const { data } = await supabase
+        .from('modul_store_coupons')
+        .select('used_count')
+        .eq('coupon_id', couponId)
+        .single();
+      
+      if (data) {
+        await supabase
+          .from('modul_store_coupons')
+          .update({ used_count: (data.used_count || 0) + 1 })
+          .eq('coupon_id', couponId);
+      }
+    } catch (err) {
+      console.error('Error incrementing coupon usage:', err);
+    }
   },
 
   // --- Storage & Files ---

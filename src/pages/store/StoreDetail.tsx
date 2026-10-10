@@ -3,9 +3,10 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { storeApi } from '@/lib/store-api';
 import { useAuth } from '@/contexts/AuthContext';
-import { ArrowLeft, Store, FileText, CheckCircle, Download } from 'lucide-react';
+import { ArrowLeft, Store, FileText, CheckCircle, Download, Ticket, X, Check, Tag } from 'lucide-react';
 import { toast } from 'sonner';
 import { SEOHead } from '@/components/seo/SEOHead';
+import { StoreCoupon } from '@/types/store';
 
 const StoreDetail = () => {
   const { listingId } = useParams();
@@ -16,6 +17,9 @@ const StoreDetail = () => {
   const [buyerEmail, setBuyerEmail] = useState(user?.email || '');
   const [buyerWhatsapp, setBuyerWhatsapp] = useState('');
   const [showBuyModal, setShowBuyModal] = useState(false);
+  const [couponCodeInput, setCouponCodeInput] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState<StoreCoupon | null>(null);
+  const [isValidatingCoupon, setIsValidatingCoupon] = useState(false);
 
   const { data: listing, isLoading } = useQuery({
     queryKey: ['storeListing', listingId],
@@ -23,15 +27,66 @@ const StoreDetail = () => {
     enabled: !!listingId,
   });
 
+  const basePrice = listing?.price_amount || 0;
+  let discountAmount = 0;
+  if (appliedCoupon && basePrice > 0) {
+    if (appliedCoupon.discount_type === 'PERCENTAGE') {
+      discountAmount = Math.round((basePrice * appliedCoupon.discount_value) / 100);
+      if (appliedCoupon.max_discount && appliedCoupon.max_discount > 0) {
+        discountAmount = Math.min(discountAmount, appliedCoupon.max_discount);
+      }
+    } else {
+      discountAmount = appliedCoupon.discount_value;
+    }
+    discountAmount = Math.min(discountAmount, basePrice);
+  }
+  const priceAfterDiscount = Math.max(0, basePrice - discountAmount);
+
+  const handleApplyCoupon = async () => {
+    if (!listing) return;
+    const cleanCode = couponCodeInput.trim().toUpperCase();
+    if (!cleanCode) {
+      toast.error('Masukkan kode promo terlebih dahulu');
+      return;
+    }
+
+    setIsValidatingCoupon(true);
+    try {
+      const res = await storeApi.validateCoupon(
+        listing.store_id, 
+        cleanCode, 
+        listing.listing_id, 
+        basePrice
+      );
+
+      if (res.valid && res.coupon) {
+        setAppliedCoupon(res.coupon);
+        toast.success(`Kupon "${res.coupon.code}" berhasil diterapkan!`);
+      } else {
+        toast.error(res.message || 'Kupon tidak dapat digunakan');
+      }
+    } catch (err: any) {
+      toast.error(err?.message || 'Gagal memvalidasi kupon');
+    } finally {
+      setIsValidatingCoupon(false);
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponCodeInput('');
+    toast.info('Kupon dibatalkan');
+  };
+
   const buyMutation = useMutation({
     mutationFn: async () => {
       if (!listing) throw new Error("Data modul tidak ditemukan");
       if (!buyerName || !buyerEmail) throw new Error("Nama dan Email wajib diisi");
 
-      const isFree = listing.price_amount === 0;
+      const isFree = basePrice === 0 || priceAfterDiscount === 0;
       // Tambahkan kode unik 3 digit acak (100-999) untuk order berbayar agar mudah diverifikasi di mutasi bank
       const uniqueCode = isFree ? 0 : Math.floor(100 + Math.random() * 900);
-      const finalAmount = isFree ? 0 : listing.price_amount + uniqueCode;
+      const finalAmount = isFree ? 0 : priceAfterDiscount + uniqueCode;
       
       const orderData = {
         invoice_number: `INV-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
@@ -41,15 +96,23 @@ const StoreDetail = () => {
         buyer_name: buyerName,
         buyer_whatsapp: buyerWhatsapp.trim() || undefined,
         total_amount: finalAmount,
+        coupon_code_used: appliedCoupon?.code,
         status: isFree ? 'SELESAI' : 'PENDING_PAYMENT',
       };
 
-      return storeApi.createOrder(orderData as any);
+      const newOrder = await storeApi.createOrder(orderData as any);
+
+      // Catat penggunaan kupon jika ada kupon yang berhasil dipakai
+      if (appliedCoupon?.coupon_id) {
+        await storeApi.incrementCouponUsage(appliedCoupon.coupon_id);
+      }
+
+      return newOrder;
     },
     onSuccess: (order) => {
       setShowBuyModal(false);
-      if (listing?.price_amount === 0) {
-        toast.success("Berhasil mendapatkan modul ajar gratis!");
+      if (basePrice === 0 || priceAfterDiscount === 0) {
+        toast.success("Berhasil klaim modul ajar!");
       }
       navigate(`/checkout/${order?.order_id}`);
     },
@@ -176,21 +239,92 @@ const StoreDetail = () => {
                </div>
 
                 {listing.price_amount > 0 && (
-                  <div className="pt-1">
-                    <label className="text-xs font-bold text-gray-600 block mb-1.5 uppercase tracking-wider">Metode Pembayaran</label>
-                    <div className="p-3 bg-[#f8faff] border-2 border-blue-600 rounded-xl flex items-center justify-between">
-                      <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-sm">
-                          🏦
+                  <>
+                    {/* Kupon Promo / Diskon */}
+                    <div className="pt-2 border-t border-gray-100">
+                      <label className="text-xs font-bold text-gray-700 block mb-1.5 flex items-center gap-1.5 uppercase tracking-wider">
+                        <Ticket className="w-3.5 h-3.5 text-amber-600" />
+                        Punya Kode Promo / Kupon?
+                      </label>
+
+                      {appliedCoupon ? (
+                        <div className="p-3 bg-emerald-50 border-2 border-emerald-600 rounded-xl flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <div className="w-7 h-7 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-xs">
+                              ✓
+                            </div>
+                            <div>
+                              <p className="font-black text-xs text-emerald-900 tracking-wide uppercase">
+                                {appliedCoupon.code}
+                              </p>
+                              <p className="text-[11px] font-bold text-emerald-700">
+                                Hemat Rp{discountAmount.toLocaleString('id-ID')}
+                              </p>
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={handleRemoveCoupon}
+                            className="text-xs text-red-600 hover:text-red-800 font-bold px-2 py-1 bg-white border border-red-200 rounded hover:bg-red-50 transition-colors"
+                          >
+                            Hapus
+                          </button>
                         </div>
-                        <div>
-                          <p className="font-bold text-sm text-[#111]">{listing.store_profile?.bank_name || 'Bank BRI'}</p>
-                          <p className="text-[11px] text-gray-500">Transfer Manual (Konfirmasi WhatsApp)</p>
+                      ) : (
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            placeholder="Ketik kode kupon..."
+                            value={couponCodeInput}
+                            onChange={e => setCouponCodeInput(e.target.value.toUpperCase())}
+                            className="text-xs uppercase font-mono font-bold tracking-wider py-2 flex-1"
+                          />
+                          <button
+                            type="button"
+                            onClick={handleApplyCoupon}
+                            disabled={isValidatingCoupon || !couponCodeInput.trim()}
+                            className="px-4 py-2 bg-[#111] hover:bg-gray-800 text-white text-xs font-bold rounded-lg transition-colors shrink-0 disabled:opacity-50"
+                          >
+                            {isValidatingCoupon ? 'Cek...' : 'Terapkan'}
+                          </button>
                         </div>
-                      </div>
-                      <span className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold">✓</span>
+                      )}
+
+                      {/* Rincian Harga jika kupon diterapkan */}
+                      {appliedCoupon && (
+                        <div className="mt-2.5 p-2.5 bg-gray-50 border border-gray-200 rounded-lg space-y-1 text-xs">
+                          <div className="flex justify-between text-gray-500 font-medium">
+                            <span>Harga Modul:</span>
+                            <span className="line-through">Rp{basePrice.toLocaleString('id-ID')}</span>
+                          </div>
+                          <div className="flex justify-between text-emerald-700 font-bold">
+                            <span>Diskon Kupon:</span>
+                            <span>-Rp{discountAmount.toLocaleString('id-ID')}</span>
+                          </div>
+                          <div className="flex justify-between text-[#111] font-black pt-1 border-t border-gray-200">
+                            <span>Harga Setelah Diskon:</span>
+                            <span className="text-[#c04a1a]">Rp{priceAfterDiscount.toLocaleString('id-ID')}</span>
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  </div>
+
+                    <div className="pt-1">
+                      <label className="text-xs font-bold text-gray-600 block mb-1.5 uppercase tracking-wider">Metode Pembayaran</label>
+                      <div className="p-3 bg-[#f8faff] border-2 border-blue-600 rounded-xl flex items-center justify-between">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-sm">
+                            🏦
+                          </div>
+                          <div>
+                            <p className="font-bold text-sm text-[#111]">{listing.store_profile?.bank_name || 'Bank BRI'}</p>
+                            <p className="text-[11px] text-gray-500">Transfer Manual (Konfirmasi WhatsApp)</p>
+                          </div>
+                        </div>
+                        <span className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold">✓</span>
+                      </div>
+                    </div>
+                  </>
                 )}
 
                 <div className="pt-4 border-t border-gray-200 mt-4 flex gap-3">

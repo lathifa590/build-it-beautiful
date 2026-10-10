@@ -76,6 +76,8 @@ export interface StoreCoupon {
   used_count: number;
   status: 'ACTIVE' | 'INACTIVE';
   created_at: string;
+  scope_type?: 'GLOBAL' | 'SPECIFIC';
+  applicable_listing_ids?: string[];
 }
 
 export interface StoreMetrics {
