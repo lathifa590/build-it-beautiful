@@ -44,7 +44,8 @@ export const WorkspaceExplorerShell: React.FC<WorkspaceExplorerShellProps> = ({
   const { prosemPlans, prosemItems, isLoading, error, refresh } = useProsemData(workspace.id);
   const { refreshWorkspaces } = useWorkspace();
   const { user, isAdmin } = useAuth();
-  const canAccessAutoGenerate = false; // Dinonaktifkan untuk menghemat resource dan kuota server
+  // Antrean otomatis latar belakang (server) dinonaktifkan untuk menghemat resource dan kuota server
+  const canAccessServerQueue = false;
 
   useEffect(() => {
     if (!workspace?.id) return;
@@ -109,7 +110,7 @@ export const WorkspaceExplorerShell: React.FC<WorkspaceExplorerShellProps> = ({
   // Auto-resume stuck queue
   useEffect(() => {
     // Jika ada antrean tapi tidak ada yang diproses, asumsikan webhook terhenti dan trigger manual
-    if (queueStats.pending > 0 && queueStats.processing === 0 && canAccessAutoGenerate) {
+    if (queueStats.pending > 0 && queueStats.processing === 0 && canAccessServerQueue) {
       console.log("Memicu ulang process-generation-queue karena antrean terhenti...");
       supabase.functions.invoke('process-generation-queue', { body: { workspace_id: workspace.id } }).catch(console.error);
       
@@ -119,7 +120,7 @@ export const WorkspaceExplorerShell: React.FC<WorkspaceExplorerShellProps> = ({
       }, 5000);
       return () => clearInterval(timer);
     }
-  }, [queueStats.pending, queueStats.processing, canAccessAutoGenerate, workspace?.id]);
+  }, [queueStats.pending, queueStats.processing, canAccessServerQueue, workspace?.id]);
 
   const totalTopics = Object.values(prosemItems).reduce((s, items) => s + items.length, 0);
   const totalJp = Object.values(prosemItems).reduce(
@@ -234,7 +235,7 @@ export const WorkspaceExplorerShell: React.FC<WorkspaceExplorerShellProps> = ({
       </div>
 
       {/* Auto-Generate Banner */}
-      {canAccessAutoGenerate && totalMeetings - completedMeetings > 0 && (
+      {canAccessServerQueue && totalMeetings - completedMeetings > 0 && (
         <div className="p-4 bg-amber-50 border-2 border-amber-200 rounded-xl flex flex-col gap-3 shadow-sm">
           <div className="flex gap-3 items-start">
             <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
@@ -358,7 +359,11 @@ export const WorkspaceExplorerShell: React.FC<WorkspaceExplorerShellProps> = ({
           items={prosemItems[plan.id] || []}
           onMeetingClick={onMeetingClick}
           onAddItem={(step?: number) => onStartPlanning?.(step)}
-          onGenerateClick={canAccessAutoGenerate ? async (slot, onProgress) => {
+          onGenerateClick={async (slot, onProgress) => {
+            if (isLocked) {
+              onShowUpsell?.();
+              return;
+            }
             const item = (prosemItems[plan.id] || []).find(i => i.id === slot.prosem_item_id);
             if (item) {
               const success = await generateWorkspaceMeetingDirect(workspace, item, slot, onProgress);
@@ -366,7 +371,7 @@ export const WorkspaceExplorerShell: React.FC<WorkspaceExplorerShellProps> = ({
                 refresh();
               }
             }
-          } : undefined}
+          }}
         />
       ))}
 
