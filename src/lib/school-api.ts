@@ -16,6 +16,8 @@ import type {
   SchoolMeetingFullDetail,
 } from "@/types/school";
 
+let isSupervisionRpcSupported: boolean | null = null;
+
 export const schoolApi = {
   /**
    * Mengambil data profil sekolah pengguna yang sedang login
@@ -663,33 +665,48 @@ export const schoolApi = {
    * Mengambil rekapitulasi supervisi dinas & kepatuhan kurikulum sekolah (Fase S3)
    */
   async getSchoolSupervisionReport(schoolId: string): Promise<SchoolSupervisionReportItem[]> {
-    const { data, error } = await supabase.rpc('get_school_supervision_report', {
-      _school_id: schoolId,
-    });
-
-    if (error) {
-      console.error('Error fetching school supervision report via RPC, falling back to progress query:', error);
-      const progress = await this.getSchoolProgress(schoolId);
-      return progress.map((p) => ({
-        user_id: p.user_id,
-        display_name: p.display_name || 'Guru',
-        email: p.email || '',
-        school_role: p.school_role || 'guru',
-        total_workspaces: Number(p.workspace_count || 0),
-        total_jp_planned: Number(p.total_planned_jp || 0),
-        total_jp_completed: Number(p.completed_jp || 0),
-        total_modules_ready: Number(p.modul_ready_count || 0),
-        total_shared_to_bank: 0,
-        total_approved_modules: Number(p.modul_ready_count || 0),
-        compliance_percent: Number(p.progress_percent !== undefined
-          ? p.progress_percent
-          : (Number(p.total_planned_jp || 0) > 0
-              ? Math.min(100, Math.round((Number(p.completed_jp || 0) / Number(p.total_planned_jp || 0)) * 100))
-              : 0)),
-      }));
+    if (isSupervisionRpcSupported === false) {
+      return this._fallbackSupervisionReport(schoolId);
     }
 
-    return (data as unknown as SchoolSupervisionReportItem[]) || [];
+    try {
+      const { data, error } = await supabase.rpc('get_school_supervision_report', {
+        _school_id: schoolId,
+      });
+
+      if (error) {
+        // Jika RPC 404 atau tidak ada, tandai agar tidak spam request 404 di console
+        isSupervisionRpcSupported = false;
+        return this._fallbackSupervisionReport(schoolId);
+      }
+
+      isSupervisionRpcSupported = true;
+      return (data as unknown as SchoolSupervisionReportItem[]) || [];
+    } catch {
+      isSupervisionRpcSupported = false;
+      return this._fallbackSupervisionReport(schoolId);
+    }
+  },
+
+  async _fallbackSupervisionReport(schoolId: string): Promise<SchoolSupervisionReportItem[]> {
+    const progress = await this.getSchoolProgress(schoolId);
+    return progress.map((p) => ({
+      user_id: p.user_id,
+      display_name: p.display_name || 'Guru',
+      email: p.email || '',
+      school_role: p.school_role || 'guru',
+      total_workspaces: Number(p.workspace_count || 0),
+      total_jp_planned: Number(p.total_planned_jp || 0),
+      total_jp_completed: Number(p.completed_jp || 0),
+      total_modules_ready: Number(p.modul_ready_count || 0),
+      total_shared_to_bank: 0,
+      total_approved_modules: Number(p.modul_ready_count || 0),
+      compliance_percent: Number(p.progress_percent !== undefined
+        ? p.progress_percent
+        : (Number(p.total_planned_jp || 0) > 0
+            ? Math.min(100, Math.round((Number(p.completed_jp || 0) / Number(p.total_planned_jp || 0)) * 100))
+            : 0)),
+    }));
   },
 
   /**

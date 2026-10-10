@@ -259,6 +259,23 @@ function SekolahKalenderContent() {
                   kalender={kalenderData}
                   onChange={(updated) => setKalenderData(updated)}
                 />
+
+                {/* Bottom Save Action */}
+                <div className="pt-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 border-t-2 border-foreground/10">
+                  {lastSavedTime && (
+                    <span className="text-xs text-muted-foreground font-mono font-bold text-center sm:text-left">
+                      Terakhir disimpan: {lastSavedTime}
+                    </span>
+                  )}
+                  <Button
+                    onClick={handleSave}
+                    disabled={isSaving || isLoading}
+                    className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground font-black text-xs sm:text-sm border-2 border-foreground rounded-xl shadow-brutal-sm hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px] transition-all py-5"
+                  >
+                    {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                    Simpan Kalender Pendidikan
+                  </Button>
+                </div>
               </div>
             )}
           </CardContent>
