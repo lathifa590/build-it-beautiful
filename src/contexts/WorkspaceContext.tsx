@@ -41,6 +41,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       const { data, error } = await supabase
         .from('workspaces')
         .select('*')
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -150,6 +151,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         .from('workspaces')
         .select('*')
         .eq('id', workspaceId)
+        .eq('user_id', user.id)
         .single();
         
       if (wsError || !originalWs) throw wsError || new Error('Workspace not found');
