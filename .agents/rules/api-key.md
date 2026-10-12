@@ -4,10 +4,12 @@ Sistem aplikasi ini memiliki dependensi krusial pada model Gemini yang tersedia 
 
 **DILARANG KERAS MENGUBAH `GEMINI_MODEL_CHAIN` PADA EDGE FUNCTION `generate-content`.**
 
-Akun Google AI Studio yang digunakan oleh aplikasi ini beroperasi pada tier eksperimental dan HANYA memiliki akses ke model-model berikut:
-- `gemini-2.5-flash`
+Akun Google AI Studio yang digunakan oleh aplikasi ini beroperasi pada tier eksperimental dan memiliki akses ke model-model berikut:
+- `gemini-3.6-flash` (Utama / Rekomendasi Google)
+- `gemini-3.5-flash` (Deprecated oleh Google, auto-redirect ke 3.6)
 - `gemini-3.0-flash`
-- `gemini-3.5-flash`
+- `gemini-3.5-flash-lite`
+- `gemini-2.5-flash`
 - `gemini-2.5-flash-lite`
 
 Model standar GA seperti `gemini-1.5-flash` atau `gemini-1.5-pro` **TIDAK TERSEDIA** di akun ini dan akan mengembalikan error `404 Not Found`.

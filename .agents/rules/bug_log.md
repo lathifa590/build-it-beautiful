@@ -37,7 +37,7 @@ FIX: Instruksi wajib menyebutkan: "SETIAP topik WAJIB dapat MINIMAL 1 TP, JANGAN
 
 **A. Anggapan Keliru tentang Model 'Halusinasi' (SANGAT PENTING)**
 AI Assistant (Agent) sebelumnya MENGIRA model gemini-3.5-flash dkk adalah halusinasi karena model resmi GA Google baru 1.5/2.0. Ini SALAH BESAR untuk proyek ini.
-FIX: **BACA pi-key.md**. Akun AI Studio proyek ini berada pada *experimental tier* dan HANYA bisa mengakses gemini-3.5-flash, gemini-3.0-flash, gemini-2.5-flash, dll. **JANGAN PERNAH** mengubah model chain ini menjadi gemini-1.5-flash, karena justru akan menyebabkan 404 Not Found.
+FIX: **BACA api-key.md**. Akun AI Studio proyek ini berada pada *experimental tier* dan HANYA bisa mengakses gemini-3.6-flash, gemini-3.5-flash, gemini-3.0-flash, gemini-2.5-flash, dll. **JANGAN PERNAH** mengubah model chain ini menjadi gemini-1.5-flash, karena justru akan menyebabkan 404 Not Found.
 
 **B. JSON Parse Error me-lempar Status 500**
 Penyebab sebenarnya dari Error 500 tersebut adalah saat AI memberikan output JSON yang cacat (misal kurang tanda kutip/kurung). JSON.parse akan gagal dan men-trigger exception Deno, sehingga fungsi berhenti dan mereturn error 500.

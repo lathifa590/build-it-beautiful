@@ -13,6 +13,7 @@ import { useSchool } from '@/contexts/SchoolContext';
 import { AlertCircle, School } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
 interface CreateWorkspaceModalProps {
   isOpen: boolean;
@@ -95,6 +96,7 @@ export const CreateWorkspaceModal = ({ isOpen, onClose }: CreateWorkspaceModalPr
         localStorage.setItem(`workspace_profile_${newWs.id}`, profile_id);
       }
 
+      toast.success('Workspace berhasil dibuat!');
       onClose();
       // Reset form
       setFormData({
@@ -107,8 +109,9 @@ export const CreateWorkspaceModal = ({ isOpen, onClose }: CreateWorkspaceModalPr
         default_jp_per_meeting: 2,
         weekly_jp_pattern: '',
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
+      toast.error(error?.message || 'Gagal membuat workspace. Silakan coba lagi.');
     } finally {
       setIsSubmitting(false);
     }
