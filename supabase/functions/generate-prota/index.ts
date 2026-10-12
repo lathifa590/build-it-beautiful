@@ -228,9 +228,15 @@ serve(async (req: any) => {
 
     let tpInstruction = "";
     if (tujuan_pembelajaran && Array.isArray(tujuan_pembelajaran) && tujuan_pembelajaran.length > 0) {
-      const tpStrings = tujuan_pembelajaran.map((tp) =>
+      let tpStrings = tujuan_pembelajaran.map((tp) =>
         typeof tp === "object" && tp?.description ? tp.description : String(tp)
       );
+
+      // Batasi jumlah TP agar tidak melebihi alokasi memori & waktu komputasi Supabase Edge Function (mencegah HTTP 546)
+      if (tpStrings.length > 20) {
+        console.warn(`[generate-prota] Jumlah TP (${tpStrings.length}) melebihi batas aman (20 TP). Membatasi ke 20 TP utama.`);
+        tpStrings = tpStrings.slice(0, 20);
+      }
 
       tpInstruction = `1. WAJIB GUNAKAN DAFTAR Tujuan Pembelajaran (TP) berikut SECARA UTUH tanpa mengubah redaksinya atau membuat TP baru:\n${tpStrings
         .map((tp, i) => `   - TP ${i + 1}: ${tp}`)

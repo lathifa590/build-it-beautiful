@@ -2631,28 +2631,49 @@ ${imageTargetsLines}
           const totalJp = (m1 + m2) * jp;
           
           if (totalJp > 0) {
-            const topicCount = ruangLingkup
-              ? ruangLingkup.split(/[,\n]/).map((s: string) => s.trim()).filter((s: string) => s.length > 0).length
-              : 0;
+            // Filter ruangLingkup agar tidak menghitung butir/sub-indikator/tanda strip sebagai bab baru
+            const cleanedTopics = ruangLingkup
+              ? ruangLingkup
+                  .split('\n')
+                  .map((s: string) => s.trim())
+                  .filter((s: string) => {
+                    if (!s) return false;
+                    if (/^[-*•]/.test(s)) return false; // Abaikan bullet point
+                    if (/^[a-zA-Z]\./.test(s)) return false; // Abaikan sub a., b., dst
+                    if (/^(hak|kewajiban|contoh|sila|macam|manfaat)\s*:/i.test(s)) return false;
+                    return true;
+                  })
+              : [];
             
-            const fromJp = Math.floor(totalJp / 8);
-            const fromTopics = topicCount > 0 ? topicCount : fromJp;
+            // Perkiraan jumlah bab/topik utama
+            const topicCount = cleanedTopics.length;
             
-            const minTp = Math.max(fromTopics, Math.max(5, fromJp));
-            const maxTp = Math.max(minTp + 5, topicCount > 0 ? topicCount * 2 : fromJp + 10);
+            // Hitung estimasi kapasitas TP yang realistis:
+            // Rata-rata 1 TP membutuhkan 6-10 JP (2-4 minggu pembelajaran untuk mapel 2 JP/minggu).
+            // Untuk total ~100 JP (2 JP/minggu, 50 minggu): sekitar 8 - 14 TP per tahun.
+            // Tidak boleh melebihi 18 TP per tahun agar tidak memicu compute timeout (HTTP 546) pada Prota.
+            const capacityTp = Math.max(4, Math.round(totalJp / 8));
+            const minTp = Math.max(4, Math.min(10, topicCount > 0 ? Math.min(topicCount * 2, capacityTp - 2) : capacityTp - 2));
+            const maxTp = Math.min(16, Math.max(minTp + 3, topicCount > 0 ? Math.min(topicCount * 3, capacityTp + 3) : capacityTp + 3));
             
             if (ruangLingkup) {
-              jpInstruction = `Ada ${topicCount} topik/materi yang harus diajarkan guru. Buat MINIMAL ${minTp} hingga ${maxTp} TP, dimana SETIAP topik harus mendapatkan MINIMAL 1 TP. Topik yang lebih besar/kompleks boleh mendapatkan 2-3 TP. Total durasi: ${totalJp} JP selama ${m1 + m2} minggu efektif.`;
-              jpUserInstruction = `Guru akan mengajarkan ${topicCount} topik/materi berikut:\n\nTOPIK / RUANG LINGKUP MATERI:\n${ruangLingkup}\n\nATURAN PENTING:\n- Buat MINIMAL ${minTp} Tujuan Pembelajaran (idealnya hingga ${maxTp} TP)\n- SETIAP topik di atas WAJIB mendapatkan MINIMAL 1 TP yang spesifik\n- Jangan menggabungkan banyak topik dalam 1 TP — setiap TP harus fokus pada 1 topik\n- TP harus progresif dari level kognitif rendah ke tinggi\n- Total durasi: ${totalJp} JP (${m1 + m2} minggu efektif)`;
+              jpInstruction = `Sintesiskan dan kelompokkan seluruh materi di atas menjadi ${minTp} hingga ${maxTp} Tujuan Pembelajaran (TP) yang esensial dan bermakna (rata-rata 2-4 TP per bab/topik utama). Total durasi: ${totalJp} JP selama ${m1 + m2} minggu efektif (${jp} JP/minggu). JANGAN membuat TP untuk setiap sub-butir atau rincian kecil, melainkan gabungkan indikator-indikator kecil menjadi satu TP pokok yang utuh.`;
+              jpUserInstruction = `Guru akan mengajarkan topik/materi berikut:\n\nTOPIK / RUANG LINGKUP MATERI:\n${ruangLingkup}\n\nATURAN PENTING:\n- Hasilkan HANYA ${minTp} hingga ${maxTp} Tujuan Pembelajaran (TP) secara proporsional untuk total ${totalJp} JP (${jp} JP/minggu)\n- Rangkum dan kelompokkan sub-materi ke dalam TP pokok (JANGAN membuat TP untuk setiap butir kecil/indikator)\n- Setiap bab materi pokok cukup memiliki 2 sampai 4 TP yang jelas dan terukur\n- TP harus progresif dari level kognitif rendah ke tinggi\n- JANGAN menghasilkan puluhan TP (misal > 20 TP) karena tidak realistis diajarkan dan diasesmen dalam waktu ${totalJp} JP.`;
             } else {
-              jpInstruction = `Buat sekitar ${minTp} hingga ${maxTp} TP yang progresif dan proporsional untuk diajarkan selama total ${totalJp} Jam Pelajaran (${m1 + m2} minggu efektif).`;
-              jpUserInstruction = `Buatkan sekitar ${minTp} hingga ${maxTp} Tujuan Pembelajaran yang sesuai dengan CP di atas secara komprehensif agar memadai untuk durasi ${totalJp} Jam Pelajaran selama 1 tahun ajaran. Pastikan TP progresif dari level kognitif rendah ke tinggi dan cakupannya merata.`;
+              jpInstruction = `Buat sekitar ${minTp} hingga ${maxTp} TP yang progresif dan proporsional untuk diajarkan selama total ${totalJp} Jam Pelajaran (${m1 + m2} minggu efektif, ${jp} JP/minggu).`;
+              jpUserInstruction = `Buatkan sekitar ${minTp} hingga ${maxTp} Tujuan Pembelajaran yang sesuai dengan CP di atas secara komprehensif agar proporsional untuk durasi ${totalJp} Jam Pelajaran selama 1 tahun ajaran. Pastikan TP progresif dari level kognitif rendah ke tinggi dan cakupannya merata.`;
             }
           }
         } else if (ruangLingkup) {
-          const topicCount = ruangLingkup.split(/[,\n]/).map((s: string) => s.trim()).filter((s: string) => s.length > 0).length;
-          jpInstruction = `Ada ${topicCount} topik yang harus diajarkan guru. Buat MINIMAL ${topicCount} TP, satu untuk SETIAP topik yang disebutkan. Topik besar boleh dapat 2 TP.`;
-          jpUserInstruction = `Guru akan mengajarkan ${topicCount} topik/materi berikut:\n\nTOPIK / RUANG LINGKUP MATERI:\n${ruangLingkup}\n\nATURAN PENTING:\n- Buat MINIMAL ${topicCount} Tujuan Pembelajaran (SETIAP topik WAJIB punya minimal 1 TP)\n- Jangan menggabungkan banyak topik ke dalam 1 TP\n- TP harus progresif dari level kognitif rendah ke tinggi`;
+          const cleanedTopics = ruangLingkup
+            .split('\n')
+            .map((s: string) => s.trim())
+            .filter((s: string) => s && !/^[-*•]/.test(s));
+          const topicCount = Math.max(3, Math.min(6, cleanedTopics.length));
+          const minTp = Math.max(4, topicCount);
+          const maxTp = Math.min(14, minTp * 2);
+          jpInstruction = `Kelompokkan materi di atas menjadi ${minTp} hingga ${maxTp} Tujuan Pembelajaran (TP) yang esensial.`;
+          jpUserInstruction = `Guru akan mengajarkan topik/materi berikut:\n\nTOPIK / RUANG LINGKUP MATERI:\n${ruangLingkup}\n\nATURAN PENTING:\n- Hasilkan ${minTp} hingga ${maxTp} TP yang esensial\n- Rangkum butir-butir materi ke dalam TP pokok, jangan membuat TP per sub-butir kecil\n- TP harus progresif dari level kognitif rendah ke tinggi`;
         }
 
         systemPrompt = `Kamu adalah ahli pendidikan Indonesia yang membuat Tujuan Pembelajaran (TP) berdasarkan Capaian Pembelajaran (CP) resmi Kemdikbud.
@@ -2670,7 +2691,7 @@ ATURAN PEMBUATAN TP:
 4. ${jpInstruction}
 5. Pastikan TP dapat diukur dan diamati
 6. JANGAN gunakan tanda kutip ganda (") di dalam nilai teks, gunakan kutip tunggal (') sebagai gantinya.
-7. PENTING: Anda WAJIB membuat Tujuan Pembelajaran SEJUMLAH yang diinstruksikan. Jangan hanya membuat 1 atau 2 TP jika diminta membuat belasan/puluhan TP! Pecah materinya menjadi sub-topik yang lebih spesifik jika perlu.
+7. PENTING: Anda WAJIB membuat Tujuan Pembelajaran secara proporsional sesuai jumlah yang diinstruksikan. Jangan membuat TP berlebihan untuk setiap butir rincian kecil, tetapi rangkumlah menjadi TP pokok yang utuh.
 
 FORMAT OUTPUT JSON:
 {

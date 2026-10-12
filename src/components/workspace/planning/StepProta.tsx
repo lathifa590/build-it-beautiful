@@ -135,6 +135,16 @@ export const StepProta: React.FC<StepProtaProps> = ({ workspace, onNext, isLocke
       if (!ok) return;
     }
 
+    if (tpList.length > 20) {
+      const ok = await confirm({
+        title: `Jumlah TP Sangat Banyak (${tpList.length} TP)`,
+        description: `Mata pelajaran ini memiliki alokasi ${kalenderData.jpPerMinggu} JP/minggu. Standar Kurikulum Merdeka idealnya adalah 8 - 16 TP per tahun agar beban pembelajaran realistis.\n\nJika dilanjutkan sekarang, sistem akan memproses 20 TP teratas agar komputasi server lancar. Anda juga dapat kembali ke Langkah 1 (CP & TP) untuk menyusun ulang TP secara proporsional. Lanjutkan?`,
+        confirmText: "Lanjutkan (20 TP Utama)",
+        variant: "default"
+      });
+      if (!ok) return;
+    }
+
     const result = await generate({
       cp: cpData.cp,
       mataPelajaran: cpData.mataPelajaran || "Mata Pelajaran",
