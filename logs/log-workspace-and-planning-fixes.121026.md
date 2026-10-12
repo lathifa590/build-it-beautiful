@@ -119,3 +119,27 @@ Jika guru saat ini sudah terlanjur memiliki 79 TP di draf workspace:
 3. AI akan merangkum materi 4 Bab menjadi **8 s.d. 12 TP yang padat, proporsional, dan rapi**.
 4. Klik **"Simpan & Lanjut"** ke Langkah 2 (Prota).
 5. Klik **"Generate Prota"** $\rightarrow$ Program Tahunan akan terbentuk secara instan tanpa hambatan komputasi.
+
+---
+
+## 5. Masalah Keamanan Kritis Supabase: `RLS Disabled in Public (public.content_history)`
+
+### A. Gejala & Peringatan Supabase Dashboard
+- Supabase Security Advisor menampilkan status **CRITICAL**:
+  > **RLS Disabled in Public (`public.content_history`)**:  
+  > Table `public.content_history` is public, but RLS has not been enabled. Detects cases where row level security (RLS) has not been enabled on tables in schemas exposed to PostgREST.
+
+### B. Analisis Risiko
+- Tabel `public.content_history` menyimpan data riwayat pembuatan dokumen/konten pengguna.
+- Karena terekspos via PostgREST tanpa Row Level Security (RLS), siapapun yang memiliki public anon key secara teknis dapat melakukan query atau manipulasi terhadap baris data jika tidak ada pembatas di level basis data.
+
+### C. Solusi & Implementasi
+1. Dibuat berkas migrasi `supabase/migrations/20261012184000_enable_rls_content_history.sql`:
+   - Menjalankan `ALTER TABLE public.content_history ENABLE ROW LEVEL SECURITY;`.
+   - Menambahkan kebijakan CRUD ketat berbasis kepemilikan (`auth.uid() = user_id`) untuk SELECT, INSERT, UPDATE, dan DELETE.
+2. Dijalankan langsung ke database produksi via Supabase CLI (`npx supabase db query --linked`).
+3. Terverifikasi:
+   - `rowsecurity` pada `public.content_history` kini bernilai `true`.
+   - Seluruh 4 kebijakan (SELECT, INSERT, UPDATE, DELETE) aktif.
+   - Seluruh tabel dalam skema `public` kini 100% terlindungi oleh RLS (`0` tabel tanpa RLS).
+
