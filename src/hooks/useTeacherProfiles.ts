@@ -52,7 +52,7 @@ export const useSaveTeacherProfile = () => {
         .select('id')
         .eq('user_id', user.id)
         .eq('name', name)
-        .single();
+        .maybeSingle();
 
       // Convert FormData to JSON-safe format
       const jsonData = JSON.parse(JSON.stringify(data));

@@ -9,6 +9,7 @@ import { Workspace } from "@/types/workspace";
 import type { ProtaData, KalenderPendidikan } from "@/types/modul";
 import { exportProtaToWord } from "@/lib/export-word";
 import { exportProtaProsemToExcel } from "@/lib/export-excel";
+import { useConfirm } from "@/contexts/ConfirmContext";
 interface StepProtaProps {
   workspace: Workspace;
   onNext: () => void;
@@ -31,6 +32,7 @@ export const StepProta: React.FC<StepProtaProps> = ({ workspace, onNext, isLocke
   const [cpData, setCpData] = useState<any>(null);
   const [tpList, setTpList] = useState<string[]>([]);
   const [profile, setProfile] = useState<{namaPenyusun?: string; nipPenyusun?: string; kepalaSekolah?: string; nipKepalaSekolah?: string; sekolah?: string} | null>(null);
+  const { confirm } = useConfirm();
 
   const { generate, isLoading: isGenerating, error: genError } = useProtaGenerator();
 
@@ -123,6 +125,16 @@ export const StepProta: React.FC<StepProtaProps> = ({ workspace, onNext, isLocke
       return;
     }
 
+    if (protaData) {
+      const ok = await confirm({
+        title: "Generate Ulang Prota?",
+        description: "Generate ulang akan menyusun kembali Program Tahunan dengan AI. Data Prota saat ini akan diganti. Lanjutkan?",
+        confirmText: "Lanjutkan",
+        variant: "destructive"
+      });
+      if (!ok) return;
+    }
+
     const result = await generate({
       cp: cpData.cp,
       mataPelajaran: cpData.mataPelajaran || "Mata Pelajaran",
@@ -198,7 +210,11 @@ export const StepProta: React.FC<StepProtaProps> = ({ workspace, onNext, isLocke
               }}
               disabled={isGenerating || !cpData?.cp}
             >
-              {isGenerating ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Generate Ulang...</> : "Generate Ulang Prota"}
+              {isGenerating ? (
+                <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> {protaData ? "Menyusun Ulang Prota..." : "Menyusun Prota..."}</>
+              ) : (
+                protaData ? "Generate Ulang Prota" : "Generate Prota"
+              )}
             </Button>
             
             {genError && (

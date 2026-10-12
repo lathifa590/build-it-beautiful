@@ -46,7 +46,10 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
 
       if (error) throw error;
       
-      const all = data as Workspace[];
+      const all = ((data || []) as any[]).map(ws => ({
+        ...ws,
+        school_name: ws.school_name || ws.generation_settings?.school_name,
+      })) as Workspace[];
       const active = all.filter(w => !w.is_archived);
       const archived = all.filter(w => w.is_archived);
 
@@ -126,14 +129,25 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
 
   const updateWorkspace = async (workspaceId: string, updates: Partial<Workspace>): Promise<boolean> => {
     try {
+      const { school_name, ...cleanUpdates } = updates as any;
+      if (school_name) {
+        cleanUpdates.generation_settings = {
+          ...(cleanUpdates.generation_settings || activeWorkspace?.generation_settings || {}),
+          school_name,
+        };
+      }
       const { error } = await supabase
         .from('workspaces')
-        .update(updates as any)
+        .update(cleanUpdates)
         .eq('id', workspaceId);
       if (error) throw error;
       await refreshWorkspaces();
       if (activeWorkspace?.id === workspaceId) {
-        setActiveWorkspace({ ...activeWorkspace, ...updates } as Workspace);
+        setActiveWorkspace({
+          ...activeWorkspace,
+          ...updates,
+          school_name: school_name || activeWorkspace.school_name,
+        } as Workspace);
       }
       return true;
     } catch (err) {
@@ -200,21 +214,35 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     
     try {
       setIsLoading(true);
+      const { school_name, ...workspacePayload } = workspace as any;
+      const genSettings = {
+        ...(workspace.generation_settings || {}),
+        ...(school_name ? { school_name } : {}),
+      };
+
+      const payload = {
+        user_id: user.id,
+        is_archived: false,
+        ...workspacePayload,
+        generation_settings: genSettings,
+      };
+
       const { data, error } = await supabase
         .from('workspaces')
-        .insert({
-          user_id: user.id,
-          is_archived: false,
-          ...workspace
-        })
+        .insert(payload)
         .select()
         .single();
         
       if (error) throw error;
+
+      const formattedWs: Workspace = {
+        ...(data as Workspace),
+        school_name: (data as any)?.school_name || (data as any)?.generation_settings?.school_name || school_name,
+      };
       
       await refreshWorkspaces();
-      setActiveWorkspace(data as Workspace);
-      return data as Workspace;
+      setActiveWorkspace(formattedWs);
+      return formattedWs;
     } catch (err) {
       console.error('Error creating workspace:', err);
       throw err;

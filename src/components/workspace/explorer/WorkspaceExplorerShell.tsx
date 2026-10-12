@@ -33,7 +33,7 @@ export const WorkspaceExplorerShell: React.FC<WorkspaceExplorerShellProps> = ({
   onEnqueuePertemuanV2,
 }) => {
   const navigate = useNavigate();
-  const { isFeatureAllowed } = useSchool();
+  const { isFeatureAllowed, isSchoolActive, school } = useSchool();
   const [isViewerOpen, setIsViewerOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isEnqueuing, setIsEnqueuing] = useState(false);
@@ -170,9 +170,11 @@ export const WorkspaceExplorerShell: React.FC<WorkspaceExplorerShellProps> = ({
           <p className="workspace-meta">
             Kelas {workspace.grade} · Fase {workspace.phase} · {workspace.academic_year}
           </p>
-          {isFeatureAllowed && workspace.school_name && (
+          {isFeatureAllowed && (workspace.school_name || (isSchoolActive && school?.name)) && (
             <div className="flex items-center gap-2 pt-0.5">
-              <span className="text-xs text-muted-foreground font-semibold">{workspace.school_name}</span>
+              <span className="text-xs text-muted-foreground font-semibold">
+                {workspace.school_name || school?.name}
+              </span>
               <button
                 type="button"
                 onClick={() => navigate('/sekolah')}

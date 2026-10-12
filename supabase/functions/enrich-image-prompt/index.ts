@@ -1,6 +1,7 @@
 import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors';
 
 const MODEL_CHAIN = [
+  'gemini-3.6-flash',
   'gemini-3.5-flash',
   'gemini-3-flash-preview',
   'gemini-3.5-flash-lite',
