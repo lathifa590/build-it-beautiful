@@ -151,17 +151,53 @@ serve(async (req) => {
     let isUsingDemoKeys = false; // true saat menggunakan demo key pool (bukan user key pribadi)
     
     const authHeader = req.headers.get('Authorization');
-    if (authHeader) {
-      const token = authHeader.replace('Bearer ', '');
-      
-      const supabaseAdmin = createClient(
-        Deno.env.get('SUPABASE_URL')!,
-        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-      );
-      
-      let user: any = null; if (token === Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') && data.admin_override_user_id) { const { data: adminData } = await supabaseAdmin.auth.admin.getUserById(data.admin_override_user_id); user = adminData.user; } else { const { data: authData } = await supabaseAdmin.auth.getUser(token); user = authData.user; }
-      
-      if (user) {
+    if (!authHeader) {
+      console.warn('[SECURITY] generate-content invocation rejected: missing Authorization header');
+      return new Response(JSON.stringify({
+        error: 'Sesi tidak valid atau telah berakhir. Silakan login kembali.',
+        errorCode: 'unauthorized',
+      }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const token = authHeader.replace('Bearer ', '');
+    const supabaseAdmin = createClient(
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+    );
+    
+    let user: any = null;
+    if (token === Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') && data.admin_override_user_id) {
+      const { data: adminData } = await supabaseAdmin.auth.admin.getUserById(data.admin_override_user_id);
+      user = adminData?.user;
+    } else {
+      const { data: authData, error: authError } = await supabaseAdmin.auth.getUser(token);
+      if (authError || !authData?.user) {
+        console.warn('[SECURITY] generate-content invocation rejected: invalid user token');
+        return new Response(JSON.stringify({
+          error: 'Sesi tidak valid atau telah kedaluwarsa. Silakan login kembali.',
+          errorCode: 'unauthorized',
+        }), {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      user = authData.user;
+    }
+
+    if (!user) {
+      return new Response(JSON.stringify({
+        error: 'Pengguna tidak ditemukan atau tidak memiliki hak akses.',
+        errorCode: 'forbidden',
+      }), {
+        status: 403,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    if (user) {
         // Check account type from allowed_customers
         const { data: customerData } = await supabaseAdmin
           .from('allowed_customers')

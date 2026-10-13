@@ -111,16 +111,29 @@ serve(async (req: any) => {
     const demoKeyPool: Array<{ key: string; provider: "gemini" }> = [];
 
     const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return new Response(
+        JSON.stringify({ error: "Sesi tidak valid atau telah berakhir. Silakan login kembali.", errorCode: "unauthorized" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const token = authHeader.replace("Bearer ", "");
     const supabaseAdmin = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    if (authHeader) {
-      const token = authHeader.replace("Bearer ", "");
-      const { data: { user } } = await supabaseAdmin.auth.getUser(token);
+    const { data: authData, error: authError } = await supabaseAdmin.auth.getUser(token);
+    const user = authData?.user;
+    if (authError || !user) {
+      return new Response(
+        JSON.stringify({ error: "Sesi tidak valid atau telah kedaluwarsa. Silakan login kembali.", errorCode: "unauthorized" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
-      if (user) {
+    if (user) {
         userId = user.id;
 
         const { data: customerData } = await supabaseAdmin

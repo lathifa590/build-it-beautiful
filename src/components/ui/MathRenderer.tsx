@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
 import { wrapMathMarker } from '@/lib/math-omml';
+import { sanitizeHtml } from '@/lib/sanitize';
 
 
 interface MathRendererProps {
@@ -484,7 +485,7 @@ export const MathRenderer: React.FC<MathRendererProps> = ({ text, className }) =
   return (
     <span
       className={className}
-      dangerouslySetInnerHTML={{ __html: renderedContent }}
+      dangerouslySetInnerHTML={{ __html: sanitizeHtml(renderedContent) }}
     />
   );
 };
@@ -724,5 +725,5 @@ export const formatMathTextSimple = (text: unknown): React.ReactNode => {
   }
 
   const renderedContent = processContentSimple(String(text));
-  return <span dangerouslySetInnerHTML={{ __html: renderedContent }} />;
+  return <span dangerouslySetInnerHTML={{ __html: sanitizeHtml(renderedContent) }} />;
 };
