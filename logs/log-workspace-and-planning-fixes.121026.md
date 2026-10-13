@@ -143,3 +143,42 @@ Jika guru saat ini sudah terlanjur memiliki 79 TP di draf workspace:
    - Seluruh 4 kebijakan (SELECT, INSERT, UPDATE, DELETE) aktif.
    - Seluruh tabel dalam skema `public` kini 100% terlindungi oleh RLS (`0` tabel tanpa RLS).
 
+---
+
+## 6. Pembukaan Akses Workspace untuk Akun Trial (Dengan Pembatasan Proporsional)
+
+### A. Latar Belakang & Permintaan
+- Pengguna akun Trial sebelumnya terkunci dari Mode Workspace (tombol bertanda gembok, dan jika membuka URL `/app/workspace` akan langsung diarahkan kembali ke `/app` dengan popup upsell PRO).
+- Permintaan: Membuka fitur Workspace untuk akun Trial agar calon pengguna dapat mencoba alur perencanaan dan manajemen dokumen pembelajaran, namun tetap dibatasi secara proporsional.
+
+### B. Implementasi Pembatasan Proporsional
+1. **Akses Workspace Dibuka untuk Akun Trial**:
+   - Di `src/pages/Index.tsx`: Mengubah perhitungan `isWorkspaceLocked` menjadi `!(isAdmin || isPro || isTrial)`.
+   - Akun Trial kini dapat membuka Mode Workspace, masuk ke Dashboard, melihat Explorer, menjalankan Perencanaan Pembelajaran (CP, Prota, KKTP, Prosem, Pertemuan), dan membuat dokumen modul di editor pertemuan.
+   - Gembok dihilangkan dan diganti dengan badge `Trial`.
+2. **Pembatasan Kapasitas Slot Workspace**:
+   - Akun Trial dibatasi maksimal **1 Workspace** (cukup untuk mencoba 1 mata pelajaran/kelas secara lengkap).
+   - Akun Standar/Lite: 3 Workspace.
+   - Akun PRO: 10 Workspace.
+   - Admin/Super Admin: Tanpa batas (unlimited).
+   - Validasi diterapkan di:
+     - `WorkspaceSelector.tsx`
+     - `WorkspaceDashboard.tsx`
+     - `CreateWorkspaceModal.tsx`
+     - `WorkspaceExplorerRoot.tsx` (termasuk tombol Buat Workspace, Empty State, dan pemulihan dari Arsip/`ArchivedCard`)
+   - Jika pengguna Trial mencoba membuat atau memulihkan lebih dari 1 Workspace, sistem menampilkan notifikasi edukatif: *"Akun Trial dibatasi maksimal 1 Workspace. Hapus workspace lama untuk membuat baru, atau upgrade ke PRO untuk batas hingga 10 Workspace."*
+3. **Pembatasan Kuota Generate AI**:
+   - Akun Trial tetap terikat kuota harian/demo generate AI di edge function (`isTrial`).
+   - Jika kuota habis, dialog penawaran lisensi penuh (`TrialCTADialog`) akan muncul.
+4. **Pembatasan Auto-Generate Massal Server**:
+   - Fitur antrean batch latar belakang server dikhususkan untuk akun PRO. Untuk akun Trial, diarahkan menggunakan tombol "Buat Dokumen" per pertemuan secara interaktif.
+5. **Indikator Visual & Banner Edukatif**:
+   - Badge `✨ TRIAL` ditampilkan di mode switcher (`Index.tsx`), breadcrumb Explorer Shell, Workspace Dashboard, Workspace Planning View, dan Workspace Meeting Editor.
+   - Slot indicator (`0/1` atau `1/1 Slot`) di menu dropdown `WorkspaceSelector` dan modal `CreateWorkspaceModal`.
+   - Banner edukatif informatif ditampilkan di root explorer dan dashboard untuk panduan pengguna.
+
+### C. Hasil Pengujian & Verifikasi
+- `npm run build`: Berhasil tanpa error (`✓ built in 19.38s`).
+- `npm run test`: Seluruh 74 unit test berjalan lancar dan lulus 100% (`6 passed, 74 passed`).
+
+

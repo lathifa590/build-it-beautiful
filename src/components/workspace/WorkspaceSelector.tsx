@@ -27,14 +27,17 @@ export const WorkspaceSelector = () => {
   
   const isSuperAdmin = isAdmin || user?.email?.toLowerCase() === 'jagofeed@gmail.com';
   const isPro = subStatus?.isPro || isSuperAdmin;
-  const limit = isPro ? 10 : 3;
+  const isTrial = subStatus?.isTrial;
+  const limit = isSuperAdmin ? Infinity : (isPro ? 10 : (isTrial ? 1 : 3));
   
   const handleCreateWorkspace = () => {
     if (!isSuperAdmin && workspaces.length >= limit) {
       toast.error(`Batas maksimal Workspace tercapai (${limit} Workspace).`, {
         description: isPro 
           ? "Anda telah mencapai batas maksimal Workspace untuk akun PRO (10 Workspace)." 
-          : "Hapus Workspace lama untuk membuat baru, atau upgrade ke PRO untuk batas yang lebih tinggi (hingga 10 Workspace)."
+          : (isTrial
+              ? "Akun Trial dibatasi maksimal 1 Workspace. Hapus workspace lama untuk membuat baru, atau upgrade ke PRO untuk batas hingga 10 Workspace."
+              : "Hapus Workspace lama untuk membuat baru, atau upgrade ke PRO untuk batas yang lebih tinggi (hingga 10 Workspace).")
       });
       return;
     }
@@ -89,9 +92,16 @@ export const WorkspaceSelector = () => {
           )}
           
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={handleCreateWorkspace} className="cursor-pointer text-primary focus:text-primary">
-            <Plus className="w-4 h-4 mr-2" />
-            <span className="font-bold">Buat Workspace Baru</span>
+          <DropdownMenuItem onClick={handleCreateWorkspace} className="cursor-pointer text-primary focus:text-primary justify-between">
+            <div className="flex items-center">
+              <Plus className="w-4 h-4 mr-2" />
+              <span className="font-bold">Buat Workspace Baru</span>
+            </div>
+            {isTrial && (
+              <span className="text-[10px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded font-bold border border-purple-200">
+                {workspaces.length}/1 Slot
+              </span>
+            )}
           </DropdownMenuItem>
           {!isRootExplorer && (
             <DropdownMenuItem className="cursor-pointer" onClick={() => navigate('/app/workspace')}>
@@ -99,7 +109,7 @@ export const WorkspaceSelector = () => {
               <span className="font-bold">Lihat Semua Workspace</span>
             </DropdownMenuItem>
           )}
-          <DropdownMenuItem className="cursor-pointer">
+          <DropdownMenuItem className="cursor-pointer" onClick={() => navigate('/app/workspace')}>
             <Settings className="w-4 h-4 mr-2" />
             <span>Kelola Workspace</span>
           </DropdownMenuItem>

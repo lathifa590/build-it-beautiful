@@ -2,13 +2,16 @@ import React from 'react';
 import { useWorkspace } from '@/contexts/WorkspaceContext';
 import {
   Folder, LayoutGrid, List, Archive, RotateCcw, Trash2,
-  ChevronDown, ChevronRight, AlertTriangle, MoreVertical,
+  ChevronDown, ChevronRight, AlertTriangle, MoreVertical, Plus,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useProsemData } from '@/hooks/useProsemData';
 import { toast } from 'sonner';
 import { Workspace } from '@/types/workspace';
 import { useConfirm } from '@/contexts/ConfirmContext';
+import { useAuth } from '@/contexts/AuthContext';
+import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
+import { CreateWorkspaceModal } from '../CreateWorkspaceModal';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -271,12 +274,31 @@ const WorkspaceListCard = ({ ws, onClick }: { ws: Workspace; onClick: () => void
 // ─────────────────────────────────────────────────────────────
 // Archived workspace card
 // ─────────────────────────────────────────────────────────────
-const ArchivedCard = ({ ws }: { ws: Workspace }) => {
+interface ArchivedCardProps {
+  ws: Workspace;
+  limit: number;
+  isSuperAdmin: boolean;
+  isTrial?: boolean;
+  isPro?: boolean;
+  activeCount: number;
+}
+
+const ArchivedCard = ({ ws, limit, isSuperAdmin, isTrial, isPro, activeCount }: ArchivedCardProps) => {
   const { restoreWorkspace } = useWorkspace();
   const [showDeleteModal, setShowDeleteModal] = React.useState(false);
   const [isRestoring, setIsRestoring] = React.useState(false);
 
   const handleRestore = async () => {
+    if (!isSuperAdmin && activeCount >= limit) {
+      toast.error(`Batas maksimal Workspace tercapai (${limit} Workspace).`, {
+        description: isTrial 
+          ? "Akun Trial dibatasi maksimal 1 Workspace aktif. Hapus atau arsipkan workspace aktif terlebih dahulu."
+          : (isPro 
+              ? "Anda telah mencapai batas maksimal Workspace untuk akun PRO (10 Workspace aktif)." 
+              : "Hapus Workspace aktif untuk memulihkan workspace ini, atau upgrade ke PRO.")
+      });
+      return;
+    }
     setIsRestoring(true);
     const ok = await restoreWorkspace(ws.id);
     setIsRestoring(false);
@@ -324,13 +346,36 @@ const ArchivedCard = ({ ws }: { ws: Workspace }) => {
 };
 
 // ─────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────
 // Main Explorer Root
 // ─────────────────────────────────────────────────────────────
 export const WorkspaceExplorerRoot = () => {
   const { workspaces, archivedWorkspaces } = useWorkspace();
+  const { user, isAdmin } = useAuth();
+  const { data: subStatus } = useSubscriptionStatus();
   const navigate = useNavigate();
   const [viewMode, setViewMode] = React.useState<'grid' | 'list'>('grid');
   const [showArchived, setShowArchived] = React.useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);
+
+  const isSuperAdmin = isAdmin || user?.email?.toLowerCase() === 'jagofeed@gmail.com';
+  const isPro = subStatus?.isPro || isSuperAdmin;
+  const isTrial = subStatus?.isTrial;
+  const limit = isSuperAdmin ? Infinity : (isPro ? 10 : (isTrial ? 1 : 3));
+
+  const handleCreateClick = () => {
+    if (!isSuperAdmin && workspaces.length >= limit) {
+      toast.error(`Batas maksimal Workspace tercapai (${limit} Workspace).`, {
+        description: isPro 
+          ? "Anda telah mencapai batas maksimal Workspace untuk akun PRO (10 Workspace)." 
+          : (isTrial
+              ? "Akun Trial dibatasi maksimal 1 Workspace. Hapus workspace lama untuk membuat baru, atau upgrade ke PRO untuk batas hingga 10 Workspace."
+              : "Hapus Workspace lama untuk membuat baru, atau upgrade ke PRO.")
+      });
+      return;
+    }
+    setIsCreateModalOpen(true);
+  };
 
   // Group active workspaces by Subject
   const groupedWorkspaces = workspaces.reduce((acc, ws) => {
@@ -342,35 +387,80 @@ export const WorkspaceExplorerRoot = () => {
   return (
     <div className="w-full max-w-6xl mx-auto p-4 md:p-6 space-y-8 animate-fade-in pb-24">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold font-heading">WORKSPACE SAYA</h1>
           <p className="text-muted-foreground text-sm">
             Klik kartu untuk membuka workspace. Hover kartu untuk opsi arsip (⋯).
           </p>
         </div>
-        <div className="flex items-center gap-2 bg-card border-2 border-foreground rounded-md shadow-brutal-sm p-1">
+        <div className="flex items-center gap-2.5 self-start sm:self-auto">
           <button
-            onClick={() => setViewMode('grid')}
-            className={`p-1.5 rounded-sm transition-colors ${viewMode === 'grid' ? 'bg-primary/20 text-primary' : 'hover:bg-muted text-muted-foreground'}`}
+            onClick={handleCreateClick}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-primary text-primary-foreground font-bold text-xs sm:text-sm rounded-lg border-2 border-foreground shadow-brutal-sm hover:translate-y-[-1px] transition-all"
           >
-            <LayoutGrid className="w-4 h-4" />
+            <Plus className="w-4 h-4" />
+            <span>Buat Workspace</span>
+            {isTrial && (
+              <span className="text-[10px] bg-purple-100 text-purple-800 px-1.5 py-0.2 rounded font-bold border border-purple-200">
+                {workspaces.length}/1
+              </span>
+            )}
           </button>
-          <button
-            onClick={() => setViewMode('list')}
-            className={`p-1.5 rounded-sm transition-colors ${viewMode === 'list' ? 'bg-primary/20 text-primary' : 'hover:bg-muted text-muted-foreground'}`}
-          >
-            <List className="w-4 h-4" />
-          </button>
+          <div className="flex items-center gap-1 bg-card border-2 border-foreground rounded-md shadow-brutal-sm p-1">
+            <button
+              onClick={() => setViewMode('grid')}
+              className={`p-1.5 rounded-sm transition-colors ${viewMode === 'grid' ? 'bg-primary/20 text-primary' : 'hover:bg-muted text-muted-foreground'}`}
+            >
+              <LayoutGrid className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setViewMode('list')}
+              className={`p-1.5 rounded-sm transition-colors ${viewMode === 'list' ? 'bg-primary/20 text-primary' : 'hover:bg-muted text-muted-foreground'}`}
+            >
+              <List className="w-4 h-4" />
+            </button>
+          </div>
         </div>
       </div>
 
+      {/* Trial Capacity Banner */}
+      {isTrial && (
+        <div className="bg-purple-50 border-2 border-purple-200 rounded-xl p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-brutal-sm">
+          <div className="flex items-center gap-2.5">
+            <span className="px-2 py-0.5 text-xs font-black bg-purple-600 text-white rounded shrink-0">TRIAL</span>
+            <p className="text-xs sm:text-sm text-purple-900 font-medium">
+              Mode Uji Coba Workspace aktif (Kapasitas: <strong>{workspaces.length} / 1 Workspace</strong>). Silakan eksplorasi fitur perencanaan pembelajaran & penyusunan modul ajar!
+            </p>
+          </div>
+          <button
+            onClick={() => navigate('/app')}
+            className="self-start sm:self-auto text-xs font-bold px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors whitespace-nowrap"
+          >
+            Mode Cepat ⚡
+          </button>
+        </div>
+      )}
+
       {/* Active workspaces */}
       {Object.keys(groupedWorkspaces).length === 0 ? (
-        <div className="text-center py-20 bg-card border-2 border-foreground border-dashed rounded-xl">
-          <Folder className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-50" />
-          <h3 className="text-lg font-bold">Belum ada Workspace</h3>
-          <p className="text-muted-foreground text-sm mb-4">Buat workspace baru dari menu di atas.</p>
+        <div className="text-center py-16 bg-card border-2 border-foreground border-dashed rounded-xl space-y-4">
+          <Folder className="w-12 h-12 text-muted-foreground mx-auto opacity-50" />
+          <div>
+            <h3 className="text-lg font-bold">Belum ada Workspace</h3>
+            <p className="text-muted-foreground text-sm max-w-sm mx-auto mt-1">
+              {isTrial 
+                ? "Mulai uji coba Anda dengan membuat 1 Workspace pertama untuk kelas atau mata pelajaran Anda."
+                : "Buat workspace baru untuk memisahkan perencanaan kelas dan mata pelajaran."}
+            </p>
+          </div>
+          <button
+            onClick={handleCreateClick}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground font-bold text-sm rounded-lg border-2 border-foreground shadow-brutal hover:translate-y-[-2px] transition-all"
+          >
+            <Plus className="w-4 h-4" />
+            Buat Workspace Pertama
+          </button>
         </div>
       ) : (
         <div className="space-y-8">
@@ -416,12 +506,25 @@ export const WorkspaceExplorerRoot = () => {
                 Workspace diarsipkan disembunyikan dari daftar aktif. Pulihkan kapan saja, atau hapus permanen jika tidak diperlukan lagi.
               </p>
               {archivedWorkspaces.map(ws => (
-                <ArchivedCard key={ws.id} ws={ws} />
+                <ArchivedCard
+                  key={ws.id}
+                  ws={ws}
+                  limit={limit}
+                  isSuperAdmin={isSuperAdmin}
+                  isTrial={isTrial}
+                  isPro={isPro}
+                  activeCount={workspaces.length}
+                />
               ))}
             </div>
           )}
         </div>
       )}
+
+      <CreateWorkspaceModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+      />
     </div>
   );
 };
