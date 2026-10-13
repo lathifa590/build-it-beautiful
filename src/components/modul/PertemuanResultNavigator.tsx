@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { Loader2, RefreshCw, ChevronDown, Maximize2, AlignJustify, AlertTriangle } from 'lucide-react';
+import { Loader2, RefreshCw, ChevronDown, Maximize2, AlignJustify, AlertTriangle, Sparkles, FileText } from 'lucide-react';
 import type {
   GenerationResultV2,
   JenisDokumenPertemuan,
@@ -251,6 +251,9 @@ export const PertemuanResultNavigator = ({
                   {!isPending && isCompleted && (
                     <span className="w-2 h-2 rounded-full bg-emerald-500 flex-shrink-0" title="Selesai" />
                   )}
+                  {!isPending && !isCompleted && jStatus === 'error' && (
+                    <span className="w-2 h-2 rounded-full bg-destructive flex-shrink-0" title="Gagal" />
+                  )}
                 </button>
 
                 {/* Tombol dropdown regenerate — hanya saat tab aktif & sudah ada konten */}
@@ -274,10 +277,32 @@ export const PertemuanResultNavigator = ({
           {status === 'error' && onRetry && (
             <button
               type="button"
-              onClick={() => onRetry(aktif.id, currentJenis)}
-              className="text-[11px] font-bold underline"
+              onClick={() => {
+                if (currentJenis === 'soal' && onOpenSoalModal) {
+                  onOpenSoalModal(aktif.id);
+                } else {
+                  onRetry(aktif.id, currentJenis);
+                }
+              }}
+              className="text-[11px] font-bold underline text-destructive hover:opacity-80"
             >
               Coba lagi
+            </button>
+          )}
+          {status === 'idle' && !dokumen && onRetry && (
+            <button
+              type="button"
+              onClick={() => {
+                if (currentJenis === 'soal' && onOpenSoalModal) {
+                  onOpenSoalModal(aktif.id);
+                } else {
+                  onRetry(aktif.id, currentJenis);
+                }
+              }}
+              className="text-[11px] font-bold text-primary underline hover:opacity-80 flex items-center gap-1"
+            >
+              <Sparkles className="w-3 h-3" />
+              Generate sekarang
             </button>
           )}
         </div>
@@ -285,62 +310,144 @@ export const PertemuanResultNavigator = ({
 
       <div className={bodyClassName}>
         {!dipilih ? (
-          // Tab Soal: tampilkan tombol "Buat Soal" agar user bisa set konfigurasi
           currentJenis === 'soal' && onOpenSoalModal ? (
-            <div className="p-6 border-2 border-dashed rounded-lg text-center space-y-3">
+            <div className="p-8 border-2 border-dashed rounded-xl text-center space-y-3 bg-muted/20">
               <p className="text-sm text-muted-foreground">
                 Soal untuk Pertemuan {aktif.nomor} belum dikonfigurasi.
               </p>
               <button
                 type="button"
                 onClick={() => onOpenSoalModal(aktif.id)}
-                className="px-4 py-2 text-sm font-bold rounded-md border-2 border-foreground bg-primary text-primary-foreground hover:opacity-90"
+                className="px-4 py-2 text-sm font-bold rounded-md border-2 border-foreground bg-primary text-primary-foreground hover:opacity-90 shadow-brutal-sm"
               >
                 Buat Soal Pertemuan {aktif.nomor}…
               </button>
             </div>
           ) : (
-            <p className="text-sm text-muted-foreground p-4 border-2 border-dashed rounded-lg">
-              {LABEL_DOKUMEN[currentJenis]} tidak dipilih untuk Pertemuan {aktif.nomor}.
-            </p>
+            <div className="p-8 border-2 border-dashed rounded-xl text-center space-y-4 bg-muted/20">
+              <div className="w-12 h-12 rounded-full bg-muted text-muted-foreground flex items-center justify-center mx-auto">
+                <FileText className="w-6 h-6" />
+              </div>
+              <div className="space-y-1">
+                <h3 className="font-bold text-base text-foreground">
+                  {LABEL_DOKUMEN[currentJenis]} tidak dipilih untuk Pertemuan {aktif.nomor}
+                </h3>
+                <p className="text-xs text-muted-foreground max-w-md mx-auto">
+                  Dokumen ini tidak dicentang pada konfigurasi awal. Anda dapat men-generate dokumen ini sekarang bila dibutuhkan.
+                </p>
+              </div>
+              {onRetry && (
+                <button
+                  type="button"
+                  onClick={() => onRetry(aktif.id, currentJenis)}
+                  disabled={status === 'pending'}
+                  className="px-4 py-2 text-xs font-bold rounded-lg border-2 border-foreground bg-primary text-primary-foreground hover:opacity-90 shadow-brutal-sm inline-flex items-center gap-2 mx-auto disabled:opacity-50"
+                >
+                  {status === 'pending' ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      Sedang Membuat {LABEL_DOKUMEN[currentJenis]}...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-3.5 h-3.5" />
+                      Generate {LABEL_DOKUMEN[currentJenis]} Sekarang
+                    </>
+                  )}
+                </button>
+              )}
+            </div>
           )
         ) : status === 'error' ? (
-          <div className="p-4 border-2 border-dashed border-destructive rounded-lg space-y-2">
-            <p className="text-sm font-bold text-destructive">
-              {LABEL_DOKUMEN[currentJenis]} Pertemuan {aktif.nomor} gagal dibuat
-              {aktif.errors?.[currentJenis] ? ` — ${aktif.errors[currentJenis]}` : ''}.
-            </p>
+          <div className="p-8 border-2 border-dashed border-destructive/50 bg-destructive/5 rounded-xl text-center space-y-4">
+            <div className="w-12 h-12 rounded-full bg-destructive/10 text-destructive flex items-center justify-center mx-auto">
+              <AlertTriangle className="w-6 h-6" />
+            </div>
+            <div>
+              <p className="text-sm font-bold text-destructive">
+                {LABEL_DOKUMEN[currentJenis]} Pertemuan {aktif.nomor} gagal dibuat
+              </p>
+              {aktif.errors?.[currentJenis] && (
+                <p className="text-xs text-destructive/80 mt-1 max-w-md mx-auto">
+                  {aktif.errors[currentJenis]}
+                </p>
+              )}
+            </div>
             {onRetry && (
               <button
                 type="button"
-                onClick={() => onRetry(aktif.id, currentJenis)}
-                className="px-3 py-1.5 text-xs font-bold rounded-md border-2 border-foreground bg-card"
+                onClick={() => {
+                  if (currentJenis === 'soal' && onOpenSoalModal) {
+                    onOpenSoalModal(aktif.id);
+                  } else {
+                    onRetry(aktif.id, currentJenis);
+                  }
+                }}
+                disabled={status === 'pending'}
+                className="px-4 py-2 text-xs font-bold rounded-lg border-2 border-foreground bg-card text-foreground hover:bg-muted shadow-brutal-sm inline-flex items-center gap-2 mx-auto"
               >
-                Coba lagi
+                {status === 'pending' ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    Sedang Membuat Ulang...
+                  </>
+                ) : (
+                  <>
+                    <RefreshCw className="w-3.5 h-3.5" />
+                    Coba Generate Ulang
+                  </>
+                )}
               </button>
             )}
           </div>
-        ) : dokumen === undefined ? (
-          // Tab Soal idle setelah dipilih: tampilkan CTA konfigurasi
-          currentJenis === 'soal' && status === 'idle' && onOpenSoalModal ? (
-            <div className="p-6 border-2 border-dashed rounded-lg text-center space-y-3">
+        ) : !dokumen ? (
+          currentJenis === 'soal' && onOpenSoalModal ? (
+            <div className="p-8 border-2 border-dashed rounded-xl text-center space-y-3 bg-muted/20">
               <p className="text-sm text-muted-foreground">
-                Soal Pertemuan {aktif.nomor} belum dibuat. Pilih konfigurasi jenis soal
-                terlebih dahulu.
+                Soal Pertemuan {aktif.nomor} belum dibuat. Pilih konfigurasi jenis soal terlebih dahulu.
               </p>
               <button
                 type="button"
                 onClick={() => onOpenSoalModal(aktif.id)}
-                className="px-4 py-2 text-sm font-bold rounded-md border-2 border-foreground bg-primary text-primary-foreground hover:opacity-90"
+                className="px-4 py-2 text-sm font-bold rounded-md border-2 border-foreground bg-primary text-primary-foreground hover:opacity-90 shadow-brutal-sm"
               >
                 Buat Soal Pertemuan {aktif.nomor}…
               </button>
             </div>
           ) : (
-            <p className="text-sm text-muted-foreground p-4 border-2 border-dashed rounded-lg">
-              {LABEL_DOKUMEN[currentJenis]} Pertemuan {aktif.nomor}:{' '}
-              {(LABEL_STATUS[status] ?? status ?? 'menunggu').toLowerCase()}.
-            </p>
+            <div className="p-8 md:p-12 border-2 border-dashed border-foreground/30 rounded-xl text-center space-y-4 bg-muted/20">
+              <div className="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center mx-auto">
+                <Sparkles className="w-6 h-6" />
+              </div>
+              <div className="space-y-1">
+                <h3 className="font-bold text-base text-foreground">
+                  {LABEL_DOKUMEN[currentJenis]} Pertemuan {aktif.nomor} belum dibuat
+                </h3>
+                <p className="text-xs text-muted-foreground max-w-md mx-auto">
+                  Dokumen ini belum di-generate atau terlewat saat proses otomatis. Anda dapat men-generate dokumen ini saja tanpa mempengaruhi dokumen lainnya.
+                </p>
+              </div>
+              {onRetry && (
+                <button
+                  type="button"
+                  onClick={() => onRetry(aktif.id, currentJenis)}
+                  disabled={status === 'pending'}
+                  className="px-5 py-2.5 text-xs font-bold rounded-lg border-2 border-foreground bg-primary text-primary-foreground hover:opacity-90 shadow-brutal-sm inline-flex items-center gap-2 transition-all disabled:opacity-50 mx-auto"
+                >
+                  {status === 'pending' ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Sedang Membuat {LABEL_DOKUMEN[currentJenis]}...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-4 h-4" />
+                      Generate {LABEL_DOKUMEN[currentJenis]} Sekarang
+                    </>
+                  )}
+                </button>
+              )}
+            </div>
           )
         ) : (
           renderDokumen({ pertemuanId: aktif.id, jenis: currentJenis, dokumen })
