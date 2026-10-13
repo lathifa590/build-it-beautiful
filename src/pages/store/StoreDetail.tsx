@@ -28,6 +28,18 @@ const StoreDetail = () => {
     enabled: !!listingId,
   });
 
+  // Catat produk dilihat (product view) sekali per sesi per hari
+  React.useEffect(() => {
+    if (listing?.store_id && listing?.listing_id) {
+      const today = new Date().toISOString().slice(0, 10);
+      const sessionKey = `visited_item_${listing.listing_id}_${today}`;
+      if (!sessionStorage.getItem(sessionKey)) {
+        sessionStorage.setItem(sessionKey, '1');
+        storeApi.recordProductView(listing.store_id, listing.listing_id);
+      }
+    }
+  }, [listing?.store_id, listing?.listing_id]);
+
   const basePrice = listing?.price_amount || 0;
   let discountAmount = 0;
   if (appliedCoupon && basePrice > 0) {

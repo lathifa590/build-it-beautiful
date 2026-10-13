@@ -32,3 +32,7 @@ verify_jwt = false
 
 [functions.process-generation-queue]
 verify_jwt = false
+
+[functions.record-store-metric]
+verify_jwt = false
+
