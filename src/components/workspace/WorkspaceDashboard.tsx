@@ -9,9 +9,10 @@ import { CreateWorkspaceModal } from './CreateWorkspaceModal';
 import { toast } from 'sonner';
 import { useConfirm } from '@/contexts/ConfirmContext';
 import { StorePublishModal } from '../store/StorePublishModal';
-import { Store } from 'lucide-react';
+import { Store, School } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
+import { SchoolProposalModal } from '@/components/school/SchoolProposalModal';
 
 export const WorkspaceDashboard = ({ 
   onNavigate,
@@ -38,6 +39,7 @@ export const WorkspaceDashboard = ({
   const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);
   const [isArchiving, setIsArchiving] = React.useState(false);
   const [isPublishModalOpen, setIsPublishModalOpen] = React.useState(false);
+  const [isProposalModalOpen, setIsProposalModalOpen] = React.useState(false);
   const [isEnqueuing, setIsEnqueuing] = React.useState(false);
   const [queueStats, setQueueStats] = useState({ pending: 0, processing: 0, completed: 0, failed: 0, total: 0 });
   const { data: subStatus } = useSubscriptionStatus();
@@ -293,6 +295,14 @@ export const WorkspaceDashboard = ({
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
+                onClick={() => setIsProposalModalOpen(true)}
+                className="cursor-pointer py-2 text-amber-800 focus:text-amber-900 focus:bg-amber-50 font-bold"
+              >
+                <School className="w-4 h-4 mr-2 text-amber-700" />
+                Usulkan ke Sekolah (Dana BOS)
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
                 onClick={() => setIsPublishModalOpen(true)}
                 className="cursor-pointer py-2 text-green-700 focus:text-green-800 focus:bg-green-50"
               >
@@ -325,6 +335,13 @@ export const WorkspaceDashboard = ({
           kelas: activeWorkspace.grade,
           fase: activeWorkspace.phase,
         } as FormData}
+      />
+
+      <SchoolProposalModal
+        open={isProposalModalOpen}
+        onOpenChange={setIsProposalModalOpen}
+        schoolName={activeWorkspace?.school_name}
+        teacherName={activeWorkspace?.teacher_name || user?.user_metadata?.full_name}
       />
 
       {isMismatch && (

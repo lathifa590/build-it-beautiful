@@ -125,6 +125,8 @@ export const schoolApi = {
     academic_year_active?: string | null;
     waka_user_id?: string | null;
     kepsek_user_id?: string | null;
+    subscription_expires_at?: string | null;
+    seat_quota?: number;
   }): Promise<School> {
     const { data: { user } } = await supabase.auth.getUser();
 
@@ -900,6 +902,102 @@ export const schoolApi = {
     }
 
     return (data as unknown as SchoolMeetingFullDetail) || null;
+  },
+
+  /**
+   * Mengambil data kurasi dokumen dari bank sekolah berdasarkan source document_id
+   */
+  async getSchoolDocumentBySourceId(schoolId: string, sourceDocId: string): Promise<SchoolDocument | null> {
+    const { data, error } = await supabase
+      .from('school_documents' as any)
+      .select('*')
+      .eq('school_id', schoolId)
+      .eq('source_document_id', sourceDocId)
+      .maybeSingle();
+
+    if (error) {
+      console.error('Error fetching school document by source id:', error);
+      return null;
+    }
+    return (data as unknown as SchoolDocument) || null;
+  },
+
+  /**
+   * Meninjau / mengurasi dokumen sekolah dengan status dan rubrik checklist (Waka / Kepsek / Admin)
+   */
+  async reviewSchoolDocument(params: {
+    documentId: string;
+    status: 'approved' | 'revision' | 'template';
+    reviewNotes?: string;
+    isTemplate?: boolean;
+    checklist?: {
+      cp_tp_sesuai?: boolean;
+      waktu_sesuai?: boolean;
+      asesmen_lengkap?: boolean;
+      diferensiasi_ada?: boolean;
+      [key: string]: boolean | undefined;
+    };
+  }): Promise<{ success: boolean; message: string }> {
+    const { data, error } = await supabase.rpc('review_school_document', {
+      _document_id: params.documentId,
+      _status: params.status,
+      _review_notes: params.reviewNotes || null,
+      _is_template: params.isTemplate ?? (params.status === 'template'),
+      _checklist: params.checklist || {},
+    });
+
+    if (error) {
+      console.error('Error reviewing school document:', error);
+      return { success: false, message: error.message || 'Gagal menyimpan hasil kurasi' };
+    }
+
+    return (data as any) || { success: false, message: 'Respon tidak valid' };
+  },
+
+  /**
+   * Mengurasi komponen pertemuan guru langsung dari viewer:
+   * sinkronkan dokumen ke bank lalu jalankan RPC review
+   */
+  async reviewMeetingComponent(params: {
+    schoolId: string;
+    documentId: string;
+    status: 'approved' | 'revision' | 'template';
+    notes?: string;
+    isTemplate?: boolean;
+    checklist?: {
+      cp_tp_sesuai?: boolean;
+      waktu_sesuai?: boolean;
+      asesmen_lengkap?: boolean;
+      diferensiasi_ada?: boolean;
+    };
+  }): Promise<{ success: boolean; message: string; school_document_id?: string }> {
+    // 1. Pastikan dokumen sudah tercatat di tabel school_documents
+    const promoRes = await this.promoteWorkspaceDocToBank(
+      params.schoolId,
+      params.documentId,
+      params.isTemplate ?? (params.status === 'template'),
+      params.notes
+    );
+
+    const schoolDocId = promoRes.school_document_id;
+    if (!schoolDocId) {
+      return { success: false, message: promoRes.message || 'Gagal menyinkronkan dokumen ke Bank' };
+    }
+
+    // 2. Jalankan RPC review_school_document
+    const reviewRes = await this.reviewSchoolDocument({
+      documentId: schoolDocId,
+      status: params.status,
+      reviewNotes: params.notes,
+      isTemplate: params.isTemplate ?? (params.status === 'template'),
+      checklist: params.checklist,
+    });
+
+    return {
+      success: reviewRes.success,
+      message: reviewRes.message,
+      school_document_id: schoolDocId,
+    };
   },
 };
 

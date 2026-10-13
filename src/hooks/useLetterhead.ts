@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { useSchool } from '@/contexts/SchoolContext';
 
 interface LetterheadData {
   url: string | null;
@@ -13,11 +14,12 @@ const ALLOWED_TYPES = ['image/jpeg', 'image/png'];
 
 export const useLetterhead = () => {
   const { user } = useAuth();
+  const { school, isSchoolActive } = useSchool();
   const queryClient = useQueryClient();
   const [isEnabled, setIsEnabled] = useState(false);
 
-  // Fetch letterhead URL from profile
-  const { data: letterheadUrl, isLoading } = useQuery({
+  // Fetch letterhead URL from personal profile
+  const { data: personalLetterheadUrl, isLoading } = useQuery({
     queryKey: ['letterhead', user?.id],
     queryFn: async (): Promise<string | null> => {
       if (!user) return null;
@@ -38,6 +40,13 @@ export const useLetterhead = () => {
     enabled: !!user,
   });
 
+  // Prioritaskan Kop Resmi Sekolah jika akun aktif di sekolah dan Waka mengunci kop (is_kop_locked)
+  const isSchoolKopAvailable = Boolean(isSchoolActive && school?.kop_logo_url);
+  const isLockedBySchool = Boolean(isSchoolKopAvailable && school?.is_kop_locked);
+  const letterheadUrl = isLockedBySchool
+    ? (school?.kop_logo_url || null)
+    : (personalLetterheadUrl || school?.kop_logo_url || null);
+
   // Load toggle state from localStorage
   useEffect(() => {
     const saved = localStorage.getItem('letterhead_enabled');
@@ -46,11 +55,12 @@ export const useLetterhead = () => {
     }
   }, []);
 
-  // Save toggle state to localStorage
+  // Save toggle state to localStorage (diabaikan jika kop dikunci oleh sekolah)
   const toggleLetterhead = useCallback((enabled: boolean) => {
+    if (isLockedBySchool) return;
     setIsEnabled(enabled);
     localStorage.setItem('letterhead_enabled', JSON.stringify(enabled));
-  }, []);
+  }, [isLockedBySchool]);
 
   // Upload mutation
   const uploadMutation = useMutation({
@@ -157,11 +167,15 @@ export const useLetterhead = () => {
     }
   }, [letterheadUrl]);
 
+  const effectiveIsEnabled = isLockedBySchool ? Boolean(letterheadUrl) : (isEnabled && !!letterheadUrl);
+
   return {
     letterheadUrl,
-    isEnabled: isEnabled && !!letterheadUrl,
+    isEnabled: effectiveIsEnabled,
     isLoading,
     hasLetterhead: !!letterheadUrl,
+    isLockedBySchool,
+    schoolName: school?.name || null,
     toggleLetterhead,
     uploadLetterhead: uploadMutation.mutate,
     deleteLetterhead: deleteMutation.mutate,

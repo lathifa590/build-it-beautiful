@@ -1,7 +1,7 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { isSchoolFeatureAccessible } from '@/lib/feature-flags';
+import { useSchool } from '@/contexts/SchoolContext';
 import { Loader2 } from 'lucide-react';
 
 interface SchoolPilotRouteProps {
@@ -9,19 +9,23 @@ interface SchoolPilotRouteProps {
 }
 
 /**
- * Route guard untuk Mode Sekolah pada tahap Deploy Terbatas.
- * Sesuai aturan di AGENTS.md, hanya Admin dan jagofeed@gmail.com yang dapat mengakses.
- * User lain yang mencoba mengakses URL /sekolah/* akan dialihkan langsung ke /app.
+ * Route guard untuk Mode Sekolah.
+ * Mengizinkan akses untuk:
+ * 1. Admin platform.
+ * 2. Akun pilot Deploy Terbatas (jagofeed@gmail.com).
+ * 3. Anggota sekolah dengan langganan aktif (subscription_expires_at > now()).
+ * User lain dialihkan ke /app.
  */
 export const SchoolPilotRoute: React.FC<SchoolPilotRouteProps> = ({ children }) => {
-  const { user, isAdmin, isLoading } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
+  const { isFeatureAllowed, isLoading: schoolLoading } = useSchool();
 
-  if (isLoading) {
+  if (authLoading || schoolLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <p className="text-muted-foreground font-medium">Memeriksa akses...</p>
+          <p className="text-muted-foreground font-medium">Memeriksa akses Mode Sekolah...</p>
         </div>
       </div>
     );
@@ -31,10 +35,10 @@ export const SchoolPilotRoute: React.FC<SchoolPilotRouteProps> = ({ children }) 
     return <Navigate to="/auth" replace />;
   }
 
-  const isAllowed = isSchoolFeatureAccessible(user?.email, isAdmin);
-  if (!isAllowed) {
+  if (!isFeatureAllowed) {
     return <Navigate to="/app" replace />;
   }
 
   return <>{children}</>;
 };
+

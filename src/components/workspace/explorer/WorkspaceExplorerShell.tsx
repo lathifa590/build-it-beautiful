@@ -16,6 +16,7 @@ import { generateWorkspaceMeetingDirect } from "./generateWorkspaceMeetingDirect
 import { useSchool } from "@/contexts/SchoolContext";
 import { useSubscriptionStatus } from "@/hooks/useSubscriptionStatus";
 import { toast } from "sonner";
+import { SchoolProposalModal } from "@/components/school/SchoolProposalModal";
 
 interface WorkspaceExplorerShellProps {
   workspace: Workspace;
@@ -38,6 +39,7 @@ export const WorkspaceExplorerShell: React.FC<WorkspaceExplorerShellProps> = ({
   const { isFeatureAllowed, isSchoolActive, school } = useSchool();
   const [isViewerOpen, setIsViewerOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isProposalOpen, setIsProposalOpen] = useState(false);
   const [isEnqueuing, setIsEnqueuing] = useState(false);
   const [queueStats, setQueueStats] = useState({ pending: 0, processing: 0, completed: 0, failed: 0, total: 0 });
   const [isQueueLoading, setIsQueueLoading] = useState(true);
@@ -203,7 +205,7 @@ export const WorkspaceExplorerShell: React.FC<WorkspaceExplorerShellProps> = ({
               </button>
             </div>
           )}
-          <div className="flex items-center gap-2 mt-2">
+          <div className="flex items-center gap-2 mt-2 flex-wrap">
             <button
               onClick={() => setIsViewerOpen(true)}
               className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold bg-primary/10 text-primary hover:bg-primary/20 border-2 border-transparent hover:border-primary/30 rounded-md transition-colors"
@@ -217,6 +219,14 @@ export const WorkspaceExplorerShell: React.FC<WorkspaceExplorerShellProps> = ({
             >
               <Settings className="w-3.5 h-3.5" />
               Pengaturan Workspace
+            </button>
+            <button
+              onClick={() => setIsProposalOpen(true)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-black bg-[#fef08a] hover:bg-[#fde047] text-amber-950 border-2 border-foreground rounded-md transition-all shadow-brutal-sm hover:translate-y-[-1px]"
+              title="Ajukan Paket Mode Sekolah resmi untuk 25 guru menggunakan alokasi Dana BOS (Hemat 70%)"
+            >
+              <School className="w-3.5 h-3.5 text-amber-900" />
+              Usulkan ke Sekolah (Dana BOS)
             </button>
           </div>
         </div>
@@ -426,6 +436,13 @@ export const WorkspaceExplorerShell: React.FC<WorkspaceExplorerShellProps> = ({
         }}
         missingMeetingsCount={totalMeetings - completedMeetings}
         autogenQuota={autogenQuota}
+      />
+
+      <SchoolProposalModal
+        open={isProposalOpen}
+        onOpenChange={setIsProposalOpen}
+        schoolName={workspace.school_name || school?.name}
+        teacherName={workspace.teacher_name || user?.user_metadata?.full_name}
       />
     </div>
   );
