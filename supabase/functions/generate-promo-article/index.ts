@@ -153,11 +153,12 @@ Kembalikan respon HANYA dalam format JSON dengan struktur:
 
   } catch (error: any) {
     console.error("Generate Promo Error:", error.message);
+    const isAuth = error.message === 'Unauthorized' || error.message?.includes('Authorization');
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: isAuth ? 'Sesi tidak valid atau telah berakhir.' : (error.message || 'Gagal memproses draf promo.') }),
       { 
         headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 500
+        status: isAuth ? 401 : 500
       }
     );
   }

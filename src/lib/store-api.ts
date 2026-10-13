@@ -6,6 +6,7 @@ import {
   StoreCoupon,
   StoreMetricRow
 } from "@/types/store";
+import { logSecurityEvent } from "@/lib/security-logger";
 
 export const storeApi = {
   // --- Profiles ---
@@ -170,11 +171,26 @@ export const storeApi = {
       .eq('order_id', orderId)
       .maybeSingle();
 
+    if (!error && data) {
+      return data as StoreOrder;
+    }
+
+    // Secure fallback via RPC for anonymous buyers
+    try {
+      const { data: rpcData, error: rpcError } = await (supabase.rpc as any)('get_store_order_by_id', {
+        p_order_id: orderId,
+      });
+      if (!rpcError && rpcData) {
+        return rpcData as StoreOrder;
+      }
+    } catch (e) {
+      console.error('Error fetching order via RPC:', e);
+    }
+
     if (error) {
       console.error('Error fetching order:', error);
-      return null;
     }
-    return data as StoreOrder;
+    return null;
   },
 
   async updateOrderStatus(orderId: string, updates: Partial<StoreOrder>): Promise<StoreOrder | null> {
@@ -303,9 +319,33 @@ export const storeApi = {
 
   // --- Storage & Files ---
   async uploadStoreAsset(filePath: string, file: File): Promise<string | null> {
+    const ALLOWED_IMAGE_MIMES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5 MB
+
+    // OWASP A08: Validate MIME type
+    if (!ALLOWED_IMAGE_MIMES.includes(file.type)) {
+      logSecurityEvent({
+        eventType: 'FILE_UPLOAD_REJECTED',
+        details: { reason: 'Invalid MIME type', type: file.type, name: file.name },
+      });
+      throw new Error('Format file tidak didukung. Harap unggah gambar JPG, PNG, WEBP, atau GIF.');
+    }
+
+    // Validate file size
+    if (file.size > MAX_IMAGE_SIZE) {
+      logSecurityEvent({
+        eventType: 'FILE_UPLOAD_REJECTED',
+        details: { reason: 'File size exceeded limit', size: file.size, limit: MAX_IMAGE_SIZE },
+      });
+      throw new Error('Ukuran file maksimal 5 MB.');
+    }
+
+    // Sanitize path (prevent path traversal)
+    const safePath = filePath.replace(/(\.\.[\/\\])+/g, '').replace(/[^a-zA-Z0-9_\-./]/g, '_');
+
     const { data, error } = await supabase.storage
       .from('modul_store_assets')
-      .upload(filePath, file, { upsert: true });
+      .upload(safePath, file, { upsert: true, contentType: file.type });
       
     if (error) {
       console.error('Error uploading store asset:', error);
@@ -321,9 +361,21 @@ export const storeApi = {
   },
 
   async uploadStoreFile(filePath: string, file: File | Blob): Promise<string | null> {
+    const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50 MB
+
+    if (file.size > MAX_FILE_SIZE) {
+      logSecurityEvent({
+        eventType: 'FILE_UPLOAD_REJECTED',
+        details: { reason: 'Document file size exceeded limit', size: file.size, limit: MAX_FILE_SIZE },
+      });
+      throw new Error('Ukuran file dokumen maksimal 50 MB.');
+    }
+
+    const safePath = filePath.replace(/(\.\.[\/\\])+/g, '').replace(/[^a-zA-Z0-9_\-./]/g, '_');
+
     const { data, error } = await supabase.storage
       .from('modul_store_files')
-      .upload(filePath, file, { upsert: true });
+      .upload(safePath, file, { upsert: true });
       
     if (error) {
       console.error('Error uploading store file:', error);

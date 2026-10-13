@@ -1,5 +1,6 @@
 import React from 'react';
 import { wrapMathMarker as _mathMarker } from '@/lib/math-omml';
+import { sanitizeHtml } from '@/lib/sanitize';
 
 
 type RichTextValue = string | string[] | Record<string, unknown> | unknown;
@@ -313,7 +314,7 @@ export const formatRichText = (text: RichTextValue): React.ReactNode => {
     .replace(/\\\[/g, '')
     .replace(/\\\]/g, '');
 
-  return <span dangerouslySetInnerHTML={{ __html: c }} />;
+  return <span dangerouslySetInnerHTML={{ __html: sanitizeHtml(c) }} />;
 };
 
 /**
@@ -529,7 +530,7 @@ export const formatMathAndHtml = (text: string | undefined | null): string => {
     return _mathMarker(block.latex, block.display, fb);
   });
 
-  return c;
+  return sanitizeHtml(c);
 };
 
 

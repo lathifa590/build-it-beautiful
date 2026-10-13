@@ -56,15 +56,16 @@ Deno.serve(async (req) => {
     );
 
     const token = authHeader.replace("Bearer ", "");
-    const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const cronSecret = Deno.env.get("CRON_SECRET") || Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
     const adminClient = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    // If NOT called by cron (anon key), validate admin role
-    if (token !== anonKey) {
+    // If NOT called by authorized cron/service role, validate admin role
+    const isCronAuthorized = Boolean(cronSecret && token === cronSecret);
+    if (!isCronAuthorized) {
       console.log("[sync-lynk] Manual trigger detected, validating admin...");
       const { data: { user }, error: userError } =
         await supabase.auth.getUser();

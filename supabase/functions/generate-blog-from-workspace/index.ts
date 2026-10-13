@@ -67,7 +67,7 @@ serve(async (req) => {
             prosem_items (
               materi_pokok,
               tp_snapshot,
-              workspaces ( subject, grade, phase )
+              workspaces ( id, subject, grade, phase, user_id )
             )
           `)
           .eq('id', source_id)
@@ -76,6 +76,15 @@ serve(async (req) => {
         if (meetingData && meetingData.prosem_items) {
           const prosem = meetingData.prosem_items;
           const workspace = Array.isArray(prosem.workspaces) ? prosem.workspaces[0] : prosem.workspaces;
+          if (workspace?.user_id && workspace.user_id !== user.id) {
+            const { data: isAdmin } = await supabaseAdmin.rpc('has_role', { _user_id: user.id, _role: 'admin' });
+            if (!isAdmin) {
+              return new Response(JSON.stringify({ error: "Forbidden: Anda tidak memiliki akses ke materi workspace ini" }), {
+                status: 403,
+                headers: { ...corsHeaders, "Content-Type": "application/json" }
+              });
+            }
+          }
           category = workspace?.subject || "Pendidikan";
           
           extraContext = `
@@ -91,13 +100,22 @@ Tujuan Pembelajaran Topik: ${JSON.stringify(prosem.tp_snapshot || [])}
           .from('prosem_items')
           .select(`
             materi_pokok, allocated_jp, tp_snapshot,
-            workspaces ( subject, grade, phase )
+            workspaces ( id, subject, grade, phase, user_id )
           `)
           .eq('id', source_id)
           .maybeSingle();
 
         if (topicData) {
           const workspace = Array.isArray(topicData.workspaces) ? topicData.workspaces[0] : topicData.workspaces;
+          if (workspace?.user_id && workspace.user_id !== user.id) {
+            const { data: isAdmin } = await supabaseAdmin.rpc('has_role', { _user_id: user.id, _role: 'admin' });
+            if (!isAdmin) {
+              return new Response(JSON.stringify({ error: "Forbidden: Anda tidak memiliki akses ke materi workspace ini" }), {
+                status: 403,
+                headers: { ...corsHeaders, "Content-Type": "application/json" }
+              });
+            }
+          }
           category = workspace?.subject || "Pendidikan";
           
           extraContext = `
@@ -112,11 +130,20 @@ Tujuan Pembelajaran: ${JSON.stringify(topicData.tp_snapshot || [])}
         const wsId = source_id.split('-sem')[0];
         const { data: wsData } = await supabaseAdmin
           .from('workspaces')
-          .select('subject, grade, phase')
+          .select('id, subject, grade, phase, user_id')
           .eq('id', wsId)
           .maybeSingle();
           
         if (wsData) {
+          if (wsData.user_id && wsData.user_id !== user.id) {
+            const { data: isAdmin } = await supabaseAdmin.rpc('has_role', { _user_id: user.id, _role: 'admin' });
+            if (!isAdmin) {
+              return new Response(JSON.stringify({ error: "Forbidden: Anda tidak memiliki akses ke materi workspace ini" }), {
+                status: 403,
+                headers: { ...corsHeaders, "Content-Type": "application/json" }
+              });
+            }
+          }
           category = wsData.subject || "Pendidikan";
           extraContext = `
 Ini adalah Perangkat Ajar FULL 1 SEMESTER.

@@ -125,13 +125,13 @@ serve(async (req) => {
       .eq('store_id', store_id)
       .eq('date', today);
 
-    return new Response(JSON.stringify({ success: true, metrics: latestMetrics, fetchErr: fetchMetricsErr?.message }), {
+    return new Response(JSON.stringify({ success: true, metrics: latestMetrics }), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" }
     });
   } catch (err: any) {
     console.error("Error in record-store-metric:", err);
-    return new Response(JSON.stringify({ error: err.message }), {
+    return new Response(JSON.stringify({ error: "Gagal memproses metrik toko." }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" }
     });

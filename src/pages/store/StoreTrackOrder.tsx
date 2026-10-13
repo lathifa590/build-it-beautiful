@@ -39,20 +39,35 @@ export default function StoreTrackOrder() {
         queryInvoice = queryInvoice.substring(4);
       }
 
-      const { data, error } = await supabase
-        .from('store_orders')
-        .select('order_id, invoice_number')
-        .ilike('buyer_email', email.trim())
-        .ilike('invoice_number', `%${queryInvoice}%`)
-        .maybeSingle();
+      let orderTargetId: string | null = null;
 
-      if (error) throw error;
+      // 1. Gunakan RPC aman track_store_order
+      const { data: rpcRows, error: rpcErr } = await (supabase.rpc as any)('track_store_order', {
+        p_email: email.trim(),
+        p_invoice_number: queryInvoice,
+      });
 
-      if (!data) {
+      if (!rpcErr && rpcRows && rpcRows.length > 0) {
+        orderTargetId = rpcRows[0].order_id;
+      } else {
+        // Fallback langsung ke modul_store_orders
+        const { data: directData } = await (supabase
+          .from('modul_store_orders' as any)
+          .select('order_id, invoice_number')
+          .ilike('buyer_email', email.trim())
+          .ilike('invoice_number', `%${queryInvoice}%`)
+          .maybeSingle());
+
+        if (directData?.order_id) {
+          orderTargetId = directData.order_id;
+        }
+      }
+
+      if (!orderTargetId) {
         toast.error('Pesanan tidak ditemukan. Pastikan Email dan No Invoice benar.');
       } else {
         toast.success('Pesanan ditemukan!');
-        navigate(`/checkout/${data.order_id}`);
+        navigate(`/checkout/${orderTargetId}`);
       }
     } catch (err: any) {
       console.error(err);

@@ -247,11 +247,12 @@ Instruksi Konten:
 
   } catch (error: any) {
     console.error("Generate Blog From Store Error:", error.message);
+    const isAuth = error.message === 'Unauthorized' || error.message?.includes('Authorization');
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: isAuth ? 'Sesi tidak valid atau telah berakhir.' : (error.message || 'Gagal memproses artikel blog.') }),
       { 
         headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 500
+        status: isAuth ? 401 : 500
       }
     );
   }

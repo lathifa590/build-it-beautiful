@@ -13,6 +13,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Button } from '@/components/ui/button';
 import { BlogUpsellPopup } from '@/components/blog/BlogUpsellPopup';
+import { sanitizeHtml } from '@/lib/sanitize';
 
 export default function BlogDetail() {
   const { slug } = useParams();
@@ -189,7 +190,7 @@ export default function BlogDetail() {
           {/* Article Content - rendered with tailwind typography plugin (prose) */}
           <div className="prose prose-lg prose-slate max-w-none prose-headings:font-bold prose-headings:text-slate-900 prose-a:text-indigo-600 hover:prose-a:text-indigo-800 prose-img:rounded-xl">
             {/<[a-z][\s\S]*>/i.test(article.content) ? (
-              <div dangerouslySetInnerHTML={{ __html: article.content }} />
+              <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(article.content) }} />
             ) : (
               <ReactMarkdown remarkPlugins={[remarkGfm]}>
                 {article.content.replace(/^\s*#\s+[^\n]+\n/, '')}

@@ -3,6 +3,7 @@ import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Loader2, BookOpen, Mail, Lock, User, Eye, EyeOff, HelpCircle, ArrowLeft } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { logSecurityEvent } from '@/lib/security-logger';
 
 type AuthStep = 'email' | 'new-password' | 'login' | 'forgot-password';
 
@@ -17,6 +18,8 @@ const Auth = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [step, setStep] = useState<AuthStep>('email');
   const [customerName, setCustomerName] = useState('');
+  const [failedAttempts, setFailedAttempts] = useState(0);
+  const [lockedUntil, setLockedUntil] = useState<number | null>(null);
 
   if (isLoading) {
     return (
@@ -121,16 +124,51 @@ const Auth = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    // OWASP A07: Brute force lockout check
+    if (lockedUntil && Date.now() < lockedUntil) {
+      const remainingSec = Math.ceil((lockedUntil - Date.now()) / 1000);
+      setError(`Terlalu banyak percobaan gagal. Silakan tunggu ${remainingSec} detik sebelum mencoba lagi.`);
+      return;
+    }
+
     setLoading(true);
 
     try {
       const { error } = await signIn(email, password);
       if (error) {
+        const nextAttempts = failedAttempts + 1;
+        setFailedAttempts(nextAttempts);
+        logSecurityEvent({
+          eventType: 'AUTH_LOGIN_FAILED',
+          email,
+          details: { attempt: nextAttempts },
+        });
+
+        if (nextAttempts >= 5) {
+          const lockDuration = 30 * 1000; // 30 detik
+          setLockedUntil(Date.now() + lockDuration);
+          logSecurityEvent({
+            eventType: 'AUTH_BRUTE_FORCE_BLOCKED',
+            email,
+            details: { attempts: nextAttempts, lockDurationMs: lockDuration },
+          });
+          setError('Terlalu banyak percobaan login gagal. Demi keamanan, formulir login dikunci selama 30 detik.');
+          return;
+        }
+
         if (error.message === 'Invalid login credentials') {
-          setError('Password salah. Silakan coba lagi.');
+          setError(`Password salah. Silakan coba lagi (${5 - nextAttempts} percobaan tersisa).`);
         } else {
           setError(error.message);
         }
+      } else {
+        setFailedAttempts(0);
+        setLockedUntil(null);
+        logSecurityEvent({
+          eventType: 'AUTH_LOGIN_SUCCESS',
+          email,
+        });
       }
       // If successful, AuthContext will handle redirect
     } catch (err) {
