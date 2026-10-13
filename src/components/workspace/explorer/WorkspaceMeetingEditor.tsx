@@ -22,6 +22,8 @@ import { V2ExportDialog } from "@/components/modul/V2ExportDialog";
 import type { V2ExportScope, V2ExportFormat } from "@/lib/pertemuan-export";
 import { MobileNavigation } from "@/components/modul/MobileNavigation";
 
+import { useSubscriptionStatus } from "@/hooks/useSubscriptionStatus";
+
 interface WorkspaceMeetingEditorProps {
   workspace: Workspace;
   meetingId: string;
@@ -37,6 +39,8 @@ export const WorkspaceMeetingEditor: React.FC<WorkspaceMeetingEditorProps> = ({
   isLocked,
   onShowUpsell,
 }) => {
+  const { data: subStatus } = useSubscriptionStatus();
+  const isTrial = subStatus?.isTrial;
   const [meeting, setMeeting] = useState<MeetingSlotDB | null>(null);
   const [prosemItem, setProsemItem] = useState<ProsemItemDB | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -81,7 +85,7 @@ export const WorkspaceMeetingEditor: React.FC<WorkspaceMeetingEditorProps> = ({
       try {
         // STEP 1: Fetch meeting metadata from DB
         const { data, error } = await supabase
-          .from("meeting_slots")
+          .from("meeting_slots" as any)
           .select(`*, prosem_items (*)`)
           .eq("id", meetingId)
           .single();
@@ -89,11 +93,12 @@ export const WorkspaceMeetingEditor: React.FC<WorkspaceMeetingEditorProps> = ({
         if (error) throw error;
         if (!data) throw new Error("Meeting slot not found");
 
-        setMeeting(data as any);
-        setProsemItem(data.prosem_items as any);
+        const meetingData = data as any;
+        setMeeting(meetingData);
+        setProsemItem(meetingData.prosem_items);
 
         // STEP 2: Fetch CP
-        const { data: cpData } = await supabase
+        const { data: cpData } = await (supabase as any)
           .from("curriculum_plans")
           .select("content")
           .eq("workspace_id", workspace.id)
@@ -104,25 +109,26 @@ export const WorkspaceMeetingEditor: React.FC<WorkspaceMeetingEditorProps> = ({
         const capaianPembelajaran = cpContentObj?.cp || "";
 
         const jpDuration = workspace.jp_duration_minutes || (workspace.phase === 'F' || workspace.phase === 'E' ? 45 : workspace.phase === 'D' ? 40 : 35);
-        const totalMinutes = (data.planned_jp || 2) * jpDuration;
+        const totalMinutes = (meetingData.planned_jp || 2) * jpDuration;
         
         // Build synthetic formData as the base
         const genSettings = workspace.generation_settings || {};
+        const prosemItemData = meetingData.prosem_items || {};
         const syntheticFormData: FormData = {
           ...DEFAULT_FORM_DATA,
           mataPelajaran: workspace.subject,
           fase: workspace.phase,
           kelas: workspace.grade.toString(),
-          materi: data.prosem_items.materi_pokok,
+          materi: prosemItemData.materi_pokok || "",
           capaianPembelajaran,
-          tujuanPembelajaran: (data.prosem_items.tp_snapshot || [])
+          tujuanPembelajaran: (prosemItemData.tp_snapshot || [])
             .map((tp: any) => {
-              const code = typeof tp === 'string' ? `TP${data.prosem_items.sequence}` : (tp.code || `TP${data.prosem_items.sequence}`);
+              const code = typeof tp === 'string' ? `TP${prosemItemData.sequence || 1}` : (tp.code || `TP${prosemItemData.sequence || 1}`);
               const text = typeof tp === 'string' ? tp : (tp.description || tp.teks || JSON.stringify(tp));
               return `${code}: ${text}`;
             })
             .join("\n"),
-          pertemuan: [{ id: meetingId, nomorPertemuan: data.sequence, durasi: totalMinutes.toString() }],
+          pertemuan: [{ id: meetingId, nomorPertemuan: meetingData.sequence, durasi: totalMinutes.toString() }],
           ...(genSettings.modelPembelajaran && genSettings.modelPembelajaran !== 'AI Auto-Select' ? { modelPembelajaran: genSettings.modelPembelajaran } : {}),
           ...(genSettings.metodePembelajaran && !genSettings.metodePembelajaran.includes('AI Auto-Select') ? { metodePembelajaran: genSettings.metodePembelajaran } : {}),
         };
@@ -240,7 +246,7 @@ export const WorkspaceMeetingEditor: React.FC<WorkspaceMeetingEditorProps> = ({
   );
 
   const v2BuildPlan = useCallback(
-    (scope: V2ExportScope) =>
+    ({ scope }: { scope: V2ExportScope }) =>
       v2Export.buildPlan({
         scope,
         activePertemuanId: meetingId,
@@ -283,7 +289,7 @@ export const WorkspaceMeetingEditor: React.FC<WorkspaceMeetingEditorProps> = ({
   const handleGenerateSoal = () => {
     if (!v2Aktif) return;
     setShowSoalModal(false);
-    pertemuanV2.generateDokumen(v2Aktif.id, 'soal', soalConfig);
+    pertemuanV2.regenerateDokumen(v2Aktif.id, 'soal');
   };
 
   const V2_TAB_MAP: Record<JenisDokumenPertemuan, string> = {
@@ -626,9 +632,16 @@ export const WorkspaceMeetingEditor: React.FC<WorkspaceMeetingEditorProps> = ({
               <ArrowLeft className="w-5 h-5" />
             </button>
             <div>
-              <h2 className="font-bold font-heading text-lg leading-tight">
-                Pertemuan {meeting.sequence}: {meeting.title}
-              </h2>
+              <div className="flex items-center gap-2">
+                <h2 className="font-bold font-heading text-lg leading-tight">
+                  Pertemuan {meeting.sequence}: {meeting.title}
+                </h2>
+                {isTrial && (
+                  <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-purple-100 text-purple-700 border border-purple-300">
+                    ✨ TRIAL
+                  </span>
+                )}
+              </div>
               <p className="text-xs text-muted-foreground">
                 {prosemItem?.materi_pokok} · {meeting.planned_jp} JP
               </p>
@@ -813,15 +826,9 @@ export const WorkspaceMeetingEditor: React.FC<WorkspaceMeetingEditorProps> = ({
               materiImageCount={v2ImageCounts.materi}
               maxMateriImages={5}
               onUpdateSection={v2Handlers.onUpdateSection}
-              isWorkspaceMode={true}
-              meetingId={meetingId}
-              isSaving={isSaving}
-              onSaveToWorkspace={handleSaveAll}
             />
             </>
           )}
-          onGenerateMissing={() => handleGenerateWithAutoSelect('missing')}
-          isGenerating={pertemuanV2.isGenerating}
         />
         
         <MobileNavigation

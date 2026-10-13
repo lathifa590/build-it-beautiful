@@ -10,6 +10,8 @@ import {
 import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { useTeacherProfiles } from '@/hooks/useTeacherProfiles';
 import { useSchool } from '@/contexts/SchoolContext';
+import { useAuth } from '@/contexts/AuthContext';
+import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
 import { AlertCircle, School } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { useNavigate } from 'react-router-dom';
@@ -21,7 +23,9 @@ interface CreateWorkspaceModalProps {
 }
 
 export const CreateWorkspaceModal = ({ isOpen, onClose }: CreateWorkspaceModalProps) => {
-  const { createWorkspace } = useWorkspace();
+  const { createWorkspace, workspaces } = useWorkspace();
+  const { user, isAdmin } = useAuth();
+  const { data: subStatus } = useSubscriptionStatus();
   const { data: cloudProfiles = [] } = useTeacherProfiles();
   const { school, schoolCalendar, isSchoolActive, isFeatureAllowed } = useSchool();
   const navigate = useNavigate();
@@ -84,6 +88,22 @@ export const CreateWorkspaceModal = ({ isOpen, onClose }: CreateWorkspaceModalPr
     if (!formData.subject || !formData.grade || !formData.phase || !formData.academic_year) return;
     if (cloudProfiles.length > 0 && !formData.profile_id) return;
     
+    const isSuperAdmin = isAdmin || user?.email?.toLowerCase() === 'jagofeed@gmail.com';
+    const isPro = subStatus?.isPro || isSuperAdmin;
+    const isTrial = subStatus?.isTrial;
+    const limit = isSuperAdmin ? Infinity : (isPro ? 10 : (isTrial ? 1 : 3));
+
+    if (!isSuperAdmin && workspaces.length >= limit) {
+      toast.error(`Batas maksimal Workspace tercapai (${limit} Workspace).`, {
+        description: isTrial 
+          ? "Akun Trial dibatasi maksimal 1 Workspace. Hapus workspace lama untuk membuat baru, atau upgrade ke PRO."
+          : (isPro 
+              ? "Anda telah mencapai batas maksimal Workspace untuk akun PRO (10 Workspace)." 
+              : "Hapus Workspace lama untuk membuat baru, atau upgrade ke PRO.")
+      });
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       const { profile_id, ...workspaceData } = formData;
@@ -117,12 +137,22 @@ export const CreateWorkspaceModal = ({ isOpen, onClose }: CreateWorkspaceModalPr
     }
   };
 
+  const isSuperAdmin = isAdmin || user?.email?.toLowerCase() === 'jagofeed@gmail.com';
+  const isTrial = subStatus?.isTrial;
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px] border-2 border-foreground shadow-brutal max-h-[90vh] overflow-y-auto">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>Buat Workspace Baru</DialogTitle>
+            <div className="flex items-center justify-between">
+              <DialogTitle>Buat Workspace Baru</DialogTitle>
+              {isTrial && (
+                <span className="text-[10px] bg-purple-100 text-purple-700 font-bold px-2 py-0.5 rounded border border-purple-200">
+                  Trial: {workspaces.length}/1 Slot
+                </span>
+              )}
+            </div>
             <DialogDescription>
               Workspace memisahkan perencanaan untuk setiap mata pelajaran dan kelas.
             </DialogDescription>

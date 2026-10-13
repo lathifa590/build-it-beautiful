@@ -11,6 +11,8 @@ import { StepKktp } from "./StepKktp";
 import { StepProsem } from "./StepProsem";
 import { StepMeeting } from "./StepMeeting";
 
+import { useSubscriptionStatus } from "@/hooks/useSubscriptionStatus";
+
 interface WorkspacePlanningViewProps {
   onExit: () => void;
   isLocked?: boolean;
@@ -18,6 +20,8 @@ interface WorkspacePlanningViewProps {
 }
 
 export const WorkspacePlanningView: React.FC<WorkspacePlanningViewProps> = ({ workspace, onExit, isLocked, onShowUpsell }) => {
+  const { data: subStatus } = useSubscriptionStatus();
+  const isTrial = subStatus?.isTrial;
   const [searchParams] = useSearchParams();
   const initialStep = Number(searchParams.get("step")) || 1;
   const [currentStep, setCurrentStep] = useState(initialStep);
@@ -40,7 +44,14 @@ export const WorkspacePlanningView: React.FC<WorkspacePlanningViewProps> = ({ wo
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div className="min-w-0 flex-1">
-            <h1 className="font-black text-lg truncate">Perencanaan Pembelajaran</h1>
+            <div className="flex items-center gap-2">
+              <h1 className="font-black text-lg truncate">Perencanaan Pembelajaran</h1>
+              {isTrial && (
+                <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-purple-100 text-purple-700 border border-purple-300">
+                  ✨ TRIAL
+                </span>
+              )}
+            </div>
             <p className="text-sm font-semibold text-muted-foreground truncate">{workspace.name}</p>
           </div>
         </div>

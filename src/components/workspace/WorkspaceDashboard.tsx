@@ -99,7 +99,8 @@ export const WorkspaceDashboard = ({
 
   const isSuperAdmin = isAdmin || user?.email?.toLowerCase() === 'jagofeed@gmail.com';
   const isPro = subStatus?.isPro || isSuperAdmin;
-  const limit = isPro ? 10 : 3;
+  const isTrial = subStatus?.isTrial;
+  const limit = isSuperAdmin ? Infinity : (isPro ? 10 : (isTrial ? 1 : 3));
 
   if (!activeWorkspace) {
     return (
@@ -114,7 +115,9 @@ export const WorkspaceDashboard = ({
             toast.error(`Batas maksimal Workspace tercapai (${limit} Workspace).`, {
               description: isPro 
                 ? "Anda telah mencapai batas maksimal Workspace untuk akun PRO (10 Workspace)." 
-                : "Hapus Workspace lama untuk membuat baru, atau upgrade ke PRO."
+                : (isTrial
+                    ? "Akun Trial dibatasi maksimal 1 Workspace. Hapus workspace lama untuk membuat baru, atau upgrade ke PRO."
+                    : "Hapus Workspace lama untuk membuat baru, atau upgrade ke PRO.")
             });
             return;
           }
@@ -205,9 +208,43 @@ export const WorkspaceDashboard = ({
         </div>
       )}
 
+      {!isLocked && isTrial && (
+        <div className="bg-purple-50 border-2 border-purple-300 rounded-xl p-4 flex items-center justify-between shadow-brutal-sm">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-purple-100 border border-purple-200 rounded-full flex items-center justify-center text-purple-600 font-bold shrink-0">
+              ✨
+            </div>
+            <div>
+              <h3 className="font-bold text-purple-900 flex items-center gap-2">
+                Mode Uji Coba Workspace
+                <span className="text-[10px] bg-purple-200 text-purple-800 px-2 py-0.5 rounded font-bold">TRIAL</span>
+              </h3>
+              <p className="text-purple-800 text-sm">
+                Anda dapat mencoba seluruh alur perencanaan dan penyusunan modul di Workspace ini (Batas: 1 Workspace). Upgrade ke PRO untuk mengelola hingga 10 kelas/mapel!
+              </p>
+            </div>
+          </div>
+          {onShowUpsell && (
+            <button
+              onClick={onShowUpsell}
+              className="px-3.5 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-lg transition-colors whitespace-nowrap shadow-sm shrink-0"
+            >
+              👑 Upgrade PRO
+            </button>
+          )}
+        </div>
+      )}
+
       <div className="workspace-card">
         <div>
-          <h1 className="workspace-title">{activeWorkspace.subject}</h1>
+          <div className="flex items-center gap-2">
+            <h1 className="workspace-title">{activeWorkspace.subject}</h1>
+            {isTrial && (
+              <span className="px-2 py-0.5 rounded text-xs font-bold bg-purple-100 text-purple-700 border border-purple-300">
+                ✨ TRIAL
+              </span>
+            )}
+          </div>
           <p className="workspace-meta">
             Kelas {activeWorkspace.grade} • Fase {activeWorkspace.phase} • {activeWorkspace.academic_year}
           </p>
@@ -230,7 +267,9 @@ export const WorkspaceDashboard = ({
                     toast.error(`Batas maksimal Workspace tercapai (${limit} Workspace).`, {
                       description: isPro 
                         ? "Anda telah mencapai batas maksimal Workspace untuk akun PRO (10 Workspace)." 
-                        : "Hapus Workspace lama untuk membuat baru, atau upgrade ke PRO untuk batas yang lebih tinggi (hingga 10 Workspace)."
+                        : (isTrial
+                            ? "Akun Trial dibatasi maksimal 1 Workspace. Hapus workspace lama untuk membuat baru, atau upgrade ke PRO."
+                            : "Hapus Workspace lama untuk membuat baru, atau upgrade ke PRO untuk batas yang lebih tinggi (hingga 10 Workspace).")
                     });
                     return;
                   }

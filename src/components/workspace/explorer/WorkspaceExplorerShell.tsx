@@ -14,6 +14,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { generateWorkspaceModul } from "./generateWorkspaceModul";
 import { generateWorkspaceMeetingDirect } from "./generateWorkspaceMeetingDirect";
 import { useSchool } from "@/contexts/SchoolContext";
+import { useSubscriptionStatus } from "@/hooks/useSubscriptionStatus";
+import { toast } from "sonner";
 
 interface WorkspaceExplorerShellProps {
   workspace: Workspace;
@@ -44,6 +46,8 @@ export const WorkspaceExplorerShell: React.FC<WorkspaceExplorerShellProps> = ({
   const { prosemPlans, prosemItems, isLoading, error, refresh } = useProsemData(workspace.id);
   const { refreshWorkspaces } = useWorkspace();
   const { user, isAdmin } = useAuth();
+  const { data: subStatus } = useSubscriptionStatus();
+  const isTrial = subStatus?.isTrial;
   // Antrean otomatis latar belakang (server) dinonaktifkan untuk menghemat resource dan kuota server
   const canAccessServerQueue = false;
 
@@ -157,11 +161,24 @@ export const WorkspaceExplorerShell: React.FC<WorkspaceExplorerShellProps> = ({
           {workspace.subject}
           {isLocked ? (
             <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-700 border border-amber-300">PREVIEW</span>
+          ) : isTrial ? (
+            <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-purple-100 text-purple-700 border border-purple-300">✨ TRIAL</span>
           ) : (
             <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-yellow-100 text-yellow-700 border border-yellow-300">👑 PRO</span>
           )}
         </span>
       </div>
+
+      {!isLocked && isTrial && (
+        <div className="bg-purple-50 border-2 border-purple-200 rounded-xl p-3 sm:p-4 flex items-center justify-between gap-3 shadow-brutal-sm">
+          <div className="flex items-center gap-2.5">
+            <span className="px-2 py-0.5 text-xs font-black bg-purple-600 text-white rounded shrink-0">TRIAL</span>
+            <p className="text-xs sm:text-sm text-purple-900 font-medium">
+              Mode Uji Coba Workspace: Anda dapat menyusun perencanaan (CP, Prota, KKTP, Prosem) dan membuat modul sesuai sisa kuota generate akun Anda.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Workspace Identity Header */}
       <div className="workspace-card">
@@ -290,6 +307,12 @@ export const WorkspaceExplorerShell: React.FC<WorkspaceExplorerShellProps> = ({
                     className="inline-flex items-center justify-center gap-2 px-4 py-2 mt-3 text-sm font-semibold text-white bg-amber-600 hover:bg-amber-700 rounded-lg transition-colors border border-amber-700 shadow-sm disabled:opacity-50"
                     disabled={isEnqueuing}
                     onClick={() => {
+                      if (isTrial) {
+                        toast.info("Fitur Auto-Generate Massal Server Khusus Akun PRO", {
+                          description: "Untuk akun Trial, Anda dapat membuat dokumen modul ajar per pertemuan langsung dengan tombol 'Buat Dokumen' di masing-masing pertemuan."
+                        });
+                        return;
+                      }
                       setIsAutoGenerateModalOpen(true);
                     }}
                   >

@@ -2663,7 +2663,10 @@ img{max-width:100%}
   };
 
   // Compute if workspace features (like generate) should be locked
-  const isWorkspaceLocked = !isAdmin && (!subStatus || !subStatus.isPro);
+  const isTrial = !!subStatus?.isTrial && !subStatus?.isExpired;
+  const isPro = (!!subStatus?.isPro || isAdmin) && !subStatus?.isExpired;
+  const canAccessWorkspace = isPro || isTrial;
+  const isWorkspaceLocked = !canAccessWorkspace;
 
   useEffect(() => {
     if (!isAuthLoading && !isSubStatusLoading && isWorkspaceLocked && appMode === 'workspace') {
@@ -2798,6 +2801,11 @@ img{max-width:100%}
           >
             <span>📁</span> Workspace
             {isWorkspaceLocked && <Lock className="w-3 h-3 ml-1 opacity-50" />}
+            {isTrial && (
+              <span className="text-[10px] font-bold bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded border border-purple-300">
+                Trial
+              </span>
+            )}
           </button>
         </div>
 
