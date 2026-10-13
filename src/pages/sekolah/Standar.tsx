@@ -13,7 +13,12 @@ import {
   Sparkles,
   ShieldCheck,
   Eye,
+  Upload,
+  Image as ImageIcon,
+  Trash2,
+  Loader2,
 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -36,6 +41,8 @@ function SekolahStandarContent() {
 
   const [kopHeader, setKopHeader] = useState('');
   const [kopSub, setKopSub] = useState('');
+  const [kopLogoUrl, setKopLogoUrl] = useState('');
+  const [isUploadingLogo, setIsUploadingLogo] = useState(false);
   const [kepsekName, setKepsekName] = useState('');
   const [kepsekNip, setKepsekNip] = useState('');
   const [wakaName, setWakaName] = useState('');
@@ -50,6 +57,7 @@ function SekolahStandarContent() {
     if (school) {
       setKopHeader(school.kop_header_text || `PEMERINTAH DAERAH PROVINSI / KABUPATEN\nDINAS PENDIDIKAN DAN KEBUDAYAAN\n${school.name.toUpperCase()}`);
       setKopSub(school.kop_sub_text || (school.alamat ? `${school.alamat} | NPSN: ${school.npsn || '-'}` : 'Jalan Pendidikan No. 1 | NPSN: ' + (school.npsn || '-')));
+      setKopLogoUrl(school.kop_logo_url || '');
       setKepsekName(school.kepsek_name || '');
       setKepsekNip(school.kepsek_nip || '');
       setWakaName(school.waka_name || '');
@@ -58,6 +66,54 @@ function SekolahStandarContent() {
       setIsKopLocked(school.is_kop_locked ?? false);
     }
   }, [school]);
+
+  const handleUploadLogo = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user || !school?.id) return;
+
+    if (!['image/jpeg', 'image/png'].includes(file.type)) {
+      toast.error('Format logo harus JPEG atau PNG');
+      return;
+    }
+
+    if (file.size > 500 * 1024) {
+      toast.error('Ukuran logo maksimal 500 KB');
+      return;
+    }
+
+    setIsUploadingLogo(true);
+    try {
+      const fileExt = file.type === 'image/png' ? 'png' : 'jpg';
+      const filePath = `${user.id}/school_logo_${school.id}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('letterheads')
+        .upload(filePath, file, {
+          contentType: file.type,
+          upsert: true,
+        });
+
+      if (uploadError) throw uploadError;
+
+      const { data: urlData } = supabase.storage
+        .from('letterheads')
+        .getPublicUrl(filePath);
+
+      const publicUrl = `${urlData.publicUrl}?t=${Date.now()}`;
+      setKopLogoUrl(publicUrl);
+      toast.success('Logo sekolah berhasil diunggah! Jangan lupa klik Simpan Standar.');
+    } catch (err: any) {
+      console.error('Error uploading school logo:', err);
+      toast.error(err.message || 'Gagal mengunggah logo sekolah');
+    } finally {
+      setIsUploadingLogo(false);
+    }
+  };
+
+  const handleDeleteLogo = () => {
+    setKopLogoUrl('');
+    toast.info('Logo dilepas. Klik Simpan Standar untuk menyimpan perubahan.');
+  };
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -68,6 +124,7 @@ function SekolahStandarContent() {
       await schoolApi.updateSchoolGovernance(school.id, {
         kop_header_text: kopHeader,
         kop_sub_text: kopSub,
+        kop_logo_url: kopLogoUrl || null,
         kepsek_name: kepsekName,
         kepsek_nip: kepsekNip,
         waka_name: wakaName,
@@ -119,6 +176,64 @@ function SekolahStandarContent() {
             </CardHeader>
 
             <CardContent className="space-y-4 pt-4">
+              {/* Upload Logo Resmi Sekolah */}
+              <div className="space-y-2 p-3 bg-muted/40 rounded-xl border-2 border-foreground/15">
+                <label className="text-xs font-bold text-foreground block">
+                  Logo Resmi Sekolah (Tercantum pada Kop Dokumen)
+                </label>
+                <div className="flex flex-col sm:flex-row items-center gap-3">
+                  <div className="w-16 h-16 rounded-xl border-2 border-foreground bg-card flex items-center justify-center shrink-0 overflow-hidden shadow-brutal-sm">
+                    {kopLogoUrl ? (
+                      <img src={kopLogoUrl} alt="Logo Sekolah" className="w-full h-full object-contain p-1" />
+                    ) : (
+                      <ImageIcon className="w-6 h-6 text-muted-foreground/60" />
+                    )}
+                  </div>
+                  <div className="flex-1 space-y-1 w-full text-center sm:text-left">
+                    <div className="flex flex-wrap items-center gap-2 justify-center sm:justify-start">
+                      <label className="cursor-pointer">
+                        <input
+                          type="file"
+                          accept="image/png,image/jpeg"
+                          onChange={handleUploadLogo}
+                          disabled={!canEdit || isUploadingLogo}
+                          className="hidden"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          disabled={!canEdit || isUploadingLogo}
+                          className="text-xs font-bold gap-1.5 border-2 border-foreground shadow-brutal-sm hover:shadow-none pointer-events-none"
+                        >
+                          {isUploadingLogo ? (
+                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          ) : (
+                            <Upload className="w-3.5 h-3.5" />
+                          )}
+                          <span>{isUploadingLogo ? 'Mengunggah...' : 'Unggah Logo (PNG/JPEG)'}</span>
+                        </Button>
+                      </label>
+                      {kopLogoUrl && canEdit && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={handleDeleteLogo}
+                          className="text-xs text-rose-600 hover:text-rose-700 hover:bg-rose-50 font-bold"
+                        >
+                          <Trash2 className="w-3.5 h-3.5 mr-1" />
+                          Hapus Logo
+                        </Button>
+                      )}
+                    </div>
+                    <p className="text-[10px] text-muted-foreground">
+                      Maksimal 500 KB. Disarankan gambar PNG transparan agar rapi di lembar cetak Word & PDF.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-foreground">
                   Header Instansi & Nama Sekolah (Baris 1 - 3)
@@ -258,12 +373,19 @@ function SekolahStandarContent() {
 
             <CardContent className="p-4 space-y-4 text-xs font-serif bg-white text-black dark:bg-slate-950 dark:text-slate-100 rounded-b-xl">
               {/* Header Kop */}
-              <div className="border-b-2 border-black dark:border-white pb-2 text-center space-y-0.5">
-                <div className="font-bold text-[11px] leading-tight whitespace-pre-wrap uppercase tracking-wide">
-                  {kopHeader || 'PEMERINTAH PROVINSI\nDINAS PENDIDIKAN\nNAMA SEKOLAH'}
-                </div>
-                <div className="text-[9px] font-sans text-gray-600 dark:text-gray-400">
-                  {kopSub || 'Alamat Sekolah | NPSN | Kontak'}
+              <div className="border-b-2 border-black dark:border-white pb-2 flex items-center gap-3">
+                {kopLogoUrl && (
+                  <div className="w-12 h-12 shrink-0 flex items-center justify-center">
+                    <img src={kopLogoUrl} alt="Logo" className="max-h-12 max-w-12 object-contain" />
+                  </div>
+                )}
+                <div className="flex-1 text-center space-y-0.5">
+                  <div className="font-bold text-[11px] leading-tight whitespace-pre-wrap uppercase tracking-wide">
+                    {kopHeader || 'PEMERINTAH PROVINSI\nDINAS PENDIDIKAN\nNAMA SEKOLAH'}
+                  </div>
+                  <div className="text-[9px] font-sans text-gray-600 dark:text-gray-400">
+                    {kopSub || 'Alamat Sekolah | NPSN | Kontak'}
+                  </div>
                 </div>
               </div>
 

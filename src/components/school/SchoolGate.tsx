@@ -32,22 +32,154 @@ export const SchoolFeatureRestricted: React.FC = () => (
   </div>
 );
 
+interface SchoolJoinCardProps {
+  joinSchool: (npsn: string) => Promise<any>;
+}
+
+const SchoolJoinCard: React.FC<SchoolJoinCardProps> = ({ joinSchool }) => {
+  const [inviteCodeInput, setInviteCodeInput] = useState('');
+  const [joinMode, setJoinMode] = useState<'code' | 'npsn'>('code');
+  const [npsnInput, setNpsnInput] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleJoinByCode = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!inviteCodeInput.trim()) {
+      toast.error('Masukkan kode undangan sekolah');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const res = await schoolApi.joinSchoolByCode(inviteCodeInput.trim());
+      if (res.success) {
+        toast.success(res.message);
+        window.location.reload();
+      } else {
+        toast.error(res.message);
+      }
+    } catch (err: any) {
+      toast.error(err?.message || 'Gagal bergabung dengan kode undangan');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleJoinByNpsn = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!npsnInput.trim()) {
+      toast.error('Masukkan nomor NPSN sekolah');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const res = await joinSchool(npsnInput.trim());
+      if (res.success) {
+        toast.success(res.message);
+      } else {
+        toast.error(res.message);
+      }
+    } catch (err: any) {
+      toast.error(err?.message || 'Gagal mengajukan permohonan');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="max-w-lg mx-auto my-12 p-8 border rounded-xl bg-card text-center space-y-5 shadow-sm">
+      <div className="w-12 h-12 rounded-full bg-indigo-100 text-indigo-600 mx-auto flex items-center justify-center">
+        <SchoolIcon className="w-6 h-6" />
+      </div>
+      <div>
+        <h2 className="text-xl font-bold text-foreground">Gabung ke Sekolah Anda</h2>
+        <p className="text-sm text-muted-foreground mt-1">
+          Sinkronkan kalender pendidikan dan berkolaborasi bersama dewan guru di sekolah Anda.
+        </p>
+      </div>
+
+      <div className="flex justify-center border-b pb-2 gap-4 text-xs font-semibold">
+        <button
+          type="button"
+          onClick={() => setJoinMode('code')}
+          className={`pb-1 transition-all ${
+            joinMode === 'code'
+              ? 'border-b-2 border-indigo-600 text-indigo-600 font-bold'
+              : 'text-muted-foreground hover:text-foreground'
+          }`}
+        >
+          Kode Undangan (Langsung Aktif)
+        </button>
+        <button
+          type="button"
+          onClick={() => setJoinMode('npsn')}
+          className={`pb-1 transition-all ${
+            joinMode === 'npsn'
+              ? 'border-b-2 border-indigo-600 text-indigo-600 font-bold'
+              : 'text-muted-foreground hover:text-foreground'
+          }`}
+        >
+          Ajukan via NPSN
+        </button>
+      </div>
+
+      {joinMode === 'code' ? (
+        <form onSubmit={handleJoinByCode} className="space-y-3 text-left">
+          <label className="text-xs font-semibold text-muted-foreground">
+            Kode Undangan Rahasia (Dibagikan oleh Waka Kurikulum)
+          </label>
+          <div className="flex gap-2">
+            <Input
+              placeholder="Contoh: SCH-A1B2C3"
+              value={inviteCodeInput}
+              onChange={(e) => setInviteCodeInput(e.target.value.toUpperCase())}
+              disabled={isSubmitting}
+              className="font-mono uppercase font-bold tracking-wider"
+            />
+            <Button type="submit" disabled={isSubmitting || !inviteCodeInput.trim()} className="shrink-0 gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white">
+              {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <ArrowRight className="w-4 h-4" />}
+              Masuk
+            </Button>
+          </div>
+          <p className="text-[11px] text-muted-foreground">
+            💡 Bergabung dengan kode rahasia akan langsung mengaktifkan status keanggotaan Anda tanpa menunggu antrean persetujuan.
+          </p>
+        </form>
+      ) : (
+        <form onSubmit={handleJoinByNpsn} className="space-y-3 text-left">
+          <label className="text-xs font-semibold text-muted-foreground">Nomor Pokok Sekolah Nasional (NPSN)</label>
+          <div className="flex gap-2">
+            <Input
+              placeholder="Contoh: 20501234"
+              value={npsnInput}
+              onChange={(e) => setNpsnInput(e.target.value)}
+              disabled={isSubmitting}
+            />
+            <Button type="submit" disabled={isSubmitting} className="shrink-0 gap-1.5">
+              {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <ArrowRight className="w-4 h-4" />}
+              Ajukan
+            </Button>
+          </div>
+          <p className="text-[11px] text-muted-foreground">
+            Pengajuan via NPSN memerlukan persetujuan manual oleh Waka Kurikulum sekolah Anda.
+          </p>
+        </form>
+      )}
+    </div>
+  );
+};
+
 export const SchoolGate: React.FC<SchoolGateProps> = ({ children, requiredRole }) => {
   const { user, isAdmin, isLoading: authLoading } = useAuth();
   const {
-    school,
-    schoolMember,
     isLoading: schoolLoading,
     isSchoolActive,
     isPending,
     isWaka,
-    isKepsek,
     isFeatureAllowed,
     joinSchool,
   } = useSchool();
-
-  const [npsnInput, setNpsnInput] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (authLoading || schoolLoading) {
     return (
@@ -64,7 +196,7 @@ export const SchoolGate: React.FC<SchoolGateProps> = ({ children, requiredRole }
     return <Navigate to="/auth" replace />;
   }
 
-  // 1. Cek Aturan Deploy Terbatas (hanya Admin & jagofeed@gmail.com)
+  // 1. Cek Hak Akses (Admin / Akun Pilot jagofeed@gmail.com / Sekolah Berlangganan Aktif)
   if (!isFeatureAllowed) {
     return <Navigate to="/app" replace />;
   }
@@ -91,135 +223,7 @@ export const SchoolGate: React.FC<SchoolGateProps> = ({ children, requiredRole }
 
   // 3. Jika belum terdaftar di sekolah manapun
   if (!isSchoolActive) {
-    const [inviteCodeInput, setInviteCodeInput] = useState('');
-    const [joinMode, setJoinMode] = useState<'code' | 'npsn'>('code');
-
-    const handleJoinByCode = async (e: React.FormEvent) => {
-      e.preventDefault();
-      if (!inviteCodeInput.trim()) {
-        toast.error('Masukkan kode undangan sekolah');
-        return;
-      }
-
-      setIsSubmitting(true);
-      try {
-        const res = await schoolApi.joinSchoolByCode(inviteCodeInput.trim());
-        if (res.success) {
-          toast.success(res.message);
-          window.location.reload();
-        } else {
-          toast.error(res.message);
-        }
-      } catch (err: any) {
-        toast.error(err?.message || 'Gagal bergabung dengan kode undangan');
-      } finally {
-        setIsSubmitting(false);
-      }
-    };
-
-    const handleJoinByNpsn = async (e: React.FormEvent) => {
-      e.preventDefault();
-      if (!npsnInput.trim()) {
-        toast.error('Masukkan nomor NPSN sekolah');
-        return;
-      }
-
-      setIsSubmitting(true);
-      try {
-        const res = await joinSchool(npsnInput.trim());
-        if (res.success) {
-          toast.success(res.message);
-        } else {
-          toast.error(res.message);
-        }
-      } catch (err: any) {
-        toast.error(err?.message || 'Gagal mengajukan permohonan');
-      } finally {
-        setIsSubmitting(false);
-      }
-    };
-
-    return (
-      <div className="max-w-lg mx-auto my-12 p-8 border rounded-xl bg-card text-center space-y-5 shadow-sm">
-        <div className="w-12 h-12 rounded-full bg-indigo-100 text-indigo-600 mx-auto flex items-center justify-center">
-          <SchoolIcon className="w-6 h-6" />
-        </div>
-        <div>
-          <h2 className="text-xl font-bold text-foreground">Gabung ke Sekolah Anda</h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            Sinkronkan kalender pendidikan dan berkolaborasi bersama dewan guru di sekolah Anda.
-          </p>
-        </div>
-
-        <div className="flex justify-center border-b pb-2 gap-4 text-xs font-semibold">
-          <button
-            type="button"
-            onClick={() => setJoinMode('code')}
-            className={`pb-1 transition-all ${
-              joinMode === 'code'
-                ? 'border-b-2 border-indigo-600 text-indigo-600 font-bold'
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            Kode Undangan (Langsung Aktif)
-          </button>
-          <button
-            type="button"
-            onClick={() => setJoinMode('npsn')}
-            className={`pb-1 transition-all ${
-              joinMode === 'npsn'
-                ? 'border-b-2 border-indigo-600 text-indigo-600 font-bold'
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            Ajukan via NPSN
-          </button>
-        </div>
-
-        {joinMode === 'code' ? (
-          <form onSubmit={handleJoinByCode} className="space-y-3 text-left">
-            <label className="text-xs font-semibold text-muted-foreground">
-              Kode Undangan Rahasia (Dibagikan oleh Waka Kurikulum)
-            </label>
-            <div className="flex gap-2">
-              <Input
-                placeholder="Contoh: SCH-A1B2C3"
-                value={inviteCodeInput}
-                onChange={(e) => setInviteCodeInput(e.target.value.toUpperCase())}
-                disabled={isSubmitting}
-                className="font-mono uppercase font-bold tracking-wider"
-              />
-              <Button type="submit" disabled={isSubmitting || !inviteCodeInput.trim()} className="shrink-0 gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white">
-                {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <ArrowRight className="w-4 h-4" />}
-                Masuk
-              </Button>
-            </div>
-            <p className="text-[11px] text-muted-foreground">
-              💡 Bergabung dengan kode rahasia akan langsung mengaktifkan status keanggotaan Anda tanpa menunggu antrean persetujuan.
-            </p>
-          </form>
-        ) : (
-          <form onSubmit={handleJoinByNpsn} className="space-y-3 text-left">
-            <label className="text-xs font-semibold text-muted-foreground">Nomor Pokok Sekolah Nasional (NPSN)</label>
-            <div className="flex gap-2">
-              <Input
-                placeholder="Contoh: 20501234"
-                value={npsnInput}
-                onChange={(e) => setNpsnInput(e.target.value)}
-                disabled={isSubmitting}
-              />
-              <Button type="submit" disabled={isSubmitting} className="shrink-0 gap-1.5">
-                {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <ArrowRight className="w-4 h-4" />}
-                Ajukan
-              </Button>
-            </div>
-            <p className="text-[11px] text-muted-foreground">
-              Pengajuan via NPSN memerlukan persetujuan manual oleh Waka Kurikulum sekolah Anda.
-            </p>
-          </form>
-        )}
-      </div>
-    );
+    return <SchoolJoinCard joinSchool={joinSchool} />;
   }
 
   // 4. Role Guard jika route membutuhkan peran khusus (misal Waka)

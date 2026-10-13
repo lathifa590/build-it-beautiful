@@ -19,6 +19,7 @@ interface SchoolContextType {
   isWaka: boolean;
   isKepsek: boolean;
   isGuru: boolean;
+  hasActiveSubscription: boolean;
   isFeatureAllowed: boolean;
   refreshSchool: () => Promise<void>;
   fetchCalendar: (academicYear: string, semester: 1 | 2) => Promise<SchoolCalendar | null>;
@@ -48,6 +49,7 @@ export const useSchool = () => {
       isWaka: false,
       isKepsek: false,
       isGuru: false,
+      hasActiveSubscription: false,
       isFeatureAllowed: false,
       refreshSchool: async () => {},
       fetchCalendar: async () => null,
@@ -68,7 +70,10 @@ export const SchoolProvider: React.FC<SchoolProviderProps> = ({ children }) => {
   const [schoolCalendar, setSchoolCalendar] = useState<SchoolCalendar | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  const isFeatureAllowed = isSchoolFeatureAccessible(user?.email, isAdmin);
+  const hasActiveSubscription = Boolean(
+    school?.subscription_expires_at && new Date(school.subscription_expires_at).getTime() > Date.now()
+  );
+  const isFeatureAllowed = isSchoolFeatureAccessible(user?.email, isAdmin, hasActiveSubscription);
 
   const refreshSchool = useCallback(async () => {
     if (!user) {
@@ -150,6 +155,7 @@ export const SchoolProvider: React.FC<SchoolProviderProps> = ({ children }) => {
         isWaka,
         isKepsek,
         isGuru,
+        hasActiveSubscription,
         isFeatureAllowed,
         refreshSchool,
         fetchCalendar,

@@ -158,6 +158,22 @@ function SekolahAnggotaContent() {
     }
   };
 
+  const totalSeats = school?.seat_quota || 25;
+  const activeMembers = useMemo(
+    () => members.filter((m) => m.school_status === 'active'),
+    [members]
+  );
+  const activeCount = activeMembers.length;
+  const seatPercent = Math.min(100, Math.round((activeCount / totalSeats) * 100));
+  const isSeatFull = activeCount >= totalSeats;
+
+  const subscriptionExpiryDate = school?.subscription_expires_at
+    ? new Date(school.subscription_expires_at)
+    : null;
+  const isSubscriptionActive = Boolean(
+    subscriptionExpiryDate && subscriptionExpiryDate.getTime() > Date.now()
+  );
+
   return (
     <SchoolLayout
       pageTitle="Dewan Guru & Manajemen Undangan"
@@ -188,6 +204,109 @@ function SekolahAnggotaContent() {
       }
     >
       <div className="space-y-6">
+        {/* Banner Kuota Kursi & Status Langganan Sekolah */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Card className="md:col-span-2 border-2 border-foreground shadow-brutal bg-card rounded-2xl">
+            <CardContent className="p-5 space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center font-black">
+                    <Users className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-black text-foreground">
+                      Kapasitas Kuota Dewan Guru
+                    </h3>
+                    <p className="text-[11px] text-muted-foreground font-medium">
+                      Paket mencakup {totalSeats} akun guru aktif • Tambah kuota: Rp 90.000/guru/tahun
+                    </p>
+                  </div>
+                </div>
+                <Badge
+                  variant="outline"
+                  className={`text-xs font-mono font-black border-2 ${
+                    isSeatFull
+                      ? 'bg-rose-50 text-rose-700 border-rose-600'
+                      : seatPercent >= 80
+                      ? 'bg-amber-50 text-amber-800 border-amber-600'
+                      : 'bg-emerald-50 text-emerald-800 border-emerald-600'
+                  }`}
+                >
+                  {activeCount} / {totalSeats} Kursi ({seatPercent}%)
+                </Badge>
+              </div>
+
+              {/* Progress Bar */}
+              <div className="w-full bg-muted rounded-full h-3.5 border-2 border-foreground overflow-hidden">
+                <div
+                  className={`h-full transition-all duration-500 ${
+                    isSeatFull
+                      ? 'bg-rose-600'
+                      : seatPercent >= 80
+                      ? 'bg-amber-500'
+                      : 'bg-emerald-500'
+                  }`}
+                  style={{ width: `${seatPercent}%` }}
+                />
+              </div>
+
+              {isSeatFull && (
+                <div className="p-2.5 rounded-xl bg-rose-50 border-2 border-rose-400 text-rose-900 text-xs font-semibold flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
+                  <span>
+                    Kuota guru telah penuh ({activeCount}/{totalSeats}). Guru baru tidak dapat bergabung hingga kuota ditambah oleh Admin platform.
+                  </span>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className="border-2 border-foreground shadow-brutal bg-card rounded-2xl">
+            <CardContent className="p-5 space-y-2 flex flex-col justify-between h-full">
+              <div className="space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">
+                    Status Paket Sekolah
+                  </span>
+                  <Badge
+                    variant="outline"
+                    className={`text-[10px] font-black border-2 ${
+                      isSubscriptionActive
+                        ? 'bg-emerald-50 text-emerald-800 border-emerald-600'
+                        : 'bg-rose-50 text-rose-700 border-rose-600'
+                    }`}
+                  >
+                    {isSubscriptionActive ? 'Aktif' : 'Belum Aktif'}
+                  </Badge>
+                </div>
+                <div className="text-sm font-black text-foreground pt-1">
+                  {subscriptionExpiryDate
+                    ? subscriptionExpiryDate.toLocaleDateString('id-ID', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric',
+                      })
+                    : 'Belum Berlangganan'}
+                </div>
+                <p className="text-[11px] text-muted-foreground font-medium">
+                  {isSubscriptionActive
+                    ? 'Seluruh fitur monitoring, bank modul, dan kalender aktif.'
+                    : 'Hubungi Admin platform untuk mengaktifkan langganan sekolah.'}
+                </p>
+              </div>
+
+              <a
+                href="https://wa.me/6282228882006?text=Halo%20Admin%2C%20saya%20ingin%20tanya%20perpanjangan%20atau%20penambahan%20kuota%20Paket%20Sekolah"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center justify-center gap-1 text-[11px] font-bold text-primary hover:underline pt-1"
+              >
+                <span>Bantuan / Tambah Kuota via WhatsApp →</span>
+              </a>
+            </CardContent>
+          </Card>
+        </div>
+
         {/* Banner Kode Rahasia Sekolah */}
         <Card className="border-2 border-foreground shadow-brutal bg-card rounded-2xl">
           <CardContent className="p-4 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -401,6 +520,15 @@ function SekolahAnggotaContent() {
           </DialogHeader>
 
           <form onSubmit={handleAddEmail} className="space-y-4 py-2">
+            {isSeatFull && (
+              <div className="p-3 rounded-xl bg-rose-50 border-2 border-rose-400 text-rose-950 text-xs font-semibold flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
+                <span>
+                  Kuota guru telah penuh ({activeCount}/{totalSeats}). Anda harus mengeluarkan guru tidak aktif atau menghubungi Admin untuk menambah kuota sebelum mendaftarkan guru baru.
+                </span>
+              </div>
+            )}
+
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-foreground">Email Akun Guru</label>
               <Input
@@ -409,7 +537,7 @@ function SekolahAnggotaContent() {
                 placeholder="contoh: guru.ipa@sekolah.sch.id"
                 value={emailInput}
                 onChange={(e) => setEmailInput(e.target.value)}
-                disabled={isAddingEmail}
+                disabled={isAddingEmail || isSeatFull}
                 className="text-xs border-2 border-foreground rounded-xl shadow-brutal-sm font-medium"
               />
               <p className="text-[11px] text-muted-foreground font-medium">

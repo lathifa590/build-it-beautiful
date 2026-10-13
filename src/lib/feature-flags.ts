@@ -22,15 +22,20 @@ export const ENABLE_PERTEMUAN_DOCS_V2: boolean =
 export const ENABLE_OUTPUT_FORMAT_SELECTOR: boolean = false;
 
 /**
- * Aturan Deploy Terbatas Mode Sekolah:
- * Sesuai panduan di AGENTS.md, akses fitur Sekolah dalam tahap rilis terbatas
- * hanya dibuka untuk Admin dan akun jagofeed@gmail.com.
+ * Aturan Akses Mode Sekolah:
+ * Dibuka untuk:
+ * 1. Admin platform.
+ * 2. Akun pilot Deploy Terbatas (jagofeed@gmail.com).
+ * 3. Akun guru/waka/kepsek yang berafiliasi dengan sekolah berlangganan aktif (subscription_expires_at > now()).
  */
 export const isSchoolFeatureAccessible = (
   userEmail?: string | null,
-  isAdmin: boolean = false
+  isAdmin: boolean = false,
+  hasActiveSchoolSubscription: boolean = false
 ): boolean => {
   if (isAdmin) return true;
+  if (hasActiveSchoolSubscription) return true;
   if (!userEmail) return false;
   return userEmail.trim().toLowerCase() === 'jagofeed@gmail.com';
 };
+

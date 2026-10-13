@@ -70,6 +70,8 @@ export default function AdminSchools() {
     academic_year_active: '2024/2025',
     waka_user_id: '',
     kepsek_user_id: '',
+    seat_quota: 25,
+    subscription_expires_at: '',
   });
 
   // Dialog State: Delete
@@ -139,6 +141,8 @@ export default function AdminSchools() {
       academic_year_active: '2024/2025',
       waka_user_id: '',
       kepsek_user_id: '',
+      seat_quota: 25,
+      subscription_expires_at: '',
     });
     setIsFormOpen(true);
   };
@@ -154,6 +158,10 @@ export default function AdminSchools() {
       academic_year_active: school.academic_year_active || '2024/2025',
       waka_user_id: school.waka_user_id || '',
       kepsek_user_id: school.kepsek_user_id || '',
+      seat_quota: school.seat_quota ?? 25,
+      subscription_expires_at: school.subscription_expires_at
+        ? new Date(school.subscription_expires_at).toISOString().split('T')[0]
+        : '',
     });
     setIsFormOpen(true);
   };
@@ -168,6 +176,11 @@ export default function AdminSchools() {
 
     setIsSubmitting(true);
     try {
+      const subExpires = formData.subscription_expires_at
+        ? new Date(formData.subscription_expires_at + 'T23:59:59.000Z').toISOString()
+        : null;
+      const seatQuota = Math.max(1, Math.min(500, Number(formData.seat_quota) || 25));
+
       if (editingSchool) {
         // Update
         await schoolApi.updateSchool(editingSchool.id, {
@@ -178,6 +191,8 @@ export default function AdminSchools() {
           academic_year_active: formData.academic_year_active.trim() || '2024/2025',
           waka_user_id: formData.waka_user_id || null,
           kepsek_user_id: formData.kepsek_user_id || null,
+          subscription_expires_at: subExpires,
+          seat_quota: seatQuota,
         });
         toast.success(`Sekolah ${formData.name} berhasil diperbarui`);
       } else {
@@ -190,6 +205,8 @@ export default function AdminSchools() {
           academic_year_active: formData.academic_year_active.trim() || '2024/2025',
           waka_user_id: formData.waka_user_id || null,
           kepsek_user_id: formData.kepsek_user_id || null,
+          subscription_expires_at: subExpires,
+          seat_quota: seatQuota,
         });
         toast.success(`Sekolah ${formData.name} berhasil didaftarkan`);
       }
@@ -395,20 +412,21 @@ export default function AdminSchools() {
                       <th className="px-4 py-3.5">Jenjang</th>
                       <th className="px-4 py-3.5">Waka Kurikulum</th>
                       <th className="px-4 py-3.5">Tahun Ajaran</th>
+                      <th className="px-4 py-3.5">Paket & Kuota</th>
                       <th className="px-4 py-3.5 text-right">Aksi</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y-2 divide-foreground/10 font-medium">
                     {isLoading ? (
                       <tr>
-                        <td colSpan={6} className="text-center py-12 text-muted-foreground">
+                        <td colSpan={7} className="text-center py-12 text-muted-foreground">
                           <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2 text-primary" />
                           Memuat data sekolah...
                         </td>
                       </tr>
                     ) : filteredSchools.length === 0 ? (
                       <tr>
-                        <td colSpan={6} className="text-center py-12 text-muted-foreground">
+                        <td colSpan={7} className="text-center py-12 text-muted-foreground">
                           <AlertCircle className="w-8 h-8 mx-auto mb-2 text-muted-foreground/60" />
                           Belum ada sekolah terdaftar.
                         </td>
@@ -441,6 +459,22 @@ export default function AdminSchools() {
                           </td>
                           <td className="px-4 py-3.5 text-xs font-semibold">
                             {sch.academic_year_active || '2024/2025'}
+                          </td>
+                          <td className="px-4 py-3.5 text-xs">
+                            <div className="flex flex-col gap-1">
+                              {sch.subscription_expires_at && new Date(sch.subscription_expires_at).getTime() > Date.now() ? (
+                                <Badge variant="outline" className="bg-emerald-50 text-emerald-800 border-emerald-500 font-mono text-[10px] w-fit">
+                                  Aktif s.d. {new Date(sch.subscription_expires_at).toLocaleDateString('id-ID')}
+                                </Badge>
+                              ) : (
+                                <Badge variant="outline" className="bg-rose-50 text-rose-700 border-rose-300 font-mono text-[10px] w-fit">
+                                  Belum Aktif
+                                </Badge>
+                              )}
+                              <span className="text-[11px] font-bold text-muted-foreground">
+                                Kuota: {sch.seat_quota || 25} Guru
+                              </span>
+                            </div>
                           </td>
                           <td className="px-4 py-3.5 text-right">
                             <div className="flex items-center justify-end gap-1.5">
@@ -653,6 +687,78 @@ export default function AdminSchools() {
                   value={formData.alamat}
                   onChange={(e) => setFormData({ ...formData, alamat: e.target.value })}
                 />
+              </div>
+
+              {/* PENGATURAN BILLING & KUOTA */}
+              <div className="p-3.5 bg-muted/50 rounded-xl border-2 border-foreground/15 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-black uppercase text-foreground">
+                    Pengaturan Paket & Kuota (Billing)
+                  </span>
+                  <Badge variant="outline" className="text-[10px] font-bold border-foreground/30">
+                    Khusus Admin
+                  </Badge>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="school-quota" className="font-bold text-xs">
+                      Kuota Kursi Guru
+                    </Label>
+                    <Input
+                      id="school-quota"
+                      type="number"
+                      min={1}
+                      max={500}
+                      value={formData.seat_quota}
+                      onChange={(e) => setFormData({ ...formData, seat_quota: Number(e.target.value) })}
+                    />
+                    <p className="text-[10px] text-muted-foreground font-medium">Standar: 25 guru</p>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label htmlFor="school-sub-exp" className="font-bold text-xs">
+                      Masa Aktif Berakhir
+                    </Label>
+                    <Input
+                      id="school-sub-exp"
+                      type="date"
+                      value={formData.subscription_expires_at}
+                      onChange={(e) => setFormData({ ...formData, subscription_expires_at: e.target.value })}
+                    />
+                    <div className="flex gap-1 pt-1">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const d = new Date();
+                          d.setFullYear(d.getFullYear() + 1);
+                          setFormData({ ...formData, subscription_expires_at: d.toISOString().split('T')[0] });
+                        }}
+                        className="text-[10px] px-1.5 py-0.5 bg-background border rounded hover:bg-muted font-bold"
+                      >
+                        +1 Thn
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const d = new Date();
+                          d.setMonth(d.getMonth() + 6);
+                          setFormData({ ...formData, subscription_expires_at: d.toISOString().split('T')[0] });
+                        }}
+                        className="text-[10px] px-1.5 py-0.5 bg-background border rounded hover:bg-muted font-bold"
+                      >
+                        +6 Bln
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setFormData({ ...formData, subscription_expires_at: '' })}
+                        className="text-[10px] px-1.5 py-0.5 bg-background border border-rose-300 text-rose-600 rounded hover:bg-rose-50 font-bold"
+                      >
+                        Hapus
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <DialogFooter className="pt-3">

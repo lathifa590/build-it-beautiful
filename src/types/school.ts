@@ -24,6 +24,8 @@ export interface School {
   waka_nip?: string | null;
   titimangsa_kota?: string | null;
   is_kop_locked?: boolean;
+  subscription_expires_at?: string | null;
+  seat_quota?: number;
   created_by?: string | null;
   created_at?: string;
   updated_at?: string;

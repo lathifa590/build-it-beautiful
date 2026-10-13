@@ -23,6 +23,7 @@ import type { V2ExportScope, V2ExportFormat } from "@/lib/pertemuan-export";
 import { MobileNavigation } from "@/components/modul/MobileNavigation";
 
 import { useSubscriptionStatus } from "@/hooks/useSubscriptionStatus";
+import { useLetterhead } from "@/hooks/useLetterhead";
 
 interface WorkspaceMeetingEditorProps {
   workspace: Workspace;
@@ -223,10 +224,19 @@ export const WorkspaceMeetingEditor: React.FC<WorkspaceMeetingEditorProps> = ({
     },
   });
 
+  const {
+    letterheadUrl,
+    isEnabled: isLetterheadEnabled,
+    isLockedBySchool,
+    schoolName,
+  } = useLetterhead();
+
   const [showV2Export, setShowV2Export] = useState(false);
   const v2Export = useV2Export({
     result: pertemuanV2.result,
     formData: formData || DEFAULT_FORM_DATA,
+    letterheadUrl,
+    isLetterheadEnabled,
     notify: (msg, type) => {
       toast({ description: msg, variant: type === 'error' ? 'destructive' : 'default' });
     },
@@ -813,8 +823,8 @@ export const WorkspaceMeetingEditor: React.FC<WorkspaceMeetingEditorProps> = ({
               bankSoalData={ jenis === "soal" ? (dokumen as BankSoalData) : undefined } isModulComplete={true} v2Mode={true}
               generatedImage={null}
               soalImage={null}
-              letterheadUrl={null}
-              isLetterheadEnabled={false}
+              letterheadUrl={letterheadUrl}
+              isLetterheadEnabled={isLetterheadEnabled}
               onUpdateStimulusImage={v2Handlers.onUpdateStimulusImage}
               onUpdateSoalImage={v2Handlers.onUpdateSoalImage}
               stimulusImageCount={v2ImageCounts.stimulus}
