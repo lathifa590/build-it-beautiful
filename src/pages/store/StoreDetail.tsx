@@ -7,6 +7,7 @@ import { ArrowLeft, Store, FileText, CheckCircle, Download, Ticket, X, Check, Ta
 import { toast } from 'sonner';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { StoreCoupon } from '@/types/store';
+import { StoreProductThumbnail } from '@/components/store/StoreProductThumbnail';
 
 const StoreDetail = () => {
   const { listingId } = useParams();
@@ -152,17 +153,15 @@ const StoreDetail = () => {
         <div className="bg-white rounded-2xl border-2 border-[#111] overflow-hidden flex flex-col md:flex-row shadow-[4px_4px_0_0_#111]">
           {/* Image Section */}
           <div className="w-full md:w-5/12 lg:w-1/3 bg-white md:bg-[#f5f0e8] border-b-2 md:border-b-0 md:border-r-2 border-[#111] flex items-start md:items-center justify-center p-0 md:p-6">
-             {listing.preview_image_url ? (
-               <img 
-                 src={listing.preview_image_url} 
-                 alt={listing.title} 
-                 className="w-full aspect-[4/3] object-cover md:rounded-xl md:border-2 md:border-[#111] md:shadow-[4px_4px_0_0_#111]" 
+             <div className="w-full aspect-[4/3] md:rounded-xl md:border-2 md:border-[#111] md:shadow-[4px_4px_0_0_#111] overflow-hidden">
+               <StoreProductThumbnail
+                 title={listing.title}
+                 previewImageUrl={listing.preview_image_url}
+                 category={listing.category}
+                 aspectRatio="4/3"
+                 className="w-full h-full"
                />
-             ) : (
-               <div className="w-full aspect-[4/3] flex items-center justify-center bg-gray-100 md:bg-white md:rounded-xl md:border-2 md:border-[#111] md:shadow-[4px_4px_0_0_#111]">
-                 <FileText className="w-24 h-24 md:w-16 md:h-16 text-gray-300" />
-               </div>
-             )}
+             </div>
           </div>
           
           {/* Detail Section */}
