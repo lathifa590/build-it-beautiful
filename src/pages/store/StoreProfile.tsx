@@ -25,6 +25,18 @@ const StoreProfilePage = () => {
     enabled: !!profile?.store_id,
   });
 
+  // Catat kunjungan toko (store visit) sekali per sesi per hari
+  React.useEffect(() => {
+    if (profile?.store_id) {
+      const today = new Date().toISOString().slice(0, 10);
+      const sessionKey = `visited_store_${profile.store_id}_${today}`;
+      if (!sessionStorage.getItem(sessionKey)) {
+        sessionStorage.setItem(sessionKey, '1');
+        storeApi.recordStoreVisit(profile.store_id);
+      }
+    }
+  }, [profile?.store_id]);
+
   if (isProfileLoading) {
     return (
       <div className="min-h-screen bg-brand-cream flex items-center justify-center">

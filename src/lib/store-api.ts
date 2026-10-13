@@ -353,14 +353,38 @@ export const storeApi = {
   },
 
   async incrementStoreMetric(storeId: string, listingId: string | null, metricType: 'views' | 'clicks'): Promise<void> {
-    const { error } = await supabase.rpc('increment_store_metric', {
-      p_store_id: storeId,
-      p_listing_id: listingId,
-      p_metric_type: metricType
-    });
-    
-    if (error) {
-      console.error(`Error incrementing ${metricType}:`, error);
+    if (metricType === 'views') {
+      await this.recordStoreVisit(storeId);
+    } else {
+      if (listingId) {
+        await this.recordProductView(storeId, listingId);
+      }
+    }
+  },
+
+  /**
+   * Mencatat kunjungan toko (store_views) secara aman melalui Edge Function
+   */
+  async recordStoreVisit(storeId: string): Promise<void> {
+    try {
+      await supabase.functions.invoke('record-store-metric', {
+        body: { store_id: storeId, type: 'store_view' }
+      });
+    } catch (err) {
+      console.warn('Failed to record store visit:', err);
+    }
+  },
+
+  /**
+   * Mencatat interaksi modul dilihat (product_views) secara aman melalui Edge Function
+   */
+  async recordProductView(storeId: string, listingId: string): Promise<void> {
+    try {
+      await supabase.functions.invoke('record-store-metric', {
+        body: { store_id: storeId, listing_id: listingId, type: 'product_view' }
+      });
+    } catch (err) {
+      console.warn('Failed to record product view:', err);
     }
   }
 };
