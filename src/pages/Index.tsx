@@ -3369,9 +3369,10 @@ img{max-width:100%}
                   activeJenis={v2ActiveJenis}
                   onChangePertemuan={setV2ActivePertemuanId}
                   onChangeJenis={setV2ActiveJenis}
-                  onRetry={(pertemuanId, jenis) =>
-                    pertemuanV2.regenerateDokumen(pertemuanId, jenis)
-                  }
+                  onRetry={(pertemuanId, jenis) => {
+                    pertemuanV2.togglePilihan(pertemuanId, jenis, true);
+                    pertemuanV2.regenerateDokumen(pertemuanId, jenis);
+                  }}
                   onOpenSoalModal={handleV2OpenSoalModal}
                   renderDokumen={({ jenis, dokumen }) => (
                     <div className="flex flex-col h-full relative">
