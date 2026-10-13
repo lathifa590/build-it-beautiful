@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { StoreListingEditModal } from './StoreListingEditModal';
 import { StoreConfirmDialog } from './StoreConfirmDialog';
+import { StoreProductThumbnail } from './StoreProductThumbnail';
 import { supabase } from '@/integrations/supabase/client';
 
 interface ConfirmAction {
@@ -326,6 +327,26 @@ const StoreListingsTab = () => {
                 onChange={e => setFormData({...formData, preview_image_url: e.target.value})}
                 className="mt-1 w-full"
               />
+
+              {/* Live Preview Thumbnail */}
+              <div className="mt-3 p-3 bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg">
+                <span className="text-[11px] font-black text-gray-600 uppercase tracking-wider block mb-2">
+                  Preview Tampilan Thumbnail Katalog:
+                </span>
+                <div className="max-w-[240px] rounded-lg overflow-hidden border-2 border-[#111] shadow-[3px_3px_0_0_#111]">
+                  <StoreProductThumbnail
+                    title={formData.title || 'Judul Modul Ajar'}
+                    previewImageUrl={formData.preview_image_url}
+                    category={formData.category}
+                    aspectRatio="4/3"
+                  />
+                </div>
+                {!formData.preview_image_url && (
+                  <p className="text-[11px] text-gray-500 font-semibold mt-2">
+                    💡 Jika URL gambar dikosongkan, sistem akan otomatis menghasilkan cover visual keren berbasis judul seperti di atas.
+                  </p>
+                )}
+              </div>
             </div>
 
             <div className="field-group mt-4">
@@ -408,21 +429,22 @@ const StoreListingsTab = () => {
         </div>
       ) : filteredListings && filteredListings.length > 0 ? (
         <div className="product-grid">
-          {filteredListings.map(item => (
+          {filteredListings.map((item, i) => (
             <div key={item.listing_id} className="product-card">
               <div className="product-card__thumb">
-                {item.preview_image_url ? (
-                  <img src={item.preview_image_url} alt={item.title} />
-                ) : (
-                  <div className="product-card__thumb-placeholder">
-                    <FileText className="w-8 h-8" />
-                  </div>
-                )}
+                <StoreProductThumbnail
+                  title={item.title}
+                  previewImageUrl={item.preview_image_url}
+                  category={item.category}
+                  index={i}
+                  badgeOffsetTop={true}
+                  className="w-full h-full"
+                />
                 
                 {item.status === 'PUBLISHED' ? (
-                  <span className="product-card__badge product-card__badge--aktif">Aktif</span>
+                  <span className="product-card__badge product-card__badge--aktif z-20">Aktif</span>
                 ) : (
-                  <span className="product-card__badge product-card__badge--draf">Draf</span>
+                  <span className="product-card__badge product-card__badge--draf z-20">Draf</span>
                 )}
                 
                 <button 

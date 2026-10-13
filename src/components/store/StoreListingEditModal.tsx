@@ -4,6 +4,7 @@ import { StoreListing } from '@/types/store';
 import { toast } from 'sonner';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Edit } from 'lucide-react';
+import { StoreProductThumbnail } from './StoreProductThumbnail';
 
 interface StoreListingEditModalProps {
   isOpen: boolean;
@@ -74,6 +75,26 @@ export const StoreListingEditModal = ({
               value={listingData.preview_image_url || ''}
               onChange={e => setListingData({...listingData, preview_image_url: e.target.value})}
             />
+
+            {/* Live Preview Thumbnail */}
+            <div className="mt-2.5 p-3 bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg">
+              <span className="text-[11px] font-black text-gray-600 uppercase tracking-wider block mb-1.5">
+                Preview Thumbnail Katalog:
+              </span>
+              <div className="w-full max-w-[220px] rounded-lg overflow-hidden border-2 border-[#111] shadow-[2.5px_2.5px_0_0_#111]">
+                <StoreProductThumbnail
+                  title={listingData.title || ''}
+                  previewImageUrl={listingData.preview_image_url}
+                  category={listingData.category}
+                  aspectRatio="4/3"
+                />
+              </div>
+              {!listingData.preview_image_url && (
+                <p className="text-[11px] text-gray-500 font-semibold mt-1.5">
+                  💡 Jika URL kosong, cover visual berbasis judul di atas otomatis tampil di etalase toko.
+                </p>
+              )}
+            </div>
           </div>
 
           <div className="field-group">
