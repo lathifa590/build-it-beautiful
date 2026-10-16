@@ -34,7 +34,7 @@ export const CreateWorkspaceModal = ({ isOpen, onClose }: CreateWorkspaceModalPr
     subject: '',
     grade: '',
     phase: '',
-    academic_year: '2024/2025',
+    academic_year: '2026/2027',
     profile_id: '',
     jp_duration_minutes: 45,
     default_jp_per_meeting: 2,
@@ -123,7 +123,7 @@ export const CreateWorkspaceModal = ({ isOpen, onClose }: CreateWorkspaceModalPr
         subject: '',
         grade: '',
         phase: '',
-        academic_year: '2024/2025',
+        academic_year: '2026/2027',
         profile_id: cloudProfiles.length > 0 ? cloudProfiles[0].id : '',
         jp_duration_minutes: 45,
         default_jp_per_meeting: 2,
@@ -217,7 +217,7 @@ export const CreateWorkspaceModal = ({ isOpen, onClose }: CreateWorkspaceModalPr
                 name="academic_year"
                 value={formData.academic_year}
                 onChange={handleChange}
-                placeholder="Contoh: 2024/2025"
+                placeholder="Contoh: 2026/2027"
                 required
               />
             </div>

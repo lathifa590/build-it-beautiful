@@ -126,7 +126,7 @@ function SekolahExportContent() {
             REKAPITULASI SUPERVISI KELENGKAPAN PERANGKAT PEMBELAJARAN
           </h3>
           <p className="text-xs">
-            Tahun Ajaran {school?.academic_year_active || '2024/2025'}
+            Tahun Ajaran {school?.academic_year_active || '2026/2027'}
           </p>
         </div>
 

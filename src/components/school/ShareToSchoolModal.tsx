@@ -129,7 +129,7 @@ export const ShareToSchoolModal: React.FC<ShareToSchoolModalProps> = ({
                 Bagikan ke Bank Modul Sekolah
               </DialogTitle>
               <DialogDescription className="text-xs">
-                {school.name} • Tahun Ajaran {academicYear || school.academic_year_active || '2024/2025'}
+                {school.name} • Tahun Ajaran {academicYear || school.academic_year_active || '2026/2027'}
               </DialogDescription>
             </div>
           </div>

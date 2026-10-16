@@ -67,7 +67,7 @@ export default function AdminSchools() {
     npsn: '',
     jenjang: 'SMA',
     alamat: '',
-    academic_year_active: '2024/2025',
+    academic_year_active: '2026/2027',
     waka_user_id: '',
     kepsek_user_id: '',
     seat_quota: 25,
@@ -138,7 +138,7 @@ export default function AdminSchools() {
       npsn: '',
       jenjang: 'SMA',
       alamat: '',
-      academic_year_active: '2024/2025',
+      academic_year_active: '2026/2027',
       waka_user_id: '',
       kepsek_user_id: '',
       seat_quota: 25,
@@ -155,7 +155,7 @@ export default function AdminSchools() {
       npsn: school.npsn || '',
       jenjang: school.jenjang || 'SMA',
       alamat: school.alamat || '',
-      academic_year_active: school.academic_year_active || '2024/2025',
+      academic_year_active: school.academic_year_active || '2026/2027',
       waka_user_id: school.waka_user_id || '',
       kepsek_user_id: school.kepsek_user_id || '',
       seat_quota: school.seat_quota ?? 25,
@@ -188,7 +188,7 @@ export default function AdminSchools() {
           npsn: formData.npsn.trim() || null,
           jenjang: formData.jenjang as SchoolJenjang,
           alamat: formData.alamat.trim() || null,
-          academic_year_active: formData.academic_year_active.trim() || '2024/2025',
+          academic_year_active: formData.academic_year_active.trim() || '2026/2027',
           waka_user_id: formData.waka_user_id || null,
           kepsek_user_id: formData.kepsek_user_id || null,
           subscription_expires_at: subExpires,
@@ -202,7 +202,7 @@ export default function AdminSchools() {
           npsn: formData.npsn.trim() || null,
           jenjang: formData.jenjang,
           alamat: formData.alamat.trim() || null,
-          academic_year_active: formData.academic_year_active.trim() || '2024/2025',
+          academic_year_active: formData.academic_year_active.trim() || '2026/2027',
           waka_user_id: formData.waka_user_id || null,
           kepsek_user_id: formData.kepsek_user_id || null,
           subscription_expires_at: subExpires,
@@ -458,7 +458,7 @@ export default function AdminSchools() {
                             {getUserLabel(sch.waka_user_id)}
                           </td>
                           <td className="px-4 py-3.5 text-xs font-semibold">
-                            {sch.academic_year_active || '2024/2025'}
+                            {sch.academic_year_active || '2026/2027'}
                           </td>
                           <td className="px-4 py-3.5 text-xs">
                             <div className="flex flex-col gap-1">
@@ -651,7 +651,7 @@ export default function AdminSchools() {
                   </Label>
                   <Input
                     id="school-academic-year"
-                    placeholder="2024/2025"
+                    placeholder="2026/2027"
                     value={formData.academic_year_active}
                     onChange={(e) => setFormData({ ...formData, academic_year_active: e.target.value })}
                   />

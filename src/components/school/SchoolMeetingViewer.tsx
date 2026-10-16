@@ -116,7 +116,7 @@ export const SchoolMeetingViewer: React.FC<SchoolMeetingViewerProps> = ({
       alokasiWaktu: `${meeting.planned_jp || 2} JP (${totalMinutes} Menit)`,
       namaPenyusun: workspace.teacher_name || 'Guru',
       namaSekolah: school?.name || workspace.school_name || 'Sekolah',
-      tahunAjaran: workspace.academic_year || '2024/2025',
+      tahunAjaran: workspace.academic_year || '2026/2027',
       semester: '1',
     };
   }, [meeting, workspace, school?.name]);
