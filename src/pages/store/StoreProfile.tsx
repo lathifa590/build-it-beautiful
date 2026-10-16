@@ -1,17 +1,71 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { storeApi } from '@/lib/store-api';
-import { Store, ShoppingBag, FileText, ArrowLeft, Search, MessageCircle, ChevronRight, Menu, X } from 'lucide-react';
+import { StoreListing } from '@/types/store';
+import { Store, ShoppingBag, FileText, ArrowLeft, Search, MessageCircle, ChevronRight, Menu, X, RotateCcw, Filter } from 'lucide-react';
 import { SEOHead } from '@/components/seo/SEOHead';
 
 const CARD_COLORS = ['bg-[#2563eb]', 'bg-[#059669]', 'bg-[#d97706]', 'bg-[#7c3aed]', 'bg-[#0284c7]', 'bg-[#be123c]'];
 const ACCENT_COLORS = ['bg-[#1d4ed8]', 'bg-[#047857]', 'bg-[#b45309]', 'bg-[#6d28d9]', 'bg-[#0369a1]', 'bg-[#9f1239]'];
 
+// Master daftar mapel & kata kunci pencocokan otomatis
+const COMMON_SUBJECTS = [
+  { id: 'PJOK', label: 'PJOK / Penjasorkes', keywords: ['pjok', 'pendidikan jasmani', 'penjas', 'olahraga'] },
+  { id: 'Bahasa Indonesia', label: 'Bahasa Indonesia', keywords: ['bahasa indonesia', 'b. indonesia', 'b indonesia', 'bindo'] },
+  { id: 'Matematika', label: 'Matematika', keywords: ['matematika', 'mtk', 'matematik'] },
+  { id: 'IPAS', label: 'IPAS', keywords: ['ipas', 'ilmu pengetahuan alam dan sosial'] },
+  { id: 'Pendidikan Pancasila', label: 'Pendidikan Pancasila', keywords: ['pendidikan pancasila', 'pancasila', 'ppkn'] },
+  { id: 'PAI & BP', label: 'PAI & BP', keywords: ['pai', 'pendidikan agama islam', 'agama islam', 'pabp', 'budi pekerti'] },
+  { id: 'Bahasa Inggris', label: 'Bahasa Inggris', keywords: ['bahasa inggris', 'b. inggris', 'b inggris', 'english'] },
+  { id: 'Seni Rupa', label: 'Seni Rupa', keywords: ['seni rupa'] },
+  { id: 'Seni Musik', label: 'Seni Musik', keywords: ['seni musik'] },
+  { id: 'Seni Tari', label: 'Seni Tari', keywords: ['seni tari'] },
+  { id: 'Seni Teater', label: 'Seni Teater', keywords: ['seni teater'] },
+  { id: 'Seni Budaya', label: 'Seni Budaya', keywords: ['seni budaya'] },
+  { id: 'IPA', label: 'IPA', keywords: ['ipa', 'ilmu pengetahuan alam', 'sains'] },
+  { id: 'IPS', label: 'IPS', keywords: ['ips', 'ilmu pengetahuan sosial'] },
+  { id: 'Informatika', label: 'Informatika', keywords: ['informatika', 'tik', 'komputer'] },
+  { id: 'Prakarya', label: 'Prakarya', keywords: ['prakarya'] },
+  { id: 'Bahasa Jawa', label: 'Bahasa Jawa', keywords: ['bahasa jawa', 'b. jawa'] },
+  { id: 'Bahasa Sunda', label: 'Bahasa Sunda', keywords: ['bahasa sunda', 'b. sunda'] },
+  { id: 'Fisika', label: 'Fisika', keywords: ['fisika'] },
+  { id: 'Kimia', label: 'Kimia', keywords: ['kimia'] },
+  { id: 'Biologi', label: 'Biologi', keywords: ['biologi'] },
+  { id: 'Sejarah', label: 'Sejarah', keywords: ['sejarah'] },
+  { id: 'Geografi', label: 'Geografi', keywords: ['geografi'] },
+  { id: 'Ekonomi', label: 'Ekonomi', keywords: ['ekonomi'] },
+  { id: 'Sosiologi', label: 'Sosiologi', keywords: ['sosiologi'] },
+  { id: 'BK', label: 'BK (Bimbingan Konseling)', keywords: ['bimbingan konseling', ' bk '] },
+];
+
+const isItemInJenjang = (item: StoreListing, jenjang: string) => {
+  if (jenjang === 'ALL') return true;
+  const category = (item.category || '').toUpperCase();
+  const title = (item.title || '').toLowerCase();
+  if (jenjang === 'SD') {
+    return category === 'SD' || /\b(sd|mi|fase a|fase b|fase c|kelas (i|ii|iii|iv|v|vi|1|2|3|4|5|6))\b/i.test(title);
+  }
+  if (jenjang === 'SMP') {
+    return category === 'SMP' || /\b(smp|mts|fase d|kelas (vii|viii|ix|7|8|9))\b/i.test(title);
+  }
+  if (jenjang === 'SMA') {
+    return category === 'SMA' || category === 'SMK' || /\b(sma|smk|ma|mak|fase e|fase f|kelas (x|xi|xii|10|11|12))\b/i.test(title);
+  }
+  return true;
+};
+
 const StoreProfilePage = () => {
   const { storeSlug } = useParams();
   const navigate = useNavigate();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+
+  // Filter States
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedJenjang, setSelectedJenjang] = useState('ALL');
+  const [selectedSubject, setSelectedSubject] = useState('ALL');
+  const [selectedSemester, setSelectedSemester] = useState('ALL');
+  const [selectedSort, setSelectedSort] = useState('NEWEST');
 
   const { data: profile, isLoading: isProfileLoading } = useQuery({
     queryKey: ['publicStoreProfile', storeSlug],
@@ -24,6 +78,127 @@ const StoreProfilePage = () => {
     queryFn: () => storeApi.getStoreListings(profile!.store_id, true),
     enabled: !!profile?.store_id,
   });
+
+  // Hitung mapel yang benar-benar TERSEDIA di toko ini (berdasarkan jenjang yang aktif)
+  const availableSubjects = useMemo(() => {
+    if (!listings || listings.length === 0) return [];
+
+    const pool = selectedJenjang === 'ALL'
+      ? listings
+      : listings.filter(item => isItemInJenjang(item, selectedJenjang));
+
+    const list: { id: string; label: string; count: number }[] = [];
+
+    COMMON_SUBJECTS.forEach((subj) => {
+      let count = 0;
+      pool.forEach((item) => {
+        const text = `${item.title} ${item.description || ''}`.toLowerCase();
+        if (subj.keywords.some((kw) => text.includes(kw))) {
+          count++;
+        }
+      });
+      if (count > 0) {
+        list.push({ id: subj.id, label: subj.label, count });
+      }
+    });
+
+    return list;
+  }, [listings, selectedJenjang]);
+
+  // Jika mapel yang sedang dipilih tidak ada di jenjang yang baru dipilih, reset ke ALL
+  useEffect(() => {
+    if (selectedSubject !== 'ALL') {
+      const exists = availableSubjects.some((s) => s.id === selectedSubject);
+      if (!exists) {
+        setSelectedSubject('ALL');
+      }
+    }
+  }, [availableSubjects, selectedSubject]);
+
+  const matchingJenjangCount = useMemo(() => {
+    if (!listings) return 0;
+    if (selectedJenjang === 'ALL') return listings.length;
+    return listings.filter((item) => isItemInJenjang(item, selectedJenjang)).length;
+  }, [listings, selectedJenjang]);
+
+  // Logika filter dan pencarian
+  const filteredListings = useMemo(() => {
+    if (!listings) return [];
+
+    return listings.filter((item) => {
+      // 1. Filter Jenjang
+      if (!isItemInJenjang(item, selectedJenjang)) return false;
+
+      // 2. Filter Mata Pelajaran
+      if (selectedSubject !== 'ALL') {
+        const subj = COMMON_SUBJECTS.find((s) => s.id === selectedSubject);
+        if (subj) {
+          const text = `${item.title} ${item.description || ''}`.toLowerCase();
+          if (!subj.keywords.some((kw) => text.includes(kw))) return false;
+        }
+      }
+
+      // 3. Filter Semester
+      if (selectedSemester !== 'ALL') {
+        const text = `${item.title} ${item.description || ''}`.toLowerCase();
+        if (selectedSemester === 'GANJIL') {
+          const isGanjil = text.includes('ganjil') || text.includes('semester 1') || text.includes('semester i');
+          if (!isGanjil) return false;
+        } else if (selectedSemester === 'GENAP') {
+          const isGenap = text.includes('genap') || text.includes('semester 2') || text.includes('semester ii');
+          if (!isGenap) return false;
+        }
+      }
+
+      // 4. Filter Kata Kunci Pencarian (Search Query)
+      if (searchQuery.trim()) {
+        const q = searchQuery.trim().toLowerCase();
+        const text = `${item.title} ${item.description || ''} ${item.category || ''}`.toLowerCase();
+        const terms = q.split(/\s+/).filter(Boolean);
+        const allMatch = terms.every((term) => text.includes(term));
+        if (!allMatch) return false;
+      }
+
+      return true;
+    });
+  }, [listings, selectedJenjang, selectedSubject, selectedSemester, searchQuery]);
+
+  // Logika Pengurutan (Sorting)
+  const sortedListings = useMemo(() => {
+    const items = [...filteredListings];
+    if (selectedSort === 'PRICE_ASC') {
+      return items.sort((a, b) => (a.price_amount || 0) - (b.price_amount || 0));
+    }
+    if (selectedSort === 'PRICE_DESC') {
+      return items.sort((a, b) => (b.price_amount || 0) - (a.price_amount || 0));
+    }
+    // Default: NEWEST
+    return items.sort((a, b) => new Date(b.published_at || b.created_at || 0).getTime() - new Date(a.published_at || a.created_at || 0).getTime());
+  }, [filteredListings, selectedSort]);
+
+  const hasActiveFilter = Boolean(
+    searchQuery.trim() !== '' ||
+    selectedJenjang !== 'ALL' ||
+    selectedSubject !== 'ALL' ||
+    selectedSemester !== 'ALL' ||
+    selectedSort !== 'NEWEST'
+  );
+
+  const handleSearchSubmit = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const catalogEl = document.getElementById('katalog');
+    if (catalogEl) {
+      catalogEl.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const handleResetAllFilters = () => {
+    setSearchQuery('');
+    setSelectedJenjang('ALL');
+    setSelectedSubject('ALL');
+    setSelectedSemester('ALL');
+    setSelectedSort('NEWEST');
+  };
 
   // Catat kunjungan toko (store visit) sekali per sesi per hari
   React.useEffect(() => {
@@ -96,18 +271,31 @@ const StoreProfilePage = () => {
 
             {/* Search Bar Neobrutalist (Desktop) */}
             <div className="hidden md:flex flex-1 max-w-xl mx-4">
-              <form className="w-full flex items-stretch">
+              <form onSubmit={handleSearchSubmit} className="w-full flex items-stretch">
                 <div className="relative w-full">
                   <input 
                     type="text" 
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
                     className="w-full h-11 pl-4 pr-10 text-sm font-semibold bg-brand-surfaceAlt neo-border neo-shadow-sm focus:ring-0 focus:border-brand-dark focus:bg-white placeholder-gray-500 rounded-l-md" 
                     placeholder="Cari modul ajar di toko ini..." 
                   />
-                  <span className="absolute inset-y-0 right-3 flex items-center pointer-events-none text-gray-500">
-                    <Search className="w-5 h-5 stroke-[2.5]" />
-                  </span>
+                  {searchQuery ? (
+                    <button
+                      type="button"
+                      onClick={() => setSearchQuery('')}
+                      className="absolute inset-y-0 right-3 flex items-center text-gray-400 hover:text-gray-700"
+                      title="Hapus pencarian"
+                    >
+                      <X className="w-4 h-4 stroke-[2.5]" />
+                    </button>
+                  ) : (
+                    <span className="absolute inset-y-0 right-3 flex items-center pointer-events-none text-gray-500">
+                      <Search className="w-5 h-5 stroke-[2.5]" />
+                    </span>
+                  )}
                 </div>
-                <button type="button" className="h-11 px-5 bg-brand-orange text-white font-bold text-sm neo-border neo-shadow-sm -ml-[2.5px] hover:bg-[#a93e15] active:translate-x-0.5 active:translate-y-0.5 rounded-r-md flex items-center gap-1.5 transition-colors">
+                <button type="submit" className="h-11 px-5 bg-brand-orange text-white font-bold text-sm neo-border neo-shadow-sm -ml-[2.5px] hover:bg-[#a93e15] active:translate-x-0.5 active:translate-y-0.5 rounded-r-md flex items-center gap-1.5 transition-colors">
                   <span>Cari</span>
                 </button>
               </form>
@@ -137,15 +325,26 @@ const StoreProfilePage = () => {
           {/* Mobile Search Bar Expandable */}
           {isSearchOpen && (
             <div className="md:hidden py-3 border-t-[2.5px] border-brand-dark/10">
-              <form className="w-full flex items-stretch">
+              <form onSubmit={handleSearchSubmit} className="w-full flex items-stretch">
                 <div className="relative w-full">
                   <input 
                     type="text" 
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
                     className="w-full h-11 pl-4 pr-10 text-sm font-semibold bg-brand-surfaceAlt neo-border neo-shadow-sm focus:ring-0 focus:border-brand-dark focus:bg-white placeholder-gray-500 rounded-l-md" 
                     placeholder="Cari modul ajar di toko ini..." 
                   />
+                  {searchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => setSearchQuery('')}
+                      className="absolute inset-y-0 right-3 flex items-center text-gray-400 hover:text-gray-700"
+                    >
+                      <X className="w-4 h-4 stroke-[2.5]" />
+                    </button>
+                  )}
                 </div>
-                <button type="button" className="h-11 px-4 bg-brand-orange text-white font-bold text-sm neo-border neo-shadow-sm -ml-[2.5px] active:translate-x-0.5 active:translate-y-0.5 rounded-r-md flex items-center gap-1.5">
+                <button type="submit" className="h-11 px-4 bg-brand-orange text-white font-bold text-sm neo-border neo-shadow-sm -ml-[2.5px] active:translate-x-0.5 active:translate-y-0.5 rounded-r-md flex items-center gap-1.5">
                   <Search className="w-4 h-4" />
                 </button>
               </form>
@@ -260,41 +459,119 @@ const StoreProfilePage = () => {
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 bg-brand-card p-4 rounded-lg neo-border neo-shadow">
+            {/* Jenjang */}
             <div>
               <label className="block text-[11px] font-black uppercase text-gray-700 mb-1">Jenjang Sekolah</label>
-              <select className="w-full text-xs sm:text-sm font-bold bg-brand-surfaceAlt rounded neo-border-sm py-2 px-2.5 focus:ring-0 focus:border-brand-dark appearance-none">
-                <option>Semua Jenjang</option>
-                <option>SD / MI</option>
-                <option>SMP / MTs</option>
-                <option>SMA / SMK / MA</option>
+              <select 
+                value={selectedJenjang}
+                onChange={(e) => setSelectedJenjang(e.target.value)}
+                className="w-full text-xs sm:text-sm font-bold bg-brand-surfaceAlt rounded neo-border-sm py-2 px-2.5 focus:ring-0 focus:border-brand-dark cursor-pointer"
+              >
+                <option value="ALL">Semua Jenjang</option>
+                <option value="SD">SD / MI</option>
+                <option value="SMP">SMP / MTs</option>
+                <option value="SMA">SMA / SMK / MA</option>
               </select>
             </div>
+
+            {/* Mata Pelajaran - Dinamis berdasarkan modul yang ada di toko */}
             <div>
               <label className="block text-[11px] font-black uppercase text-gray-700 mb-1">Mata Pelajaran</label>
-              <select className="w-full text-xs sm:text-sm font-bold bg-brand-surfaceAlt rounded neo-border-sm py-2 px-2.5 focus:ring-0 focus:border-brand-dark appearance-none">
-                <option>Semua Mapel</option>
-                <option>Bahasa Indonesia</option>
-                <option>Matematika</option>
-                <option>IPAS</option>
+              <select 
+                value={selectedSubject}
+                onChange={(e) => setSelectedSubject(e.target.value)}
+                className="w-full text-xs sm:text-sm font-bold bg-brand-surfaceAlt rounded neo-border-sm py-2 px-2.5 focus:ring-0 focus:border-brand-dark cursor-pointer"
+              >
+                <option value="ALL">
+                  Semua Mapel {listings ? `(${matchingJenjangCount})` : ''}
+                </option>
+                {availableSubjects.map((subj) => (
+                  <option key={subj.id} value={subj.id}>
+                    {subj.label} ({subj.count})
+                  </option>
+                ))}
               </select>
             </div>
+
+            {/* Semester */}
             <div>
               <label className="block text-[11px] font-black uppercase text-gray-700 mb-1">Semester</label>
-              <select className="w-full text-xs sm:text-sm font-bold bg-brand-surfaceAlt rounded neo-border-sm py-2 px-2.5 focus:ring-0 focus:border-brand-dark appearance-none">
-                <option>Semua Semester</option>
-                <option>Ganjil (1)</option>
-                <option>Genap (2)</option>
+              <select 
+                value={selectedSemester}
+                onChange={(e) => setSelectedSemester(e.target.value)}
+                className="w-full text-xs sm:text-sm font-bold bg-brand-surfaceAlt rounded neo-border-sm py-2 px-2.5 focus:ring-0 focus:border-brand-dark cursor-pointer"
+              >
+                <option value="ALL">Semua Semester</option>
+                <option value="GANJIL">Ganjil (1)</option>
+                <option value="GENAP">Genap (2)</option>
               </select>
             </div>
+
+            {/* Urutan */}
             <div>
               <label className="block text-[11px] font-black uppercase text-gray-700 mb-1">Urutan</label>
-              <select className="w-full text-xs sm:text-sm font-bold bg-brand-surfaceAlt rounded neo-border-sm py-2 px-2.5 focus:ring-0 focus:border-brand-dark appearance-none">
-                <option>Terbaru</option>
-                <option>Harga: Terendah</option>
-                <option>Harga: Tertinggi</option>
+              <select 
+                value={selectedSort}
+                onChange={(e) => setSelectedSort(e.target.value)}
+                className="w-full text-xs sm:text-sm font-bold bg-brand-surfaceAlt rounded neo-border-sm py-2 px-2.5 focus:ring-0 focus:border-brand-dark cursor-pointer"
+              >
+                <option value="NEWEST">Terbaru</option>
+                <option value="PRICE_ASC">Harga: Terendah</option>
+                <option value="PRICE_DESC">Harga: Tertinggi</option>
               </select>
             </div>
           </div>
+
+          {/* Bar Info Filter Aktif & Reset */}
+          {hasActiveFilter && (
+            <div className="flex flex-wrap items-center justify-between gap-2 mt-3 p-3 bg-brand-surfaceAlt rounded-md neo-border-sm text-xs font-bold text-brand-dark animate-in fade-in duration-150">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-gray-600 font-extrabold flex items-center gap-1">
+                  <Filter className="w-3.5 h-3.5 text-brand-dark" />
+                  <span>Ditemukan {sortedListings.length} modul:</span>
+                </span>
+                {searchQuery.trim() && (
+                  <span className="inline-flex items-center gap-1 bg-white px-2 py-0.5 rounded neo-border-sm text-[11px]">
+                    Cari: "{searchQuery}"
+                    <button onClick={() => setSearchQuery('')} className="hover:text-red-600 ml-0.5">
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                )}
+                {selectedJenjang !== 'ALL' && (
+                  <span className="inline-flex items-center gap-1 bg-white px-2 py-0.5 rounded neo-border-sm text-[11px]">
+                    Jenjang: {selectedJenjang}
+                    <button onClick={() => setSelectedJenjang('ALL')} className="hover:text-red-600 ml-0.5">
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                )}
+                {selectedSubject !== 'ALL' && (
+                  <span className="inline-flex items-center gap-1 bg-white px-2 py-0.5 rounded neo-border-sm text-[11px]">
+                    Mapel: {availableSubjects.find(s => s.id === selectedSubject)?.label || selectedSubject}
+                    <button onClick={() => setSelectedSubject('ALL')} className="hover:text-red-600 ml-0.5">
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                )}
+                {selectedSemester !== 'ALL' && (
+                  <span className="inline-flex items-center gap-1 bg-white px-2 py-0.5 rounded neo-border-sm text-[11px]">
+                    Semester: {selectedSemester === 'GANJIL' ? 'Ganjil (1)' : 'Genap (2)'}
+                    <button onClick={() => setSelectedSemester('ALL')} className="hover:text-red-600 ml-0.5">
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                )}
+              </div>
+              <button 
+                onClick={handleResetAllFilters}
+                className="inline-flex items-center gap-1 text-red-600 hover:text-red-700 font-extrabold hover:underline ml-auto text-xs py-0.5 cursor-pointer"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span>Reset Semua</span>
+              </button>
+            </div>
+          )}
         </section>
         {/* END: FilterSection */}
 
@@ -304,9 +581,9 @@ const StoreProfilePage = () => {
             <div className="flex justify-center p-12">
               <div className="animate-spin rounded-full h-10 w-10 border-b-4 border-brand-dark"></div>
             </div>
-          ) : listings && listings.length > 0 ? (
+          ) : sortedListings && sortedListings.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {listings.map((item, i) => {
+              {sortedListings.map((item, i) => {
                 const colorBg = CARD_COLORS[i % CARD_COLORS.length];
                 const colorAccent = ACCENT_COLORS[i % ACCENT_COLORS.length];
                 return (
@@ -377,8 +654,26 @@ const StoreProfilePage = () => {
               <div className="w-20 h-20 bg-brand-cream border-4 border-brand-dark rounded-full flex items-center justify-center mb-6 shadow-[4px_4px_0px_0px_rgba(17,17,17,1)]">
                 <FileText className="w-10 h-10 text-brand-dark" />
               </div>
-              <h3 className="text-xl md:text-2xl font-black text-brand-dark mb-2">Belum ada modul ajar</h3>
-              <p className="text-sm md:text-base text-gray-500 font-bold">Toko ini belum menerbitkan modul ajar apapun.</p>
+              {listings && listings.length > 0 ? (
+                <>
+                  <h3 className="text-xl md:text-2xl font-black text-brand-dark mb-2">Modul Ajar Tidak Ditemukan</h3>
+                  <p className="text-sm md:text-base text-gray-500 font-bold max-w-md mb-6">
+                    Tidak ada modul yang cocok dengan kata kunci pencarian atau kombinasi filter yang Anda pilih.
+                  </p>
+                  <button
+                    onClick={handleResetAllFilters}
+                    className="px-5 py-2.5 bg-brand-orange text-white font-black text-sm rounded-lg neo-border-sm neo-shadow-sm hover:bg-[#a93e15] flex items-center gap-2 cursor-pointer transition-colors"
+                  >
+                    <RotateCcw className="w-4 h-4" />
+                    <span>Reset Semua Filter</span>
+                  </button>
+                </>
+              ) : (
+                <>
+                  <h3 className="text-xl md:text-2xl font-black text-brand-dark mb-2">Belum ada modul ajar</h3>
+                  <p className="text-sm md:text-base text-gray-500 font-bold">Toko ini belum menerbitkan modul ajar apapun.</p>
+                </>
+              )}
             </div>
           )}
         </section>

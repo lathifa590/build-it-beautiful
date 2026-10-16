@@ -574,31 +574,7 @@ export const schoolApi = {
     return data as { success: boolean; document_id?: string; message: string };
   },
 
-  /**
-   * Memberikan review status & rubrik checklist (Waka / Kepsek / Admin)
-   */
-  async reviewSchoolDocument(
-    documentId: string,
-    status: SchoolDocumentStatus,
-    reviewNotes?: string,
-    isTemplate?: boolean,
-    checklist?: Record<string, boolean>
-  ): Promise<{ success: boolean; message: string }> {
-    const { data, error } = await supabase.rpc('review_school_document', {
-      _document_id: documentId,
-      _status: status,
-      _review_notes: reviewNotes || null,
-      _is_template: isTemplate ?? false,
-      _checklist: checklist || {},
-    });
 
-    if (error) {
-      console.error('Error reviewing school document:', error);
-      return { success: false, message: error.message || 'Gagal mereview dokumen' };
-    }
-
-    return data as { success: boolean; message: string };
-  },
 
   /**
    * Mengambil riwayat komentar & checklist dokumen
