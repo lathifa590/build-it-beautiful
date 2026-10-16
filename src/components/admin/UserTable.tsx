@@ -1,4 +1,4 @@
-import { MoreVertical, Edit, Trash2, Shield, User as UserIcon, Key } from 'lucide-react';
+import { MoreVertical, Edit, Trash2, Shield, User as UserIcon, Key, MessageCircle } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,6 +22,7 @@ interface UserTableProps {
   onEditRole: (userId: string, newRole: 'admin' | 'user') => void;
   onDelete: (userId: string) => void;
   onResetPassword: (user: UserData) => void;
+  onSendMessage?: (user: UserData) => void;
   currentUserId?: string;
 }
 
@@ -31,6 +32,7 @@ export const UserTable = ({
   onEditRole,
   onDelete,
   onResetPassword,
+  onSendMessage,
   currentUserId,
 }: UserTableProps) => {
   const formatDate = (dateString: string) => {
@@ -162,6 +164,13 @@ export const UserTable = ({
                       >
                         <Key className="w-4 h-4 mr-2" />
                         Reset Password
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => onSendMessage?.(user)}
+                        className="cursor-pointer text-emerald-700 focus:text-emerald-800"
+                      >
+                        <MessageCircle className="w-4 h-4 mr-2 text-emerald-600" />
+                        Kirim Info Akun (WA)
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem
