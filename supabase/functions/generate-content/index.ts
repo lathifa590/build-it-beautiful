@@ -2658,8 +2658,71 @@ ${imageTargetsLines}
       case "tujuan-pembelajaran":
         const kalender = data.kalender;
         const ruangLingkup = data.ruangLingkupMateri;
-        let jpInstruction = "Buat 3-5 TP yang progresif dari level rendah ke tinggi";
-        let jpUserInstruction = "Buatkan 3-5 Tujuan Pembelajaran yang sesuai dengan CP di atas. Pastikan TP progresif dari level kognitif rendah ke tinggi.";
+
+        // Ekstraksi topik/bab utama dari ruang lingkup materi (mendukung pemisah baris baru, titik koma, atau koma)
+        const parseRuangLingkupTopics = (raw?: string): string[] => {
+          if (!raw || !raw.trim()) return [];
+          const text = raw.trim();
+
+          // 1. Coba split baris baru
+          const lines = text.split('\n')
+            .map((s: string) => s.trim())
+            .filter((s: string) => s.length > 0 && !/^[-*•]/.test(s) && !/^[a-zA-Z]\./.test(s) && !/^(hak|kewajiban|contoh|sila|macam|manfaat)\s*:/i.test(s));
+          if (lines.length > 1) {
+            return lines.map((s: string) => s.replace(/^\d+[\.\)]\s*/, '').trim()).filter(Boolean);
+          }
+
+          // 2. Jika dipisahkan titik koma (;)
+          if (text.includes(';')) {
+            const parts = text.split(';').map((s: string) => s.trim()).filter((s: string) => s.length > 2);
+            if (parts.length > 1) {
+              return parts.map((s: string) => s.replace(/^\d+[\.\)]\s*/, '').trim()).filter(Boolean);
+            }
+          }
+
+          // 3. Jika dipisahkan koma di luar kurung (misal: "Topik A (detail), Topik B (detail), ...")
+          const parts: string[] = [];
+          let buffer = '';
+          let parenLevel = 0;
+          for (let i = 0; i < text.length; i++) {
+            const ch = text[i];
+            if (ch === '(') parenLevel++;
+            else if (ch === ')') parenLevel = Math.max(0, parenLevel - 1);
+
+            if (ch === ',' && parenLevel === 0) {
+              const trimmed = buffer.trim();
+              if (trimmed) parts.push(trimmed);
+              buffer = '';
+            } else {
+              buffer += ch;
+            }
+          }
+          if (buffer.trim()) parts.push(buffer.trim());
+
+          if (parts.length > 1) {
+            const merged: string[] = [];
+            for (let i = 0; i < parts.length; i++) {
+              const cur = parts[i].replace(/^\d+[\.\)]\s*/, '').trim();
+              // Gabungkan jika kata depan terpisah koma seperti "Tumbuhan, Sumber Kehidupan"
+              if (cur.length < 12 && !cur.includes('(') && i + 1 < parts.length && parts[i + 1].includes('(')) {
+                merged.push(`${cur}, ${parts[i + 1].replace(/^\d+[\.\)]\s*/, '').trim()}`);
+                i++;
+              } else {
+                merged.push(cur);
+              }
+            }
+            return merged.filter((s: string) => s.length > 2);
+          }
+
+          return [text];
+        };
+
+        const extractedTopics = parseRuangLingkupTopics(ruangLingkup);
+        const topicCount = extractedTopics.length;
+
+        let jpInstruction = "Buat 6-10 TP yang progresif dan komprehensif";
+        let jpUserInstruction = "Buatkan 6-10 Tujuan Pembelajaran yang sesuai dengan CP di atas. Pastikan TP progresif dari level kognitif rendah ke tinggi.";
+
         if (kalender) {
           const m1 = parseInt(kalender.mingguEfektifSem1) || 0;
           const m2 = parseInt(kalender.mingguEfektifSem2) || 0;
@@ -2667,49 +2730,48 @@ ${imageTargetsLines}
           const totalJp = (m1 + m2) * jp;
           
           if (totalJp > 0) {
-            // Filter ruangLingkup agar tidak menghitung butir/sub-indikator/tanda strip sebagai bab baru
-            const cleanedTopics = ruangLingkup
-              ? ruangLingkup
-                  .split('\n')
-                  .map((s: string) => s.trim())
-                  .filter((s: string) => {
-                    if (!s) return false;
-                    if (/^[-*•]/.test(s)) return false; // Abaikan bullet point
-                    if (/^[a-zA-Z]\./.test(s)) return false; // Abaikan sub a., b., dst
-                    if (/^(hak|kewajiban|contoh|sila|macam|manfaat)\s*:/i.test(s)) return false;
-                    return true;
-                  })
-              : [];
-            
-            // Perkiraan jumlah bab/topik utama
-            const topicCount = cleanedTopics.length;
-            
-            // Hitung estimasi kapasitas TP yang realistis:
-            // Rata-rata 1 TP membutuhkan 6-10 JP (2-4 minggu pembelajaran untuk mapel 2 JP/minggu).
-            // Untuk total ~100 JP (2 JP/minggu, 50 minggu): sekitar 8 - 14 TP per tahun.
-            // Tidak boleh melebihi 18 TP per tahun agar tidak memicu compute timeout (HTTP 546) pada Prota.
-            const capacityTp = Math.max(4, Math.round(totalJp / 8));
-            const minTp = Math.max(4, Math.min(10, topicCount > 0 ? Math.min(topicCount * 2, capacityTp - 2) : capacityTp - 2));
-            const maxTp = Math.min(16, Math.max(minTp + 3, topicCount > 0 ? Math.min(topicCount * 3, capacityTp + 3) : capacityTp + 3));
+            let minTp: number;
+            let maxTp: number;
+
+            if (topicCount > 0) {
+              // Setiap bab/topik utama WAJIB memiliki minimal 1 TP mandiri!
+              minTp = Math.max(topicCount, Math.min(8, Math.round(totalJp / 25)));
+              maxTp = Math.min(16, Math.max(minTp, Math.min(topicCount + 4, Math.round(topicCount * 1.5))));
+            } else {
+              // Jika tidak ada topik spesifik: gunakan estimasi kapasitas JP 1 tahun
+              if (totalJp >= 140) {
+                minTp = 8;
+                maxTp = 14;
+              } else if (totalJp >= 80) {
+                minTp = 6;
+                maxTp = 10;
+              } else {
+                minTp = 4;
+                maxTp = 8;
+              }
+            }
             
             if (ruangLingkup) {
-              jpInstruction = `Sintesiskan dan kelompokkan seluruh materi di atas menjadi ${minTp} hingga ${maxTp} Tujuan Pembelajaran (TP) yang esensial dan bermakna (rata-rata 2-4 TP per bab/topik utama). Total durasi: ${totalJp} JP selama ${m1 + m2} minggu efektif (${jp} JP/minggu). JANGAN membuat TP untuk setiap sub-butir atau rincian kecil, melainkan gabungkan indikator-indikator kecil menjadi satu TP pokok yang utuh.`;
-              jpUserInstruction = `Guru akan mengajarkan topik/materi berikut:\n\nTOPIK / RUANG LINGKUP MATERI:\n${ruangLingkup}\n\nATURAN PENTING:\n- Hasilkan HANYA ${minTp} hingga ${maxTp} Tujuan Pembelajaran (TP) secara proporsional untuk total ${totalJp} JP (${jp} JP/minggu)\n- Rangkum dan kelompokkan sub-materi ke dalam TP pokok (JANGAN membuat TP untuk setiap butir kecil/indikator)\n- Setiap bab materi pokok cukup memiliki 2 sampai 4 TP yang jelas dan terukur\n- TP harus progresif dari level kognitif rendah ke tinggi\n- JANGAN menghasilkan puluhan TP (misal > 20 TP) karena tidak realistis diajarkan dan diasesmen dalam waktu ${totalJp} JP.`;
+              jpInstruction = `Hasilkan antara ${minTp} hingga ${maxTp} Tujuan Pembelajaran (TP) yang proporsional untuk total ${totalJp} Jam Pelajaran (${m1 + m2} minggu efektif, ${jp} JP/minggu).
+ATURAN KRUSIAL PEMETAAN TOPIK KE TP:
+1. SETIAP TOPIK / BAB MATERI UTAMA WAJIB MEMILIKI MINIMAL 1 TUJUAN PEMBELAJARAN (TP) SENDIRI SECARA MANDIRI.
+2. DILARANG KERAS menggabungkan dua topik/bab materi pokok yang berbeda konsep ke dalam satu TP!
+   - Contoh SALAH: Menggabungkan 'Tumbuhan/Fotosintesis' dan 'Wujud Zat/Materi' menjadi 1 TP. Keduanya adalah bab terpisah dan HARUS dibuat menjadi 2 TP berbeda.
+   - Contoh SALAH: Menggabungkan 'Gaya di Sekitar Kita' dan 'Transformasi Energi' menjadi 1 TP. Keduanya adalah bab terpisah dan HARUS dibuat menjadi 2 TP berbeda.
+3. Topik yang cakupannya luas (misalnya anatomi tumbuhan dan proses fotosintesis) dapat dipecah menjadi 2 TP yang terstruktur.
+4. Pembagian TP harus proporsional dan merata antara materi Semester 1 dan Semester 2.`;
+
+              jpUserInstruction = `Guru akan mengajarkan topik/materi berikut selama 1 tahun ajaran (${totalJp} JP, ${jp} JP/minggu):\n\nTOPIK / RUANG LINGKUP MATERI:\n${ruangLingkup}\n\nPETUNJUK KHUSUS PENYUSUNAN TP:\n- Alokasi waktu pembelajaran: ${totalJp} JP (${jp} JP/minggu, Semester 1 = ${m1} minggu, Semester 2 = ${m2} minggu)\n- Hasilkan ${minTp} hingga ${maxTp} Tujuan Pembelajaran (TP) yang komprehensif\n- WAJIB: Setiap bab/topik materi pokok memiliki minimal 1 TP mandiri. JANGAN PERNAH menggabungkan 2 bab yang berbeda konsep (seperti Tumbuhan dan Wujud Zat) ke dalam satu TP!\n- Gunakan kata kerja operasional Taksonomi Bloom (C1-C6) yang jelas, terukur, dan progresif dari pemahaman ke aplikasi/analisis\n- Setiap TP berfokus pada kompetensi dan materi spesifik dari bab tersebut.`;
             } else {
-              jpInstruction = `Buat sekitar ${minTp} hingga ${maxTp} TP yang progresif dan proporsional untuk diajarkan selama total ${totalJp} Jam Pelajaran (${m1 + m2} minggu efektif, ${jp} JP/minggu).`;
-              jpUserInstruction = `Buatkan sekitar ${minTp} hingga ${maxTp} Tujuan Pembelajaran yang sesuai dengan CP di atas secara komprehensif agar proporsional untuk durasi ${totalJp} Jam Pelajaran selama 1 tahun ajaran. Pastikan TP progresif dari level kognitif rendah ke tinggi dan cakupannya merata.`;
+              jpInstruction = `Buat sekitar ${minTp} hingga ${maxTp} TP yang progresif dan proporsional untuk diajarkan selama total ${totalJp} Jam Pelajaran (${m1 + m2} minggu efektif, ${jp} JP/minggu). Pastikan mencakup seluruh spektrum materi CP 1 tahun ajaran secara lengkap.`;
+              jpUserInstruction = `Buatkan sekitar ${minTp} hingga ${maxTp} Tujuan Pembelajaran yang sesuai dengan CP di atas secara komprehensif agar proporsional untuk durasi ${totalJp} Jam Pelajaran selama 1 tahun ajaran. Pastikan TP mencakup semua materi esensial 1 tahun (Semester 1 & 2) dan progresif dari level kognitif rendah ke tinggi.`;
             }
           }
         } else if (ruangLingkup) {
-          const cleanedTopics = ruangLingkup
-            .split('\n')
-            .map((s: string) => s.trim())
-            .filter((s: string) => s && !/^[-*•]/.test(s));
-          const topicCount = Math.max(3, Math.min(6, cleanedTopics.length));
-          const minTp = Math.max(4, topicCount);
-          const maxTp = Math.min(14, minTp * 2);
-          jpInstruction = `Kelompokkan materi di atas menjadi ${minTp} hingga ${maxTp} Tujuan Pembelajaran (TP) yang esensial.`;
-          jpUserInstruction = `Guru akan mengajarkan topik/materi berikut:\n\nTOPIK / RUANG LINGKUP MATERI:\n${ruangLingkup}\n\nATURAN PENTING:\n- Hasilkan ${minTp} hingga ${maxTp} TP yang esensial\n- Rangkum butir-butir materi ke dalam TP pokok, jangan membuat TP per sub-butir kecil\n- TP harus progresif dari level kognitif rendah ke tinggi`;
+          const minTp = Math.max(topicCount, 6);
+          const maxTp = Math.min(16, minTp + 4);
+          jpInstruction = `Hasilkan ${minTp} hingga ${maxTp} Tujuan Pembelajaran (TP). Setiap bab/topik materi utama wajib memiliki minimal 1 TP mandiri (DILARANG menggabungkan dua topik/bab yang berbeda konsep ke dalam 1 TP).`;
+          jpUserInstruction = `Guru akan mengajarkan topik/materi berikut:\n\nTOPIK / RUANG LINGKUP MATERI:\n${ruangLingkup}\n\nATURAN PENTING:\n- Hasilkan ${minTp} hingga ${maxTp} TP\n- Setiap bab/topik materi utama wajib memiliki minimal 1 TP mandiri (jangan gabungkan bab berbeda konsep)\n- TP harus terukur menggunakan KKO Bloom`;
         }
 
         systemPrompt = `Kamu adalah ahli pendidikan Indonesia yang membuat Tujuan Pembelajaran (TP) berdasarkan Capaian Pembelajaran (CP) resmi Kemdikbud.
@@ -2727,7 +2789,7 @@ ATURAN PEMBUATAN TP:
 4. ${jpInstruction}
 5. Pastikan TP dapat diukur dan diamati
 6. JANGAN gunakan tanda kutip ganda (") di dalam nilai teks, gunakan kutip tunggal (') sebagai gantinya.
-7. PENTING: Anda WAJIB membuat Tujuan Pembelajaran secara proporsional sesuai jumlah yang diinstruksikan. Jangan membuat TP berlebihan untuk setiap butir rincian kecil, tetapi rangkumlah menjadi TP pokok yang utuh.
+7. PENTING: Anda WAJIB membuat Tujuan Pembelajaran secara proporsional sesuai jumlah yang diinstruksikan. Pastikan setiap bab materi pokok mendapatkan TP mandiri.
 
 FORMAT OUTPUT JSON:
 {
@@ -2739,7 +2801,7 @@ FORMAT OUTPUT JSON:
     }
   ],
   "teks_gabungan": "TP1: Peserta didik mampu...\\nTP2: Peserta didik mampu...\\n..."
-}`;
+} `;
         
         userPrompt = `Buatkan Tujuan Pembelajaran berdasarkan informasi berikut:
 
@@ -2764,10 +2826,10 @@ Menyusun daftar Topik / Ruang Lingkup Materi pokok untuk 1 tahun ajaran penuh (m
 
 PANDUAN PENYUSUNAN TOPIK:
 1. Rujuk materi pokok dan bab pembelajaran standar resmi Kurikulum Merdeka (buku teks siswa/guru Kemdikbud/Kemenag) yang relevan untuk jenjang kelas tersebut.
-2. Buat sekitar 6 sampai 12 topik/bab pokok secara menyeluruh untuk 1 tahun ajaran (dibagi seimbang antara Semester 1 dan Semester 2).
-3. Setiap baris topik harus berupa unit materi/bab yang spesifik, padat, dan jelas (contoh: "Bab 1: Menemukan Ide Pokok dan Cerita Fiksi", "Bab 2: Struktur dan Ciri Teks Prosedur", dll).
+2. Buat sekitar 6 sampai 10 topik/bab pokok secara menyeluruh untuk 1 tahun ajaran (dibagi seimbang antara Semester 1 dan Semester 2).
+3. Setiap baris topik harus berupa unit materi/bab yang spesifik, padat, dan jelas (contoh: "Bab 1: Tumbuhan, Sumber Kehidupan di Bumi", "Bab 2: Wujud Zat dan Perubahannya", dll).
 4. Jangan menuliskan penjelasan panjang berbelit-belit. Cukup judul bab/materi pokok yang jelas agar guru dapat dengan mudah mengedit atau menambahkan catatan.
-5. Format teks_gabungan: sajikan setiap topik dalam baris baru bernomor urut 1 sampai selesai (1. ..., 2. ..., dst.) agar langsung rapi di dalam textarea formulir perencanaan.
+5. Format teks_gabungan: sajikan setiap topik dalam baris baru bernomor urut 1 sampai selesai (1. ..., 2. ..., dst.) agar langsung rapi di dalam textarea formulir perencanaan. DILARANG memisahkan dengan koma atau menjadikannya satu baris/paragraf bersambung!
 
 FORMAT OUTPUT JSON:
 {

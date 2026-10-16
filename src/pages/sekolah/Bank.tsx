@@ -342,7 +342,7 @@ function BankModulContent() {
                                 variant="outline"
                                 className="font-mono text-[10px] font-black uppercase bg-card border-foreground/40"
                               >
-                                {ws.academic_year || '2024/2025'}
+                                {ws.academic_year || '2026/2027'}
                               </Badge>
                             </div>
                           </div>
@@ -436,7 +436,7 @@ function BankModulContent() {
 
                 <div className="flex items-center gap-2 self-start sm:self-auto">
                   <Badge variant="outline" className="font-mono text-xs font-black bg-[#fef08a] border-foreground">
-                    {selectedWorkspace.academic_year || '2024/2025'}
+                    {selectedWorkspace.academic_year || '2026/2027'}
                   </Badge>
                   <span className="bg-card text-foreground border-2 border-foreground font-black text-xs px-3 py-1 rounded-full uppercase shadow-brutal-sm">
                     {meetings.length} Pertemuan Terdaftar

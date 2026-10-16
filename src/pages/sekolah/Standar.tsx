@@ -395,7 +395,7 @@ function SekolahStandarContent() {
                   LEMBAR PENGESAHAN PERANGKAT AJAR
                 </h4>
                 <p className="text-[10px] font-sans text-gray-600 dark:text-gray-400">
-                  Tahun Ajaran {school?.academic_year_active || '2024/2025'}
+                  Tahun Ajaran {school?.academic_year_active || '2026/2027'}
                 </p>
               </div>
 

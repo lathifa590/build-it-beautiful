@@ -183,7 +183,7 @@ export const SchoolLayout: React.FC<SchoolLayoutProps> = ({
             <div className="px-4 py-2 bg-secondary/50 border-b-2 border-foreground/15 text-[11px] flex items-center justify-between">
               <span className="text-muted-foreground font-bold">Tahun Ajaran:</span>
               <span className="font-mono text-[10px] font-black px-2 py-0.5 rounded border border-foreground/30 bg-card text-foreground">
-                {school.academic_year_active || '2024/2025'}
+                {school.academic_year_active || '2026/2027'}
               </span>
             </div>
           )}

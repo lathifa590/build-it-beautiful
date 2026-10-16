@@ -50,7 +50,7 @@ function SekolahKalenderContent() {
   const navigate = useNavigate();
 
   const [academicYear, setAcademicYear] = useState<string>(
-    school?.academic_year_active || '2024/2025'
+    school?.academic_year_active || '2026/2027'
   );
   const [semester, setSemester] = useState<1 | 2>(1);
   const [pekanEfektif, setPekanEfektif] = useState<number>(18);
@@ -173,7 +173,7 @@ function SekolahKalenderContent() {
                 <Input
                   value={academicYear}
                   onChange={(e) => setAcademicYear(e.target.value)}
-                  placeholder="2024/2025"
+                  placeholder="2026/2027"
                   className="font-bold border-2 border-foreground rounded-xl shadow-brutal-sm bg-card"
                 />
               </div>

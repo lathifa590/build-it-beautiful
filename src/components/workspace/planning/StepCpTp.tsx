@@ -403,12 +403,11 @@ export const StepCpTp: React.FC<StepCpTpProps> = ({ workspace, onNext, isLocked,
 
               <div className="bg-white rounded-md border border-slate-200 p-5">
                 <p className="text-sm text-slate-500 mb-4">
-                  Ketikkan topik atau materi spesifik yang akan diajarkan dari CP ini, pisahkan dengan koma atau baris
-                  baru (misal: <i>Procedure Text, Narrative Text</i>). Anda juga dapat klik tombol <b>Buat Topik dengan AI</b> di atas untuk menghasilkan daftar topik otomatis berdasarkan mata pelajaran, fase, dan kelas sesuai kurikulum terbaru, lalu mengeditnya secara manual. (Sifatnya Opsional)
+                  Ketikkan topik atau bab materi pokok yang akan diajarkan (pisahkan per baris baru atau nomor urut). Setiap bab/topik utama akan otomatis dipetakan menjadi Tujuan Pembelajaran (TP) mandiri oleh AI. Anda juga dapat klik tombol <b>Buat Topik dengan AI</b> di atas untuk menyusun daftar bab/topik resmi 1 tahun ajaran.
                 </p>
                 <Textarea
                   className="min-h-[170px] border-slate-200 focus:border-primary/50 text-slate-700 placeholder:text-slate-400 font-mono text-sm leading-relaxed"
-                  placeholder="Masukkan ruang lingkup materi di sini atau klik 'Buat Topik dengan AI' di atas...&#10;Contoh:&#10;1. Bab 1: Menemukan Ide Pokok dalam Cerita&#10;2. Bab 2: Mengenal Teks Prosedur&#10;3. Bab 3: Menulis Surat Pribadi"
+                  placeholder="Masukkan ruang lingkup materi di sini atau klik 'Buat Topik dengan AI' di atas...&#10;Contoh:&#10;1. Bab 1: Tumbuhan, Sumber Kehidupan di Bumi&#10;2. Bab 2: Wujud Zat dan Perubahannya&#10;3. Bab 3: Gaya di Sekitar Kita&#10;4. Bab 4: Mengubah Bentuk Energi"
                   value={ruangLingkupMateri}
                   onChange={(e) => setRuangLingkupMateri(e.target.value)}
                 />

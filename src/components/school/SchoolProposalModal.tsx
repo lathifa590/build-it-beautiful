@@ -104,7 +104,7 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.
         <DialogHeader className="space-y-1.5 text-left">
           <div className="flex items-center gap-2 flex-wrap">
             <Badge className="bg-[#fef08a] text-foreground border-foreground border-2 font-black text-[11px] shadow-xs">
-              <Sparkles className="w-3 h-3 mr-1 text-amber-700" /> REKOMENDASI DANA BOS 2024/2025
+              <Sparkles className="w-3 h-3 mr-1 text-amber-700" /> REKOMENDASI DANA BOS 2026/2027
             </Badge>
             <Badge variant="outline" className="border-foreground/40 font-bold text-[11px]">
               Kapasitas 25 Guru
