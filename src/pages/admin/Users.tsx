@@ -26,6 +26,10 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+  ActivationMessageModal,
+  CustomerActivationInfo,
+} from '@/components/admin/ActivationMessageModal';
 
 const AdminUsers = () => {
   const { user } = useAuth();
@@ -37,6 +41,10 @@ const AdminUsers = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState<string | null>(null);
   
+  // Message modal state
+  const [userMessageTarget, setUserMessageTarget] = useState<CustomerActivationInfo | null>(null);
+  const [showMessageModal, setShowMessageModal] = useState(false);
+
   // Reset password state
   const [resetPasswordDialogOpen, setResetPasswordDialogOpen] = useState(false);
   const [userToReset, setUserToReset] = useState<UserData | null>(null);
@@ -291,6 +299,13 @@ const AdminUsers = () => {
           onEditRole={handleEditRole}
           onDelete={handleDeleteClick}
           onResetPassword={handleResetPasswordClick}
+          onSendMessage={(u) => {
+            setUserMessageTarget({
+              email: u.email || '',
+              name: u.display_name,
+            });
+            setShowMessageModal(true);
+          }}
           currentUserId={user?.id}
         />
       </div>
@@ -367,6 +382,16 @@ const AdminUsers = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Activation Message Modal */}
+      <ActivationMessageModal
+        isOpen={showMessageModal}
+        onClose={() => {
+          setShowMessageModal(false);
+          setUserMessageTarget(null);
+        }}
+        customer={userMessageTarget}
+      />
     </AdminLayout>
   );
 };

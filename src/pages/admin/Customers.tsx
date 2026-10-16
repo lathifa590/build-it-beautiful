@@ -29,8 +29,13 @@ import {
   CalendarPlus,
   Edit2,
   TrendingUp,
+  MessageCircle,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import {
+  ActivationMessageModal,
+  CustomerActivationInfo,
+} from '@/components/admin/ActivationMessageModal';
 import {
   Table,
   TableBody,
@@ -155,6 +160,8 @@ const AdminCustomers = () => {
   const [editTarget, setEditTarget] = useState<AllowedCustomer | null>(null);
   const [editForm, setEditForm] = useState({ account_type: 'annual', subscription_expires_at: '' });
   const [deleteTarget, setDeleteTarget] = useState<AllowedCustomer | null>(null);
+  const [activationTarget, setActivationTarget] = useState<CustomerActivationInfo | null>(null);
+  const [showActivationModal, setShowActivationModal] = useState(false);
   const [newCustomer, setNewCustomer] = useState({
     email: '',
     name: '',
@@ -298,7 +305,7 @@ const AdminCustomers = () => {
   const handleAddCustomer = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await addCustomer.mutateAsync({
+      const createdData: CustomerActivationInfo = {
         email: newCustomer.email,
         name: newCustomer.name,
         phone: newCustomer.phone,
@@ -306,7 +313,16 @@ const AdminCustomers = () => {
         subscription_expires_at: newCustomer.subscription_expires_at
           ? new Date(newCustomer.subscription_expires_at).toISOString()
           : null,
+      };
+
+      await addCustomer.mutateAsync({
+        email: createdData.email,
+        name: createdData.name || '',
+        phone: createdData.phone || undefined,
+        account_type: createdData.account_type,
+        subscription_expires_at: createdData.subscription_expires_at,
       });
+
       toast.success('Pelanggan berhasil ditambahkan');
       setNewCustomer({
         email: '',
@@ -316,6 +332,10 @@ const AdminCustomers = () => {
         subscription_expires_at: getDefaultExpiryDate('annual'),
       });
       setShowAddModal(false);
+
+      // Otomatis buka dialog kirim WA / copas pesan aktivasi
+      setActivationTarget(createdData);
+      setShowActivationModal(true);
     } catch (e: any) {
       toast.error(e.message || 'Gagal menambahkan pelanggan');
     }
@@ -644,6 +664,16 @@ const AdminCustomers = () => {
                         </TableCell>
                         <TableCell className="text-right">
                           <div className="flex justify-end gap-1">
+                            <button
+                              onClick={() => {
+                                setActivationTarget(customer);
+                                setShowActivationModal(true);
+                              }}
+                              className="p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
+                              title="Kirim Info Aktivasi (WA / Copas)"
+                            >
+                              <MessageCircle className="w-4 h-4" />
+                            </button>
                             {(customer.account_type === 'annual' || customer.account_type === 'pro_annual' || customer.account_type === 'lite') && (
                               <button
                                 onClick={() => handleExtend(customer)}
@@ -887,6 +917,23 @@ const AdminCustomers = () => {
                   />
                 </div>
               )}
+              <button
+                type="button"
+                onClick={() => {
+                  setActivationTarget({
+                    ...editTarget,
+                    account_type: editForm.account_type,
+                    subscription_expires_at: editForm.subscription_expires_at
+                      ? new Date(editForm.subscription_expires_at).toISOString()
+                      : null,
+                  });
+                  setShowActivationModal(true);
+                }}
+                className="w-full py-2.5 px-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border-2 border-emerald-600/40 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
+              >
+                <MessageCircle className="w-4 h-4 text-emerald-600" />
+                <span>Kirim Info Aktivasi (WA / Copas)</span>
+              </button>
               <div className="flex gap-3 pt-2">
                 <button onClick={() => setEditTarget(null)} className="flex-1 py-3 border-2 border-foreground rounded-lg font-medium hover:bg-secondary">Batal</button>
                 <button
@@ -922,6 +969,16 @@ const AdminCustomers = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Activation Message Modal */}
+      <ActivationMessageModal
+        isOpen={showActivationModal}
+        onClose={() => {
+          setShowActivationModal(false);
+          setActivationTarget(null);
+        }}
+        customer={activationTarget}
+      />
     </AdminLayout>
   );
 };
