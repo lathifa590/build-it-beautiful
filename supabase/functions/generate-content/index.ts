@@ -617,9 +617,13 @@ serve(async (req) => {
       }
       cleaned = cleaned.trim();
       
-      // Fix illegal backslash escapes (e.g. \pi, \frac, \times from LaTeX)
+      // Escape LaTeX commands starting with b, f, n, r, t so JSON.parse doesn't eat them as control characters
+      // e.g. \frac -> \\frac (otherwise \f becomes form-feed \x0C), \times -> \\times (otherwise \t becomes tab)
+      cleaned = cleaned.replace(/(?<!\\)\\(?=(?:frac|flat|forall|times|to|tan|theta|tau|text|textbf|tilde|top|triangle|beta|bar|begin|binom|mathbf|bot|nabla|neq|notin|nu|neg|natural|rho|right|rightarrow|rangle|rfloor|rceil)\b)/g, "\\\\");
+
+      // Fix illegal backslash escapes (e.g. \pi, \sqrt, \alpha from LaTeX)
       // JSON only allows: \", \\, \/, \b, \f, \n, \r, \t, \uXXXX
-      cleaned = cleaned.replace(/\\(?!["\\/bfnrtu])/g, "\\\\");
+      cleaned = cleaned.replace(/(?<!\\)\\(?!["\\/bfnrtu])/g, "\\\\");
 
       // Replace all LITERAL control characters (bare newlines, CRs, tabs) inside the raw string
       // These are invalid inside JSON string values and cause "Bad control character" parse errors.
@@ -2486,6 +2490,11 @@ Untuk soal matematika, WAJIB gunakan format LaTeX:
 - Perkalian: $\\times$ contoh: $2 \\times 3$
 - Pembagian: $\\div$ contoh: $6 \\div 2$
 - Simbol lain: $\\pi$, $\\leq$, $\\geq$, $\\neq$
+
+ATURAN ESCAPE JSON (SANGAT KRITIS):
+Karena output berupa JSON, setiap backslash pada perintah LaTeX WAJIB ditulis ganda: \\\\frac, \\\\times, \\\\sqrt, \\\\div, \\\\pi, \\\\to.
+Contoh BENAR: "Berapakah hasil dari \\\\frac{1}{4} + \\\\frac{2}{4}?"
+DILARANG menghilangkan backslash atau menulis rac/imes tanpa backslash.
 
 CONTOH FORMAT OUTPUT PER TIPE (WAJIB IKUTI):
 

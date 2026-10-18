@@ -14,6 +14,7 @@ import { KalenderPendidikanForm } from "@/components/modul/KalenderPendidikanFor
 import type { KalenderPendidikan } from "@/types/modul";
 import { DEFAULT_KALENDER_PENDIDIKAN } from "@/lib/constants";
 import { Textarea } from "@/components/ui/textarea";
+import { formatGrade } from "@/lib/utils";
 
 interface TPItem {
   id?: string;
@@ -283,7 +284,7 @@ export const StepCpTp: React.FC<StepCpTpProps> = ({ workspace, onNext, isLocked,
             <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Workspace Aktif</div>
             <div className="font-bold text-slate-900">{workspace.subject}</div>
             <div className="text-xs text-slate-600 mt-1 flex flex-wrap gap-1">
-              <span>Kelas {workspace.grade}</span>
+              <span>{formatGrade(workspace.grade)}</span>
               <span>·</span>
               <span>Fase {workspace.phase}</span>
               <span>·</span>

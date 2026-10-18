@@ -13,6 +13,7 @@ import { Store, School } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
 import { SchoolProposalModal } from '@/components/school/SchoolProposalModal';
+import { formatGrade } from '@/lib/utils';
 
 export const WorkspaceDashboard = ({ 
   onNavigate,
@@ -88,7 +89,7 @@ export const WorkspaceDashboard = ({
     if (!activeWorkspace) return;
     const confirmed = await confirm({
       title: "Arsipkan Workspace?",
-      description: `Arsipkan workspace "${activeWorkspace.subject} - Kelas ${activeWorkspace.grade}"?\n\nWorkspace akan disembunyikan dari daftar aktif. Anda dapat memulihkannya kapan saja dari section Arsip.`,
+      description: `Arsipkan workspace "${activeWorkspace.subject} - ${formatGrade(activeWorkspace.grade)}"?\n\nWorkspace akan disembunyikan dari daftar aktif. Anda dapat memulihkannya kapan saja dari section Arsip.`,
       confirmText: "Arsipkan"
     });
     if (!confirmed) return;
@@ -248,7 +249,7 @@ export const WorkspaceDashboard = ({
             )}
           </div>
           <p className="workspace-meta">
-            Kelas {activeWorkspace.grade} • Fase {activeWorkspace.phase} • {activeWorkspace.academic_year}
+            {formatGrade(activeWorkspace.grade)} • Fase {activeWorkspace.phase} • {activeWorkspace.academic_year}
           </p>
         </div>
         <div className="flex flex-col gap-2">

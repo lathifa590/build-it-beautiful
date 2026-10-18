@@ -16,6 +16,7 @@ import { AlertCircle, School } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { cleanGrade } from '@/lib/utils';
 
 interface CreateWorkspaceModalProps {
   isOpen: boolean;
@@ -101,6 +102,7 @@ export const CreateWorkspaceModal = ({ isOpen, onClose }: CreateWorkspaceModalPr
       const { profile_id, ...workspaceData } = formData;
       const newWs = await createWorkspace({
         ...workspaceData,
+        grade: cleanGrade(workspaceData.grade),
         school_name: isSchoolActive && school ? school.name : undefined,
       });
       

@@ -15,6 +15,7 @@ import { CreateWorkspaceModal } from './CreateWorkspaceModal';
 import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { formatGrade } from '@/lib/utils';
 
 export const WorkspaceSelector = () => {
   const navigate = useNavigate();
@@ -57,7 +58,7 @@ export const WorkspaceSelector = () => {
                 </span>
                 {!isRootExplorer && activeWorkspace && (
                   <span className="text-[10px] text-muted-foreground truncate">
-                    {activeWorkspace.grade} • {activeWorkspace.academic_year}
+                    {formatGrade(activeWorkspace.grade)} • {activeWorkspace.academic_year}
                   </span>
                 )}
               </div>
@@ -86,7 +87,7 @@ export const WorkspaceSelector = () => {
                     <span className="text-xs text-primary font-bold">✓</span>
                   )}
                 </div>
-                <span className="text-xs text-muted-foreground">Kelas {ws.grade} — {ws.academic_year}</span>
+                <span className="text-xs text-muted-foreground">{formatGrade(ws.grade)} — {ws.academic_year}</span>
               </DropdownMenuItem>
             ))
           )}

@@ -33,6 +33,7 @@ import { toast } from 'sonner';
 import { useV2Export } from '@/hooks/useV2Export';
 import { useSchool } from '@/contexts/SchoolContext';
 import { schoolApi } from '@/lib/school-api';
+import { formatGrade } from '@/lib/utils';
 import { V2ExportDialog } from '@/components/modul/V2ExportDialog';
 import type { V2ExportScope, V2ExportFormat } from '@/lib/pertemuan-export';
 import {
@@ -333,7 +334,7 @@ export const SchoolMeetingViewer: React.FC<SchoolMeetingViewerProps> = ({
               </Badge>
               <span className="text-xs font-bold text-muted-foreground">•</span>
               <span className="text-xs font-black text-primary">
-                {workspace.subject} • {workspace.grade} {workspace.phase ? `(Fase ${workspace.phase})` : ''}
+                {workspace.subject} • {formatGrade(workspace.grade)} {workspace.phase ? `(Fase ${workspace.phase})` : ''}
               </span>
               <span className="text-xs font-bold text-muted-foreground">•</span>
               <span className="text-xs font-bold text-muted-foreground">

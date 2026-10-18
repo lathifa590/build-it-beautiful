@@ -17,6 +17,7 @@ import { useSchool } from "@/contexts/SchoolContext";
 import { useSubscriptionStatus } from "@/hooks/useSubscriptionStatus";
 import { toast } from "sonner";
 import { SchoolProposalModal } from "@/components/school/SchoolProposalModal";
+import { formatGrade } from "@/lib/utils";
 
 interface WorkspaceExplorerShellProps {
   workspace: Workspace;
@@ -187,7 +188,7 @@ export const WorkspaceExplorerShell: React.FC<WorkspaceExplorerShellProps> = ({
         <div className="space-y-1">
           <h1 className="workspace-title">{workspace.subject}</h1>
           <p className="workspace-meta">
-            Kelas {workspace.grade} · Fase {workspace.phase} · {workspace.academic_year}
+            {formatGrade(workspace.grade)} · Fase {workspace.phase} · {workspace.academic_year}
           </p>
           {isFeatureAllowed && (workspace.school_name || (isSchoolActive && school?.name)) && (
             <div className="flex items-center gap-2 pt-0.5">

@@ -19,6 +19,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { formatGrade } from '@/lib/utils';
 
 // ─────────────────────────────────────────────────────────────
 // Shared progress hook
@@ -133,7 +134,7 @@ const WorkspaceCard = ({ ws, onClick }: { ws: Workspace; onClick: () => void }) 
     e.stopPropagation();
     const confirmed = await confirm({
       title: "Arsipkan Workspace?",
-      description: `Arsipkan "${ws.subject} - Kelas ${ws.grade}"?\n\nWorkspace akan disembunyikan dari daftar aktif. Bisa dipulihkan kapan saja.`,
+      description: `Arsipkan "${ws.subject} - ${formatGrade(ws.grade)}"?\n\nWorkspace akan disembunyikan dari daftar aktif. Bisa dipulihkan kapan saja.`,
       confirmText: "Arsipkan"
     });
     if (!confirmed) return;
@@ -177,7 +178,7 @@ const WorkspaceCard = ({ ws, onClick }: { ws: Workspace; onClick: () => void }) 
         <div className="flex items-start justify-between mb-2">
           <Folder className="w-8 h-8 text-yellow-500 group-hover:scale-110 transition-transform" fill="currentColor" fillOpacity={0.2} />
         </div>
-        <h3 className="font-bold text-lg mb-1 truncate pr-6">Kelas {ws.grade}</h3>
+        <h3 className="font-bold text-lg mb-1 truncate pr-6">{formatGrade(ws.grade)}</h3>
         <p className="text-sm text-muted-foreground">Fase {ws.phase}</p>
         <p className="text-xs text-muted-foreground mb-4">{ws.academic_year}</p>
         <div className="mt-auto pt-4 border-t-2 border-foreground/10">
@@ -208,7 +209,7 @@ const WorkspaceListCard = ({ ws, onClick }: { ws: Workspace; onClick: () => void
     e.stopPropagation();
     const confirmed = await confirm({
       title: "Arsipkan Workspace?",
-      description: `Arsipkan "${ws.subject} - Kelas ${ws.grade}"?\n\nWorkspace akan disembunyikan dari daftar aktif. Bisa dipulihkan kapan saja.`,
+      description: `Arsipkan "${ws.subject} - ${formatGrade(ws.grade)}"?\n\nWorkspace akan disembunyikan dari daftar aktif. Bisa dipulihkan kapan saja.`,
       confirmText: "Arsipkan"
     });
     if (!confirmed) return;
@@ -225,7 +226,7 @@ const WorkspaceListCard = ({ ws, onClick }: { ws: Workspace; onClick: () => void
       <div className="flex items-center gap-4 flex-1 min-w-0 cursor-pointer" onClick={onClick}>
         <Folder className="w-10 h-10 text-yellow-500 group-hover:scale-110 transition-transform shrink-0" fill="currentColor" fillOpacity={0.2} />
         <div className="min-w-0">
-          <h3 className="font-bold text-lg truncate">Kelas {ws.grade}</h3>
+          <h3 className="font-bold text-lg truncate">{formatGrade(ws.grade)}</h3>
           <p className="text-sm text-muted-foreground truncate">Fase {ws.phase} • {ws.academic_year}</p>
         </div>
       </div>
@@ -302,7 +303,7 @@ const ArchivedCard = ({ ws, limit, isSuperAdmin, isTrial, isPro, activeCount }: 
     setIsRestoring(true);
     const ok = await restoreWorkspace(ws.id);
     setIsRestoring(false);
-    if (ok) toast.success(`"${ws.subject} - Kelas ${ws.grade}" dipulihkan!`);
+    if (ok) toast.success(`"${ws.subject} - ${formatGrade(ws.grade)}" dipulihkan!`);
     else toast.error('Gagal memulihkan workspace.');
   };
 
@@ -312,7 +313,7 @@ const ArchivedCard = ({ ws, limit, isSuperAdmin, isTrial, isPro, activeCount }: 
         <div className="flex items-center gap-3 flex-1 min-w-0">
           <Folder className="w-8 h-8 text-muted-foreground shrink-0" fill="currentColor" fillOpacity={0.1} />
           <div className="min-w-0">
-            <h3 className="font-bold truncate">{ws.subject} – Kelas {ws.grade}</h3>
+            <h3 className="font-bold truncate">{ws.subject} – {formatGrade(ws.grade)}</h3>
             <p className="text-xs text-muted-foreground">Fase {ws.phase} • {ws.academic_year}</p>
             {ws.archived_at && (
               <p className="text-xs text-muted-foreground mt-0.5">

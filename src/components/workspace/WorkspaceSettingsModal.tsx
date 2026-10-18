@@ -17,6 +17,7 @@ import { Sparkles, Settings2, FileQuestion, School as SchoolIcon, RefreshCw } fr
 import { Button } from '@/components/ui/button';
 import { SoalConfigModal } from '@/components/modul/SoalConfigModal';
 import type { SoalConfig } from '@/types/modul';
+import { formatGrade, cleanGrade } from '@/lib/utils';
 
 interface WorkspaceSettingsModalProps {
   isOpen: boolean;
@@ -113,6 +114,7 @@ export const WorkspaceSettingsModal = ({ isOpen, onClose, workspace, onSuccess }
     try {
       const success = await updateWorkspace(workspace.id, {
         ...formData,
+        grade: cleanGrade(formData.grade),
         generation_settings: {
           ...workspace.generation_settings,
           ...currentGenSettings
@@ -148,7 +150,7 @@ export const WorkspaceSettingsModal = ({ isOpen, onClose, workspace, onSuccess }
           <DialogHeader>
             <DialogTitle>Pengaturan Workspace</DialogTitle>
             <DialogDescription>
-              Ubah pengaturan untuk "{workspace.subject} - Kelas {workspace.grade}".
+              Ubah pengaturan untuk "{workspace.subject} - {formatGrade(workspace.grade)}".
             </DialogDescription>
             {isFeatureAllowed && isSchoolActive && school && (
               <div className="mt-3 p-3 rounded-xl bg-orange-50 dark:bg-orange-950/40 border border-orange-300 dark:border-orange-800 space-y-2 text-left">

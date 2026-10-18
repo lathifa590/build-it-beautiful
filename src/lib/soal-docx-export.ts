@@ -75,6 +75,18 @@ function latexToOmml(latex: string, display: boolean): string | null {
 const LATEX_TOKEN_RE =
   /\\(?:frac|sqrt|int|iint|iiint|oint|lim|sum|prod|sin|cos|tan|sec|csc|cot|log|ln|exp|infty|to|pm|mp|leq|geq|neq|approx|equiv|cdot|times|div|pi|theta|alpha|beta|gamma|delta|omega|lambda|mu|sigma|phi|Rightarrow|Leftrightarrow|left|right|partial|nabla)\b|[A-Za-z0-9)\]}]\^\{[^}]*\}|[A-Za-z0-9)\]}]_\{[^}]*\}|[A-Za-z0-9)\]}]\^[0-9A-Za-z]/;
 
+function repairCorruptedMath(text: string): string {
+  let r = text ?? '';
+  r = r.replace(/[\x0C\uFFFD▲]rac(?=\{)/g, '\\frac');
+  r = r.replace(/(?<![a-zA-Z])rac(?=\{)/g, '\\frac');
+  r = r.replace(/(?<![\\a-zA-Z])frac(?=\{)/g, '\\frac');
+  r = r.replace(/[\t\x00-\x1F]*\bimes\b/g, '\\times');
+  r = r.replace(/[\t\x00-\x1F]+o\b/g, ' \\to ');
+  r = r.replace(/([A-Za-z0-9}\)])\t+([A-Za-z0-9{\(])/g, '$1 \\to $2');
+  r = r.replace(/\t/g, ' ');
+  return r;
+}
+
 function normalizeLegacyLatex(input: string): string {
   const s = input ?? '';
   if (!s) return s;
@@ -123,7 +135,8 @@ interface Seg {
 }
 
 function segmentText(input: string): Seg[] {
-  const s = normalizeLegacyLatex(input || '');
+  const repaired = repairCorruptedMath(input || '');
+  const s = normalizeLegacyLatex(repaired);
   const segs: Seg[] = [];
   const re =
     /\\\[([\s\S]+?)\\\]|\$\$([\s\S]+?)\$\$|\\\(([\s\S]+?)\\\)|(?:^|[^$])\$([^$\n]+?)\$/g;

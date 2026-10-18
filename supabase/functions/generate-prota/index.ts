@@ -25,8 +25,11 @@ const sanitizeJsonResponse = (text: string): string => {
   }
   cleaned = cleaned.trim();
 
+  // Escape LaTeX commands starting with b, f, n, r, t so JSON.parse doesn't eat them as control characters
+  cleaned = cleaned.replace(/(?<!\\)\\(?=(?:frac|flat|forall|times|to|tan|theta|tau|text|textbf|tilde|top|triangle|beta|bar|begin|binom|mathbf|bot|nabla|neq|notin|nu|neg|natural|rho|right|rightarrow|rangle|rfloor|rceil)\b)/g, "\\\\");
+
   // Fix illegal backslash escapes (e.g. LaTeX formulas)
-  cleaned = cleaned.replace(/\\(?!["\\/bfnrtu])/g, "\\\\");
+  cleaned = cleaned.replace(/(?<!\\)\\(?!["\\/bfnrtu])/g, "\\\\");
 
   // Replace literal control characters inside string
   cleaned = cleaned.replace(/[\n\r\t]+/g, " ");
