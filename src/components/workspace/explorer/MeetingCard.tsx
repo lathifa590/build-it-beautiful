@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { CheckCircle2, Circle, BookOpen, PlayCircle, ChevronRight, Edit2, Check, X, Wand2, Loader2, Newspaper } from "lucide-react";
+import { CheckCircle2, Circle, BookOpen, PlayCircle, ChevronRight, Edit2, Check, X, Wand2, Loader2, Newspaper, Link2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import type { MeetingSlotDB } from "@/hooks/useProsemData";
 import { BlogMarketingModal } from "./BlogMarketingModal";
@@ -82,7 +82,7 @@ export const MeetingCard: React.FC<MeetingCardProps> = ({ slot, meetingIndex, on
         group flex items-center gap-3 px-4 py-3 rounded-xl border-2 border-foreground/10
         cursor-pointer transition-all duration-150
         hover:border-primary/40 hover:shadow-md hover:-translate-y-0.5
-        ${cfg.bg}
+        ${slot.group_id ? 'border-l-4 border-l-purple-600 bg-purple-50/20' : cfg.bg}
       `}
     >
       <div className="flex-shrink-0 w-7 h-7 rounded-full bg-foreground/10 flex items-center justify-center text-xs font-bold">
@@ -115,13 +115,19 @@ export const MeetingCard: React.FC<MeetingCardProps> = ({ slot, meetingIndex, on
             </button>
           </div>
         ) : (
-          <div className="flex items-center gap-2 group/edit">
+          <div className="flex items-center gap-2 group/edit flex-wrap">
             <p className="text-sm font-semibold truncate">
               {slot.title || `Pertemuan ${meetingIndex}`}
               {slot.week_number && (
                 <span className="ml-2 text-xs font-normal text-muted-foreground">Minggu {slot.week_number}</span>
               )}
             </p>
+            {slot.group_id && (
+              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-purple-100 text-purple-700 border border-purple-300 shrink-0">
+                <Link2 className="w-2.5 h-2.5" />
+                {slot.group_title || "Multi-Pertemuan"}
+              </span>
+            )}
             <button 
               onClick={(e) => { e.stopPropagation(); setIsEditing(true); }}
               className="opacity-0 group-hover/edit:opacity-100 p-1 hover:bg-muted rounded text-muted-foreground transition-opacity"
