@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 export interface MeetingSlotDB {
@@ -10,6 +10,8 @@ export interface MeetingSlotDB {
   week_number: number | null;
   planned_date: string | null;
   status: "planned" | "taught" | "completed" | "skipped";
+  group_id?: string | null;
+  group_title?: string | null;
 }
 
 export interface ProsemItemDB {
@@ -60,7 +62,7 @@ export function useProsemData(workspaceId: string | null) {
           .from("prosem_items")
           .select(`
             id, sequence, materi_pokok, allocated_jp, semester, tp_snapshot,
-            meeting_slots ( id, prosem_item_id, sequence, title, planned_jp, week_number, planned_date, status )
+            meeting_slots ( id, prosem_item_id, sequence, title, planned_jp, week_number, planned_date, status, group_id, group_title )
           `)
           .eq("prosem_plan_id", plan.id)
           .order("sequence");
