@@ -297,11 +297,17 @@ export const WorkspaceMeetingEditor: React.FC<WorkspaceMeetingEditorProps> = ({
   useEffect(() => {
     if (cloudProfiles.length > 0 && formData && !formData.namaPenyusun) {
       const savedProfileId = localStorage.getItem(`workspace_profile_${workspace.id}`);
+      if (savedProfileId === 'none') {
+        // Workspace ini dibuat secara mandiri tanpa profil guru
+        return;
+      }
+
       const selectedProfile = savedProfileId 
         ? cloudProfiles.find((p: any) => p.id === savedProfileId) 
-        : cloudProfiles[0];
+        : null;
         
-      const profileData = selectedProfile?.data || cloudProfiles[0]?.data || {};
+      if (!selectedProfile) return;
+      const profileData = selectedProfile?.data || {};
       
       setFormData(prev => prev ? {
         ...prev,

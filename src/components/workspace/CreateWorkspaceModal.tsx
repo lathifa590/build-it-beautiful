@@ -52,28 +52,21 @@ export const CreateWorkspaceModal = ({ isOpen, onClose }: CreateWorkspaceModalPr
     }
   }, [isSchoolActive, school, schoolCalendar]);
 
-  // Auto-select first profile if none is selected
-  React.useEffect(() => {
-    if (cloudProfiles.length > 0 && !formData.profile_id) {
-      const profile = cloudProfiles[0];
-      setFormData(prev => ({ 
-        ...prev, 
-        profile_id: profile.id,
-        subject: profile.data?.mataPelajaran || prev.subject,
-        grade: profile.data?.kelas || prev.grade,
-        phase: profile.data?.fase || prev.phase,
-      }));
-    }
-  }, [cloudProfiles, formData.profile_id]);
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleProfileChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const profileId = e.target.value;
+    if (!profileId) {
+      setFormData(prev => ({
+        ...prev,
+        profile_id: '',
+      }));
+      return;
+    }
+
     const profile = cloudProfiles.find(p => p.id === profileId);
-    
     setFormData(prev => ({
       ...prev,
       profile_id: profileId,
@@ -86,8 +79,7 @@ export const CreateWorkspaceModal = ({ isOpen, onClose }: CreateWorkspaceModalPr
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.subject || !formData.grade || !formData.phase || !formData.academic_year) return;
-    if (cloudProfiles.length > 0 && !formData.profile_id) return;
-    
+
     const isSuperAdmin = isAdmin || user?.email?.toLowerCase() === 'jagofeed@gmail.com';
     const isPro = subStatus?.isPro || isSuperAdmin;
     const isTrial = subStatus?.isTrial;
@@ -112,8 +104,8 @@ export const CreateWorkspaceModal = ({ isOpen, onClose }: CreateWorkspaceModalPr
         school_name: isSchoolActive && school ? school.name : undefined,
       });
       
-      if (newWs && profile_id) {
-        localStorage.setItem(`workspace_profile_${newWs.id}`, profile_id);
+      if (newWs) {
+        localStorage.setItem(`workspace_profile_${newWs.id}`, profile_id || 'none');
       }
 
       toast.success('Workspace berhasil dibuat!');
@@ -124,7 +116,7 @@ export const CreateWorkspaceModal = ({ isOpen, onClose }: CreateWorkspaceModalPr
         grade: '',
         phase: '',
         academic_year: '2026/2027',
-        profile_id: cloudProfiles.length > 0 ? cloudProfiles[0].id : '',
+        profile_id: '',
         jp_duration_minutes: 45,
         default_jp_per_meeting: 2,
         weekly_jp_pattern: '',
@@ -224,27 +216,32 @@ export const CreateWorkspaceModal = ({ isOpen, onClose }: CreateWorkspaceModalPr
 
             {cloudProfiles.length > 0 ? (
               <div className="field-group">
-                <label htmlFor="profile_id">Pilih Profil Guru</label>
+                <div className="flex items-center justify-between">
+                  <label htmlFor="profile_id">Pilih Profil Guru</label>
+                  <span className="text-[10px] text-muted-foreground font-semibold">Opsional</span>
+                </div>
                 <select
                   id="profile_id"
                   name="profile_id"
                   value={formData.profile_id}
                   onChange={handleProfileChange}
-                  required
                 >
-                  <option value="" disabled>-- Pilih Profil --</option>
+                  <option value="">-- Tanpa Profil Guru (Input Mandiri) --</option>
                   {cloudProfiles.map((p) => (
                     <option key={p.id} value={p.id}>
                       {p.name} - {p.data?.sekolah || 'Tanpa Sekolah'}
                     </option>
                   ))}
                 </select>
+                <p className="text-[11px] text-muted-foreground mt-1">
+                  Pilih profil untuk mengisi identitas secara otomatis, atau biarkan "Tanpa Profil" untuk mengetik mapel dan kelas secara mandiri.
+                </p>
               </div>
             ) : (
               <div className="bg-yellow-50 border-2 border-yellow-500 rounded-lg p-3 text-sm text-yellow-800 flex items-start gap-2 shadow-sm">
                 <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
                 <div>
-                  <span className="font-bold">Belum Ada Profil Guru!</span> Anda bisa mengosongkannya, namun Modul Ajar nantinya akan memiliki data kosong di identitas. Sebaiknya <a href="/app/profile" className="underline font-bold">isi Profil Guru dulu</a>.
+                  <span className="font-bold">Mode Mandiri (Tanpa Profil):</span> Anda belum memiliki data Profil Guru. Workspace ini akan dibuat secara mandiri.
                 </div>
               </div>
             )}
