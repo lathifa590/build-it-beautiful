@@ -12,6 +12,7 @@ import { exportProtaToWord, exportProsemToWord, exportKktpToWord } from "@/lib/e
 import { useKktpGenerator } from "@/hooks/useKktpGenerator";
 import type { ProsemData, KKTPData, KalenderPendidikan } from "@/types/modul";
 import { useToast } from "@/hooks/use-toast";
+import { formatGrade } from "@/lib/utils";
 
 interface ProtaProsemViewerModalProps {
   isOpen: boolean;
@@ -110,7 +111,7 @@ export const ProtaProsemViewerModal: React.FC<ProtaProsemViewerModalProps> = ({
             </div>
             <div>
               <h2 className="font-bold font-heading text-lg leading-tight">Perencanaan (Prota, Prosem, KKTP)</h2>
-              <p className="text-xs text-muted-foreground">{workspace.subject} • Kelas {workspace.grade}</p>
+              <p className="text-xs text-muted-foreground">{workspace.subject} • {formatGrade(workspace.grade)}</p>
             </div>
           </div>
           <div className="flex items-center gap-3">

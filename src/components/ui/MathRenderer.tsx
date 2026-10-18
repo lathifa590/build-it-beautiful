@@ -45,25 +45,41 @@ const preprocessSetNotation = (text: string): string => {
 };
 
 // Repair LaTeX that was corrupted by JSON.parse eating backslash escapes.
-// Common symptoms in LKPD output:
-//   "\to"  -> TAB char (\t) + "o"  →  "lim_{x o 0}"
-//   "\n"   -> newline,   "\b" -> backspace
-// Also restores missing backslash on common math funcs when adjacent to _ or {.
+// Common symptoms in AI/LKPD/Soal output:
+//   "\frac"  -> FORM FEED (\x0C) + "rac"  →  "rac{1}{4}" or "▲rac{1}{4}"
+//   "\times" -> TAB char (\t) + "imes"    →  "imes"
+//   "\to"    -> TAB char (\t) + "o"       →  "lim_{x o 0}"
+//   "\beta"  -> BACKSPACE (\x08) + "eta"  →  "eta"
 const preprocessRepairLatex = (text: string): string => {
   let result = text;
 
-  // 1. TAB between math-ish chars almost always = broken \to
+  // 0. Repair broken \frac patterns: \x0Crac, ▲rac, \uFFFDrac, and bare rac{...}
+  result = result.replace(/[\x0C\uFFFD▲]rac(?=\{)/g, '\\frac');
+  result = result.replace(/(?<![a-zA-Z])rac(?=\{)/g, '\\frac');
+  result = result.replace(/(?<![\\a-zA-Z])frac(?=\{)/g, '\\frac');
+
+  // 1. Repair broken \times patterns: JSON \t+imes, bare imes
+  result = result.replace(/[\t\x00-\x1F]*\bimes\b/g, '\\times');
+
+  // 2. Repair broken \to patterns: \t+o or math-ish chars around \t
+  result = result.replace(/[\t\x00-\x1F]+o\b/g, ' \\to ');
   result = result.replace(/([A-Za-z0-9}\)])\t+([A-Za-z0-9{\(])/g, '$1 \\to $2');
   result = result.replace(/\t/g, ' ');
 
-  // 2. Fix " o " → " \to " inside lim subscript (lim_{x o 0})
+  // 3. Repair other backspace-eaten Greek/symbols: \beta, \bar, \begin, \binom
+  result = result.replace(/[\x08]eta\b/g, '\\beta');
+  result = result.replace(/[\x08]ar\b/g, '\\bar');
+  result = result.replace(/[\x08]egin\b/g, '\\begin');
+  result = result.replace(/[\x08]inom\b/g, '\\binom');
+
+  // 4. Fix " o " → " \to " inside lim subscript (lim_{x o 0})
   result = result.replace(/(\\?lim_\{)([^}]*)\}/gi, (_, head, inner) => {
     return `${head}${inner.replace(/\s+o\s+/g, ' \\to ')}}`;
   });
 
-  // 3. Restore missing backslash on common funcs followed by _ or {
+  // 5. Restore missing backslash on common funcs followed by _ or {
   result = result.replace(
-    /(^|[\s\(\[\{=+\-*/,])(lim|sin|cos|tan|sec|csc|cot|log|ln|sqrt|frac)([_{])/g,
+    /(^|[\s\(\[\{=+\-*/,])(lim|sin|cos|tan|sec|csc|cot|log|ln|sqrt|frac|times|div|pm|mp|cdot|leq|geq|neq|approx)([_{])/g,
     '$1\\$2$3',
   );
 
@@ -182,7 +198,10 @@ const preprocessFractionsLegacy = (text: string): string => {
     return buildFractionHtml(num, den);
   });
   
-  // Match literal "frac{num}{den}" without backslash (in case backslash was stripped)
+  // Match literal "frac{num}{den}" or bare "rac{num}{den}" without backslash
+  result = result.replace(/(?<![a-zA-Z])rac\{([^{}]+)\}\{([^{}]+)\}/g, (_, num, den) => {
+    return buildFractionHtml(num, den);
+  });
   result = result.replace(/(?<![a-zA-Z])frac\{([^{}]+)\}\{([^{}]+)\}/g, (_, num, den) => {
     return buildFractionHtml(num, den);
   });
@@ -333,7 +352,7 @@ const preprocessStandaloneLatex = (text: string): string => {
 
 // Convert common text math patterns to LaTeX
 const preprocessMath = (text: string): string => {
-  let result = text;
+  let result = preprocessRepairLatex(text);
 
   // Handle sqrt(x) → \sqrt{x}
   result = result.replace(/sqrt\(([^)]+)\)/gi, '\\sqrt{$1}');
@@ -620,7 +639,8 @@ const stripLatexSpacing = (text: string): string => {
 
 // Run the Unicode/HTML fallback pipeline on already-delimited math inner text.
 const renderMathFallback = (inner: string): string => {
-  let r = preprocessSetNotation(inner);
+  let r = preprocessRepairLatex(inner);
+  r = preprocessSetNotation(r);
   r = stripLatexSpacing(r);
   r = preprocessFractionsAdvanced(r);
   r = preprocessFractionsLegacy(r);

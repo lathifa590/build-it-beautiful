@@ -35,6 +35,7 @@ import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { useSearchParams } from 'react-router-dom';
 import { SchoolMeetingViewer } from '@/components/school/SchoolMeetingViewer';
+import { formatGrade } from '@/lib/utils';
 
 export default function BankModulPage() {
   return (
@@ -357,7 +358,7 @@ function BankModulContent() {
                             {ws.subject}
                           </CardTitle>
                           <p className="text-xs font-black text-primary mt-0.5">
-                            {ws.grade} {ws.phase ? `• Fase ${ws.phase}` : ''}
+                            {formatGrade(ws.grade)} {ws.phase ? `• Fase ${ws.phase}` : ''}
                           </p>
                         </div>
                       </CardHeader>
@@ -448,7 +449,7 @@ function BankModulContent() {
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-black text-primary">
-                      {selectedWorkspace.grade} • Fase {selectedWorkspace.phase}
+                      {formatGrade(selectedWorkspace.grade)} • Fase {selectedWorkspace.phase}
                     </span>
                   </div>
                   <h1 className="text-xl sm:text-2xl font-black text-foreground">

@@ -382,22 +382,37 @@ const _convertSqrt = (text: string): string => {
 // Repair LaTeX corrupted by JSON.parse (\\f → form-feed, \\t → TAB, etc.)
 const _repairLatex = (text: string): string => {
   let r = text;
-  // TAB between math-ish chars almost always = broken \to
+
+  // 0. Broken \frac patterns: \x0Crac, ▲rac, and bare rac{...}
+  r = r.replace(/[\x0C\uFFFD▲]rac(?=\{)/g, '\\frac');
+  r = r.replace(/(?<![a-zA-Z])rac(?=\{)/g, '\\frac');
+  r = r.replace(/(?<![\\a-zA-Z])frac(?=\{)/g, '\\frac');
+
+  // 1. Broken \times patterns: JSON \t+imes, bare imes
+  r = r.replace(/[\t\x00-\x1F]*\bimes\b/g, '\\times');
+
+  // 2. Broken \to patterns: \t+o or math-ish chars around \t
+  r = r.replace(/[\t\x00-\x1F]+o\b/g, ' \\to ');
   r = r.replace(/([A-Za-z0-9}\)])\t+([A-Za-z0-9{\(])/g, '$1 \\to $2');
   r = r.replace(/\t/g, ' ');
-  // Fix " o " → " \to " inside lim subscript
+
+  // 3. Broken backspace patterns (\beta, \bar, \begin, \binom)
+  r = r.replace(/[\x08]eta\b/g, '\\beta');
+  r = r.replace(/[\x08]ar\b/g, '\\bar');
+  r = r.replace(/[\x08]egin\b/g, '\\begin');
+  r = r.replace(/[\x08]inom\b/g, '\\binom');
+
+  // 4. Fix " o " → " \to " inside lim subscript
   r = r.replace(/(\\?lim_\{)([^}]*)\}/gi, (_, head, inner) =>
     `${head}${inner.replace(/\s+o\s+/g, ' \\to ')}}`,
   );
-  // Restore missing backslash on common funcs followed by _ or {
+
+  // 5. Restore missing backslash on common funcs followed by _ or {
   r = r.replace(
-    /(^|[\s\(\[\{=+\-*/,])(lim|sin|cos|tan|sec|csc|cot|log|ln|sqrt|frac)([_{])/g,
+    /(^|[\s\(\[\{=+\-*/,])(lim|sin|cos|tan|sec|csc|cot|log|ln|sqrt|frac|times|div|pm|mp|cdot|leq|geq|neq|approx)([_{])/g,
     '$1\\$2$3',
   );
-  // Broken \frac where backslash became form-feed/replacement char/▲
-  r = r.replace(/[\x0C\uFFFD▲](?=rac\{)/g, '\\');
-  // Literal "frac{...}{...}" without backslash
-  r = r.replace(/(?<![\\a-zA-Z])frac(?=\{)/g, '\\frac');
+
   return r;
 };
 
@@ -477,6 +492,8 @@ export const formatMathAndHtml = (text: string | undefined | null): string => {
   c = _convertFractions(c);
   // legacy/broken patterns
   c = c.replace(/[\x0C\uFFFD▲]rac\{([^{}]+)\}\{([^{}]+)\}/g, (_, n, d) => _fracHtml(n, d));
+  c = c.replace(/(?<![a-zA-Z])rac\{([^{}]+)\}\{([^{}]+)\}/g, (_, n, d) => _fracHtml(n, d));
+  c = c.replace(/(?<![a-zA-Z])frac\{([^{}]+)\}\{([^{}]+)\}/g, (_, n, d) => _fracHtml(n, d));
 
   // Step 4: sqrt (nested)
   c = _convertSqrt(c);
@@ -518,7 +535,7 @@ export const formatMathAndHtml = (text: string | undefined | null): string => {
     if (!block) return '';
     // Build a Unicode/HTML fallback by running the same conversions on the
     // inner LaTeX (skipping the delimiter step which no longer applies).
-    let fb = block.latex;
+    let fb = _repairLatex(block.latex);
     fb = _convertFractions(fb);
     fb = _convertSqrt(fb);
     fb = _convertLatexCommands(fb);
