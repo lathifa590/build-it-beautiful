@@ -115,6 +115,7 @@ Buatkan dokumen modul ajar lengkap berdasarkan data di atas dengan struktur:
 5. Sertakan pertanyaan pemantik di setiap tahap
 6. Cantumkan durasi untuk setiap kegiatan
 7. Sertakan "pemahaman bermakna" yang ingin dicapai
+8. DILARANG menggunakan kata "SEKSI" atau "BAB" pada heading/judul. Gunakan penomoran langsung (I. ..., II. ..., dst).
 
 FORMAT OUTPUT — ikuti struktur ini PERSIS:
 
@@ -130,13 +131,37 @@ FORMAT OUTPUT — ikuti struktur ini PERSIS:
 | Alokasi Waktu | [isi] |
 | Model Pembelajaran | [isi] |
 
-## I. INFORMASI UMUM
+## I. IDENTITAS DOKUMEN
 [isi dalam format tabel]
 
-## II. TUJUAN PEMBELAJARAN
-[isi dalam format tabel atau bullet bernomor]
+## II. IDENTIFIKASI MURID
+[isi dalam format tabel]
 
-## III. LANGKAH PEMBELAJARAN
+## III. JENIS PENGETAHUAN MATERI
+[isi dalam format tabel]
+
+## IV. INTEGRASI NILAI & KARAKTER
+[isi dalam format tabel]
+
+## V. DIMENSI PROFIL LULUSAN
+[isi dalam format tabel]
+
+## VI. DESAIN PEMBELAJARAN
+[isi dalam format tabel]
+
+## VII. LINTAS DISIPLIN ILMU
+[isi dalam format tabel]
+
+## VIII. KEMITRAAN PEMBELAJARAN
+[isi dalam format tabel]
+
+## IX. LINGKUNGAN PEMBELAJARAN
+[isi dalam format tabel]
+
+## X. PEMANFAATAN TEKNOLOGI DIGITAL
+[isi dalam format tabel]
+
+## XI. LANGKAH-LANGKAH PEMBELAJARAN
 
 ### PERTEMUAN 1 ([durasi] menit)
 
@@ -173,22 +198,47 @@ FORMAT OUTPUT — ikuti struktur ini PERSIS:
 
 [Ulangi struktur di atas untuk setiap pertemuan]
 
-## IV. PENILAIAN
-[isi dalam format tabel]`;
+## XII. PENILAIAN
+[isi dalam format tabel]
+
+## LEMBAR PENGESAHAN
+[isi format tanda tangan]`;
 }
 
-// Struktur seksi LENGKAP Modul Ajar — dipakai oleh Claude, ChatGPT, dan Gemini
-// agar kedalaman konten sama persis.
-function modulFullSections(model: string): string {
-  return `
-STRUKTUR DOKUMEN — ikuti urutan seksi ini PERSIS dan LENGKAP (semua seksi WAJIB terisi penuh, tidak boleh di-skip):
+// Struktur bagian LENGKAP Modul Ajar — dipakai oleh Claude, ChatGPT, dan Gemini
+// agar kedalaman konten sama persis dengan aplikasi tanpa kata "SEKSI".
+function modulFullSections(model: string, formData?: FormData): string {
+  const isKBC = formData?.kurikulum === 'kbc';
+  const subjudul = isKBC
+    ? 'Kurikulum Berbasis Cinta (KBC) Kemenag — Pembelajaran Mendalam (Deep Learning)'
+    : 'Kurikulum Merdeka — Pembelajaran Mendalam (Deep Learning)';
 
-SEKSI HEADER:
+  return `
+STRUKTUR DOKUMEN — ikuti urutan bagian ini PERSIS dan LENGKAP (semua bagian WAJIB terisi penuh, tidak boleh di-skip):
+
+HEADER DOKUMEN:
 Judul besar: "MODUL AJAR"
-Subjudul: "Kurikulum Merdeka — Pembelajaran Mendalam (Deep Learning)"
+Subjudul: "${subjudul}"
 Mata pelajaran dan materi di bawahnya.
 
-SEKSI I: IDENTITAS DOKUMEN
+ATURAN FORMAT JUDUL / HEADING (SANGAT PENTING):
+- Judul setiap bagian WAJIB ditulis langsung dengan angka Romawi: "I. IDENTITAS DOKUMEN", "II. IDENTIFIKASI MURID", dst.
+- DILARANG KERAS menggunakan kata "SEKSI" ataupun "BAB" pada judul heading (jangan memberi awalan kata Seksi atau Bab sebelum angka romawi). Judul harus bersih persis seperti:
+  • I. IDENTITAS DOKUMEN
+  • II. IDENTIFIKASI MURID
+  • III. JENIS PENGETAHUAN MATERI
+  • IV. INTEGRASI NILAI & KARAKTER
+  • V. DIMENSI PROFIL LULUSAN
+  ${isKBC ? '• V-B. TOPIK PANCA CINTA (KBC)\n  ' : ''}• VI. DESAIN PEMBELAJARAN
+  • VII. LINTAS DISIPLIN ILMU
+  • VIII. KEMITRAAN PEMBELAJARAN
+  • IX. LINGKUNGAN PEMBELAJARAN
+  • X. PEMANFAATAN TEKNOLOGI DIGITAL
+  • XI. LANGKAH-LANGKAH PEMBELAJARAN
+  • XII. PENILAIAN
+  • LEMBAR PENGESAHAN
+
+I. IDENTITAS DOKUMEN
 Tabel 2 kolom (Komponen | Detail):
 - Nama Penyusun: [nama guru] (NIP: [NIP guru])
 - Sekolah: [nama sekolah]
@@ -200,39 +250,42 @@ Tabel 2 kolom (Komponen | Detail):
 - Model Pembelajaran: [model]
 - Metode Pembelajaran: [metode-metode yang dipilih]
 
-SEKSI II: IDENTIFIKASI MURID
+II. IDENTIFIKASI MURID
 Tabel 2 kolom (Aspek | Deskripsi):
 - Pengetahuan Awal, Minat, Latar Belakang, Kebutuhan Belajar (gunakan data identifikasi murid).
 
-SEKSI III: JENIS PENGETAHUAN MATERI
+III. JENIS PENGETAHUAN MATERI
 Tabel 2 kolom (Jenis | Deskripsi): Faktual, Konseptual, Prosedural, Metakognitif, Kaitan dengan Kehidupan.
 
-SEKSI IV: INTEGRASI NILAI KARAKTER
+IV. INTEGRASI NILAI & KARAKTER
 Tabel 2 kolom: Nilai Karakter yang Dikembangkan | Deskripsi Implementasi dalam pembelajaran.
 
-SEKSI V: DIMENSI PROFIL LULUSAN (DPL)
+V. DIMENSI PROFIL LULUSAN
 Tabel 3 kolom (DPL | Nama Lengkap | Implementasi dalam Pembelajaran). Nama lengkap DPL:
 1. Keimanan dan Ketakwaan terhadap Tuhan YME, 2. Kewargaan Global, 3. Penalaran Kritis,
 4. Kreativitas, 5. Kebhinekaan Global, 6. Kolaborasi, 7. Kepedulian, 8. Kemandirian.
 (Tampilkan hanya DPL yang relevan dari data.)
-
-SEKSI VI: DESAIN PEMBELAJARAN
+${isKBC ? `
+V-B. TOPIK PANCA CINTA (KBC)
+Tabel 2 kolom: Elemen Cinta yang Dikembangkan | Deskripsi Implementasi & Materi Integrasi KBC.
+` : ''}
+VI. DESAIN PEMBELAJARAN
 Tabel 2 kolom: Capaian Pembelajaran, Tujuan Pembelajaran (TP1, TP2, dst), Pemahaman Bermakna,
 Model Pembelajaran, Metode Pembelajaran.
 
-SEKSI VII: LINTAS DISIPLIN ILMU
+VII. LINTAS DISIPLIN ILMU
 Tabel 2 kolom (Mata Pelajaran | Keterkaitan): minimal 4 mata pelajaran lain yang relevan.
 
-SEKSI VIII: KEMITRAAN PEMBELAJARAN
+VIII. KEMITRAAN PEMBELAJARAN
 Tabel 2 kolom (Mitra | Bentuk Kemitraan): Guru Bidang Studi Lain, Orang Tua / Wali, Instansi Terkait.
 
-SEKSI IX: LINGKUNGAN PEMBELAJARAN
+IX. LINGKUNGAN PEMBELAJARAN
 Tabel 2 kolom (Aspek | Deskripsi): Ruang Fisik, Ruang Virtual, Budaya Belajar.
 
-SEKSI X: PEMANFAATAN TEKNOLOGI DIGITAL
+X. PEMANFAATAN TEKNOLOGI DIGITAL
 Tabel 2 kolom (Fase | Pemanfaatan): Perencanaan, Pelaksanaan, Asesmen.
 
-SEKSI XI: LANGKAH-LANGKAH PEMBELAJARAN
+XI. LANGKAH-LANGKAH PEMBELAJARAN
 Untuk SETIAP pertemuan buat sub-judul "Pertemuan [N] — Durasi: [X] Menit" lalu tabel 3 kolom:
 TAHAP | KEGIATAN & PRINSIP | DURASI.
 
@@ -243,13 +296,13 @@ TAHAP | KEGIATAN & PRINSIP | DURASI.
   (Mindful / Meaningful / Joyful).
 - TAHAP PENUTUP: Refleksi Individu (3-2-1), Kesimpulan Bersama, Apresiasi & Doa Penutup.
 
-SEKSI XII: PENILAIAN
+XII. PENILAIAN
 A. Penilaian Proses (Formatif) — tabel: Aspek | Instrumen | Waktu | Keterangan.
 B. Penilaian Hasil (Sumatif) — tabel: Tujuan Pembelajaran | Instrumen | Teknik | Bobot.
 C. Rubrik Penilaian — tabel: Kriteria | Sangat Baik (4) | Baik (3) | Cukup (2) | Perlu Bimbingan (1).
 D. Diferensiasi & Akomodasi — tabel: Kebutuhan Murid | Strategi.
 
-PENUTUP: LEMBAR PENGESAHAN
+LEMBAR PENGESAHAN
 Layout 2 kolom di bagian paling bawah:
 - Kiri: "Mengetahui," / "Kepala Sekolah" / [3 baris kosong] / "[Nama Kepala Sekolah]" / "NIP. [NIP]"
 - Kanan: "[Kota], [Tanggal]" / "Guru Mata Pelajaran" / [3 baris kosong] / "[Nama Guru]" / "NIP. [NIP]"
@@ -258,21 +311,22 @@ Jika data kota/tanggal tidak tersedia, gunakan "_, _ 20___".
 Konten yang tidak ada datanya (Lintas Disiplin, Kemitraan, dll) WAJIB di-GENERATE berdasarkan konteks materi.`;
 }
 
-function modulFormatClaude(model: string): string {
+function modulFormatClaude(model: string, formData?: FormData): string {
   return `
-JANGAN buat Artifact HTML. Langsung jalankan Python (python-docx) untuk membuat file .docx dan tampilkan sebagai link unduhan.
-${modulFullSections(model)}
+JANGAN buat Artifact HTML. Langsung jalankan Python (python-docx) untuk membuat file Microsoft Word (.docx) dan tampilkan sebagai link unduhan (akhiri dengan present_files()).
+${modulFullSections(model, formData)}
 
 KETENTUAN TEKNIS FILE .docx (python-docx):
 - Margin: 2 cm pada semua sisi (top, bottom, left, right).
-- Font isi: Arial 11pt. Judul utama (H1): 14pt bold, center. Sub-judul (H2): 12pt bold. Sub-bab (H3): 11pt bold.
+- Font isi: Arial 11pt. Judul utama (H1): 14pt bold, center. Sub-judul bagian (H2): 12pt bold ("I. IDENTITAS DOKUMEN", "II. IDENTIFIKASI MURID", dst — TANPA kata "SEKSI"). Sub-bab (H3): 11pt bold.
+- Heading bagian: tulis langsung dengan angka Romawi ("I. IDENTITAS DOKUMEN", "II. IDENTIFIKASI MURID", dst). DILARANG KERAS menggunakan kata "SEKSI" atau "BAB" pada heading dokumen.
 - Semua tabel: header baris pertama di-shading RGBColor(240, 240, 240) dengan font bold; isi tabel font regular.
 - Lebar kolom default untuk tabel 2 kolom: kolom 1 = 4 cm, kolom 2 = 13 cm.
-- Setiap kegiatan pada SEKSI XI mencakup sintaks model ${model}.
+- Setiap kegiatan pada bagian XI (Langkah-Langkah Pembelajaran) mencakup sintaks model ${model}.
 - Nama file: Modul_Ajar_[Mapel]_[Materi].docx (ganti [Mapel] dan [Materi] sesuai data).
 - Setelah doc.save(...), WAJIB panggil present_files() agar file langsung muncul sebagai link unduh untuk user.
 
-Contoh kerangka minimal (sesuaikan & lengkapi seluruh 12 seksi):
+Contoh kerangka minimal (sesuaikan & lengkapi seluruh 12 bagian dokumen):
 
 \`\`\`python
 from docx import Document
@@ -295,7 +349,8 @@ def shade_cell(cell, color_hex):
     shd.set(qn('w:fill'), color_hex)
     tcPr.append(shd)
 
-# ... bangun seluruh 12 seksi (Identitas, Identifikasi Murid, ... Penilaian, Pengesahan)
+# ... bangun seluruh 12 bagian dokumen TANPA kata "SEKSI"
+# (Contoh: doc.add_heading('I. IDENTITAS DOKUMEN', level=2))
 # Header tabel: shade_cell(cell, 'F0F0F0') + run.bold = True
 # Tabel 2 kolom set width: row.cells[0].width = Cm(4); row.cells[1].width = Cm(13)
 
@@ -304,40 +359,42 @@ present_files()
 \`\`\``;
 }
 
-function modulFormatChatgpt(model: string): string {
+function modulFormatChatgpt(model: string, formData?: FormData): string {
   return `
 Buat langsung sebagai file .docx yang bisa diunduh. JANGAN gunakan Canvas. JANGAN gunakan emoji dekoratif di dalam isi dokumen.
 
 Gunakan format dokumen Word yang rapi dengan:
-- Font: Times New Roman 12pt untuk isi, 14pt bold untuk judul utama (H1), 12pt bold untuk sub-judul (H2/H3).
+- Font: Times New Roman 12pt untuk isi, 14pt bold untuk judul utama (H1), 12pt bold untuk sub-judul bagian (H2/H3).
 - Margin: 2.5 cm pada semua sisi.
-- Semua tabel dengan header bold dan border lengkap di seluruh sel.
+- Heading bagian: tulis langsung dengan angka Romawi ("I. IDENTITAS DOKUMEN", "II. IDENTIFIKASI MURID", dst). DILARANG KERAS menggunakan kata "SEKSI" atau "BAB" pada heading judul.
+- Semua tabel dengan header bold, latar shading abu-abu terang (#F0F4F8 / #F2F2F2), dan border lengkap di seluruh sel.
 - Heading menggunakan Word Heading styles (Heading 1, Heading 2, Heading 3) — bukan teks bold biasa.
-- Setiap kegiatan pada SEKSI XI mencakup sintaks model ${model}.
+- Setiap kegiatan pada bagian XI (Langkah-Langkah Pembelajaran) mencakup sintaks model ${model}.
 - Nama file: Modul_Ajar_[Mapel]_[Materi].docx.
-${modulFullSections(model)}`;
+${modulFullSections(model, formData)}`;
 }
 
-function modulFormatGemini(model: string): string {
+function modulFormatGemini(model: string, formData?: FormData): string {
   return `
-Buat langsung sebagai file .docx yang bisa diunduh. JANGAN keluarkan dalam format plain text. JANGAN minta user "Export to Docs" — file .docx harus langsung tersedia.
+Buat langsung sebagai file .docx yang bisa diunduh. JANGAN hanya keluarkan format teks biasa di chat — sediakan file dokumen .docx yang siap diunduh oleh pengguna.
 
 Gunakan format dokumen Word yang rapi dengan:
-- Font: Times New Roman 12pt untuk isi, 14pt bold untuk judul utama (H1), 12pt bold untuk sub-judul (H2/H3).
+- Font: Times New Roman 12pt untuk isi, 14pt bold untuk judul utama (H1), 12pt bold untuk sub-judul bagian (H2/H3).
 - Margin: 2.5 cm pada semua sisi.
-- Semua tabel dengan header bold dan border lengkap di seluruh sel.
+- Heading bagian: tulis langsung dengan angka Romawi ("I. IDENTITAS DOKUMEN", "II. IDENTIFIKASI MURID", dst). DILARANG KERAS menggunakan kata "SEKSI" atau "BAB" pada heading judul.
+- Semua tabel dengan header bold, latar shading abu-abu terang (#F0F4F8 / #F2F2F2), dan border lengkap di seluruh sel.
 - Heading menggunakan Word Heading styles (Heading 1, Heading 2, Heading 3).
-- Setiap kegiatan pada SEKSI XI mencakup sintaks model ${model}.
+- Setiap kegiatan pada bagian XI (Langkah-Langkah Pembelajaran) mencakup sintaks model ${model}.
 - Nama file: Modul_Ajar_[Mapel]_[Materi].docx.
-${modulFullSections(model)}`;
+${modulFullSections(model, formData)}`;
 }
 
-function getFormatSuffix(aiMode: AiMode, contentType: string, model: string): string {
+function getFormatSuffix(aiMode: AiMode, contentType: string, model: string, formData?: FormData): string {
   if (contentType === 'modul') {
     switch (aiMode) {
-      case 'claude': return modulFormatClaude(model);
-      case 'chatgpt': return modulFormatChatgpt(model);
-      case 'gemini': return modulFormatGemini(model);
+      case 'claude': return modulFormatClaude(model, formData);
+      case 'chatgpt': return modulFormatChatgpt(model, formData);
+      case 'gemini': return modulFormatGemini(model, formData);
       default: return modulFormatUniversal(model);
     }
   }
@@ -349,14 +406,15 @@ Buat langsung sebagai file .docx yang bisa diunduh. Gunakan format dokumen Word 
 - Font: Times New Roman 12pt untuk isi, 14pt bold untuk judul.
 - Margin: 2.5 cm semua sisi.
 - Semua tabel dengan header bold dan border.
-- Heading menggunakan Word Heading styles (Heading 1, Heading 2, Heading 3).`;
+- Heading menggunakan Word Heading styles (Heading 1, Heading 2, Heading 3).
+- DILARANG menggunakan kata "SEKSI" atau "BAB" pada judul heading. Gunakan penomoran langsung yang natural.`;
 
   switch (aiMode) {
     case 'claude':
       return `
 
 JANGAN buat Artifact HTML. Langsung jalankan Python (python-docx) untuk membuat file .docx dan tampilkan sebagai link unduh (akhiri dengan present_files()).
-Ketentuan file .docx: font Arial 11pt untuk isi, 14pt bold untuk judul; margin 2 cm semua sisi; header tabel shading RGBColor(240, 240, 240) + bold.`;
+Ketentuan file .docx: font Arial 11pt untuk isi, 14pt bold untuk judul; margin 2 cm semua sisi; header tabel shading RGBColor(240, 240, 240) + bold. DILARANG menggunakan kata "SEKSI" atau "BAB" pada heading/judul.`;
 
     case 'chatgpt':
     case 'gemini':
@@ -365,7 +423,7 @@ Ketentuan file .docx: font Arial 11pt untuk isi, 14pt bold untuk judul; margin 2
     default: // universal
       return `
 
-FORMAT OUTPUT: Buatkan dalam format tabel Markdown yang terstruktur dan mudah dibaca. Gunakan heading ##, sub-heading ###, dan tabel | untuk data terstruktur.`;
+FORMAT OUTPUT: Buatkan dalam format tabel Markdown yang terstruktur dan mudah dibaca. Gunakan heading ##, sub-heading ###, dan tabel | untuk data terstruktur. DILARANG menggunakan kata "SEKSI" atau "BAB" pada heading.`;
   }
 }
 
@@ -569,7 +627,7 @@ export function buildHumanPrompt(
 
   // For modul, format suffix replaces the INSTRUKSI section entirely
   // For others, append the format suffix after the base INSTRUKSI
-  const formatSuffix = getFormatSuffix(aiMode, type, model);
+  const formatSuffix = getFormatSuffix(aiMode, type, model, formData);
 
   // Blok integrasi program nasional (KKA / SIKAP / 7KAIH) — disisipkan sebelum format suffix
   const integrasiBlock = buildIntegrationBlock(formData.integrasiProgram, formData.kelas, type);
