@@ -193,7 +193,7 @@ ${SRA_PRINSIP.map((x) => `  - ${x}`).join('\n')}
   if (!active.length) return '';
 
   const typeHint: Record<ContentType, string> = {
-    modul: 'Jahit ke seksi yang sudah ada (Identifikasi Murid, Nilai Karakter, Kaitan Kehidupan, Langkah Pembelajaran, Penilaian). JANGAN buat seksi baru.',
+    modul: 'Jahit ke bagian yang sudah ada (Identifikasi Murid, Nilai Karakter, Kaitan Kehidupan, Langkah Pembelajaran, Penilaian). JANGAN buat bagian baru.',
     lkpd: 'Jadikan konteks aktivitas LKPD; sisipkan minimal 1 aktivitas yang merefleksikan program ini.',
     asesmen: 'Tambahkan minimal 1 butir rubrik / soal formatif terkait program ini.',
     materi: 'Tambahkan minimal 1 sub-bab/contoh konkret yang merujuk program ini.',
