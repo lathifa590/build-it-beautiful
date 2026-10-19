@@ -8,6 +8,7 @@ import { Workspace } from "@/types/workspace";
 import type { ProtaData, KalenderPendidikan, ProsemData } from "@/types/modul";
 import { exportProsemToWord } from "@/lib/export-word";
 import { exportProtaProsemToExcel } from "@/lib/export-excel";
+import { toast } from "sonner";
 interface StepProsemProps {
   workspace: Workspace;
   onNext: () => void;
@@ -99,7 +100,7 @@ export const StepProsem: React.FC<StepProsemProps> = ({ workspace, onNext, isLoc
 
   const handleGenerate = async () => {
     if (!protaData || !kalenderData) {
-      alert("Data Program Tahunan belum lengkap. Silakan kembali ke Langkah 2.");
+      toast.error("Data Program Tahunan belum lengkap. Silakan kembali ke Langkah 2.");
       return;
     }
 
@@ -108,6 +109,9 @@ export const StepProsem: React.FC<StepProsemProps> = ({ workspace, onNext, isLoc
 
     if (res1) setProsemSem1(res1);
     if (res2) setProsemSem2(res2);
+    if (res1 || res2) {
+      toast.success("Program Semester berhasil disusun!");
+    }
   };
 
   const handleSave = async () => {
@@ -141,12 +145,12 @@ export const StepProsem: React.FC<StepProsemProps> = ({ workspace, onNext, isLoc
           return {
             id: existingItem?.id, // include ID so RPC updates instead of deletes
             sequence: idx + 1,
-            materi_pokok: item.materi_pokok,
-            allocated_jp: item.alokasi_jp,
+            materi_pokok: item.materi_pokok || `Topik ${idx + 1}`,
+            allocated_jp: Math.max(0, parseInt(String(item.alokasi_jp ?? 0), 10) || 0),
             tp_snapshot: [{
               id: `temp-${item.no}`,
               code: `TP${item.no}`,
-              description: item.tujuan_pembelajaran
+              description: item.tujuan_pembelajaran || ""
             }],
             tp_ids: [] // kosongi dulu, butuh mapping UUID dari tp_items DB
           };
@@ -168,9 +172,11 @@ export const StepProsem: React.FC<StepProsemProps> = ({ workspace, onNext, isLoc
       if (prosemSem1) await saveSemester(1, prosemSem1);
       if (prosemSem2) await saveSemester(2, prosemSem2);
 
+      toast.success("Program Semester berhasil disimpan!");
       onNext();
     } catch (err: any) {
-      alert("Error saving Prosem: " + err.message);
+      console.error("Error saving Prosem:", err);
+      toast.error(err?.message || "Gagal menyimpan Program Semester. Silakan coba lagi.");
     } finally {
       setIsSaving(false);
     }

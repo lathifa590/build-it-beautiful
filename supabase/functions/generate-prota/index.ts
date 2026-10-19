@@ -219,7 +219,6 @@ serve(async (req: any) => {
           }
         }
       }
-    }
 
     // Build the full candidate key pool: user keys first, then demo keys
     const candidateKeys = [...userKeyPool];
@@ -279,7 +278,7 @@ Informasi JP:
 
 ATURAN WAJIB:
 ${tpInstruction}
-3. Alokasi JP harus realistis. Total JP Semester 1 harus mendekati ${totalJPSem1} JP dan Semester 2 mendekati ${totalJPSem2} JP.
+3. Alokasi JP harus realistis dan SETIAP TP WAJIB dialokasikan minimal 2 JP (DILARANG KERAS menghasilkan alokasi_jp 0 atau kosong). Bagikan alokasi JP secara proporsional ke SEMUA TP tanpa terkecuali sehingga total JP Semester 1 mendekati ${totalJPSem1} JP dan Semester 2 mendekati ${totalJPSem2} JP.
 4. Distribusikan seluruh TP secara seimbang antara Semester 1 dan Semester 2.
 5. Dimensi Profil Lulusan (DPL) pilih 1 atau 2 dari: Beriman dan Bertakwa, Beridentitas Global, Bergotong Royong, Mandiri, Bernalar Kritis, Kreatif, Berkesadaran Lingkungan, Berjiwa Wirausaha.
 6. Nomor urut TP harus berurutan dari 1 sampai N (gabungan kedua semester).
@@ -509,6 +508,28 @@ Kembalikan HANYA JSON valid (tanpa markdown, tanpa teks pembuka/penutup) dengan 
     }
 
     console.log(`[generate-prota] Success using ${usedProvider}/${usedModel}`);
+
+    // Sanitize prota items to ensure every item has valid positive alokasi_jp
+    if (resultData && Array.isArray(resultData.prota)) {
+      resultData.prota = resultData.prota.map((item: any, idx: number) => {
+        let jp = parseInt(String(item.alokasi_jp ?? ""), 10);
+        if (isNaN(jp) || jp <= 0) {
+          jp = 2; // Default minimum 2 JP
+        }
+        return {
+          ...item,
+          no: item.no || idx + 1,
+          alokasi_jp: jp,
+          semester: Number(item.semester) === 2 ? 2 : 1,
+        };
+      });
+      resultData.total_jp_sem1 = resultData.prota
+        .filter((i: any) => i.semester === 1)
+        .reduce((sum: number, i: any) => sum + i.alokasi_jp, 0);
+      resultData.total_jp_sem2 = resultData.prota
+        .filter((i: any) => i.semester === 2)
+        .reduce((sum: number, i: any) => sum + i.alokasi_jp, 0);
+    }
 
     // Log generation
     if (userId) {
