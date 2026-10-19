@@ -68,8 +68,8 @@ export function useProsemGenerator() {
       let weekPointer = 0;
       const rows = semesterItems.map((item, index) => {
         // distribute JP over 2 JP per week roughly
-        const jp = item.alokasi_jp;
-        const weeksNeeded = Math.max(1, Math.ceil(jp / 2));
+        const jp = Math.max(0, parseInt(String(item.alokasi_jp ?? 0), 10) || 0);
+        const weeksNeeded = jp > 0 ? Math.max(1, Math.ceil(jp / 2)) : 0;
         const weeks: Record<string, { hasActivity: boolean, jp?: number }> = {};
 
         let i = 0;

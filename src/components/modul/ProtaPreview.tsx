@@ -57,7 +57,7 @@ export const ProtaPreview = ({ protaData, formData, onExportWord, onExportExcel,
       semester,
       tujuan_pembelajaran: '',
       materi_pokok: '',
-      alokasi_jp: 0,
+      alokasi_jp: 2,
       profil_pelajar_pancasila: [],
       dimensi_profil_lulusan: [],
       keterangan: '',
@@ -84,7 +84,7 @@ export const ProtaPreview = ({ protaData, formData, onExportWord, onExportExcel,
     if (isEditing(item.no, field)) {
       const handleBlur = (newValue: string) => {
         let finalValue: string | number | string[] = newValue;
-        if (field === 'alokasi_jp') finalValue = parseInt(newValue) || 0;
+        if (field === 'alokasi_jp') finalValue = Math.max(0, parseInt(newValue, 10) || 0);
         if (field === 'dimensi_profil_lulusan' || field === 'profil_pelajar_pancasila') {
           finalValue = newValue.split(',').map(s => s.trim()).filter(s => s);
         }
