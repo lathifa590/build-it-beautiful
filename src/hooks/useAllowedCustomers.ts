@@ -25,19 +25,34 @@ export interface NewCustomerInput {
   subscription_expires_at?: string | null;
 }
 
+export async function fetchAllSupabaseRows<T = any>(
+  buildQuery: (from: number, to: number) => PromiseLike<{ data: T[] | null; error: any }>
+): Promise<T[]> {
+  const pageSize = 1000;
+  const all: T[] = [];
+  for (let from = 0; ; from += pageSize) {
+    const { data, error } = await buildQuery(from, from + pageSize - 1);
+    if (error) throw error;
+    if (!data || data.length === 0) break;
+    all.push(...data);
+    if (data.length < pageSize) break;
+  }
+  return all;
+}
+
 export const useAllowedCustomers = () => {
   const { user } = useAuth();
 
   return useQuery({
     queryKey: ['allowed-customers'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('allowed_customers')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      return data as AllowedCustomer[];
+      return fetchAllSupabaseRows<AllowedCustomer>((from, to) =>
+        supabase
+          .from('allowed_customers')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .range(from, to)
+      );
     },
     enabled: !!user,
   });

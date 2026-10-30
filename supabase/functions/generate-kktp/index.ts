@@ -10,86 +10,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-// ============================================================
-// Robust JSON sanitization and parsing (aligned with generate-content)
-// ============================================================
-const sanitizeJsonResponse = (text: string): string => {
-  let cleaned = text.trim();
-  if (cleaned.startsWith("```json")) {
-    cleaned = cleaned.slice(7);
-  } else if (cleaned.startsWith("```")) {
-    cleaned = cleaned.slice(3);
-  }
-  if (cleaned.endsWith("```")) {
-    cleaned = cleaned.slice(0, -3);
-  }
-  cleaned = cleaned.trim();
-
-  // Escape LaTeX commands starting with b, f, n, r, t so JSON.parse doesn't eat them as control characters
-  cleaned = cleaned.replace(/(?<!\\)\\(?=(?:frac|flat|forall|times|to|tan|theta|tau|text|textbf|tilde|top|triangle|beta|bar|begin|binom|mathbf|bot|nabla|neq|notin|nu|neg|natural|rho|right|rightarrow|rangle|rfloor|rceil)\b)/g, "\\\\");
-
-  // Fix illegal backslash escapes (e.g. LaTeX)
-  cleaned = cleaned.replace(/(?<!\\)\\(?!["\\/bfnrtu])/g, "\\\\");
-
-  // Replace literal control characters inside string
-  cleaned = cleaned.replace(/[\n\r\t]+/g, " ");
-
-  return cleaned;
-};
-
-const extractJsonFromResponse = (text: string): string => {
-  const cleaned = sanitizeJsonResponse(text);
-  const start = cleaned.indexOf("{");
-  const end = cleaned.lastIndexOf("}");
-
-  if (start >= 0 && end > start) {
-    return cleaned.substring(start, end + 1);
-  }
-  return cleaned;
-};
-
-const parseGeneratedJson = (text: string): { parsed?: any; sanitized: string; error?: unknown } => {
-  const sanitized = extractJsonFromResponse(text);
-  try {
-    return { parsed: JSON.parse(sanitized), sanitized };
-  } catch (parseError) {
-    try {
-      const fallbackContent = sanitizeJsonResponse(text);
-      return { parsed: JSON.parse(fallbackContent), sanitized: fallbackContent };
-    } catch {
-      try {
-        let repaired = sanitizeJsonResponse(text);
-        repaired = extractJsonFromResponse(repaired);
-
-        repaired = repaired.replace(/,\s*\.\.\./g, "");
-        repaired = repaired.replace(/\.\.\.\s*,/g, "");
-        repaired = repaired.replace(/\[\s*\.\.\.\s*\]/g, "[]");
-        repaired = repaired.replace(/\{\s*\.\.\.\s*\}/g, "{}");
-        repaired = repaired.replace(/([^"\w])\.\.\.(?=[^"\w]|$)/g, "$1null");
-
-        repaired = repaired.replace(/,\s*"[^"]*(?:"[^"]*)*$/, "");
-        repaired = repaired.replace(/"([^"\\]|\\["\\/bfnrtu])*$/, "");
-        repaired = repaired.replace(/,\s*$/, "");
-
-        const openBraces = (repaired.match(/\{/g) || []).length;
-        const closeBraces = (repaired.match(/\}/g) || []).length;
-        const openBrackets = (repaired.match(/\[/g) || []).length;
-        const closeBrackets = (repaired.match(/\]/g) || []).length;
-
-        if (openBrackets > closeBrackets) {
-          repaired += "]".repeat(openBrackets - closeBrackets);
-        }
-        if (openBraces > closeBraces) {
-          repaired += "}".repeat(openBraces - closeBraces);
-        }
-
-        return { parsed: JSON.parse(repaired), sanitized: repaired };
-      } catch (finalError) {
-        return { sanitized, error: finalError };
-      }
-    }
-  }
-};
+import { sanitizeJsonResponse, extractJsonFromResponse, parseGeneratedJson } from "../_shared/json-parser.ts";
 
 serve(async (req: any) => {
   if (req.method === "OPTIONS") {
@@ -139,16 +60,25 @@ serve(async (req: any) => {
     if (user) {
         userId = user.id;
 
-        const { data: customerData } = await supabaseAdmin
+        let { data: customerData } = await supabaseAdmin
           .from("allowed_customers")
           .select("account_type, subscription_expires_at")
           .eq("user_id", user.id)
           .maybeSingle();
 
+        if (!customerData && user.email) {
+          const { data: byEmail } = await supabaseAdmin
+            .from("allowed_customers")
+            .select("account_type, subscription_expires_at")
+            .eq("email", user.email.toLowerCase())
+            .maybeSingle();
+          customerData = byEmail;
+        }
+
         isTrial = customerData?.account_type === "trial";
 
         if (
-          customerData?.account_type === "annual" &&
+          ["annual", "pro_annual", "lite"].includes(customerData?.account_type) &&
           customerData?.subscription_expires_at &&
           new Date(customerData.subscription_expires_at).getTime() < Date.now()
         ) {
@@ -159,6 +89,31 @@ serve(async (req: any) => {
             }),
             { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
           );
+        }
+
+        if (isTrial) {
+          const contentLimit = 100;
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          const { count } = await supabaseAdmin
+            .from("generation_logs")
+            .select("*", { count: "exact", head: true })
+            .eq("user_id", user.id)
+            .neq("content_type", "image")
+            .gte("created_at", today.toISOString());
+
+          if ((count ?? 0) >= contentLimit) {
+            return new Response(
+              JSON.stringify({
+                error: `Batas harian tercapai (${contentLimit}/hari). Coba lagi besok.`,
+                errorCode: "rate_limit_exceeded",
+                remaining: 0,
+                limit: contentLimit,
+                isTrial,
+              }),
+              { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+            );
+          }
         }
 
         if (!isTrial) {

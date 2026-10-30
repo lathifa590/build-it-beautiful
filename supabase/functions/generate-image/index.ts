@@ -55,12 +55,21 @@ serve(async (req) => {
       );
     }
 
-    // Check account type for trial limits
-    const { data: customerData } = await supabaseAdmin
+    // Check account type for trial limits (with email fallback if not yet claimed)
+    let { data: customerData } = await supabaseAdmin
       .from('allowed_customers')
       .select('account_type, subscription_expires_at')
       .eq('user_id', user.id)
       .maybeSingle();
+
+    if (!customerData && user.email) {
+      const { data: byEmail } = await supabaseAdmin
+        .from('allowed_customers')
+        .select('account_type, subscription_expires_at')
+        .eq('email', user.email.toLowerCase())
+        .maybeSingle();
+      customerData = byEmail;
+    }
 
     const isTrial = customerData?.account_type === 'trial';
     
@@ -73,7 +82,7 @@ serve(async (req) => {
     const preferredProvider = (profileData?.preferred_provider as 'gemini' | 'grok' | 'openai' | null) || null;
 
     if (
-      customerData?.account_type === 'annual' &&
+      ['annual', 'pro_annual', 'lite'].includes(customerData?.account_type) &&
       customerData?.subscription_expires_at &&
       new Date(customerData.subscription_expires_at).getTime() < Date.now()
     ) {

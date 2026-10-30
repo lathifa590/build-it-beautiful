@@ -53,13 +53,19 @@ Deno.serve(async (req) => {
       for (const m of members ?? []) {
         if (m.is_active) {
           await admin.from('agency_members').update({ is_active: false }).eq('id', m.id);
-          // decrement owner used counter
+          // Recalculate exact active count for owner + tier to avoid non-atomic read-modify-write race
           const col = `${m.tier}_used`;
-          const { data: owner } = await admin.from('agency_owners').select(`id, ${col}`).eq('id', m.agency_owner_id).maybeSingle();
-          const used = (owner as any)?.[col] ?? 0;
-          if (used > 0) {
-            await admin.from('agency_owners').update({ [col]: used - 1 }).eq('id', m.agency_owner_id);
-          }
+          const { count: activeCount } = await admin
+            .from('agency_members')
+            .select('*', { count: 'exact', head: true })
+            .eq('agency_owner_id', m.agency_owner_id)
+            .eq('tier', m.tier)
+            .eq('is_active', true);
+
+          await admin
+            .from('agency_owners')
+            .update({ [col]: Math.max(0, activeCount ?? 0) })
+            .eq('id', m.agency_owner_id);
         }
       }
     }

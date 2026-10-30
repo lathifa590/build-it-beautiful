@@ -1,4 +1,4 @@
-# Logs
+﻿# Logs
 logs/*.log
 !logs/*.md
 *.log
@@ -12,6 +12,7 @@ node_modules
 dist
 dist-ssr
 *.local
+*.tsbuildinfo
 .env
 .env.*
 !.env.example
@@ -27,20 +28,22 @@ dist-ssr
 *.sln
 *.sw?
 
-# Supabase CLI binaries and temp
+# Supabase & Cloudflare CLI binaries and temp
 .bin/
+.wrangler/
 supabase/.temp/
 
-# Planning/notes markdown files (tidak perlu di-deploy)
+# Planning/notes markdown files & screenshots (tidak perlu di-deploy)
+docs/notes/
+SCREENSHOT\ APP/
 "Profil & Memory Import*.md"
 Prompt*.md
 Review*.md
 Revisi*.md
 
-# Temporary MS Word lock files
+# Temporary MS Word lock files & scratch
 ~$*
 scratch/
 
 # bun.lock - ignore to let Cloudflare Pages use package-lock.json (npm)
 bun.lock
-

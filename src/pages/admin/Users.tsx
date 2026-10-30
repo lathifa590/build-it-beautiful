@@ -3,6 +3,7 @@ import { AdminLayout } from '@/components/admin/AdminLayout';
 import { UserTable, UserData } from '@/components/admin/UserTable';
 import { Search, RefreshCw, Eye, EyeOff } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { fetchAllSupabaseRows } from '@/hooks/useAllowedCustomers';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -55,20 +56,22 @@ const AdminUsers = () => {
   const fetchUsers = async () => {
     setIsLoading(true);
     try {
-      // Fetch profiles with roles
-      const { data: profiles, error: profilesError } = await supabase
-        .from('profiles')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (profilesError) throw profilesError;
-
-      // Fetch roles
-      const { data: roles, error: rolesError } = await supabase
-        .from('user_roles')
-        .select('*');
-
-      if (rolesError) throw rolesError;
+      // Fetch all profiles & roles without 1,000-row PostgREST truncation
+      const [profiles, roles] = await Promise.all([
+        fetchAllSupabaseRows<any>((from, to) =>
+          supabase
+            .from('profiles')
+            .select('*')
+            .order('created_at', { ascending: false })
+            .range(from, to)
+        ),
+        fetchAllSupabaseRows<any>((from, to) =>
+          supabase
+            .from('user_roles')
+            .select('*')
+            .range(from, to)
+        ),
+      ]);
 
       // Combine data
       const usersData: UserData[] = (profiles || []).map((profile) => {

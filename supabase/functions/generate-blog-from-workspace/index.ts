@@ -156,10 +156,11 @@ Kelas/Fase: ${wsData.grade || '-'} / ${wsData.phase || '-'}
       console.warn("Failed to fetch extra context, proceeding with default title", e);
     }
 
-    // 4. Fetch Gemini API Keys
+    // 4. Fetch caller's Gemini API Keys
     const { data: activeKeys, error: keyError } = await supabaseAdmin
       .from('user_api_keys')
       .select('api_key')
+      .eq('user_id', user.id)
       .eq('provider', 'gemini')
       .eq('is_active', true)
       .order('created_at', { ascending: false });

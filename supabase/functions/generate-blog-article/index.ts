@@ -23,6 +23,8 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  let claimedQueueId: string | null = null;
+
   try {
     const authHeader = req.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) {
@@ -86,11 +88,23 @@ serve(async (req) => {
       );
     }
 
-    // Mark as processing
-    await supabase
+    // Mark as processing atomically (only if still 'queued')
+    const { data: claimedItem } = await supabase
       .from('seo_keyword_queue')
       .update({ status: 'processing' })
-      .eq('id', queueItem.id);
+      .eq('id', queueItem.id)
+      .eq('status', 'queued')
+      .select('id')
+      .maybeSingle();
+
+    if (!claimedItem) {
+      return new Response(
+        JSON.stringify({ message: "Keyword already claimed by another worker." }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    claimedQueueId = queueItem.id;
 
     console.log(`Processing keyword: ${queueItem.keyword}`);
 
@@ -257,6 +271,7 @@ Instruksi Konten:
       .from('seo_keyword_queue')
       .update({ status: 'done', article_id: newArticle.id })
       .eq('id', queueItem.id);
+    claimedQueueId = null;
 
     // 8. Generate Image Fail-Soft via 9Router Async
     const ninerouterUrl = Deno.env.get('NINEROUTER_URL');
@@ -349,10 +364,16 @@ Instruksi Konten:
     
     // Attempt to log the error to the database if possible
     try {
-      const supabaseUrl = Deno.env.get('SUPABASE_URL') || '';
-      const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
+      const supabaseUrl = Deno.env.get('SUPABASE_URL') || Deno.env.get('CUSTOM_SUPABASE_URL') || '';
+      const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || Deno.env.get('CUSTOM_SERVICE_ROLE_KEY') || '';
       if (supabaseUrl && supabaseKey) {
         const supabase = createClient(supabaseUrl, supabaseKey);
+        if (claimedQueueId) {
+          await supabase
+            .from('seo_keyword_queue')
+            .update({ status: 'failed' })
+            .eq('id', claimedQueueId);
+        }
         await supabase.from('cron_job_logs').insert({
           job_name: 'generate_blog_article',
           status: 'error',

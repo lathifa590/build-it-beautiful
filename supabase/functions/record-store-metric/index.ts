@@ -32,89 +32,74 @@ serve(async (req) => {
 
     const today = new Date().toISOString().slice(0, 10);
 
-    if (type === 'store_view' || type === 'views') {
-      // 1. Catat Kunjungan Toko (store_views)
-      const { data: existing, error: selectErr } = await supabaseAdmin
-        .from('modul_store_metrics')
-        .select('id, store_views')
-        .eq('store_id', store_id)
-        .eq('date', today)
-        .is('listing_id', null)
-        .maybeSingle();
+    const { error: rpcErr } = await supabaseAdmin.rpc('increment_store_metric', {
+      p_store_id: store_id,
+      p_listing_id: listing_id || null,
+      p_type: type || 'store_view',
+      p_date: today,
+    });
 
-      if (selectErr) console.error("Select store_views error:", selectErr);
-
-      if (existing) {
-        await supabaseAdmin
+    if (rpcErr) {
+      // Fallback if migration not yet applied
+      if (type === 'store_view' || type === 'views') {
+        const { data: existing } = await supabaseAdmin
           .from('modul_store_metrics')
-          .update({ store_views: (existing.store_views || 0) + 1 })
-          .eq('id', existing.id);
-      } else {
-        await supabaseAdmin
-          .from('modul_store_metrics')
-          .insert({
-            store_id,
-            date: today,
-            listing_id: null,
-            store_views: 1,
-            product_views: 0
-          });
-      }
-    } else if (type === 'product_view' || type === 'clicks') {
-      // 2. Catat Dilihat Modul (product_views)
-      if (listing_id) {
-        const { data: existingListing, error: selectListingErr } = await supabaseAdmin
-          .from('modul_store_metrics')
-          .select('id, product_views')
+          .select('id, store_views')
           .eq('store_id', store_id)
           .eq('date', today)
-          .eq('listing_id', listing_id)
+          .is('listing_id', null)
           .maybeSingle();
 
-        if (selectListingErr) console.error("Select product_views error:", selectListingErr);
-
-        if (existingListing) {
+        if (existing) {
           await supabaseAdmin
             .from('modul_store_metrics')
-            .update({ product_views: (existingListing.product_views || 0) + 1 })
-            .eq('id', existingListing.id);
+            .update({ store_views: (existing.store_views || 0) + 1 })
+            .eq('id', existing.id);
         } else {
           await supabaseAdmin
             .from('modul_store_metrics')
-            .insert({
-              store_id,
-              date: today,
-              listing_id,
-              store_views: 0,
-              product_views: 1
-            });
+            .insert({ store_id, date: today, listing_id: null, store_views: 1, product_views: 0 });
         }
-      }
+      } else if (type === 'product_view' || type === 'clicks') {
+        if (listing_id) {
+          const { data: existingListing } = await supabaseAdmin
+            .from('modul_store_metrics')
+            .select('id, product_views')
+            .eq('store_id', store_id)
+            .eq('date', today)
+            .eq('listing_id', listing_id)
+            .maybeSingle();
 
-      // Sekaligus catat store_views jika ada kunjungan ke halaman produk toko
-      const { data: existingStore } = await supabaseAdmin
-        .from('modul_store_metrics')
-        .select('id, store_views')
-        .eq('store_id', store_id)
-        .eq('date', today)
-        .is('listing_id', null)
-        .maybeSingle();
+          if (existingListing) {
+            await supabaseAdmin
+              .from('modul_store_metrics')
+              .update({ product_views: (existingListing.product_views || 0) + 1 })
+              .eq('id', existingListing.id);
+          } else {
+            await supabaseAdmin
+              .from('modul_store_metrics')
+              .insert({ store_id, date: today, listing_id, store_views: 0, product_views: 1 });
+          }
+        }
 
-      if (existingStore) {
-        await supabaseAdmin
+        const { data: existingStore } = await supabaseAdmin
           .from('modul_store_metrics')
-          .update({ store_views: (existingStore.store_views || 0) + 1 })
-          .eq('id', existingStore.id);
-      } else {
-        await supabaseAdmin
-          .from('modul_store_metrics')
-          .insert({
-            store_id,
-            date: today,
-            listing_id: null,
-            store_views: 1,
-            product_views: 0
-          });
+          .select('id, store_views')
+          .eq('store_id', store_id)
+          .eq('date', today)
+          .is('listing_id', null)
+          .maybeSingle();
+
+        if (existingStore) {
+          await supabaseAdmin
+            .from('modul_store_metrics')
+            .update({ store_views: (existingStore.store_views || 0) + 1 })
+            .eq('id', existingStore.id);
+        } else {
+          await supabaseAdmin
+            .from('modul_store_metrics')
+            .insert({ store_id, date: today, listing_id: null, store_views: 1, product_views: 0 });
+        }
       }
     }
 
