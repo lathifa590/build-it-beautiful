@@ -119,13 +119,15 @@ export const generateWorkspaceMeetingDirect = async (
 
     // 2. Ambil CP & Profil guru secara paralel
     onProgress?.("Mengambil data kurikulum...");
-    const [cpResult, profileResult] = await Promise.all([
+    const [cpResult, teacherProfileResult, profileResult] = await Promise.all([
       supabase.from('curriculum_plans').select('content').eq('workspace_id', workspace.id).eq('type', 'tp').maybeSingle(),
-      supabase.from('profiles').select('*').eq('id', user.id).maybeSingle()
+      supabase.from('teacher_profiles').select('*').eq('user_id', user.id).order('is_default', { ascending: false }).limit(1).maybeSingle(),
+      supabase.from('profiles').select('display_name').eq('user_id', user.id).maybeSingle()
     ]);
 
     const cpContent = (cpResult.data?.content as any)?.cp || '';
-    const profile = profileResult.data;
+    const teacherProfile = teacherProfileResult.data as any;
+    const profile = profileResult.data as any;
 
     const jpDuration = workspace.jp_duration_minutes ||
       (workspace.phase === 'F' || workspace.phase === 'E' ? 45 : workspace.phase === 'D' ? 40 : 35);
@@ -139,9 +141,9 @@ export const generateWorkspaceMeetingDirect = async (
     // FormData dasar — diisi dari profil guru
     const baseFormData: any = {
       ...DEFAULT_FORM_DATA,
-      namaGuru: profile?.nama_guru || profile?.full_name || '',
-      namaSekolah: profile?.nama_sekolah || '',
-      namaKepalaSekolah: profile?.nama_kepala_sekolah || '',
+      namaGuru: teacherProfile?.name || profile?.display_name || '',
+      namaSekolah: teacherProfile?.school || workspace.school_name || '',
+      namaKepalaSekolah: teacherProfile?.principal_name || '',
       mataPelajaran: workspace.subject,
       fase: workspace.phase,
       kelas: workspace.grade?.toString() || '',

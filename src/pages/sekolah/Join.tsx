@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link, Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { useSchool } from '@/hooks/useSchool';
+import { useSchool } from '@/contexts/SchoolContext';
 import { schoolApi } from '@/lib/school-api';
 import { SchoolFeatureRestricted } from '@/components/school/SchoolGate';
 import { Button } from '@/components/ui/button';

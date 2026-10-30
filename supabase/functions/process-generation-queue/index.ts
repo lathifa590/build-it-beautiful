@@ -28,44 +28,26 @@ serve(async (req) => {
 
     // ponytail: atomic claim via RPC FOR UPDATE SKIP LOCKED; scale to dedicated queue when >100 jobs/min
     let jobs: any[] | null = null;
-    
-    if (targetWorkspaceId) {
-      // Try to manually claim jobs for this specific workspace first
-      const { data: pending, error: fetchError } = await supabase
-        .from("generation_queue")
-        .select("*")
-        .eq("status", "pending")
-        .eq("workspace_id", targetWorkspaceId)
-        .order("created_at", { ascending: true })
-        .limit(1);
-        
-      if (!fetchError && pending && pending.length > 0) {
-        const ids = pending.map((j: any) => j.id);
+    const rpcArgs: Record<string, unknown> = { p_limit: 1 };
+    if (targetWorkspaceId) rpcArgs.p_workspace_id = targetWorkspaceId;
+
+    const { data: claimed, error: claimError } = await supabase.rpc("claim_generation_jobs", rpcArgs);
+    if (!claimError && claimed && claimed.length > 0) {
+      jobs = claimed as any[];
+    } else if (claimError) {
+      console.warn("claim_generation_jobs failed, fallback:", claimError.message);
+      let q = supabase.from("generation_queue").select("id").eq("status", "pending").order("created_at", { ascending: true }).limit(1);
+      if (targetWorkspaceId) q = q.eq("workspace_id", targetWorkspaceId);
+      const { data: pending, error: fetchError } = await q;
+      if (fetchError) throw fetchError;
+      if (pending && pending.length > 0) {
         const { data: updated } = await supabase
           .from("generation_queue")
           .update({ status: "processing" })
-          .in("id", ids)
+          .in("id", pending.map((j: any) => j.id))
+          .eq("status", "pending")
           .select();
         jobs = updated;
-      }
-    }
-
-    // Fallback to RPC if no workspace specified or no jobs found for workspace
-    if (!jobs || jobs.length === 0) {
-      const { data: claimed, error: claimError } = await supabase.rpc("claim_generation_jobs", { p_limit: 1 });
-    if (claimError) {
-      // fallback for DB before migration applied (select+update)
-      console.warn("claim_generation_jobs failed, fallback:", claimError.message);
-      const { data: pending, error: fetchError } = await supabase.from("generation_queue").select("*").eq("status", "pending").order("created_at", { ascending: true }).limit(1);
-      if (fetchError) throw fetchError;
-      if (!pending || pending.length === 0) {
-        return new Response(JSON.stringify({ message: "No pending jobs" }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
-      }
-      const ids = pending.map((j: any) => j.id);
-      await supabase.from("generation_queue").update({ status: "processing" }).in("id", ids);
-      jobs = pending;
-    } else {
-        jobs = claimed as any[];
       }
     }
 

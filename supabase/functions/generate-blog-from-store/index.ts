@@ -71,18 +71,23 @@ serve(async (req) => {
     }
 
     // Verify ownership (or allow if admin)
-    // Note: If you have admin role check, you can add it here. For now, checking store owner.
     if (listing.modul_store_profiles.owner_user_id !== user.id) {
-      // Allow if the user is somehow admin (fallback to simple check for now, can be improved)
-      // throw new Error("You do not own this store listing");
+      const { data: isAdmin } = await supabaseAdmin.rpc('has_role', { _user_id: user.id, _role: 'admin' });
+      if (!isAdmin) {
+        return new Response(
+          JSON.stringify({ error: "Forbidden: Anda bukan pemilik produk toko ini." }),
+          { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
     }
 
     console.log(`Processing blog generation for listing: ${listing.title}`);
 
-    // 2. Fetch Gemini API Keys
+    // 2. Fetch caller's Gemini API Keys
     const { data: activeKeys, error: keyError } = await supabaseAdmin
       .from('user_api_keys')
       .select('api_key')
+      .eq('user_id', user.id)
       .eq('provider', 'gemini')
       .eq('is_active', true)
       .order('created_at', { ascending: false });

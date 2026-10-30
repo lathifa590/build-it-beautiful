@@ -65,8 +65,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
-  const claimCustomerAccount = async () => {
-    if (!session?.access_token) return;
+  const claimCustomerAccount = async (accessToken = session?.access_token) => {
+    if (!accessToken) return;
 
     try {
       const response = await fetch(
@@ -75,7 +75,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${session.access_token}`,
+            'Authorization': `Bearer ${accessToken}`,
           },
         }
       );
@@ -103,23 +103,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
           // If this is a sign in event, try to claim customer account
           if (event === 'SIGNED_IN') {
-            setTimeout(async () => {
-              try {
-                const response = await fetch(
-                  `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/claim-customer`,
-                  {
-                    method: 'POST',
-                    headers: {
-                      'Content-Type': 'application/json',
-                      'Authorization': `Bearer ${currentSession.access_token}`,
-                    },
-                  }
-                );
-                const data = await response.json();
-                console.log('Auto-claim result:', data);
-              } catch (error) {
-                console.error('Auto-claim error:', error);
-              }
+            setTimeout(() => {
+              claimCustomerAccount(currentSession.access_token);
             }, 100);
           }
         } else {

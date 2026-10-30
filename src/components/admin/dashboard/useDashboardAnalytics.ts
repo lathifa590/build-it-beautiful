@@ -1,5 +1,6 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { fetchAllSupabaseRows } from '@/hooks/useAllowedCustomers';
 import {
   format,
   subDays,
@@ -197,37 +198,20 @@ export const useDashboardAnalytics = (
   }, [timeRange, customStartDate, customEndDate]);
 
   // 2. Fetch Data from Supabase
+  const hasLoadedStaticRef = useRef(false);
+
   const fetchData = useCallback(async (isRefresh = false) => {
     if (isRefresh) {
       setIsRefreshing(true);
-    } else {
+    } else if (!hasLoadedStaticRef.current) {
       setIsLoading(true);
     }
 
     try {
       const { start, end, prevStart, prevEnd } = dateBounds;
+      const shouldFetchStatic = isRefresh || !hasLoadedStaticRef.current;
 
-      const [
-        profilesRes,
-        teacherProfilesRes,
-        allowedCustomersRes,
-        totalGenerationsRes,
-        periodGenerationsRes,
-        prevPeriodGenerationsRes,
-      ] = await Promise.all([
-        supabase
-          .from('profiles')
-          .select('id, user_id, display_name, email, created_at')
-          .order('created_at', { ascending: true }),
-        supabase
-          .from('teacher_profiles')
-          .select('id, user_id, name, created_at'),
-        supabase
-          .from('allowed_customers')
-          .select('id, name, email, phone, account_type, subscription_expires_at, is_claimed, created_at'),
-        supabase
-          .from('generation_logs')
-          .select('*', { count: 'exact', head: true }),
+      const periodPromises = Promise.all([
         supabase
           .from('generation_logs')
           .select('*', { count: 'exact', head: true })
@@ -240,12 +224,56 @@ export const useDashboardAnalytics = (
           .lte('created_at', prevEnd.toISOString()),
       ]);
 
-      if (profilesRes.data) setProfiles(profilesRes.data);
-      if (teacherProfilesRes.data) setTeacherProfiles(teacherProfilesRes.data);
-      if (allowedCustomersRes.data) setAllowedCustomers(allowedCustomersRes.data);
-      setGenerationCountAllTime(totalGenerationsRes.count || 0);
-      setGenerationCountPeriod(periodGenerationsRes.count || 0);
-      setGenerationCountPrevPeriod(prevPeriodGenerationsRes.count || 0);
+      if (shouldFetchStatic) {
+        const [
+           [periodGenerationsRes, prevPeriodGenerationsRes],
+          allProfiles,
+          allTeacherProfiles,
+          allAllowedCustomers,
+          totalGenerationsRes,
+        ] = await Promise.all([
+          periodPromises,
+          fetchAllSupabaseRows<any>((from, to) =>
+            supabase
+              .from('profiles')
+              .select('id, user_id, display_name, email, created_at')
+              .order('created_at', { ascending: true })
+              .range(from, to)
+          ),
+          fetchAllSupabaseRows<any>((from, to) =>
+            supabase
+              .from('teacher_profiles')
+              .select('id, user_id, name, created_at')
+              .range(from, to)
+          ),
+          fetchAllSupabaseRows<any>((from, to) =>
+            supabase
+              .from('allowed_customers')
+              .select('id, name, email, phone, account_type, subscription_expires_at, is_claimed, created_at')
+              .range(from, to)
+          ),
+          supabase
+            .from('generation_logs')
+            .select('*', { count: 'exact', head: true }),
+        ]);
+
+        setProfiles(
+          allProfiles.map((p) => ({
+            ...p,
+            _createdMs: new Date(p.created_at).getTime(),
+          }))
+        );
+        setTeacherProfiles(allTeacherProfiles);
+        setAllowedCustomers(allAllowedCustomers);
+        setGenerationCountAllTime(totalGenerationsRes.count || 0);
+        setGenerationCountPeriod(periodGenerationsRes.count || 0);
+        setGenerationCountPrevPeriod(prevPeriodGenerationsRes.count || 0);
+        hasLoadedStaticRef.current = true;
+      } else {
+        const [periodGenerationsRes, prevPeriodGenerationsRes] = await periodPromises;
+        setGenerationCountPeriod(periodGenerationsRes.count || 0);
+        setGenerationCountPrevPeriod(prevPeriodGenerationsRes.count || 0);
+      }
     } catch (err) {
       console.error('Error fetching admin dashboard analytics:', err);
     } finally {
@@ -261,21 +289,20 @@ export const useDashboardAnalytics = (
   // 3. Process Computed Metrics
   const metrics: DashboardMetrics = useMemo(() => {
     const { start, end, prevStart, prevEnd, comparisonLabel } = dateBounds;
+    const startMs = start.getTime();
+    const endMs = end.getTime();
+    const prevStartMs = prevStart.getTime();
+    const prevEndMs = prevEnd.getTime();
     const totalUsers = profiles.length;
 
-    // Filter period new users
-    const periodUsers = profiles.filter((p) => {
-      const created = new Date(p.created_at);
-      return created >= start && created <= end;
-    });
-
-    const prevPeriodUsers = profiles.filter((p) => {
-      const created = new Date(p.created_at);
-      return created >= prevStart && created <= prevEnd;
-    });
-
-    const periodNewUsers = periodUsers.length;
-    const prevUsersCount = prevPeriodUsers.length;
+    // Filter period new users using pre-parsed timestamps
+    let periodNewUsers = 0;
+    let prevUsersCount = 0;
+    for (let i = 0; i < profiles.length; i++) {
+      const createdMs = profiles[i]._createdMs ?? new Date(profiles[i].created_at).getTime();
+      if (createdMs >= startMs && createdMs <= endMs) periodNewUsers++;
+      else if (createdMs >= prevStartMs && createdMs <= prevEndMs) prevUsersCount++;
+    }
 
     // Calculate Growth Trend
     let userGrowthPercent = 0;
@@ -359,6 +386,19 @@ export const useDashboardAnalytics = (
 
     let growthSeries: GrowthDataPoint[] = [];
 
+    const countBucket = (bStartMs: number, bEndMs: number) => {
+      let newUsers = 0;
+      let cumulative = 0;
+      for (let i = 0; i < profiles.length; i++) {
+        const cMs = profiles[i]._createdMs ?? new Date(profiles[i].created_at).getTime();
+        if (cMs <= bEndMs) {
+          cumulative++;
+          if (cMs >= bStartMs) newUsers++;
+        }
+      }
+      return { newUsers, cumulative };
+    };
+
     if (diffDays <= 35) {
       // Daily Buckets
       const days = eachDayOfInterval({ start, end });
@@ -367,16 +407,7 @@ export const useDashboardAnalytics = (
         const dEnd = endOfDay(day);
         const dateKey = format(day, 'yyyy-MM-dd');
         const label = format(day, 'd MMM', { locale: idLocale });
-
-        const newUsers = profiles.filter((p) => {
-          const c = new Date(p.created_at);
-          return c >= dStart && c <= dEnd;
-        }).length;
-
-        const cumulative = profiles.filter((p) => {
-          const c = new Date(p.created_at);
-          return c <= dEnd;
-        }).length;
+        const { newUsers, cumulative } = countBucket(dStart.getTime(), dEnd.getTime());
 
         return { label, dateKey, newUsers, cumulative };
       });
@@ -390,16 +421,7 @@ export const useDashboardAnalytics = (
 
         const label = `Pekan ${idx + 1} (${format(wStart, 'd/M')})`;
         const dateKey = format(wStart, 'yyyy-MM-dd');
-
-        const newUsers = profiles.filter((p) => {
-          const c = new Date(p.created_at);
-          return c >= wStart && c <= wEnd;
-        }).length;
-
-        const cumulative = profiles.filter((p) => {
-          const c = new Date(p.created_at);
-          return c <= wEnd;
-        }).length;
+        const { newUsers, cumulative } = countBucket(wStart.getTime(), wEnd.getTime());
 
         return { label, dateKey, newUsers, cumulative };
       });
@@ -411,16 +433,7 @@ export const useDashboardAnalytics = (
         const mEnd = endOfDay(new Date(month.getFullYear(), month.getMonth() + 1, 0));
         const label = format(month, 'MMM yy', { locale: idLocale });
         const dateKey = format(month, 'yyyy-MM');
-
-        const newUsers = profiles.filter((p) => {
-          const c = new Date(p.created_at);
-          return c >= mStart && c <= mEnd;
-        }).length;
-
-        const cumulative = profiles.filter((p) => {
-          const c = new Date(p.created_at);
-          return c <= mEnd;
-        }).length;
+        const { newUsers, cumulative } = countBucket(mStart.getTime(), mEnd.getTime());
 
         return { label, dateKey, newUsers, cumulative };
       });

@@ -137,6 +137,25 @@ export const storeApi = {
 
   // --- Orders ---
   async createOrder(order: Omit<StoreOrder, 'order_id' | 'created_at' | 'updated_at'>): Promise<StoreOrder | null> {
+    try {
+      const { data: rpcOrder, error: rpcErr } = await (supabase.rpc as any)('create_store_order', {
+        p_invoice_number: order.invoice_number,
+        p_store_id: order.store_id,
+        p_listing_id: order.listing_id,
+        p_buyer_email: order.buyer_email,
+        p_buyer_name: order.buyer_name,
+        p_buyer_whatsapp: order.buyer_whatsapp || null,
+        p_total_amount: order.total_amount,
+        p_coupon_code_used: order.coupon_code_used || null,
+        p_status: order.status || 'PENDING_PAYMENT',
+      });
+      if (!rpcErr && rpcOrder) {
+        return rpcOrder as StoreOrder;
+      }
+    } catch {
+      // Fallback if RPC is not yet deployed
+    }
+
     const { data, error } = await supabase
       .from('modul_store_orders')
       .insert(order)
@@ -243,6 +262,15 @@ export const storeApi = {
     }
 
     const coupon = data as StoreCoupon;
+    const now = Date.now();
+
+    // Check start & expiry dates
+    if (coupon.starts_at && new Date(coupon.starts_at).getTime() > now) {
+      return { valid: false, message: 'Kupon ini belum mulai berlaku' };
+    }
+    if (coupon.expires_at && new Date(coupon.expires_at).getTime() < now) {
+      return { valid: false, message: 'Kupon ini sudah kedaluwarsa' };
+    }
 
     // Check usage limit
     if (coupon.usage_limit > 0 && (coupon.used_count || 0) >= coupon.usage_limit) {

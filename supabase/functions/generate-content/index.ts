@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { buildPertemuanContext } from "./pertemuan-context.ts";
+import { sanitizeJsonResponse, extractJsonFromResponse, parseGeneratedJson } from "../_shared/json-parser.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -198,18 +199,27 @@ serve(async (req) => {
     }
 
     if (user) {
-        // Check account type from allowed_customers
-        const { data: customerData } = await supabaseAdmin
+        // Check account type from allowed_customers (with email fallback if not yet claimed)
+        let { data: customerData } = await supabaseAdmin
           .from('allowed_customers')
           .select('account_type, subscription_expires_at')
           .eq('user_id', user.id)
           .maybeSingle();
 
+        if (!customerData && user.email) {
+          const { data: byEmail } = await supabaseAdmin
+            .from('allowed_customers')
+            .select('account_type, subscription_expires_at')
+            .eq('email', user.email.toLowerCase())
+            .maybeSingle();
+          customerData = byEmail;
+        }
+
         const isTrial = customerData?.account_type === 'trial';
 
-        // Block expired annual subscriptions
+        // Block expired annual / pro_annual / lite subscriptions
         if (
-          customerData?.account_type === 'annual' &&
+          ['annual', 'pro_annual', 'lite'].includes(customerData?.account_type) &&
           customerData?.subscription_expires_at &&
           new Date(customerData.subscription_expires_at).getTime() < Date.now()
         ) {
@@ -603,110 +613,6 @@ serve(async (req) => {
       return { response: lastResp!, usedModel: triedAll[triedAll.length - 1] || '', triedModels: triedAll };
     };
     
-    // Helper: Sanitasi response markdown (hapus ```json wrapper jika ada)
-    const sanitizeJsonResponse = (text: string): string => {
-      let cleaned = text.trim();
-      // Hapus markdown code block wrapper
-      if (cleaned.startsWith("```json")) {
-        cleaned = cleaned.slice(7);
-      } else if (cleaned.startsWith("```")) {
-        cleaned = cleaned.slice(3);
-      }
-      if (cleaned.endsWith("```")) {
-        cleaned = cleaned.slice(0, -3);
-      }
-      cleaned = cleaned.trim();
-      
-      // Escape LaTeX commands starting with b, f, n, r, t so JSON.parse doesn't eat them as control characters
-      // e.g. \frac -> \\frac (otherwise \f becomes form-feed \x0C), \times -> \\times (otherwise \t becomes tab)
-      cleaned = cleaned.replace(/(?<!\\)\\(?=(?:frac|flat|forall|times|to|tan|theta|tau|text|textbf|tilde|top|triangle|beta|bar|begin|binom|mathbf|bot|nabla|neq|notin|nu|neg|natural|rho|right|rightarrow|rangle|rfloor|rceil)\b)/g, "\\\\");
-
-      // Fix illegal backslash escapes (e.g. \pi, \sqrt, \alpha from LaTeX)
-      // JSON only allows: \", \\, \/, \b, \f, \n, \r, \t, \uXXXX
-      cleaned = cleaned.replace(/(?<!\\)\\(?!["\\/bfnrtu])/g, "\\\\");
-
-      // Replace all LITERAL control characters (bare newlines, CRs, tabs) inside the raw string
-      // These are invalid inside JSON string values and cause "Bad control character" parse errors.
-      // We do a smart replacement: only replace bare \n/\r/\t that are INSIDE a JSON string,
-      // meaning not at the structural level. Since the text is a flat pre-parsed string from AI,
-      // we replace ALL literal newlines with a space — JSON structural whitespace is irrelevant here
-      // because we will re-extract the JSON after this.
-      cleaned = cleaned.replace(/[\n\r\t]+/g, ' ');
-      
-      return cleaned;
-    };
-    
-    const extractJsonFromResponse = (text: string): string => {
-      let cleaned = sanitizeJsonResponse(text);
-      
-      const objectStart = cleaned.indexOf('{');
-      const arrayStart = cleaned.indexOf('[');
-      const starts = [objectStart, arrayStart].filter((idx) => idx >= 0);
-      const start = starts.length ? Math.min(...starts) : -1;
-
-      if (start >= 0) {
-        const isObject = cleaned[start] === '{';
-        const end = isObject ? cleaned.lastIndexOf('}') : cleaned.lastIndexOf(']');
-        
-        if (end > start) {
-          return cleaned.substring(start, end + 1);
-        }
-      }
-      
-      return cleaned;
-    };
-
-    const parseGeneratedJson = (text: string): { parsed?: any; sanitized: string; error?: unknown } => {
-      const sanitized = extractJsonFromResponse(text);
-      try {
-        return { parsed: JSON.parse(sanitized), sanitized };
-      } catch (parseError) {
-        try {
-          const fallbackContent = sanitizeJsonResponse(text);
-          return { parsed: JSON.parse(fallbackContent), sanitized: fallbackContent };
-        } catch {
-          try {
-            let repaired = sanitizeJsonResponse(text);
-            repaired = extractJsonFromResponse(repaired);
-            
-            // Perbaiki ellipsis yang sering dihasilkan Gemini
-            // Contoh 1: [ ..., { } ] -> hapus koma dan ...
-            repaired = repaired.replace(/,\s*\.\.\./g, '');
-            repaired = repaired.replace(/\.\.\.\s*,/g, '');
-            // Contoh 2: [ ... ] -> hapus ...
-            repaired = repaired.replace(/\[\s*\.\.\.\s*\]/g, '[]');
-            // Contoh 3: { ... } -> hapus ...
-            repaired = repaired.replace(/\{\s*\.\.\.\s*\}/g, '{}');
-            // Jika masih ada ... yang nyasar di luar string, ganti jadi null (tanpa lookbehind)
-            repaired = repaired.replace(/([^"\w])\.\.\.(?=[^"\w]|$)/g, '$1null');
-
-            // Perbaiki "Unterminated string" — hapus field terakhir yang tidak lengkap
-            // Pattern: trailing comma + partial key/value di akhir
-            repaired = repaired.replace(/,\s*"[^"]*(?:"[^"]*)*$/, '');
-            // Tutup string yang terbuka (string value tidak ditutup sebelum } atau ])
-            repaired = repaired.replace(/"([^"\\]|\\["\\\/{bfnrtu])*$/, '');
-
-            repaired = repaired.replace(/,\s*$/, '');
-            const openBraces = (repaired.match(/\{/g) || []).length;
-            const closeBraces = (repaired.match(/\}/g) || []).length;
-            const openBrackets = (repaired.match(/\[/g) || []).length;
-            const closeBrackets = (repaired.match(/\]/g) || []).length;
-            for (let i = 0; i < openBrackets - closeBrackets; i++) repaired += ']';
-            for (let i = 0; i < openBraces - closeBraces; i++) repaired += '}';
-            return { parsed: JSON.parse(repaired), sanitized: repaired };
-          } catch (repairError) {
-            // Last-resort: untuk kontekstualisasi-cp, coba ekstrak value langsung dari teks
-            try {
-              const cpMatch = text.match(/["']?cp_kontekstual["']?\s*:\s*["']([^"']*(?:\\.[^"']*)*)["']?/);
-              if (cpMatch?.[1]) {
-                return { parsed: { cp_kontekstual: cpMatch[1].trim() }, sanitized: text };
-              }
-            } catch { /* ignore */ }
-            return { sanitized, error: repairError || parseError };
-          }
-        }
-      }
-    };
 
     const extractAiContent = (result: any, directProvider: boolean): string => {
       return directProvider

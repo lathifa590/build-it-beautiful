@@ -38,9 +38,6 @@ const StoreCheckout = () => {
     }
   });
 
-  if (isLoading) return <div className="min-h-screen bg-[#f5f0e8] flex items-center justify-center font-bold text-gray-600">Memuat data pesanan...</div>;
-  if (!order) return <div className="min-h-screen bg-[#f5f0e8] flex items-center justify-center font-bold text-gray-600">Pesanan tidak ditemukan.</div>;
-
   React.useEffect(() => {
     if (order) {
       try {
@@ -61,6 +58,9 @@ const StoreCheckout = () => {
       }
     }
   }, [order?.order_id]);
+
+  if (isLoading) return <div className="min-h-screen bg-[#f5f0e8] flex items-center justify-center font-bold text-gray-600">Memuat data pesanan...</div>;
+  if (!order) return <div className="min-h-screen bg-[#f5f0e8] flex items-center justify-center font-bold text-gray-600">Pesanan tidak ditemukan.</div>;
 
   const sellerProfile = order.listing?.store_profile;
   const bankName = sellerProfile?.bank_name || '';
