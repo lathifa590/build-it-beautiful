@@ -26,7 +26,7 @@ export const QuotaIndicator = ({ remaining, limit, isTrial }: QuotaIndicatorProp
     <Badge
       className={`${colorClass} border text-xs font-bold gap-1 px-2.5 py-1 rounded-md cursor-default shrink-0 shadow-xs`}
       variant="outline"
-      title={`Sisa kuota generate harian: ${displayRemaining} dari ${displayLimit} (Akun Trial)`}
+      title={`Sisa kuota generate: ${displayRemaining} dari ${displayLimit} (Akun Trial)`}
     >
       <Zap className="w-3.5 h-3.5 fill-current" />
       <span>Sisa: {displayRemaining}/{displayLimit}</span>

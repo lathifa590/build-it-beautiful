@@ -3,7 +3,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSubscriptionStatus } from './useSubscriptionStatus';
 
-export const TRIAL_DAILY_CONTENT_LIMIT = 50;
+export const TRIAL_CONTENT_LIMIT = 50;
+export const TRIAL_DAILY_CONTENT_LIMIT = TRIAL_CONTENT_LIMIT; // Alias untuk kompatibilitas ke belakang
 
 export interface TrialQuotaInfo {
   remaining: number;
@@ -24,38 +25,34 @@ export const useTrialQuota = () => {
     staleTime: 30_000,
     queryFn: async () => {
       try {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-
         const { count, error } = await supabase
           .from('generation_logs')
           .select('*', { count: 'exact', head: true })
           .eq('user_id', user!.id)
-          .neq('content_type', 'image')
-          .gte('created_at', today.toISOString());
+          .neq('content_type', 'image');
 
         if (error) {
           console.warn('[useTrialQuota] Failed to count generation logs:', error);
           return {
-            remaining: TRIAL_DAILY_CONTENT_LIMIT,
-            limit: TRIAL_DAILY_CONTENT_LIMIT,
+            remaining: TRIAL_CONTENT_LIMIT,
+            limit: TRIAL_CONTENT_LIMIT,
             isTrial: true,
           };
         }
 
-        const dailyCount = count ?? 0;
-        const remaining = Math.max(0, TRIAL_DAILY_CONTENT_LIMIT - dailyCount);
+        const totalCount = count ?? 0;
+        const remaining = Math.max(0, TRIAL_CONTENT_LIMIT - totalCount);
 
         return {
           remaining,
-          limit: TRIAL_DAILY_CONTENT_LIMIT,
+          limit: TRIAL_CONTENT_LIMIT,
           isTrial: true,
         };
       } catch (err) {
         console.error('[useTrialQuota] Error:', err);
         return {
-          remaining: TRIAL_DAILY_CONTENT_LIMIT,
-          limit: TRIAL_DAILY_CONTENT_LIMIT,
+          remaining: TRIAL_CONTENT_LIMIT,
+          limit: TRIAL_CONTENT_LIMIT,
           isTrial: true,
         };
       }
@@ -65,7 +62,7 @@ export const useTrialQuota = () => {
   const updateQuota = (info: Partial<TrialQuotaInfo>) => {
     if (!user?.id) return;
     queryClient.setQueryData<TrialQuotaInfo | null>(['trial-quota', user.id], (prev) => {
-      const effectiveLimit = info.limit ?? prev?.limit ?? TRIAL_DAILY_CONTENT_LIMIT;
+      const effectiveLimit = info.limit ?? prev?.limit ?? TRIAL_CONTENT_LIMIT;
       const normalizedLimit = effectiveLimit === 100 ? 50 : effectiveLimit;
       const effectiveRemaining = info.remaining ?? prev?.remaining ?? normalizedLimit;
       return {

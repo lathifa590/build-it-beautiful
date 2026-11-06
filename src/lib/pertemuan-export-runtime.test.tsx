@@ -10,9 +10,19 @@ import type { FormData, GenerationResultV2 } from '@/types/modul';
 
 const saveMock = vi.fn().mockResolvedValue(undefined);
 vi.mock('html2pdf.js', () => {
-  const api = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const api: any = {
     set: () => api,
     from: () => api,
+    toPdf: () => api,
+    toContainer: () => api,
+    toCanvas: () => api,
+    get: () => api,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    then: (cb: (val: any) => any) => {
+      cb({ addPage: vi.fn() });
+      return api;
+    },
     save: (...args: unknown[]) => saveMock(...args),
   };
   return { default: () => api };
