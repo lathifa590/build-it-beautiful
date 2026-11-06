@@ -34,11 +34,11 @@ const BENEFITS = [
 const CONTENT = {
   quota: {
     icon: Sparkles,
-    title: 'Kuota Harian Anda Habis!',
+    title: 'Kuota Trial Anda Habis!',
     description: (
       <>
-        Kuota harian untuk akun gratis sudah terpakai.{' '}
-        Upgrade ke akses <strong className="text-white">FULL</strong> dan generate{' '}
+        Kuota 50 kali generate gratis untuk akun trial Anda sudah terpakai.{' '}
+        Upgrade ke akses <strong className="text-white">FULL</strong> dan nikmati generate{' '}
         <strong className="text-white">tanpa batas kuota</strong>!
       </>
     ),

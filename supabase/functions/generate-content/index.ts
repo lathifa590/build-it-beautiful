@@ -232,24 +232,21 @@ serve(async (req) => {
           });
         }
 
-        // Rate limit check - only for trial users
-        let dailyCount = 0;
+        // Rate limit check - only for trial users (kuota 50 kali untuk selamanya)
+        let totalCount = 0;
         if (isTrial) {
           const contentLimit = 50;
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
           const { count } = await supabaseAdmin
             .from('generation_logs')
             .select('*', { count: 'exact', head: true })
             .eq('user_id', user.id)
-            .neq('content_type', 'image')
-            .gte('created_at', today.toISOString());
+            .neq('content_type', 'image');
 
-          dailyCount = count ?? 0;
+          totalCount = count ?? 0;
 
-          if (dailyCount >= contentLimit) {
+          if (totalCount >= contentLimit) {
             return new Response(JSON.stringify({
-              error: `Batas harian tercapai (${contentLimit}/hari). Coba lagi besok.`,
+              error: `Batas kuota trial tercapai (${contentLimit} kali generate). Silakan upgrade ke paket berbayar untuk generate tanpa batas.`,
               errorCode: 'rate_limit_exceeded',
               remaining: 0,
               limit: contentLimit,
@@ -3410,21 +3407,18 @@ Jahit ke seksi/konten yang sudah ada — JANGAN buat seksi baru di luar struktur
 
           isTrial = customerData?.account_type === 'trial';
 
-          // Only compute remaining for trial users
+          // Only compute remaining for trial users (kuota 50 kali untuk selamanya)
           if (isTrial) {
             const contentLimit = 50;
             limit = contentLimit;
 
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            const { count: newDailyCount } = await supabaseAdmin
+            const { count: newTotalCount } = await supabaseAdmin
               .from('generation_logs')
               .select('*', { count: 'exact', head: true })
               .eq('user_id', user.id)
-              .neq('content_type', 'image')
-              .gte('created_at', today.toISOString());
+              .neq('content_type', 'image');
 
-            remaining = Math.max(0, contentLimit - (newDailyCount ?? 0));
+            remaining = Math.max(0, contentLimit - (newTotalCount ?? 0));
           }
         }
       }

@@ -70,17 +70,27 @@ export interface PruneV2Result {
 
 /**
  * Periksa apakah sebuah section wrapper punya konten yang cukup substansial
- * untuk layak mendapat halaman sendiri. Threshold:
- * - Ada elemen <table> (tabel identitas / langkah pembelajaran), ATAU
- * - Panjang teks bersih lebih dari 150 karakter.
+ * untuk layak mendapat halaman sendiri.
  *
- * Tanpa syarat ini, section pendek / placeholder "Belum Digenerate" mendapat
- * `pageBreakBefore: always` → halaman kosong berlipat-lipat di Word.
+ * Suatu section dianggap ber-konten substansial jika:
+ * - Memiliki elemen terstruktur (tabel, gambar, list, dsb.), ATAU
+ * - Memiliki teks nyata (bukan kosong atau hanya placeholder "Belum Digenerate").
+ *
+ * Section kosong / hanya placeholder tidak mendapat page break agar tidak
+ * menghasilkan halaman kosong (blank page) di Word.
  */
 const hasSubstantialContent = (wrapper: HTMLElement): boolean => {
-  if (wrapper.querySelector('table')) return true;
-  const text = (wrapper.textContent ?? '').replace(/\s+/g, ' ').trim();
-  return text.length > 150;
+  const section = wrapper.querySelector<HTMLElement>('[data-section]');
+  const target = section ?? wrapper;
+  if (target.querySelector('table, img, svg, canvas, ol, ul, form, p, h1, h2, h3, h4, h5, h6')) {
+    const text = (target.textContent ?? '').replace(/\s+/g, ' ').trim();
+    if (/^(pertemuan\s+\d+.*—\s*)?belum\s+(di[- ]?generate|dibuat)/i.test(text)) return false;
+    return text.length > 0;
+  }
+  const text = (target.textContent ?? '').replace(/\s+/g, ' ').trim();
+  if (!text) return false;
+  if (/^(pertemuan\s+\d+.*—\s*)?belum\s+(di[- ]?generate|dibuat)/i.test(text)) return false;
+  return true;
 };
 
 /**
