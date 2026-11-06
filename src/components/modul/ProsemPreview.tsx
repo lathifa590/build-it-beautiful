@@ -73,9 +73,9 @@ export const ProsemPreview = ({
   // Find event weeks
   const eventWeekMap: Record<string, ProsemEvent> = {};
   data.events.forEach(ev => {
-    const key = `${data.months[0]?.tahun || 2025}-${String(ev.bulan).padStart(2, '0')}-W${ev.mingguKe}`;
-    // Only if key exists in allWeekKeys
-    if (allWeekKeys.includes(key)) {
+    const monthStr = String(ev.bulan).padStart(2, '0');
+    const key = allWeekKeys.find(wk => wk.endsWith(`-${monthStr}-W${ev.mingguKe}`));
+    if (key) {
       eventWeekMap[key] = ev;
     }
   });

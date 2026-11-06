@@ -11,7 +11,8 @@ export function useProsemGenerator() {
     mingguEfektif: number,
     tanggalMulai: string,
     kegiatanNonPembelajaran: ProsemEvent[] = [],
-    mingguPerBulan: Record<string, number> = {}
+    mingguPerBulan: Record<string, number> = {},
+    jpPerMinggu: number = 2
   ): Promise<ProsemData | null> => {
     setIsLoading(true);
     setError(null);
@@ -66,13 +67,14 @@ export function useProsemGenerator() {
       }).filter(Boolean));
 
       let weekPointer = 0;
+      const effectiveJpPerMinggu = Math.max(1, Number(jpPerMinggu) || 2);
       const rows = semesterItems.map((item, index) => {
-        // distribute JP over 2 JP per week roughly
         const jp = Math.max(0, parseInt(String(item.alokasi_jp ?? 0), 10) || 0);
-        const weeksNeeded = jp > 0 ? Math.max(1, Math.ceil(jp / 2)) : 0;
+        const weeksNeeded = jp > 0 ? Math.max(1, Math.ceil(jp / effectiveJpPerMinggu)) : 0;
         const weeks: Record<string, { hasActivity: boolean, jp?: number }> = {};
 
         let i = 0;
+        let remainingJp = jp;
         while (i < weeksNeeded) {
           if (weekPointer < allWeekKeys.length) {
             const wk = allWeekKeys[weekPointer];
@@ -83,7 +85,9 @@ export function useProsemGenerator() {
               continue;
             }
 
-            weeks[wk] = { hasActivity: true, jp: 2 };
+            const assignedJp = Math.min(effectiveJpPerMinggu, remainingJp > 0 ? remainingJp : effectiveJpPerMinggu);
+            weeks[wk] = { hasActivity: true, jp: assignedJp };
+            remainingJp = Math.max(0, remainingJp - assignedJp);
             weekPointer++;
             i++;
           } else {

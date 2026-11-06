@@ -17,7 +17,7 @@ import {
   validateResponseMeta,
 } from '@/lib/pertemuan-generation';
 import { fromLegacy } from '@/lib/result-adapter';
-import { ENABLE_PERTEMUAN_DOCS_V2 } from '@/lib/feature-flags';
+import { ENABLE_PERTEMUAN_DOCS_V2, isSchoolFeatureAccessible } from '@/lib/feature-flags';
 import type {
   FormData,
   GeneratedSteps,
@@ -227,9 +227,19 @@ describe('pertemuan-generation — stable id & legacy', () => {
   });
 });
 
-describe('feature flag', () => {
-  it('default OFF sehingga orchestrator/UI V2 tidak aktif', () => {
-    expect(ENABLE_PERTEMUAN_DOCS_V2).toBe(false);
+describe('feature flag & deploy terbatas guard', () => {
+  it('ENABLE_PERTEMUAN_DOCS_V2 mengikuti konfigurasi environment VITE_ENABLE_PERTEMUAN_DOCS_V2', () => {
+    expect(ENABLE_PERTEMUAN_DOCS_V2).toBe(
+      import.meta.env.VITE_ENABLE_PERTEMUAN_DOCS_V2 === 'true',
+    );
+  });
+
+  it('isSchoolFeatureAccessible mengizinkan Admin, jagofeed@gmail.com (Deploy Terbatas), dan sekolah aktif', () => {
+    expect(isSchoolFeatureAccessible('user@biasa.com', false, false)).toBe(false);
+    expect(isSchoolFeatureAccessible('user@biasa.com', true, false)).toBe(true);
+    expect(isSchoolFeatureAccessible('jagofeed@gmail.com', false, false)).toBe(true);
+    expect(isSchoolFeatureAccessible('JAGOFEED@gmail.com ', false, false)).toBe(true);
+    expect(isSchoolFeatureAccessible('guru@sekolah.id', false, true)).toBe(true);
   });
 });
 
@@ -275,14 +285,32 @@ describe('pertemuan-generation — summary legacy & helper edit', () => {
     expect(check.allowed).toBe(false);
   });
 
-  it('removePertemuanById menormalisasi nomor tanpa memindahkan hasil', () => {
-    let r = buildTwoMeetings();
-    const [p1, p2] = r.pertemuan;
-    r = applyDokumenResult(r, p2.id, 'materi', { judul_materi: 'M2', isi_materi: [] });
-    const next = removePertemuanById(r, p1.id);
-    expect(next.pertemuan).toHaveLength(1);
-    expect(next.pertemuan[0].id).toBe(p2.id);
-    expect(next.pertemuan[0].nomor).toBe(1);
-    expect(next.pertemuan[0].dokumen.materi).toBeDefined();
+  it('removePertemuanById menormalisasi nomor tanpa memindahkan hasil (termasuk 4 pertemuan)', () => {
+    let r = syncPertemuanResults(
+      emptyResultV2(),
+      [
+        { nomorPertemuan: 1, durasi: '90' },
+        { nomorPertemuan: 2, durasi: '90' },
+        { nomorPertemuan: 3, durasi: '90' },
+        { nomorPertemuan: 4, durasi: '90' },
+      ],
+      { seed: SEED },
+    );
+    const [p1, p2, p3, p4] = r.pertemuan;
+    r = applyDokumenResult(r, p1.id, 'modul', { nomorPertemuan: 1, tahap_awal: {}, tahap_inti: {}, tahap_penutup: {} });
+    r = applyDokumenResult(r, p2.id, 'lkpd', { judul_lkpd: 'LKPD P2', aktivitas_utama: [] });
+    r = applyDokumenResult(r, p3.id, 'modul', { nomorPertemuan: 3, tahap_awal: {}, tahap_inti: {}, tahap_penutup: {} });
+    r = applyDokumenResult(r, p4.id, 'soal', { daftar_soal: [{ no: 1 }] });
+
+    // Hapus pertemuan 2 (tengah)
+    const next = removePertemuanById(r, p2.id);
+    expect(next.pertemuan).toHaveLength(3);
+    expect(next.pertemuan.map((p) => p.id)).toEqual([p1.id, p3.id, p4.id]);
+    expect(next.pertemuan.map((p) => p.nomor)).toEqual([1, 2, 3]);
+    // Nomor pertemuan di dalam objek modul P3 ikut tersinkronisasi menjadi 2
+    expect((next.pertemuan[1].dokumen.modul as unknown as { nomorPertemuan: number }).nomorPertemuan).toBe(2);
+    // Data soal di P4 tetap utuh di pertemuan ke-3 (ID p4)
+    expect(next.pertemuan[2].dokumen.soal).toBeDefined();
+    expect(next.pertemuan[0].dokumen.lkpd).toBeUndefined();
   });
 });

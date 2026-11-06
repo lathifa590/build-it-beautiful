@@ -85,8 +85,9 @@ export const exportProtaProsemToExcel = async (
 
     const eventWeekMap: Record<string, any> = {};
     semData.events.forEach(ev => {
-      const key = `${semData.months[0]?.tahun || 2025}-${String(ev.bulan).padStart(2, '0')}-W${ev.mingguKe}`;
-      if (allWeekKeys.includes(key)) {
+      const monthStr = String(ev.bulan).padStart(2, '0');
+      const key = allWeekKeys.find(wk => wk.endsWith(`-${monthStr}-W${ev.mingguKe}`));
+      if (key) {
         eventWeekMap[key] = ev;
       }
     });
