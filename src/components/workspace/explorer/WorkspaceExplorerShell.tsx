@@ -15,6 +15,8 @@ import { generateWorkspaceModul } from "./generateWorkspaceModul";
 import { generateWorkspaceMeetingDirect } from "./generateWorkspaceMeetingDirect";
 import { useSchool } from "@/contexts/SchoolContext";
 import { useSubscriptionStatus } from "@/hooks/useSubscriptionStatus";
+import { useTrialQuota } from "@/hooks/useTrialQuota";
+import { QuotaIndicator } from "@/components/modul/QuotaIndicator";
 import { toast } from "sonner";
 import { SchoolProposalModal } from "@/components/school/SchoolProposalModal";
 import { formatGrade } from "@/lib/utils";
@@ -50,6 +52,7 @@ export const WorkspaceExplorerShell: React.FC<WorkspaceExplorerShellProps> = ({
   const { refreshWorkspaces } = useWorkspace();
   const { user, isAdmin } = useAuth();
   const { data: subStatus } = useSubscriptionStatus();
+  const { quotaInfo: trialQuotaInfo } = useTrialQuota();
   const isTrial = subStatus?.isTrial;
   // Antrean otomatis latar belakang (server) dinonaktifkan untuk menghemat resource dan kuota server
   const canAccessServerQueue = false;
@@ -173,13 +176,22 @@ export const WorkspaceExplorerShell: React.FC<WorkspaceExplorerShellProps> = ({
       </div>
 
       {!isLocked && isTrial && (
-        <div className="bg-purple-50 border-2 border-purple-200 rounded-xl p-3 sm:p-4 flex items-center justify-between gap-3 shadow-brutal-sm">
+        <div className="bg-purple-50 border-2 border-purple-200 rounded-xl p-3 sm:p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-brutal-sm">
           <div className="flex items-center gap-2.5">
             <span className="px-2 py-0.5 text-xs font-black bg-purple-600 text-white rounded shrink-0">TRIAL</span>
             <p className="text-xs sm:text-sm text-purple-900 font-medium">
               Mode Uji Coba Workspace: Anda dapat menyusun perencanaan (CP, Prota, KKTP, Prosem) dan membuat modul sesuai sisa kuota generate akun Anda.
             </p>
           </div>
+          {trialQuotaInfo && trialQuotaInfo.isTrial && (
+            <div className="shrink-0 self-end sm:self-center">
+              <QuotaIndicator
+                remaining={trialQuotaInfo.remaining}
+                limit={trialQuotaInfo.limit}
+                isTrial={trialQuotaInfo.isTrial}
+              />
+            </div>
+          )}
         </div>
       )}
 

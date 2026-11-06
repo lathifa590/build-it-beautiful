@@ -71,6 +71,7 @@ import {
 } from '@/hooks/useTeacherProfiles';
 import { useLetterhead } from '@/hooks/useLetterhead';
 import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
+import { useTrialQuota } from '@/hooks/useTrialQuota';
 import { preprocessElementForOmml, WORD_HTML_NAMESPACES } from '@/lib/math-omml';
 import { generateExportFilename } from '@/lib/export-filename';
 
@@ -184,7 +185,9 @@ const Index = () => {
   const [soalImage, setSoalImage] = useState<string | null>(null);
 
   const [error, setError] = useState('');
+  const { quotaInfo: initialTrialQuota, updateQuota: updateTrialQuotaHook } = useTrialQuota();
   const [quotaInfo, setQuotaInfo] = useState<{ remaining: number; limit: number; isTrial: boolean } | null>(null);
+  const effectiveQuotaInfo = quotaInfo ?? initialTrialQuota;
   const [showTrialCTA, setShowTrialCTA] = useState(false);
   const [trialCTAReason, setTrialCTAReason] = useState<'quota' | 'busy'>('quota');
   const [showWorkspaceUpsell, setShowWorkspaceUpsell] = useState(false);
@@ -456,11 +459,15 @@ const Index = () => {
     const isProUser = isAdmin || (subStatus && subStatus.isPro);
     
     if (responseData.remaining !== undefined && responseData.limit !== undefined) {
-      setQuotaInfo({
-        remaining: responseData.remaining as number,
-        limit: responseData.limit as number,
+      const rawLimit = responseData.limit as number;
+      const normalizedLimit = rawLimit === 100 ? 50 : rawLimit;
+      const newQuota = {
+        remaining: Math.min(responseData.remaining as number, normalizedLimit),
+        limit: normalizedLimit,
         isTrial: !!responseData.isTrial,
-      });
+      };
+      setQuotaInfo(newQuota);
+      updateTrialQuotaHook(newQuota);
       if ((responseData.remaining as number) === 0 && responseData.isTrial) {
         if (!isProUser) {
           setTrialCTAReason('quota');
@@ -469,11 +476,13 @@ const Index = () => {
       }
     }
     if (responseData.errorCode === 'rate_limit_exceeded' && responseData.isTrial) {
-      setQuotaInfo({
+      const newQuota = {
         remaining: 0,
-        limit: (responseData.limit as number) || 50,
+        limit: 50,
         isTrial: true,
-      });
+      };
+      setQuotaInfo(newQuota);
+      updateTrialQuotaHook(newQuota);
       if (!isProUser) {
         setTrialCTAReason('quota');
         setShowTrialCTA(true);
@@ -487,7 +496,7 @@ const Index = () => {
         setShowTrialCTA(true);
       }
     }
-  }, [isAdmin, subStatus, showNotificationMessage]);
+  }, [isAdmin, subStatus, showNotificationMessage, updateTrialQuotaHook]);
 
   // === Dokumen per Pertemuan V2 (Fase 3) — hanya aktif saat feature flag ON ===
   const v2ContextKey = useMemo(() => buildContextKey(formData), [formData]);
@@ -2810,6 +2819,15 @@ img{max-width:100%}
         </div>
 
         <div className="flex items-center gap-1.5 sm:gap-3">
+          {effectiveQuotaInfo && effectiveQuotaInfo.isTrial && (
+            <div className="flex items-center">
+              <QuotaIndicator
+                remaining={effectiveQuotaInfo.remaining}
+                limit={effectiveQuotaInfo.limit}
+                isTrial={effectiveQuotaInfo.isTrial}
+              />
+            </div>
+          )}
           {appMode === 'workspace' && <WorkspaceSelector />}
           {appMode === 'quick' && (
             <HeaderHistoryDropdown
@@ -3229,6 +3247,7 @@ img{max-width:100%}
                   onRegenerateBankSoal={regenerateBankSoal}
                   onExportCurrentTab={handleExportCurrentTab}
                   onExportAll={handleExportAll}
+                  quotaInfo={effectiveQuotaInfo}
                   isPlanningTab={true}
                 />
               </div>
@@ -3305,7 +3324,7 @@ img{max-width:100%}
                   onToggleLetterhead={toggleLetterhead}
                   onUploadLetterhead={uploadLetterhead}
                   onDeleteLetterhead={deleteLetterhead}
-                  quotaInfo={quotaInfo}
+                  quotaInfo={effectiveQuotaInfo}
                   onOpenPromptExport={() => setShowPromptExport(true)}
                   isModulComplete={isModulComplete}
                   hideDocGenerate={isV2Mode}

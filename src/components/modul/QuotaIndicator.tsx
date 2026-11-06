@@ -10,7 +10,10 @@ interface QuotaIndicatorProps {
 export const QuotaIndicator = ({ remaining, limit, isTrial }: QuotaIndicatorProps) => {
   if (!isTrial) return null;
 
-  const ratio = remaining / limit;
+  // Pastikan batas kuota adalah 50 (bukan 100)
+  const displayLimit = (limit === 100 || !limit) ? 50 : limit;
+  const displayRemaining = Math.min(Math.max(0, remaining), displayLimit);
+  const ratio = displayRemaining / displayLimit;
   
   let colorClass = 'bg-emerald-100 text-emerald-700 border-emerald-300';
   if (ratio <= 0.2) {
@@ -21,11 +24,12 @@ export const QuotaIndicator = ({ remaining, limit, isTrial }: QuotaIndicatorProp
 
   return (
     <Badge
-      className={`${colorClass} border text-xs font-bold gap-1 px-2 py-1 rounded-md`}
+      className={`${colorClass} border text-xs font-bold gap-1 px-2.5 py-1 rounded-md cursor-default shrink-0 shadow-xs`}
       variant="outline"
+      title={`Sisa kuota generate harian: ${displayRemaining} dari ${displayLimit} (Akun Trial)`}
     >
-      <Zap className="w-3 h-3" />
-      Sisa: {remaining}/{limit}
+      <Zap className="w-3.5 h-3.5 fill-current" />
+      <span>Sisa: {displayRemaining}/{displayLimit}</span>
     </Badge>
   );
 };
