@@ -14,13 +14,20 @@ export const sanitizeJsonResponse = (text: string): string => {
   }
   cleaned = cleaned.trim();
 
-  // Escape LaTeX commands starting with b, f, n, r, t so JSON.parse doesn't eat them as control characters
+  // 1. Escape LaTeX commands starting with u that are NOT valid 4-hex JSON unicode escapes (\underline, \upsilon, \uparrow)
+  cleaned = cleaned.replace(/(?<!\\)\\(?=u(?![0-9a-fA-F]{4}))/g, "\\\\");
+
+  // 2. Escape LaTeX commands starting with b, f, r, t followed by letters (\tfrac, \tanh, \boldsymbol, \frac, etc.)
+  // Di JSON, \b, \f, \r, \t tidak pernah diikuti langsung oleh huruf kata.
+  cleaned = cleaned.replace(/(?<!\\)\\(?=[bfrt][a-zA-Z])/g, "\\\\");
+
+  // 3. Escape LaTeX commands starting with n (\nabla, \neq, \notin, \nu, \neg, \natural, \newline, \nonumber, \norm, \not)
   cleaned = cleaned.replace(
-    /(?<!\\)\\(?=(?:frac|flat|forall|times|to|tan|theta|tau|text|textbf|tilde|top|triangle|beta|bar|begin|binom|mathbf|bot|nabla|neq|notin|nu|neg|natural|rho|right|rightarrow|rangle|rfloor|rceil)\b)/g,
+    /(?<!\\)\\(?=(?:nabla|neq|notin|nu|neg|natural|newline|nonumber|norm|not\b|ne\b))/g,
     "\\\\"
   );
 
-  // Fix illegal backslash escapes (e.g. \pi, \sqrt, \alpha from LaTeX)
+  // 4. Fix illegal backslash escapes (e.g. \pi, \sqrt, \alpha from LaTeX)
   cleaned = cleaned.replace(/(?<!\\)\\(?!["\\/bfnrtu])/g, "\\\\");
 
   // Replace literal control characters inside raw string
@@ -81,16 +88,42 @@ export const parseGeneratedJson = (
         repaired = repaired.replace(/:\s*"[^"]*$/, ': ""');
         repaired = repaired.replace(/,\s*$/, "");
 
-        const openBraces = (repaired.match(/\{/g) || []).length;
-        const closeBraces = (repaired.match(/\}/g) || []).length;
-        const openBrackets = (repaired.match(/\[/g) || []).length;
-        const closeBrackets = (repaired.match(/\]/g) || []).length;
+        // Tutup delimiter yang belum tertutup dengan stack LIFO (agar urutan objek & array tepat)
+        const stack: string[] = [];
+        let inString = false;
+        let isEscaped = false;
 
-        if (openBrackets > closeBrackets) {
-          repaired += "]".repeat(openBrackets - closeBrackets);
+        for (let i = 0; i < repaired.length; i++) {
+          const char = repaired[i];
+          if (isEscaped) {
+            isEscaped = false;
+            continue;
+          }
+          if (char === "\\") {
+            isEscaped = true;
+            continue;
+          }
+          if (char === '"') {
+            inString = !inString;
+            continue;
+          }
+          if (!inString) {
+            if (char === "{") stack.push("}");
+            else if (char === "[") stack.push("]");
+            else if (char === "}" || char === "]") {
+              if (stack.length > 0 && stack[stack.length - 1] === char) {
+                stack.pop();
+              }
+            }
+          }
         }
-        if (openBraces > closeBraces) {
-          repaired += "}".repeat(openBraces - closeBraces);
+
+        if (inString) {
+          repaired += '"';
+        }
+
+        while (stack.length > 0) {
+          repaired += stack.pop();
         }
 
         return { parsed: JSON.parse(repaired), sanitized: repaired };

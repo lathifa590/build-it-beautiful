@@ -231,4 +231,51 @@ describe('usePertemuanGeneration — edit & hapus pertemuan', () => {
       requiresConfirm: false,
     });
   });
+
+  it('injectExternalDocuments memuat dokumen ke pertemuan spesifik tanpa mengganggu pertemuan lain', () => {
+    const { result } = setup();
+    act(() => result.current.syncFromForm(baseForm.pertemuan, 'ctx-1'));
+    const [p1, p2] = result.current.result.pertemuan;
+
+    act(() => {
+      result.current.injectExternalDocuments(p2.id, {
+        lkpd: { judul_lkpd: 'LKPD Eksternal P2', aktivitas_utama: [] },
+        materi: { judul_materi: 'Materi Eksternal P2', isi_materi: [] },
+      });
+    });
+
+    expect(result.current.result.pertemuan[0].dokumen.lkpd).toBeUndefined();
+    expect(result.current.result.pertemuan[1].dokumen.lkpd).toEqual({
+      judul_lkpd: 'LKPD Eksternal P2',
+      aktivitas_utama: [],
+    });
+    expect(result.current.result.pertemuan[1].status.lkpd).toBe('ok');
+    expect(result.current.result.pertemuan[1].status.materi).toBe('ok');
+  });
+
+  it('onDocumentReady dipanggil tepat saat dokumen selesai tanpa merusak referensi objek pertemuan lain', async () => {
+    const onDocumentReady = vi.fn();
+    const { result } = setup({ callbacks: { onDocumentReady } });
+    act(() => result.current.syncFromForm(baseForm.pertemuan, 'ctx-1'));
+    const [p1, p2] = result.current.result.pertemuan;
+
+    await act(async () => {
+      await result.current.regenerateDokumen(p1.id, 'modul');
+    });
+    const p1SnapshotAfterModul = result.current.result.pertemuan[0];
+
+    await act(async () => {
+      await result.current.regenerateDokumen(p2.id, 'lkpd');
+    });
+
+    expect(onDocumentReady).toHaveBeenCalledTimes(2);
+    expect(onDocumentReady).toHaveBeenNthCalledWith(
+      2,
+      p2.id,
+      'lkpd',
+      expect.objectContaining({ judul_lkpd: 'Dok lkpd' }),
+    );
+    // Referensi pertemuan 1 tidak berubah ketika pertemuan 2 di-generate
+    expect(result.current.result.pertemuan[0]).toBe(p1SnapshotAfterModul);
+  });
 });
