@@ -235,7 +235,7 @@ serve(async (req) => {
         // Rate limit check - only for trial users
         let dailyCount = 0;
         if (isTrial) {
-          const contentLimit = 100;
+          const contentLimit = 50;
           const today = new Date();
           today.setHours(0, 0, 0, 0);
           const { count } = await supabaseAdmin
@@ -3412,7 +3412,7 @@ Jahit ke seksi/konten yang sudah ada — JANGAN buat seksi baru di luar struktur
 
           // Only compute remaining for trial users
           if (isTrial) {
-            const contentLimit = 100;
+            const contentLimit = 50;
             limit = contentLimit;
 
             const today = new Date();

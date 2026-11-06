@@ -92,7 +92,7 @@ serve(async (req: any) => {
         }
 
         if (isTrial) {
-          const contentLimit = 100;
+          const contentLimit = 50;
           const today = new Date();
           today.setHours(0, 0, 0, 0);
           const { count } = await supabaseAdmin
