@@ -471,7 +471,7 @@ const Index = () => {
     if (responseData.errorCode === 'rate_limit_exceeded' && responseData.isTrial) {
       setQuotaInfo({
         remaining: 0,
-        limit: (responseData.limit as number) || 10,
+        limit: (responseData.limit as number) || 50,
         isTrial: true,
       });
       if (!isProUser) {
