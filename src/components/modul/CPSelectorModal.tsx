@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Search, BookOpen, Loader2, AlertCircle, Check, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -12,7 +12,7 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import { Skeleton } from '@/components/ui/skeleton';
 import { supabase } from '@/integrations/supabase/client';
-import { findMapelSlug, resolveMapelCP, FallbackInfo, MAPEL_LIST } from '@/lib/cp-mapel-mapping';
+import { resolveMapelCP, filterMapelByNama, FallbackInfo, MAPEL_LIST } from '@/lib/cp-mapel-mapping';
 import { queryMasterCPDatabase } from '@/lib/cp-master-service';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -46,6 +46,58 @@ const cpSessionCache = new Map<string, any>();
 
 const SPECIAL_EMAIL = 'goodteacherok1@gmail.com';
 
+function normalizeFaseCode(value?: string): string {
+  return (value || '').trim().toUpperCase().replace(/^FASE\s*/i, '');
+}
+
+export function clearCPSessionCache() {
+  cpSessionCache.clear();
+}
+
+export function extractElementsFromCPData(
+  rawData: any,
+  targetFilterNama?: string,
+  targetFase?: string
+): { elements: CPElemen[]; kelas: string } | null {
+  if (!rawData?.mata_pelajaran || !Array.isArray(rawData.mata_pelajaran)) {
+    return null;
+  }
+
+  const mpList: MapelData[] = rawData.mata_pelajaran;
+  const filteredList = filterMapelByNama(mpList, targetFilterNama);
+  const normTargetFase = normalizeFaseCode(targetFase);
+
+  const elements: CPElemen[] = [];
+  let resolvedKelas = '';
+
+  for (const mp of filteredList) {
+    const cpForFase = mp.capaian_per_fase || [];
+    if (cpForFase.length === 0) continue;
+
+    const cp = normTargetFase
+      ? cpForFase.find((item) => {
+          const itemFase = normalizeFaseCode(item.fase);
+          if (itemFase === normTargetFase) return true;
+          const tokens = (item.fase || '').toUpperCase().split(/[^A-Z]/).filter(Boolean);
+          return tokens.includes(normTargetFase);
+        })
+      : cpForFase[0];
+
+    if (!cp) continue;
+
+    if (!resolvedKelas && cp.kelas) {
+      resolvedKelas = cp.kelas;
+    }
+    if (cp.elemen) {
+      for (const [nama, teks] of Object.entries(cp.elemen)) {
+        elements.push({ nama, teks: teks as string });
+      }
+    }
+  }
+
+  return { elements, kelas: resolvedKelas };
+}
+
 export const CPSelectorModal = ({
   open,
   onClose,
@@ -57,115 +109,234 @@ export const CPSelectorModal = ({
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [mapelList, setMapelList] = useState<MapelData[]>([]);
   const [selectedElements, setSelectedElements] = useState<Set<string>>(new Set());
   const [allElements, setAllElements] = useState<CPElemen[]>([]);
   const [matchedSlug, setMatchedSlug] = useState<string | null>(null);
-  const [filterNama, setFilterNama] = useState<string | undefined>(undefined);
   const [kelas, setKelas] = useState<string>('');
   const [cpSource, setCpSource] = useState<'github' | 'cp032' | 'kbc_madrasah'>('github');
   const [fallbackInfo, setFallbackInfo] = useState<FallbackInfo | null>(null);
   const [activeDataSource, setActiveDataSource] = useState<string>('');
-
-  // Compute effective source synchronously (avoids race condition with setCpSource)
-  const getEffectiveSource = (): 'github' | 'cp032' | 'kbc_madrasah' => {
-    const resolution = resolveMapelCP(mataPelajaran, fase);
-    if (kurikulum === 'kbc' || kurikulum === 'kbc_madrasah' || resolution?.isMadrasah) {
-      return 'kbc_madrasah';
-    }
-    return cpSource === 'kbc_madrasah' ? 'github' : cpSource;
-  };
+  const lastAutoKeyRef = useRef<string>('');
 
   const isSpecialUser = user?.email === SPECIAL_EMAIL;
 
-  // Single unified effect: determine source then fetch (avoids race condition)
-  useEffect(() => {
-    if (open && mataPelajaran) {
-      const effectiveSource = getEffectiveSource();
-      // Sync state for UI display
-      if (effectiveSource !== cpSource) {
-        setCpSource(effectiveSource);
-      }
-      fetchCP(effectiveSource);
+  const getDefaultSource = (
+    targetMapel: string,
+    targetFase: string,
+    targetKurikulum?: string
+  ): 'github' | 'kbc_madrasah' => {
+    const resolution = resolveMapelCP(targetMapel, targetFase);
+    const isPaud =
+      /\b(paud|tk|ra)\b/i.test(targetMapel) ||
+      normalizeFaseCode(targetFase) === 'FONDASI';
+    if (
+      resolution?.isMadrasah ||
+      targetKurikulum === 'kbc_madrasah' ||
+      (targetKurikulum === 'kbc' && isPaud)
+    ) {
+      return 'kbc_madrasah';
     }
+    return 'github';
+  };
+
+  // Single unified effect: set default source once per modal open/subject, then fetch without overriding manual toggles
+  useEffect(() => {
     if (!open) {
+      lastAutoKeyRef.current = '';
       setSelectedElements(new Set());
       setError(null);
       setFallbackInfo(null);
       setActiveDataSource('');
+      return;
     }
-  }, [open, mataPelajaran, fase, kurikulum, cpSource]);
 
-  const fetchCP = async (effectiveSource?: 'github' | 'cp032' | 'kbc_madrasah') => {
-    const source = effectiveSource ?? cpSource;
-    setLoading(true);
-    setError(null);
-    setAllElements([]);
-    setMapelList([]);
+    if (!mataPelajaran) return;
 
-    const resolution = resolveMapelCP(mataPelajaran, fase);
-    setMatchedSlug(resolution ? resolution.slug : null);
-    setFilterNama(resolution?.filterNama);
-    setFallbackInfo(resolution?.fallbackInfo || null);
-
-    // 1. Primary Single Source of Truth: BSKAP No. 046/H/KR/2025 Master Database
-    if (source !== 'cp032' && source !== 'kbc_madrasah') {
-      const masterResult = queryMasterCPDatabase(mataPelajaran, fase);
-      if (masterResult && masterResult.elemen.length > 0) {
-        setAllElements(masterResult.elemen);
-        setKelas(masterResult.kelas);
-        if (masterResult.isFallback && masterResult.fallbackInfo) {
-          setFallbackInfo(masterResult.fallbackInfo);
-        }
-        setActiveDataSource('BSKAP No. 046/2025');
-        setLoading(false);
+    const autoKey = `${mataPelajaran}|${fase}|${kurikulum ?? ''}`;
+    if (lastAutoKeyRef.current !== autoKey) {
+      lastAutoKeyRef.current = autoKey;
+      const defaultSource = getDefaultSource(mataPelajaran, fase, kurikulum);
+      if (defaultSource !== cpSource) {
+        setCpSource(defaultSource);
         return;
       }
     }
 
-    setActiveDataSource(source === 'cp032' ? 'SK 032/2024' : source === 'kbc_madrasah' ? 'Kemenag 2025' : '');
+    fetchCP(cpSource);
+  }, [open, mataPelajaran, fase, kurikulum, cpSource]);
+
+  const fetchCP = async (source: 'github' | 'cp032' | 'kbc_madrasah') => {
+    setLoading(true);
+    setError(null);
+    setAllElements([]);
+    setSelectedElements(new Set());
+    setKelas('');
+
+    const resolution = resolveMapelCP(mataPelajaran, fase);
+    setMatchedSlug(resolution ? resolution.slug : null);
+    setFallbackInfo(resolution?.fallbackInfo || null);
+
+    const applyMasterResult = (
+      masterResult: ReturnType<typeof queryMasterCPDatabase>
+    ): boolean => {
+      if (!masterResult || masterResult.elemen.length === 0) return false;
+      setAllElements(masterResult.elemen);
+      setKelas(masterResult.kelas);
+      if (masterResult.isFallback && masterResult.fallbackInfo) {
+        setFallbackInfo(masterResult.fallbackInfo);
+      }
+      setActiveDataSource('BSKAP No. 046/2025');
+      return true;
+    };
+
+    const applyRemoteData = (
+      rawData: any,
+      sourceLabel: string,
+      filterNama?: string
+    ): boolean => {
+      const extracted = extractElementsFromCPData(rawData, filterNama, fase);
+      if (!extracted || extracted.elements.length === 0) {
+        return false;
+      }
+      setKelas(extracted.kelas);
+      setAllElements(extracted.elements);
+      setActiveDataSource(sourceLabel);
+      return true;
+    };
+
+    // 1. Default BSKAP No. 046/H/KR/2025 flow:
+    //    - Local-only subjects (PAUD, SMK Kejuruan, Projek IPAS, Prakarya, Bahasa Jepang, SLB, Kesetaraan)
+    //      use local master DB directly.
+    //    - Mapped Kemdikbud & PAI 2026 subjects prioritize fetch-cp-data (CP-Kurmer-2025 / PAI_2026_URL),
+    //      falling back to local synced master DB when offline or unavailable.
+    if (source === 'github') {
+      if (!resolution || resolution.isMasterOnly) {
+        const masterResult = queryMasterCPDatabase(mataPelajaran, fase);
+        if (!applyMasterResult(masterResult)) {
+          setError(
+            resolution
+              ? `Tidak ada data CP untuk ${mataPelajaran} pada Fase ${fase}.`
+              : `Mata pelajaran "${mataPelajaran}" tidak ditemukan dalam database CP resmi. Coba gunakan nama lengkap, misalnya "Matematika", "Bahasa Indonesia", "IPA", dll.`
+          );
+        }
+        setLoading(false);
+        return;
+      }
+
+      const normFase = normalizeFaseCode(fase) || fase;
+      const cacheKey = `${resolution.slug}_${normFase}_${source}_${resolution.filterNama ?? ''}`;
+      if (cpSessionCache.has(cacheKey)) {
+        const cached = cpSessionCache.get(cacheKey);
+        if (applyRemoteData(cached, 'BSKAP No. 046/2025', resolution.filterNama)) {
+          setLoading(false);
+          return;
+        }
+      }
+
+      try {
+        const { data, error: fnError } = await supabase.functions.invoke('fetch-cp-data', {
+          body: {
+            slug: resolution.slug,
+            fase,
+            source: 'github',
+            filterNama: resolution.filterNama,
+          },
+        });
+
+        if (
+          !fnError &&
+          !data?.notFound &&
+          !data?.error &&
+          applyRemoteData(data?.data, 'BSKAP No. 046/2025', resolution.filterNama)
+        ) {
+          cpSessionCache.set(cacheKey, data.data);
+          setLoading(false);
+          return;
+        }
+
+        const fallbackMaster = queryMasterCPDatabase(mataPelajaran, fase);
+        if (applyMasterResult(fallbackMaster)) {
+          setLoading(false);
+          return;
+        }
+
+        setError(
+          data?.error ||
+            `Tidak ada data CP untuk ${mataPelajaran} pada Fase ${fase}.`
+        );
+      } catch (err) {
+        console.error('Error fetching CP:', err);
+        const fallbackMaster = queryMasterCPDatabase(mataPelajaran, fase);
+        if (!applyMasterResult(fallbackMaster)) {
+          setError('Gagal mengambil data CP. Periksa koneksi internet Anda.');
+        }
+      } finally {
+        setLoading(false);
+      }
+      return;
+    }
+
+    // 2. Explicit SK 032/2024 or KBC Madrasah source
+    const sourceLabel = source === 'cp032' ? 'SK 032/2024' : 'Kemenag 2025';
+    setActiveDataSource(sourceLabel);
 
     if (!resolution) {
-      setError(`Mata pelajaran "${mataPelajaran}" tidak ditemukan dalam database CP resmi. Coba gunakan nama lengkap, misalnya "Matematika", "Bahasa Indonesia", "IPA", dll.`);
+      setError(
+        `Mata pelajaran "${mataPelajaran}" tidak ditemukan dalam database CP resmi. Coba gunakan nama lengkap, misalnya "Matematika", "Bahasa Indonesia", "IPA", dll.`
+      );
       setLoading(false);
       return;
     }
 
-    const slug = resolution.slug;
-
-    // Check session cache
-    const cacheKey = `${slug}_${fase}_${source}_${resolution.filterNama ?? ''}`;
+    const normFase = normalizeFaseCode(fase) || fase;
+    const cacheKey = `${resolution.slug}_${normFase}_${source}_${resolution.filterNama ?? ''}`;
     if (cpSessionCache.has(cacheKey)) {
       const cached = cpSessionCache.get(cacheKey);
-      processData(cached);
-      setLoading(false);
-      return;
+      if (applyRemoteData(cached, sourceLabel, resolution.filterNama)) {
+        setLoading(false);
+        return;
+      }
     }
 
     try {
       const { data, error: fnError } = await supabase.functions.invoke('fetch-cp-data', {
-        body: { slug, fase, source, filterNama: resolution.filterNama },
+        body: {
+          slug: resolution.slug,
+          fase,
+          source,
+          filterNama: resolution.filterNama,
+        },
       });
 
       if (fnError) throw fnError;
 
-      if (data?.notFound) {
+      if (data?.notFound || data?.error) {
+        if (source === 'kbc_madrasah' && !resolution.isMadrasah && resolution.isMasterOnly) {
+          const masterResult = queryMasterCPDatabase(mataPelajaran, fase);
+          if (applyMasterResult(masterResult)) {
+            setLoading(false);
+            return;
+          }
+        }
         setError(data.error);
         setLoading(false);
         return;
       }
 
-      if (data?.error) {
-        setError(data.error);
-        setLoading(false);
-        return;
+      if (applyRemoteData(data?.data, sourceLabel, resolution.filterNama)) {
+        cpSessionCache.set(cacheKey, data.data);
+      } else {
+        setError(`Tidak ada data CP untuk ${mataPelajaran} pada Fase ${fase}.`);
       }
-
-      // Cache it
-      cpSessionCache.set(cacheKey, data.data);
-      processData(data.data);
     } catch (err) {
       console.error('Error fetching CP:', err);
+      if (source === 'kbc_madrasah' && !resolution.isMadrasah && resolution.isMasterOnly) {
+        const masterResult = queryMasterCPDatabase(mataPelajaran, fase);
+        if (applyMasterResult(masterResult)) {
+          setLoading(false);
+          return;
+        }
+      }
       setError(
         source === 'cp032'
           ? 'Gagal mengambil data CP SK 032/2024. Sumber data sedang tidak tersedia, coba lagi nanti.'
@@ -173,42 +344,6 @@ export const CPSelectorModal = ({
       );
     } finally {
       setLoading(false);
-    }
-  };
-
-  const processData = (rawData: any) => {
-    if (!rawData?.mata_pelajaran) {
-      setError('Format data CP tidak valid');
-      return;
-    }
-
-    const mpList: MapelData[] = rawData.mata_pelajaran;
-    setMapelList(mpList);
-
-    // Filter by specific religion/subject if filterNama is set
-    const filteredList = filterNama
-      ? mpList.filter(mp => mp.nama.toLowerCase().includes(filterNama.toLowerCase()))
-      : mpList;
-
-    // Extract elements from matching mapel + fase
-    const elements: CPElemen[] = [];
-    for (const mp of filteredList) {
-      const cpForFase = mp.capaian_per_fase;
-      if (cpForFase && cpForFase.length > 0) {
-        const cp = cpForFase[0];
-        setKelas(cp.kelas || '');
-        if (cp.elemen) {
-          for (const [nama, teks] of Object.entries(cp.elemen)) {
-            elements.push({ nama, teks: teks as string });
-          }
-        }
-      }
-    }
-
-    setAllElements(elements);
-
-    if (elements.length === 0) {
-      setError(`Tidak ada data CP untuk ${mataPelajaran} pada Fase ${fase}.`);
     }
   };
 
@@ -282,7 +417,7 @@ export const CPSelectorModal = ({
             >
               CP SK 032/2024
             </Button>
-            {kurikulum === 'kbc' && (
+            {(kurikulum === 'kbc' || kurikulum === 'kbc_madrasah') && (
               <Button
                 variant={cpSource === 'kbc_madrasah' ? 'default' : 'outline'}
                 size="sm"
