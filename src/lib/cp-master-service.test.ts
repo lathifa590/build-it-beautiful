@@ -1,4 +1,7 @@
 import { describe, it, expect } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import masterJson from '@/data/cp_database_master_2025.json';
 import { queryMasterCPDatabase, formatMasterCPDetailed } from './cp-master-service';
 
 describe('cp-master-service (BSKAP No. 046/H/KR/2025 SSOT)', () => {
@@ -35,7 +38,16 @@ describe('cp-master-service (BSKAP No. 046/H/KR/2025 SSOT)', () => {
 
     const resE = queryMasterCPDatabase('Matematika', 'E');
     expect(resE).not.toBeNull();
-    expect(resE?.elemen.length).toBe(4);
+    expect(resE?.elemen.map((e) => e.nama)).toEqual([
+      'Bilangan',
+      'Aljabar dan Fungsi',
+      'Analisis Data dan Peluang',
+    ]);
+
+    const resLanjut = queryMasterCPDatabase('Matematika Tingkat Lanjut', 'F');
+    expect(resLanjut).not.toBeNull();
+    expect(resLanjut?.mataPelajaran).toBe('Matematika Tingkat Lanjut');
+    expect(resLanjut?.elemen.length).toBeGreaterThan(0);
   });
 
   it('should query PAUD on Fase Fondasi', () => {
@@ -120,5 +132,137 @@ describe('cp-master-service (BSKAP No. 046/H/KR/2025 SSOT)', () => {
       expect(formatted).toContain('Fase/Kelas: Fase F');
       expect(formatted).toContain('Pemahaman Fisika:');
     }
+  });
+
+  it('should match BSKAP 046/2025 Informatika across Fase D, E, and F (no typo Memanfaaatkan)', () => {
+    for (const fase of ['D', 'E']) {
+      const res = queryMasterCPDatabase('Informatika', fase);
+      expect(res).not.toBeNull();
+      expect(res?.elemen.map((e) => e.nama)).toEqual([
+        'Berpikir Komputasional',
+        'Literasi Digital',
+      ]);
+      expect(res?.elemen.map((e) => e.teks).join(' ')).not.toContain('Memanfaaatkan');
+    }
+
+    const resF = queryMasterCPDatabase('Informatika', 'F');
+    expect(resF).not.toBeNull();
+    expect(resF?.elemen.map((e) => e.nama)).toEqual([
+      'Berpikir Komputasional',
+      'Literasi Digital',
+      'Analisis Data',
+      'Algoritma dan Pemrograman',
+    ]);
+  });
+
+  it('should have updated 2025 PJOK elements across Fase A through F', () => {
+    for (const fase of ['A', 'B', 'C', 'D', 'E', 'F']) {
+      const res = queryMasterCPDatabase('PJOK', fase);
+      expect(res).not.toBeNull();
+      expect(res?.elemen.map((e) => e.nama)).toEqual([
+        'Terampil Bergerak',
+        'Belajar Melalui Gerak',
+        'Bergaya Hidup Aktif',
+        'Memilih Hidup yang Menyehatkan',
+      ]);
+    }
+  });
+
+  it('should have 4 Pendidikan Pancasila elements across Fase A through F', () => {
+    for (const fase of ['A', 'B', 'C', 'D', 'E', 'F']) {
+      const res = queryMasterCPDatabase('Pendidikan Pancasila', fase);
+      expect(res).not.toBeNull();
+      expect(res?.elemen.length).toBe(4);
+    }
+  });
+
+  it('should have Koding & KA for Fase C-F and distinct SMK variant', () => {
+    for (const fase of ['C', 'D']) {
+      const res = queryMasterCPDatabase('Koding dan Kecerdasan Artifisial', fase);
+      expect(res).not.toBeNull();
+      expect(res?.elemen.length).toBe(4);
+    }
+    for (const fase of ['E', 'F']) {
+      const res = queryMasterCPDatabase('Koding dan Kecerdasan Artifisial', fase);
+      expect(res).not.toBeNull();
+      expect(res?.elemen.length).toBe(6);
+
+      const resSmk = queryMasterCPDatabase('Koding dan Kecerdasan Artifisial (SMK/MAK)', fase);
+      expect(resSmk).not.toBeNull();
+      expect(resSmk?.mataPelajaran).toContain('SMK/MAK');
+      expect(resSmk?.elemen.length).toBe(6);
+    }
+  });
+
+  it('should support PAI 2026 A-F without Usia Mental and never cross-match other religions', () => {
+    for (const fase of ['A', 'B', 'C', 'D', 'E', 'F']) {
+      const pai = queryMasterCPDatabase('Pendidikan Agama Islam', fase);
+      expect(pai).not.toBeNull();
+      expect(pai?.mataPelajaran).toBe('Pendidikan Agama Islam dan Budi Pekerti');
+      expect(pai?.kelas).not.toContain('Usia Mental');
+      expect(pai?.elemen.length).toBe(5);
+    }
+
+    const kristen = queryMasterCPDatabase('Agama Kristen', 'D');
+    expect(kristen?.mataPelajaran).toContain('Kristen');
+
+    const hindu = queryMasterCPDatabase('Agama Hindu', 'E');
+    expect(hindu?.mataPelajaran).toContain('Hindu');
+
+    const konghucu = queryMasterCPDatabase('Agama Konghucu', 'F');
+    expect(konghucu?.mataPelajaran).toContain('Khonghucu');
+  });
+
+  it('should have complete phases for Seni (A-F) and Bahasa Inggris (B-F)', () => {
+    for (const seni of ['Seni Musik', 'Seni Rupa', 'Seni Tari', 'Seni Teater']) {
+      for (const fase of ['A', 'B', 'C', 'D', 'E', 'F']) {
+        const res = queryMasterCPDatabase(seni, fase);
+        expect(res).not.toBeNull();
+        expect(res?.elemen.length).toBe(5);
+      }
+    }
+
+    for (const fase of ['B', 'C', 'D', 'E', 'F']) {
+      const eng = queryMasterCPDatabase('Bahasa Inggris', fase);
+      expect(eng).not.toBeNull();
+      expect(eng?.elemen.length).toBe(3);
+    }
+  });
+
+  it('should handle Sejarah SMA vs SMK and Projek IPAS cleanly', () => {
+    const sejarahE = queryMasterCPDatabase('Sejarah', 'E');
+    expect(sejarahE).not.toBeNull();
+    expect(sejarahE?.isFallback).toBe(true);
+    expect(sejarahE?.mataPelajaran).toContain('Ilmu Pengetahuan Sosial');
+
+    const sejarahF = queryMasterCPDatabase('Sejarah', 'F');
+    expect(sejarahF).not.toBeNull();
+    expect(sejarahF?.isFallback).toBe(false);
+    expect(sejarahF?.mataPelajaran).toContain('Sejarah');
+
+    const sejarahSmkE = queryMasterCPDatabase('Sejarah (SMK/MAK)', 'E');
+    expect(sejarahSmkE).not.toBeNull();
+    expect(sejarahSmkE?.isFallback).toBe(false);
+    expect(sejarahSmkE?.mataPelajaran).toBe('Sejarah (SMK/MAK)');
+    expect(sejarahSmkE?.elemen.length).toBe(2);
+
+    const projekIpas = queryMasterCPDatabase('Projek IPAS', 'E');
+    expect(projekIpas).not.toBeNull();
+    expect(projekIpas?.mataPelajaran).toBe('Projek IPAS (Ilmu Pengetahuan Alam dan Sosial)');
+
+    const kesetaraanD = queryMasterCPDatabase('Pemberdayaan dan Keterampilan Kesetaraan', 'D');
+    expect(kesetaraanD).not.toBeNull();
+    expect(kesetaraanD?.faseCode).toBe('D');
+    expect(kesetaraanD?.faseCode).not.toContain('A s.d. C');
+
+    const kesetaraanB = queryMasterCPDatabase('Pemberdayaan dan Keterampilan Kesetaraan', 'B');
+    expect(kesetaraanB).not.toBeNull();
+    expect(kesetaraanB?.faseCode).toBe('A s.d. C');
+  });
+
+  it('should keep public/data/cp_database_master_2025.json identical to src/data/cp_database_master_2025.json', () => {
+    const publicPath = resolve(process.cwd(), 'public/data/cp_database_master_2025.json');
+    const publicJson = JSON.parse(readFileSync(publicPath, 'utf-8'));
+    expect(publicJson).toEqual(masterJson);
   });
 });

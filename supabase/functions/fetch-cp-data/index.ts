@@ -59,9 +59,15 @@ serve(async (req) => {
       ekonomi: { E: "ilmu-pengetahuan-sosial-ips" },
       sosiologi: { E: "ilmu-pengetahuan-sosial-ips" },
       geografi: { E: "ilmu-pengetahuan-sosial-ips" },
+      sejarah: { E: "ilmu-pengetahuan-sosial-ips" },
     };
-    const normFase = typeof fase === "string" ? fase.trim().toUpperCase().replace(/^FASE\s*/i, "") : "";
-    const effectiveSlug = (normFase && phaseFallbackMap[slug]?.[normFase]) || slug;
+    const normFase = normalizeFaseCode(fase);
+    const isSmkSejarah =
+      slug === "sejarah" &&
+      typeof filterNama === "string" &&
+      filterNama.toLowerCase().includes("smk");
+    const effectiveSlug =
+      (!isSmkSejarah && normFase && phaseFallbackMap[slug]?.[normFase]) || slug;
 
     // Default: GitHub flow (unchanged)
     const cacheKey = `github_${effectiveSlug}`;
@@ -89,18 +95,7 @@ serve(async (req) => {
     }
 
     const rawText = await response.text();
-    
-    let parsed;
-    try {
-      let cleanText = rawText.trim();
-      if (cleanText.startsWith("```json")) cleanText = cleanText.slice(7);
-      else if (cleanText.startsWith("```")) cleanText = cleanText.slice(3);
-      if (cleanText.endsWith("```")) cleanText = cleanText.slice(0, -3);
-      cleanText = cleanText.trim();
-      parsed = JSON.parse(cleanText);
-    } catch {
-      parsed = JSON.parse(rawText);
-    }
+    const parsed = parseLooseJson(rawText);
 
     cpCache.set(cacheKey, { data: parsed, timestamp: Date.now() });
 
@@ -179,7 +174,14 @@ async function handlePAI2026(fase?: string) {
   }
 
   const entries: any[] = Array.isArray(raw) ? raw : [];
-  const filtered = entries.filter((e) => !fase || e.fase === fase);
+  const normFase = normalizeFaseCode(fase);
+  const phaseFiltered = entries.filter(
+    (e) => !normFase || normalizeFaseCode(e?.fase) === normFase
+  );
+  const regularEntries = phaseFiltered.filter(
+    (e) => !String(e?.kelas_umum || "").toLowerCase().includes("usia mental")
+  );
+  const filtered = regularEntries.length > 0 ? regularEntries : phaseFiltered;
 
   const capaian_per_fase = filtered.map((e) => {
     const elemenObj: Record<string, string> = {};
@@ -314,9 +316,10 @@ async function handleKbcMadrasah(slug: string, fase?: string, filterNama?: strin
 
 function transformMadrasahToStandard(mapel: any, fase?: string) {
   const faseData = mapel.capaian_per_fase || [];
-  
+  const normFase = normalizeFaseCode(fase);
+
   const capaianPerFase = faseData
-    .filter((f: any) => !fase || f.fase === fase)
+    .filter((f: any) => !normFase || normalizeFaseCode(f?.fase) === normFase)
     .map((f: any) => {
       return {
         fase: f.fase,
@@ -354,12 +357,19 @@ function extractMapelName(slug: string): string {
   return aliases[name] || name;
 }
 
+function normalizeFaseCode(fase?: unknown): string {
+  return typeof fase === "string"
+    ? fase.trim().toUpperCase().replace(/^FASE\s*/i, "")
+    : "";
+}
+
 // Transform CP032 format → standard GitHub format
 function transformCP032ToStandard(mapel: any, fase?: string) {
   const faseData = mapel.fase || [];
-  
+  const normFase = normalizeFaseCode(fase);
+
   const capaianPerFase = faseData
-    .filter((f: any) => !fase || f.fase === fase)
+    .filter((f: any) => !normFase || normalizeFaseCode(f?.fase) === normFase)
     .map((f: any) => {
       // Transform elemen array → Record<string, string>
       const elemenObj: Record<string, string> = {};
@@ -387,13 +397,15 @@ function transformCP032ToStandard(mapel: any, fase?: string) {
 
 function filterByFase(data: any, fase?: string) {
   if (!data?.mata_pelajaran) return data;
-  if (!fase) return data;
+  const normFase = normalizeFaseCode(fase);
+  if (!normFase) return data;
 
   const filtered = {
     ...data,
     mata_pelajaran: data.mata_pelajaran.map((mp: any) => ({
       ...mp,
-      capaian_per_fase: mp.capaian_per_fase?.filter((cp: any) => cp.fase === fase) || [],
+      capaian_per_fase:
+        mp.capaian_per_fase?.filter((cp: any) => normalizeFaseCode(cp?.fase) === normFase) || [],
     })),
   };
 

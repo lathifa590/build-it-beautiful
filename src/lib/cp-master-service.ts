@@ -1,5 +1,5 @@
 import masterDatabase from '@/data/cp_database_master_2025.json';
-import { resolveMapelCP, findMapelSlug, FallbackInfo } from './cp-mapel-mapping';
+import { resolveMapelCP, findMapelSlug, normalizeMapelLabel, FallbackInfo } from './cp-mapel-mapping';
 
 export interface MasterCPFase {
   fase: string;
@@ -33,17 +33,33 @@ const GENERIC_WORDS = new Set([
   'tingkat', 'lanjut', 'dasar', 'dasar-dasar', 'keahlian', 'konsentrasi', 'program'
 ]);
 
-function matchesMapelName(dbName: string, queryName: string, targetSlug?: string): boolean {
-  const normDb = dbName.toLowerCase().trim();
-  const normQuery = queryName.toLowerCase().trim();
+function matchesMapelName(
+  dbName: string,
+  queryName: string,
+  targetSlug?: string,
+  targetFilterNama?: string
+): boolean {
+  const normDb = normalizeMapelLabel(dbName);
+  const normQuery = normalizeMapelLabel(queryName);
 
   if (normDb === normQuery) return true;
 
   // Canonical slug matching via findMapelSlug (SSOT)
-  const dbSlug = findMapelSlug(dbName)?.slug;
-  const querySlug = targetSlug || findMapelSlug(queryName)?.slug;
+  const dbMatch = findMapelSlug(dbName);
+  const queryMatch = findMapelSlug(queryName);
+  const dbSlug = dbMatch?.slug;
+  const querySlug = targetSlug || queryMatch?.slug;
+  const effectiveFilterNama = targetFilterNama ?? queryMatch?.filterNama;
+
   if (dbSlug && querySlug) {
-    if (dbSlug === querySlug) return true;
+    if (dbSlug === querySlug) {
+      // Multi-mapel slugs (Pendidikan Agama, Matematika, Koding, Sejarah)
+      // must match their specific filterNama so religions or SMA vs SMK don't collide.
+      if (effectiveFilterNama && dbMatch?.filterNama) {
+        return normalizeMapelLabel(dbMatch.filterNama) === normalizeMapelLabel(effectiveFilterNama);
+      }
+      return true;
+    }
     // Special case: "Ilmu Pengetahuan Alam (IPA) / IPAS" in master DB serves both IPA and IPAS
     if (
       (dbSlug === 'ilmu-pengetahuan-alam-dan-sosial-ipas' || dbSlug === 'ilmu-pengetahuan-alam-ipa') &&
@@ -111,6 +127,7 @@ export function queryMasterCPDatabase(
   const resolved = resolveMapelCP(mataPelajaran, fase);
   const targetMapelNama = (resolved?.fallbackInfo?.parentMapelName || mataPelajaran).trim().toLowerCase();
   const targetSlug = resolved?.slug;
+  const targetFilterNama = resolved?.filterNama;
   const isFallback = Boolean(resolved?.isFallback);
   const fallbackInfo = resolved?.fallbackInfo;
 
@@ -133,25 +150,34 @@ export function queryMasterCPDatabase(
   for (const cat of targetCategories) {
     for (const mp of cat.mata_pelajaran) {
       const isMatch =
-        matchesMapelName(mp.nama, rawInput, targetSlug) ||
-        matchesMapelName(mp.nama, targetMapelNama, targetSlug);
+        (!isFallback && matchesMapelName(mp.nama, rawInput, targetSlug, targetFilterNama)) ||
+        matchesMapelName(mp.nama, targetMapelNama, targetSlug, targetFilterNama);
 
       if (!isMatch) continue;
 
       // 3. Filter Fase & Kelas
       const foundFase = mp.capaian_per_fase.find((f) => {
         const fName = f.fase.toUpperCase();
-        const fLetters = fName.split(/[^A-Z]/).filter(Boolean);
+        // Strip "s.d." and "dan" before extracting tokens so "S.D." never matches Fase "D"
+        const cleanedForLetters = fName
+          .replace(/\bS\.?\s*D\.?(?=$|[^A-Z])/g, ' ')
+          .replace(/\bDAN\b/g, ' ');
+        const fLetters = cleanedForLetters.split(/[^A-Z]/).filter(Boolean);
 
         // Direct code match (e.g. "E" in ["E", "IPA"] or "Fondasi")
         if (fLetters.includes(normalizedFase)) return true;
         if (normalizedFase === 'FONDASI' && fName.includes('FONDASI')) return true;
 
-        // Range matches like "A s.d. C" or "A s.d. F"
-        if (fName.includes('S.D.')) {
-          const rangeParts = fName.split('S.D.').map((s) => s.trim());
+        // Range matches like "A s.d. C", "A s.d. F", or "Fondasi s.d. F"
+        if (/\bS\.?\s*D\.?(?=$|[^A-Z])/i.test(fName)) {
+          const rangeParts = fName
+            .split(/\bS\.?\s*D\.?/i)
+            .map((s) => s.replace(/^[\s.]+|[\s.]+$/g, '').trim());
           if (rangeParts.length === 2) {
-            const startChar = rangeParts[0].slice(-1);
+            if (normalizedFase === 'FONDASI' && rangeParts[0].includes('FONDASI')) {
+              return true;
+            }
+            const startChar = rangeParts[0].includes('FONDASI') ? 'A' : rangeParts[0].slice(-1);
             const endChar = rangeParts[1].slice(0, 1);
             if (
               normalizedFase.length === 1 &&

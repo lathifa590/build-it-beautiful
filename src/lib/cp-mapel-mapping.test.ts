@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { resolveMapelCP, findMapelSlug } from './cp-mapel-mapping';
+import { resolveMapelCP, findMapelSlug, filterMapelByNama } from './cp-mapel-mapping';
 
 describe('cp-mapel-mapping phase fallback', () => {
   it('should find mapel slug for standard subjects', () => {
@@ -59,6 +59,44 @@ describe('cp-mapel-mapping phase fallback', () => {
   it('should keep Matematika in Fase E as matematika without fallback', () => {
     const mtk = resolveMapelCP('Matematika', 'E');
     expect(mtk?.slug).toBe('matematika');
+    expect(mtk?.filterNama).toBe('Matematika');
     expect(mtk?.isFallback).toBe(false);
+  });
+
+  it('should disambiguate Matematika, Agama Konghucu, Koding SMK, Sejarah SMA vs SMK, and local-only subjects', () => {
+    expect(resolveMapelCP('Matematika Tingkat Lanjut', 'F')?.filterNama).toBe(
+      'Matematika Tingkat Lanjut'
+    );
+    expect(resolveMapelCP('Agama Konghucu', 'D')?.filterNama).toBe(
+      'Pendidikan Agama Khonghucu'
+    );
+    expect(resolveMapelCP('Koding dan Kecerdasan Artifisial (SMK/MAK)', 'E')?.filterNama).toBe(
+      'Koding dan Kecerdasan Artifisial (SMK/MAK)'
+    );
+
+    const sejSmaE = resolveMapelCP('Sejarah', 'E');
+    expect(sejSmaE?.isFallback).toBe(true);
+    expect(sejSmaE?.slug).toBe('ilmu-pengetahuan-sosial-ips');
+    expect(sejSmaE?.filterNama).toBeUndefined();
+
+    const sejSmkE = resolveMapelCP('Sejarah (SMK/MAK)', 'E');
+    expect(sejSmkE?.isFallback).toBe(false);
+    expect(sejSmkE?.slug).toBe('sejarah');
+    expect(sejSmkE?.filterNama).toBe('Sejarah (SMK/MAK)');
+
+    expect(resolveMapelCP('PAUD', 'Fondasi')?.isMasterOnly).toBe(true);
+    expect(resolveMapelCP('Projek IPAS', 'E')?.isMasterOnly).toBe(true);
+    expect(findMapelSlug('Prakarya dan Kewirausahaan')).toBeNull();
+  });
+
+  it('should prefer exact normalized match in filterMapelByNama without picking Matematika Tingkat Lanjut', () => {
+    const list = [{ nama: 'Matematika' }, { nama: 'Matematika Tingkat Lanjut' }];
+    expect(filterMapelByNama(list, 'Matematika')).toEqual([{ nama: 'Matematika' }]);
+    expect(filterMapelByNama(list, 'Matematika Tingkat Lanjut')).toEqual([
+      { nama: 'Matematika Tingkat Lanjut' },
+    ]);
+    expect(
+      filterMapelByNama([{ nama: 'Pendidikan Agama Khonghucu dan Budi Pekerti' }], 'Konghucu')
+    ).toHaveLength(1);
   });
 });
