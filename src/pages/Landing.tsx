@@ -1,6 +1,7 @@
 import { Navbar } from '@/components/landing/Navbar';
 import { HeroSection } from '@/components/landing/HeroSection';
 import { StatsSection } from '@/components/landing/StatsSection';
+import { ComparisonSection } from '@/components/landing/ComparisonSection';
 import { FeaturesSection } from '@/components/landing/FeaturesSection';
 import { WhyUsSection } from '@/components/landing/WhyUsSection';
 import { TestimonialsSection } from '@/components/landing/TestimonialsSection';
@@ -105,6 +106,7 @@ const Landing = () => {
         <HeroSection />
         <CurriculumSection />
         <StatsSection />
+        <ComparisonSection />
         <FeaturesSection />
         <WhyUsSection />
         <TestimonialsSection />
