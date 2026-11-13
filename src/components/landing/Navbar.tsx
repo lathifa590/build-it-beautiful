@@ -41,6 +41,12 @@ export const Navbar = () => {
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-6">
             <button
+              onClick={() => scrollToSection('perbandingan')}
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Perbandingan
+            </button>
+            <button
               onClick={() => scrollToSection('fitur')}
               className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
             >
@@ -106,6 +112,12 @@ export const Navbar = () => {
         {/* Mobile Menu */}
         {isMenuOpen && (
           <div className="md:hidden border-t-2 border-foreground/20 py-4 space-y-3">
+            <button
+              onClick={() => scrollToSection('perbandingan')}
+              className="block w-full text-left px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
+            >
+              Perbandingan
+            </button>
             <button
               onClick={() => scrollToSection('fitur')}
               className="block w-full text-left px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
