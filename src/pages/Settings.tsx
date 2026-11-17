@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { 
   ArrowLeft, Key, Eye, EyeOff, CheckCircle, XCircle, Loader2,
@@ -30,6 +31,7 @@ const Settings = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   
   const [apiKeys, setApiKeys] = useState<UserApiKey[]>([]);
   const [preferredProvider, setPreferredProvider] = useState<Provider | ''>('');
@@ -98,6 +100,8 @@ const Settings = () => {
       setApiKeys(prev => [...prev, data as UserApiKey]);
       setNewKeyValue('');
       setNewKeyLabel('');
+      queryClient.invalidateQueries({ queryKey: ['user-gemini-keys'] });
+      queryClient.invalidateQueries({ queryKey: ['onboarding-quota'] });
       toast({ title: 'Berhasil', description: 'API Key ditambahkan' });
     } catch (e) {
       console.error(e);
@@ -111,6 +115,8 @@ const Settings = () => {
     const { error } = await supabase.from('user_api_keys').delete().eq('id', id);
     if (error) return toast({ title: 'Error', description: 'Gagal hapus', variant: 'destructive' });
     setApiKeys(prev => prev.filter(k => k.id !== id));
+    queryClient.invalidateQueries({ queryKey: ['user-gemini-keys'] });
+    queryClient.invalidateQueries({ queryKey: ['onboarding-quota'] });
     toast({ title: 'Berhasil', description: 'API Key dihapus' });
   };
 
@@ -118,6 +124,9 @@ const Settings = () => {
     const { error } = await supabase.from('user_api_keys').update({ is_active: !currentActive }).eq('id', id);
     if (error) return toast({ title: 'Error', description: 'Gagal mengubah status', variant: 'destructive' });
     setApiKeys(prev => prev.map(k => k.id === id ? { ...k, is_active: !currentActive } : k));
+    queryClient.invalidateQueries({ queryKey: ['user-gemini-keys'] });
+    queryClient.invalidateQueries({ queryKey: ['onboarding-quota'] });
+    toast({ title: 'Berhasil', description: 'API Key diubah' });
   };
 
   const handleTestApiKey = async () => {

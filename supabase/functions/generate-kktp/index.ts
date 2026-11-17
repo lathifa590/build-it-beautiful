@@ -31,6 +31,8 @@ serve(async (req: any) => {
     // Auth & Key Resolution
     let userId: string | null = null;
     let isTrial = false;
+    let isOnboardingQuota = false;
+    const PAID_ONBOARDING_LIMIT = 20;
     let userKeyPool: Array<{ key: string; provider: "gemini" | "grok" | "openai" }> = [];
     const demoKeyPool: Array<{ key: string; provider: "gemini" }> = [];
 
@@ -93,19 +95,16 @@ serve(async (req: any) => {
 
         if (isTrial) {
           const contentLimit = 50;
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
           const { count } = await supabaseAdmin
             .from("generation_logs")
             .select("*", { count: "exact", head: true })
             .eq("user_id", user.id)
-            .neq("content_type", "image")
-            .gte("created_at", today.toISOString());
+            .neq("content_type", "image");
 
           if ((count ?? 0) >= contentLimit) {
             return new Response(
               JSON.stringify({
-                error: `Batas harian tercapai (${contentLimit}/hari). Coba lagi besok.`,
+                error: `Batas kuota trial tercapai (${contentLimit} kali generate). Silakan upgrade ke paket berbayar untuk generate tanpa batas.`,
                 errorCode: "rate_limit_exceeded",
                 remaining: 0,
                 limit: contentLimit,
@@ -144,6 +143,42 @@ serve(async (req: any) => {
                   ...normalized.filter((k) => k.provider !== preferredProvider),
                 ]
               : normalized;
+          }
+        }
+
+        // Cek kuota untuk user berbayar yang belum memasang API Key pribadi (kuota pengenalan 20 kali generate)
+        if (!isTrial && userKeyPool.length === 0) {
+          const isSuperAdmin = user?.email?.toLowerCase() === 'jagofeed@gmail.com';
+          const { data: roleData } = await supabaseAdmin
+            .from('user_roles')
+            .select('role')
+            .eq('user_id', user.id)
+            .eq('role', 'admin')
+            .maybeSingle();
+          const isAdmin = !!roleData || isSuperAdmin;
+
+          if (!isAdmin) {
+            isOnboardingQuota = true;
+            const { count: paidLogCount } = await supabaseAdmin
+              .from('generation_logs')
+              .select('*', { count: 'exact', head: true })
+              .eq('user_id', user.id)
+              .neq('content_type', 'image');
+
+            if ((paidLogCount ?? 0) >= PAID_ONBOARDING_LIMIT) {
+              return new Response(
+                JSON.stringify({
+                  error: `Batas kuota awal sistem telah tercapai (${PAID_ONBOARDING_LIMIT} kali generate). Silakan pasang Gemini API Key gratis Anda di menu Pengaturan (ikon gear) untuk melanjutkan generate tanpa batas (unlimited).`,
+                  errorCode: "need_api_key_quota_exceeded",
+                  needApiKey: true,
+                  remaining: 0,
+                  limit: PAID_ONBOARDING_LIMIT,
+                  isTrial: false,
+                  isOnboardingQuota: true,
+                }),
+                { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+              );
+            }
           }
         }
 
@@ -404,6 +439,9 @@ Kembalikan HANYA JSON valid (tanpa markdown, tanpa teks lain) dengan format:
 
     console.log(`[generate-kktp] Success using ${usedProvider}/${usedModel}`);
 
+    let remaining: number | undefined;
+    let limit: number | undefined;
+
     if (userId) {
       await supabaseAdmin.from("generation_logs").insert({
         user_id: userId,
@@ -417,9 +455,25 @@ Kembalikan HANYA JSON valid (tanpa markdown, tanpa teks lain) dengan format:
           model: usedModel,
         },
       });
+
+      if (isTrial || isOnboardingQuota) {
+        const { count: newTotalCount } = await supabaseAdmin
+          .from("generation_logs")
+          .select("*", { count: "exact", head: true })
+          .eq("user_id", userId)
+          .neq("content_type", "image");
+
+        if (isTrial) {
+          limit = 50;
+          remaining = Math.max(0, 50 - (newTotalCount ?? 0));
+        } else if (isOnboardingQuota) {
+          limit = PAID_ONBOARDING_LIMIT;
+          remaining = Math.max(0, PAID_ONBOARDING_LIMIT - (newTotalCount ?? 0));
+        }
+      }
     }
 
-    return new Response(JSON.stringify({ data: resultData }), {
+    return new Response(JSON.stringify({ data: resultData, remaining, limit, isTrial, isOnboardingQuota }), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

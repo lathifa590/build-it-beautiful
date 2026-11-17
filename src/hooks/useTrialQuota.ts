@@ -5,11 +5,13 @@ import { useSubscriptionStatus } from './useSubscriptionStatus';
 
 export const TRIAL_CONTENT_LIMIT = 50;
 export const TRIAL_DAILY_CONTENT_LIMIT = TRIAL_CONTENT_LIMIT; // Alias untuk kompatibilitas ke belakang
+export const PAID_ONBOARDING_LIMIT = 20;
 
 export interface TrialQuotaInfo {
   remaining: number;
   limit: number;
   isTrial: boolean;
+  isOnboardingQuota?: boolean;
 }
 
 export const useTrialQuota = () => {
@@ -62,14 +64,18 @@ export const useTrialQuota = () => {
   const updateQuota = (info: Partial<TrialQuotaInfo>) => {
     if (!user?.id) return;
     queryClient.setQueryData<TrialQuotaInfo | null>(['trial-quota', user.id], (prev) => {
-      const effectiveLimit = info.limit ?? prev?.limit ?? TRIAL_CONTENT_LIMIT;
+      const effectiveLimit = info.limit ?? prev?.limit ?? (info.isOnboardingQuota ? PAID_ONBOARDING_LIMIT : TRIAL_CONTENT_LIMIT);
       const normalizedLimit = effectiveLimit === 100 ? 50 : effectiveLimit;
       const effectiveRemaining = info.remaining ?? prev?.remaining ?? normalizedLimit;
-      return {
+      const res: TrialQuotaInfo = {
         remaining: Math.min(effectiveRemaining, normalizedLimit),
         limit: normalizedLimit,
         isTrial: info.isTrial ?? prev?.isTrial ?? true,
       };
+      if (info.isOnboardingQuota || prev?.isOnboardingQuota) {
+        res.isOnboardingQuota = true;
+      }
+      return res;
     });
   };
 

@@ -150,6 +150,9 @@ serve(async (req) => {
     let userProvider: 'gemini' | 'grok' | 'openai' = 'gemini'; // routing target
     let userKeyPool: Array<{ key: string; provider: 'gemini' | 'grok' | 'openai' }> = [];
     let isUsingDemoKeys = false; // true saat menggunakan demo key pool (bukan user key pribadi)
+    let isOnboardingQuota = false; // true saat user berbayar belum pasang key & memakai kuota pengenalan (max 20)
+    let isTrial = false;
+    const PAID_ONBOARDING_LIMIT = 20;
     
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
@@ -215,7 +218,7 @@ serve(async (req) => {
           customerData = byEmail;
         }
 
-        const isTrial = customerData?.account_type === 'trial';
+        isTrial = customerData?.account_type === 'trial';
 
         // Block expired annual / pro_annual / lite subscriptions
         if (
@@ -298,6 +301,44 @@ serve(async (req) => {
           }
         }
 
+        // Cek kuota untuk user berbayar yang belum memasang API Key pribadi (kuota pengenalan 20 kali generate)
+        if (!isTrial && !userApiKey) {
+          const isSuperAdmin = user?.email?.toLowerCase() === 'jagofeed@gmail.com';
+          const { data: roleData } = await supabaseAdmin
+            .from('user_roles')
+            .select('role')
+            .eq('user_id', user.id)
+            .eq('role', 'admin')
+            .maybeSingle();
+          const isAdmin = !!roleData || isSuperAdmin;
+
+          if (!isAdmin) {
+            isOnboardingQuota = true;
+            const { count: paidLogCount } = await supabaseAdmin
+              .from('generation_logs')
+              .select('*', { count: 'exact', head: true })
+              .eq('user_id', user.id)
+              .neq('content_type', 'image');
+
+            totalCount = paidLogCount ?? 0;
+
+            if (totalCount >= PAID_ONBOARDING_LIMIT) {
+              return new Response(JSON.stringify({
+                error: `Batas kuota awal sistem telah tercapai (${PAID_ONBOARDING_LIMIT} kali generate). Silakan pasang Gemini API Key gratis Anda di menu Pengaturan (ikon gear) untuk melanjutkan generate tanpa batas (unlimited).`,
+                errorCode: 'need_api_key_quota_exceeded',
+                needApiKey: true,
+                remaining: 0,
+                limit: PAID_ONBOARDING_LIMIT,
+                isTrial: false,
+                isOnboardingQuota: true,
+              }), {
+                status: 200,
+                headers: { ...corsHeaders, "Content-Type": "application/json" },
+              });
+            }
+          }
+        }
+
         // Fallback ke demo API keys — gunakan SEMUA key sebagai pool agar lebih tahan banting
         if (!userApiKey) {
           const { data: demoKeys } = await supabaseAdmin
@@ -320,7 +361,7 @@ serve(async (req) => {
             userApiKey = rotatedKeys[0].api_key;
             useGeminiDirect = true;
             isUsingDemoKeys = true;
-            console.log(`Using demo key pool: ${demoKeys.length} keys, starting from index ${startIndex} (trial=${isTrial})`);
+            console.log(`Using demo key pool: ${demoKeys.length} keys, starting from index ${startIndex} (trial=${isTrial}, onboarding=${isOnboardingQuota})`);
           }
         }
       }
@@ -3408,18 +3449,20 @@ Jahit ke seksi/konten yang sudah ada — JANGAN buat seksi baru di luar struktur
 
           isTrial = customerData?.account_type === 'trial';
 
-          // Only compute remaining for trial users (kuota 50 kali untuk selamanya)
+          const { count: newTotalCount } = await supabaseAdmin
+            .from('generation_logs')
+            .select('*', { count: 'exact', head: true })
+            .eq('user_id', user.id)
+            .neq('content_type', 'image');
+
+          // Compute remaining for trial users (kuota 50 kali) or onboarding paid users (kuota 20 kali)
           if (isTrial) {
             const contentLimit = 50;
             limit = contentLimit;
-
-            const { count: newTotalCount } = await supabaseAdmin
-              .from('generation_logs')
-              .select('*', { count: 'exact', head: true })
-              .eq('user_id', user.id)
-              .neq('content_type', 'image');
-
             remaining = Math.max(0, contentLimit - (newTotalCount ?? 0));
+          } else if (isOnboardingQuota) {
+            limit = PAID_ONBOARDING_LIMIT;
+            remaining = Math.max(0, PAID_ONBOARDING_LIMIT - (newTotalCount ?? 0));
           }
         }
       }
@@ -3428,7 +3471,15 @@ Jahit ke seksi/konten yang sudah ada — JANGAN buat seksi baru di luar struktur
       console.error('Failed to log generation (non-critical):', logError);
     }
 
-    return new Response(JSON.stringify({ data: parsedContent, model: usedModel, remaining, limit, isTrial, ...(pertemuanMeta ? { meta: { type, ...pertemuanMeta } } : {}) }), {
+    return new Response(JSON.stringify({
+      data: parsedContent,
+      model: usedModel,
+      remaining,
+      limit,
+      isTrial,
+      isOnboardingQuota,
+      ...(pertemuanMeta ? { meta: { type, ...pertemuanMeta } } : {})
+    }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error) {

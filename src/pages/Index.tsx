@@ -72,6 +72,7 @@ import {
 import { useLetterhead } from '@/hooks/useLetterhead';
 import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
 import { useTrialQuota } from '@/hooks/useTrialQuota';
+import { useOnboardingQuota } from '@/hooks/useOnboardingQuota';
 import { preprocessElementForOmml, WORD_HTML_NAMESPACES } from '@/lib/math-omml';
 import { generateExportFilename } from '@/lib/export-filename';
 
@@ -186,8 +187,9 @@ const Index = () => {
 
   const [error, setError] = useState('');
   const { quotaInfo: initialTrialQuota, updateQuota: updateTrialQuotaHook } = useTrialQuota();
-  const [quotaInfo, setQuotaInfo] = useState<{ remaining: number; limit: number; isTrial: boolean } | null>(null);
-  const effectiveQuotaInfo = quotaInfo ?? initialTrialQuota;
+  const { isOnboarding, quotaInfo: onboardingQuota } = useOnboardingQuota();
+  const [quotaInfo, setQuotaInfo] = useState<{ remaining: number; limit: number; isTrial: boolean; isOnboardingQuota?: boolean } | null>(null);
+  const effectiveQuotaInfo = quotaInfo ?? initialTrialQuota ?? onboardingQuota;
   const [showTrialCTA, setShowTrialCTA] = useState(false);
   const [trialCTAReason, setTrialCTAReason] = useState<'quota' | 'busy'>('quota');
   const [showWorkspaceUpsell, setShowWorkspaceUpsell] = useState(false);
@@ -465,6 +467,7 @@ const Index = () => {
         remaining: Math.min(responseData.remaining as number, normalizedLimit),
         limit: normalizedLimit,
         isTrial: !!responseData.isTrial,
+        isOnboardingQuota: !!responseData.isOnboardingQuota,
       };
       setQuotaInfo(newQuota);
       updateTrialQuotaHook(newQuota);
@@ -474,6 +477,18 @@ const Index = () => {
           setShowTrialCTA(true);
         }
       }
+    }
+    if (responseData.errorCode === 'need_api_key_quota_exceeded' || (responseData.needApiKey && responseData.isOnboardingQuota)) {
+      setQuotaInfo({
+        remaining: 0,
+        limit: 20,
+        isTrial: false,
+        isOnboardingQuota: true,
+      });
+      showNotificationMessage(
+        'Batas kuota awal sistem telah tercapai (20 kali generate). Silakan pasang Gemini API Key gratis di menu Pengaturan untuk membuka akses Unlimited.',
+        'error'
+      );
     }
     if (responseData.errorCode === 'rate_limit_exceeded' && responseData.isTrial) {
       const newQuota = {
@@ -2819,12 +2834,14 @@ img{max-width:100%}
         </div>
 
         <div className="flex items-center gap-1.5 sm:gap-3">
-          {effectiveQuotaInfo && effectiveQuotaInfo.isTrial && (
+          {effectiveQuotaInfo && (effectiveQuotaInfo.isTrial || effectiveQuotaInfo.isOnboardingQuota) && (
             <div className="flex items-center">
               <QuotaIndicator
                 remaining={effectiveQuotaInfo.remaining}
                 limit={effectiveQuotaInfo.limit}
                 isTrial={effectiveQuotaInfo.isTrial}
+                isOnboardingQuota={effectiveQuotaInfo.isOnboardingQuota}
+                onOpenSettings={() => navigate('/settings')}
               />
             </div>
           )}
@@ -2884,6 +2901,27 @@ img{max-width:100%}
       <div className="flex-shrink-0 px-4 pt-3 empty:hidden">
         <SubscriptionStatusBanner />
       </div>
+
+      {/* Onboarding Notice Banner for Paid Users Without API Key */}
+      {effectiveQuotaInfo?.isOnboardingQuota && (
+        <div className="flex-shrink-0 bg-gradient-to-r from-blue-50 via-indigo-50 to-amber-50 border-b border-blue-200 px-4 py-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs text-blue-950 shadow-2xs">
+          <div className="flex items-center gap-2">
+            <span className="px-2 py-0.5 rounded font-black bg-blue-600 text-white text-[10px] shrink-0">
+              AKUN AKTIF
+            </span>
+            <span>
+              Anda sedang menggunakan kuota sistem sementara (Sisa: <strong>{effectiveQuotaInfo.remaining}/{effectiveQuotaInfo.limit} kali</strong>).
+              Pasang <strong>Gemini API Key gratis</strong> Anda di menu Pengaturan agar pembuatan perangkat ajar menjadi <strong>Tanpa Batas (Unlimited)</strong>.
+            </span>
+          </div>
+          <button
+            onClick={() => navigate('/settings')}
+            className="self-end sm:self-auto shrink-0 px-2.5 py-1 bg-white hover:bg-blue-100 border border-blue-300 text-blue-700 font-bold rounded-md shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer"
+          >
+            <span>⚙️</span> Pasang API Key
+          </button>
+        </div>
+      )}
 
       {/* Main Content */}
       <main className="flex-1 flex overflow-hidden bg-grid-pattern relative min-w-0">

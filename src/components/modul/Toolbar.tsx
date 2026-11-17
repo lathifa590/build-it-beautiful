@@ -83,7 +83,7 @@ interface ToolbarProps {
   onUploadLetterhead?: (file: File) => void;
   onDeleteLetterhead?: () => void;
   // Quota props
-  quotaInfo?: { remaining: number; limit: number; isTrial: boolean } | null;
+  quotaInfo?: { remaining: number; limit: number; isTrial: boolean; isOnboardingQuota?: boolean } | null;
   isModulComplete?: boolean;
   isPlanningTab?: boolean;
   /** V2: sembunyikan tombol generate per jenis dokumen (dipindah ke panel pertemuan). */
@@ -331,11 +331,12 @@ export const Toolbar = ({
       {/* Secondary controls row (Kop / Ganti / Hapus / Export) — shown above tabs until the canvas is truly wide */}
       {!isPlanningTab && (
         <div className="flex 2xl:hidden flex-wrap items-center justify-end gap-2 pb-2 pt-1">
-          {quotaInfo && quotaInfo.isTrial && (
+          {quotaInfo && (quotaInfo.isTrial || quotaInfo.isOnboardingQuota) && (
             <QuotaIndicator
               remaining={quotaInfo.remaining}
               limit={quotaInfo.limit}
               isTrial={quotaInfo.isTrial}
+              isOnboardingQuota={quotaInfo.isOnboardingQuota}
             />
           )}
           {onToggleLetterhead && onUploadLetterhead && onDeleteLetterhead && (
@@ -425,8 +426,8 @@ export const Toolbar = ({
 
         {!isPlanningTab && (
           <div className="hidden 2xl:flex items-center gap-2 pb-1 shrink-0">
-            {quotaInfo && quotaInfo.isTrial && (
-              <QuotaIndicator remaining={quotaInfo.remaining} limit={quotaInfo.limit} isTrial={quotaInfo.isTrial} />
+            {quotaInfo && (quotaInfo.isTrial || quotaInfo.isOnboardingQuota) && (
+              <QuotaIndicator remaining={quotaInfo.remaining} limit={quotaInfo.limit} isTrial={quotaInfo.isTrial} isOnboardingQuota={quotaInfo.isOnboardingQuota} />
             )}
             {onToggleLetterhead && onUploadLetterhead && onDeleteLetterhead && (
               <LetterheadControl

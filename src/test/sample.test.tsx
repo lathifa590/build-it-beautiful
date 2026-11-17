@@ -32,10 +32,17 @@ describe("Setup Pengujian (Vitest & React Testing Library)", () => {
       expect(badge).toBeInTheDocument();
     });
 
-    it("tidak boleh merender apapun jika bukan akun trial (isTrial=false)", () => {
+    it("tidak boleh merender apapun jika bukan akun trial dan bukan onboarding (isTrial=false)", () => {
       const { container } = render(<QuotaIndicator remaining={50} limit={50} isTrial={false} />);
       
       expect(container.firstChild).toBeNull();
+    });
+
+    it("harus merender QuotaIndicator untuk user baru berbayar dalam masa onboarding (isOnboardingQuota=true)", () => {
+      render(<QuotaIndicator remaining={18} limit={20} isTrial={false} isOnboardingQuota={true} />);
+      
+      const badge = screen.getByText(/Kuota Awal: 18\/20/i);
+      expect(badge).toBeInTheDocument();
     });
   });
 });

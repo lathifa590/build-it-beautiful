@@ -16,6 +16,7 @@ import { generateWorkspaceMeetingDirect } from "./generateWorkspaceMeetingDirect
 import { useSchool } from "@/contexts/SchoolContext";
 import { useSubscriptionStatus } from "@/hooks/useSubscriptionStatus";
 import { useTrialQuota } from "@/hooks/useTrialQuota";
+import { useOnboardingQuota } from "@/hooks/useOnboardingQuota";
 import { QuotaIndicator } from "@/components/modul/QuotaIndicator";
 import { toast } from "sonner";
 import { SchoolProposalModal } from "@/components/school/SchoolProposalModal";
@@ -53,6 +54,8 @@ export const WorkspaceExplorerShell: React.FC<WorkspaceExplorerShellProps> = ({
   const { user, isAdmin } = useAuth();
   const { data: subStatus } = useSubscriptionStatus();
   const { quotaInfo: trialQuotaInfo } = useTrialQuota();
+  const { isOnboarding, quotaInfo: onboardingQuota } = useOnboardingQuota();
+  const effectiveQuota = trialQuotaInfo ?? onboardingQuota;
   const isTrial = subStatus?.isTrial;
   // Antrean otomatis latar belakang (server) dinonaktifkan untuk menghemat resource dan kuota server
   const canAccessServerQueue = false;
@@ -192,6 +195,34 @@ export const WorkspaceExplorerShell: React.FC<WorkspaceExplorerShellProps> = ({
               />
             </div>
           )}
+        </div>
+      )}
+
+      {!isLocked && isOnboarding && (
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-3 sm:p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
+          <div className="flex items-center gap-2.5">
+            <span className="px-2 py-0.5 text-xs font-black bg-blue-600 text-white rounded shrink-0">KUOTA AWAL</span>
+            <p className="text-xs sm:text-sm text-blue-900 font-medium">
+              Akun Aktif: Anda sedang menggunakan kuota sistem sementara (Sisa: <strong>{effectiveQuota?.remaining ?? 20}/{effectiveQuota?.limit ?? 20} kali generate</strong>). Pasang Gemini API Key gratis di menu Pengaturan untuk akses Unlimited!
+            </p>
+          </div>
+          <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
+            {effectiveQuota && (
+              <QuotaIndicator
+                remaining={effectiveQuota.remaining}
+                limit={effectiveQuota.limit}
+                isTrial={false}
+                isOnboardingQuota={true}
+                onOpenSettings={() => navigate('/settings')}
+              />
+            )}
+            <button
+              onClick={() => navigate('/settings')}
+              className="px-2.5 py-1 bg-white hover:bg-blue-100 border border-blue-300 text-blue-700 font-bold rounded-md text-xs shadow-xs transition-colors cursor-pointer"
+            >
+              Pasang Key
+            </button>
+          </div>
         </div>
       )}
 
