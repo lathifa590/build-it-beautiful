@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import {
   Dialog,
   DialogContent,
@@ -80,21 +81,33 @@ export const WorkspaceUpsellDialog = ({ open, onOpenChange }: WorkspaceUpsellDia
           </ul>
 
           <DialogFooter className="flex flex-col gap-2 sm:flex-col mt-1">
-            {/* Primary CTA — WA */}
+            {/* Primary CTA — Direct Checkout */}
             <Button
               asChild
-              className="w-full font-bold text-base py-6 bg-green-500 hover:bg-green-600 text-white border-2 border-green-700 shadow-brutal-sm hover:translate-y-0.5 active:translate-y-1 transition-all gap-2"
+              className="w-full font-bold text-base py-6 bg-primary hover:bg-primary/90 text-primary-foreground border-2 border-foreground shadow-brutal-sm hover:translate-y-0.5 active:translate-y-1 transition-all gap-2"
+            >
+              <Link to="/checkout?package=pro" onClick={() => onOpenChange(false)}>
+                <Crown className="w-5 h-5" />
+                Upgrade ke Paket Pro Sekarang
+              </Link>
+            </Button>
+
+            {/* Secondary CTA — WA */}
+            <Button
+              asChild
+              variant="outline"
+              className="w-full font-bold text-sm border-2 border-foreground/30 hover:bg-secondary gap-2"
             >
               <a href={WA_LINK} target="_blank" rel="noopener noreferrer">
-                <MessageCircle className="w-5 h-5" />
-                Upgrade via WhatsApp
+                <MessageCircle className="w-4 h-4 text-emerald-600" />
+                Konsultasi via WhatsApp
               </a>
             </Button>
 
-            {/* Secondary — dismiss */}
+            {/* Dismiss */}
             <Button
               variant="ghost"
-              className="w-full text-sm text-muted-foreground hover:text-foreground"
+              className="w-full text-xs text-muted-foreground hover:text-foreground"
               onClick={() => onOpenChange(false)}
             >
               Nanti saja

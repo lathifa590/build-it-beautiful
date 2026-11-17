@@ -46,6 +46,12 @@ const PaketAgencyPage = lazy(() => import("./pages/landing/PaketAgencyPage"));
 const BlogIndex = lazy(() => import("./pages/blog/BlogIndex"));
 const BlogDetail = lazy(() => import("./pages/blog/BlogDetail"));
 
+// Direct Sales & Checkout Imports
+const Checkout = lazy(() => import("./pages/Checkout"));
+const AdminOrders = lazy(() => import("./pages/admin/Orders"));
+const AdminCoupons = lazy(() => import("./pages/admin/Coupons"));
+const AdminPaymentSettings = lazy(() => import("./pages/admin/PaymentSettings"));
+
 // Store Imports
 const StoreIndex = lazy(() => import("./pages/store/StoreIndex"));
 const StoreProfile = lazy(() => import("./pages/store/StoreProfile"));
@@ -94,8 +100,9 @@ const App = () => (
                 <Route path="/blog" element={<BlogIndex />} />
                 <Route path="/blog/:slug" element={<BlogDetail />} />
                 
-                {/* Auth routes */}
+                {/* Auth & Direct Checkout routes */}
                 <Route path="/auth" element={<Auth />} />
+                <Route path="/checkout" element={<Checkout />} />
 
                 {/* Public Store routes */}
                 <Route path="/store" element={<StoreIndex />} />
@@ -239,6 +246,31 @@ const App = () => (
                   element={
                     <AdminRoute>
                       <AdminCustomers />
+                    </AdminRoute>
+                  }
+                />
+                {/* Admin Transaksi & Toko */}
+                <Route
+                  path="/admin/orders"
+                  element={
+                    <AdminRoute>
+                      <AdminOrders />
+                    </AdminRoute>
+                  }
+                />
+                <Route
+                  path="/admin/coupons"
+                  element={
+                    <AdminRoute>
+                      <AdminCoupons />
+                    </AdminRoute>
+                  }
+                />
+                <Route
+                  path="/admin/payment-settings"
+                  element={
+                    <AdminRoute>
+                      <AdminPaymentSettings />
                     </AdminRoute>
                   }
                 />

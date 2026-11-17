@@ -88,12 +88,12 @@ export const Navbar = () => {
                 Masuk
               </Button>
             </Link>
-            <a href={PURCHASE_LINK} target="_blank" rel="noopener noreferrer">
+            <Link to="/checkout?package=standar">
               <Button className="border-2 border-foreground shadow-brutal-sm hover:shadow-brutal-hover hover:translate-x-[2px] hover:translate-y-[2px] transition-all gap-2">
                 Beli Sekarang
                 <ExternalLink className="w-4 h-4" />
               </Button>
-            </a>
+            </Link>
           </div>
 
           {/* Mobile Menu Button */}
@@ -159,12 +159,12 @@ export const Navbar = () => {
                   Masuk
                 </Button>
               </Link>
-              <a href={PURCHASE_LINK} target="_blank" rel="noopener noreferrer" className="block">
+              <Link to="/checkout?package=standar" onClick={() => setIsMenuOpen(false)} className="block">
                 <Button className="w-full border-2 border-foreground shadow-brutal-sm gap-2">
                   Beli Sekarang
                   <ExternalLink className="w-4 h-4" />
                 </Button>
-              </a>
+              </Link>
             </div>
           </div>
         )}

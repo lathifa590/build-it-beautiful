@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { Check, FileDown, Monitor, Pencil } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -152,14 +153,14 @@ export const ProductShowcase = () => {
             </div>
 
             {/* CTA */}
-            <a href={PURCHASE_LINK} target="_blank" rel="noopener noreferrer">
+            <Link to="/checkout?package=standar">
               <Button
                 size="lg"
                 className="text-lg px-8 py-6 border-2 border-foreground shadow-brutal hover:shadow-brutal-hover hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
               >
                 Dapatkan Akses Sekarang →
               </Button>
-            </a>
+            </Link>
           </div>
         </div>
       </div>

@@ -16,8 +16,10 @@ import {
   Sparkles,
   School,
   Megaphone,
+  ShoppingCart,
+  Ticket,
+  CreditCard,
 } from 'lucide-react';
-
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -29,6 +31,12 @@ const navItems = [
   { icon: School, label: 'Sekolah', path: '/admin/schools' },
   { icon: UserCheck, label: 'Pelanggan Lama', path: '/admin/customers' },
   { icon: Settings, label: 'Pengaturan', path: '/admin/settings' },
+];
+
+const storeTransItems = [
+  { icon: ShoppingCart, label: 'Pesanan & Transaksi', path: '/admin/orders' },
+  { icon: Ticket, label: 'Kupon & Voucher', path: '/admin/coupons' },
+  { icon: CreditCard, label: 'Rekening & Pembayaran', path: '/admin/payment-settings' },
 ];
 
 const superAdminItems = [
@@ -76,12 +84,12 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
 
       {/* Sidebar */}
       <aside
-        className={`fixed top-0 left-0 h-full bg-card border-r-2 border-foreground z-50 transition-all duration-300 ${
+        className={`fixed top-0 left-0 h-full bg-card border-r-2 border-foreground z-50 flex flex-col transition-all duration-300 ${
           sidebarOpen ? 'w-64' : 'w-20'
         } ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0`}
       >
         {/* Sidebar Header */}
-        <div className="h-16 flex items-center justify-between px-4 border-b-2 border-foreground">
+        <div className="h-16 flex items-center justify-between px-4 border-b-2 border-foreground shrink-0">
           {sidebarOpen && (
             <div className="flex items-center gap-2">
               <div className="w-10 h-10 bg-primary rounded-xl border-2 border-foreground flex items-center justify-center shadow-brutal-sm">
@@ -103,8 +111,8 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
           </button>
         </div>
 
-        {/* Navigation */}
-        <nav className="p-4 space-y-2">
+        {/* Navigation - Scrollable */}
+        <nav className="p-4 space-y-1.5 flex-1 overflow-y-auto">
           {navItems.map((item) => {
             const isActive = location.pathname === item.path;
             return (
@@ -112,24 +120,51 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
                 key={item.path}
                 to={item.path}
                 onClick={() => setMobileMenuOpen(false)}
-                className={`flex items-center gap-3 px-4 py-3 rounded-lg border-2 transition-all ${
+                className={`flex items-center gap-3 px-3.5 py-2.5 rounded-lg border-2 transition-all ${
                   isActive
                     ? 'bg-foreground text-background border-foreground shadow-none'
                     : 'border-transparent hover:bg-secondary hover:border-foreground/20'
                 }`}
               >
                 <item.icon className="w-5 h-5 flex-shrink-0" />
-                {sidebarOpen && <span className="font-medium">{item.label}</span>}
+                {sidebarOpen && <span className="font-medium text-xs sm:text-sm">{item.label}</span>}
               </Link>
             );
           })}
 
+          {/* TRANSAKSI & TOKO */}
+          {sidebarOpen && (
+            <div className="pt-4 pb-1 px-2 text-[10px] font-extrabold tracking-widest text-muted-foreground">
+              TRANSAKSI & TOKO
+            </div>
+          )}
+          {!sidebarOpen && <div className="pt-2 border-t border-foreground/10" />}
+          {storeTransItems.map((item) => {
+            const isActive = location.pathname === item.path;
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                onClick={() => setMobileMenuOpen(false)}
+                className={`flex items-center gap-3 px-3.5 py-2.5 rounded-lg border-2 transition-all ${
+                  isActive
+                    ? 'bg-foreground text-background border-foreground shadow-none'
+                    : 'border-transparent hover:bg-secondary hover:border-foreground/20'
+                }`}
+              >
+                <item.icon className="w-5 h-5 flex-shrink-0" />
+                {sidebarOpen && <span className="font-medium text-xs sm:text-sm">{item.label}</span>}
+              </Link>
+            );
+          })}
+
+          {/* SUPER ADMIN */}
           {sidebarOpen && (
             <div className="pt-4 pb-1 px-2 text-[10px] font-extrabold tracking-widest text-muted-foreground">
               SUPER ADMIN
             </div>
           )}
-          {!sidebarOpen && <div className="pt-3 border-t border-foreground/10" />}
+          {!sidebarOpen && <div className="pt-2 border-t border-foreground/10" />}
           {superAdminItems.map((item) => {
             const isActive = location.pathname === item.path;
             return (
@@ -137,39 +172,39 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
                 key={item.path}
                 to={item.path}
                 onClick={() => setMobileMenuOpen(false)}
-                className={`flex items-center gap-3 px-4 py-3 rounded-lg border-2 transition-all ${
+                className={`flex items-center gap-3 px-3.5 py-2.5 rounded-lg border-2 transition-all ${
                   isActive
                     ? 'bg-foreground text-background border-foreground shadow-none'
                     : 'border-transparent hover:bg-secondary hover:border-foreground/20'
                 }`}
               >
                 <item.icon className="w-5 h-5 flex-shrink-0" />
-                {sidebarOpen && <span className="font-medium">{item.label}</span>}
+                {sidebarOpen && <span className="font-medium text-xs sm:text-sm">{item.label}</span>}
               </Link>
             );
           })}
         </nav>
 
         {/* Sidebar Footer */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t-2 border-foreground/20">
+        <div className="p-4 border-t-2 border-foreground/20 shrink-0 bg-card">
           <Link
             to="/app"
-            className="flex items-center gap-3 px-4 py-3 rounded-lg border-2 border-transparent hover:bg-secondary hover:border-foreground/20 transition-all mb-2"
+            className="flex items-center gap-3 px-4 py-2.5 rounded-lg border-2 border-transparent hover:bg-secondary hover:border-foreground/20 transition-all mb-1"
           >
             <Home className="w-5 h-5 flex-shrink-0" />
-            {sidebarOpen && <span className="font-medium">Ke Aplikasi</span>}
+            {sidebarOpen && <span className="font-medium text-xs sm:text-sm">Ke Aplikasi</span>}
           </Link>
           <button
             onClick={handleSignOut}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg border-2 border-transparent hover:bg-destructive/10 hover:border-destructive/30 text-destructive transition-all"
+            className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg border-2 border-transparent hover:bg-destructive/10 hover:border-destructive/30 text-destructive transition-all"
           >
             <LogOut className="w-5 h-5 flex-shrink-0" />
-            {sidebarOpen && <span className="font-medium">Keluar</span>}
+            {sidebarOpen && <span className="font-medium text-xs sm:text-sm">Keluar</span>}
           </button>
           {sidebarOpen && user && (
-            <div className="mt-4 p-3 bg-secondary rounded-lg">
-              <p className="text-sm font-medium truncate">{user.email}</p>
-              <p className="text-xs text-muted-foreground">Administrator</p>
+            <div className="mt-2 p-2.5 bg-secondary rounded-lg">
+              <p className="text-xs font-bold truncate">{user.email}</p>
+              <p className="text-[10px] text-muted-foreground">Administrator</p>
             </div>
           )}
         </div>
@@ -181,7 +216,7 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
           sidebarOpen ? 'lg:ml-64' : 'lg:ml-20'
         } pt-16 lg:pt-0`}
       >
-        <div className="p-6">{children}</div>
+        <div className="p-4 sm:p-6">{children}</div>
       </main>
     </div>
   );

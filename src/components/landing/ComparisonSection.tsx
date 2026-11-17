@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Check, X, AlertTriangle, Sparkles, Zap, ArrowRight, ShieldCheck, Flame } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -263,7 +264,7 @@ export const ComparisonSection: React.FC = () => {
               </p>
             </div>
 
-            <a href={PURCHASE_LINK} target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto">
+            <Link to="/checkout?package=standar" className="w-full sm:w-auto">
               <Button
                 size="default"
                 className="w-full sm:w-auto font-bold border-2 border-foreground shadow-brutal hover:shadow-brutal-hover hover:translate-x-[2px] hover:translate-y-[2px] transition-all gap-2"
@@ -271,7 +272,7 @@ export const ComparisonSection: React.FC = () => {
                 <span>Mulai Sekarang</span>
                 <ArrowRight className="w-4 h-4" />
               </Button>
-            </a>
+            </Link>
           </div>
         </div>
 

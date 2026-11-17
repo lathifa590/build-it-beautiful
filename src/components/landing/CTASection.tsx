@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { ArrowRight, Sparkles, Calendar, Check, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -73,14 +74,14 @@ export const CTASection = () => {
               </li>
             </ul>
 
-            <a href={PURCHASE_LINK_LITE} target="_blank" rel="noopener noreferrer" className="block mt-auto">
+            <Link to="/checkout?package=lite" className="block mt-auto">
               <Button
                 variant="outline"
                 className="w-full text-base px-6 py-6 border-2 border-foreground shadow-brutal-sm hover:shadow-brutal-hover hover:translate-x-[2px] hover:translate-y-[2px] transition-all bg-card"
               >
                 Pilih Paket Lite
               </Button>
-            </a>
+            </Link>
           </div>
 
           {/* Paket Standar */}
@@ -121,14 +122,14 @@ export const CTASection = () => {
               </li>
             </ul>
 
-            <a href={PURCHASE_LINK_BIASA} target="_blank" rel="noopener noreferrer" className="block mt-auto">
+            <Link to="/checkout?package=standar" className="block mt-auto">
               <Button
                 variant="outline"
                 className="w-full text-base px-6 py-6 border-2 border-foreground shadow-brutal-sm hover:shadow-brutal-hover hover:translate-x-[2px] hover:translate-y-[2px] transition-all bg-card"
               >
                 Pilih Paket Standar
               </Button>
-            </a>
+            </Link>
           </div>
 
           {/* Paket Pro */}
@@ -182,14 +183,14 @@ export const CTASection = () => {
               </li>
             </ul>
 
-            <a href={PURCHASE_LINK_PRO} target="_blank" rel="noopener noreferrer" className="block mt-auto">
+            <Link to="/checkout?package=pro" className="block mt-auto">
               <Button
                 className="w-full text-base px-6 py-6 border-2 border-foreground shadow-brutal hover:shadow-brutal-hover hover:translate-x-[2px] hover:translate-y-[2px] transition-all gap-2"
               >
                 Pilih Paket Pro
                 <ArrowRight className="w-5 h-5" />
               </Button>
-            </a>
+            </Link>
           </div>
 
         </div>
