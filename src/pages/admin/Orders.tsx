@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { useOrders } from '@/hooks/useOrders';
+import { usePaymentSettings } from '@/hooks/usePaymentSettings';
 import { Order, OrderStatus } from '@/types/orders';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -45,6 +46,7 @@ import {
   CustomerActivationInfo,
   cleanPhoneForWhatsApp,
 } from '@/components/admin/ActivationMessageModal';
+import { OrderFollowUpModal } from '@/components/admin/OrderFollowUpModal';
 
 export default function AdminOrders() {
   const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -63,9 +65,20 @@ export default function AdminOrders() {
     isDeleting,
   } = useOrders(statusFilter, searchQuery);
 
-  // Activation Message Modal state
+  const { settings: paymentSettings } = usePaymentSettings();
+
+  // Activation Message Modal state (for paid orders)
   const [activationModalOpen, setActivationModalOpen] = useState(false);
   const [selectedCustomerForModal, setSelectedCustomerForModal] = useState<CustomerActivationInfo | null>(null);
+
+  // Follow Up Modal state (for pending / waiting payment orders)
+  const [followUpModalOpen, setFollowUpModalOpen] = useState(false);
+  const [selectedOrderForFollowUp, setSelectedOrderForFollowUp] = useState<Order | null>(null);
+
+  const handleOpenFollowUpModal = (order: Order) => {
+    setSelectedOrderForFollowUp(order);
+    setFollowUpModalOpen(true);
+  };
 
   // Confirm dialogs
   const [approveConfirmOrder, setApproveConfirmOrder] = useState<Order | null>(null);
@@ -377,31 +390,60 @@ export default function AdminOrders() {
                         {/* Actions */}
                         <TableCell className="align-top py-3.5 text-right">
                           <div className="flex items-center justify-end gap-1.5 flex-wrap">
-                            {/* "Setujui" Button (Only if pending) */}
+                            {/* IF PENDING: "Setujui" + "Follow Up WA" */}
                             {isPending && (
+                              <>
+                                <Button
+                                  size="sm"
+                                  onClick={() => setApproveConfirmOrder(order)}
+                                  disabled={isApproving}
+                                  className="bg-emerald-600 hover:bg-emerald-700 text-white border-2 border-foreground font-bold text-xs h-8 px-2.5 shadow-brutal-sm gap-1 active:translate-x-[1px] active:translate-y-[1px]"
+                                  title="Setujui pesanan & aktivasi akun otomatis"
+                                >
+                                  <Check className="w-3.5 h-3.5" />
+                                  <span>Setujui</span>
+                                </Button>
+
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => handleOpenFollowUpModal(order)}
+                                  className="border-2 border-amber-600/70 hover:bg-amber-500/10 text-amber-800 font-bold text-xs h-8 px-2.5 shadow-brutal-sm gap-1"
+                                  title="Follow up pesanan via WhatsApp (Follow Up 1, 2, 3)"
+                                >
+                                  <MessageCircle className="w-3.5 h-3.5 text-amber-600" />
+                                  <span>Follow Up</span>
+                                </Button>
+                              </>
+                            )}
+
+                            {/* IF PAID: "Kirim Akses WA" */}
+                            {isPaid && (
                               <Button
                                 size="sm"
-                                onClick={() => setApproveConfirmOrder(order)}
-                                disabled={isApproving}
-                                className="bg-emerald-600 hover:bg-emerald-700 text-white border-2 border-foreground font-bold text-xs h-8 px-2.5 shadow-brutal-sm gap-1 active:translate-x-[1px] active:translate-y-[1px]"
-                                title="Setujui pesanan & aktivasi akun otomatis"
+                                variant="outline"
+                                onClick={() => handleOpenWaModal(order)}
+                                className="border-2 border-emerald-600/50 hover:bg-emerald-500/10 text-emerald-700 font-bold text-xs h-8 px-2.5 shadow-brutal-sm gap-1"
+                                title="Kirim rincian akses dan cara login ke WhatsApp"
                               >
-                                <Check className="w-3.5 h-3.5" />
-                                <span>Setujui</span>
+                                <MessageCircle className="w-3.5 h-3.5 text-emerald-600" />
+                                <span>Kirim Akses WA</span>
                               </Button>
                             )}
 
-                            {/* "WA" Button (Opens Activation Modal) */}
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleOpenWaModal(order)}
-                              className="border-2 border-emerald-600/50 hover:bg-emerald-500/10 text-emerald-700 font-bold text-xs h-8 px-2 shadow-brutal-sm gap-1"
-                              title="Kirim pesan aktivasi ke WhatsApp"
-                            >
-                              <MessageCircle className="w-3.5 h-3.5 text-emerald-600" />
-                              <span>WA</span>
-                            </Button>
+                            {/* IF CANCELLED: Simple WA contact button */}
+                            {isCancelled && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleOpenFollowUpModal(order)}
+                                className="border border-foreground/30 hover:bg-secondary text-muted-foreground h-8 px-2 text-xs"
+                                title="Hubungi pembeli via WhatsApp"
+                              >
+                                <MessageCircle className="w-3.5 h-3.5" />
+                                <span>WA</span>
+                              </Button>
+                            )}
 
                             {/* Cancel Button (If pending) */}
                             {isPending && (
@@ -575,7 +617,7 @@ export default function AdminOrders() {
           </Dialog>
         )}
 
-        {/* ACTIVATION WHATSAPP MODAL (Existing Component) */}
+        {/* ACTIVATION WHATSAPP MODAL (For Paid Orders) */}
         <ActivationMessageModal
           isOpen={activationModalOpen}
           onClose={() => {
@@ -586,6 +628,17 @@ export default function AdminOrders() {
           onPhoneUpdated={() => {
             refetch();
           }}
+        />
+
+        {/* FOLLOW UP WHATSAPP MODAL (For Pending Orders) */}
+        <OrderFollowUpModal
+          isOpen={followUpModalOpen}
+          onClose={() => {
+            setFollowUpModalOpen(false);
+            setSelectedOrderForFollowUp(null);
+          }}
+          order={selectedOrderForFollowUp}
+          paymentSettings={paymentSettings}
         />
       </div>
     </AdminLayout>
