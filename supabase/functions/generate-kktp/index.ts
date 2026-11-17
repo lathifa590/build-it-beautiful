@@ -159,7 +159,6 @@ serve(async (req: any) => {
           }
         }
       }
-    }
 
     const candidateKeys = [...userKeyPool];
     if (candidateKeys.length === 0) {
@@ -226,8 +225,7 @@ Kembalikan HANYA JSON valid (tanpa markdown, tanpa teks lain) dengan format:
       "gemini-3.0-flash",
       "gemini-3.5-flash-lite",
       "gemini-2.5-flash",
-      "gemini-2.5-flash-lite",
-      "gemini-1.5-flash"
+      "gemini-2.5-flash-lite"
     ];
 
     let resultData: any = null;

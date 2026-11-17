@@ -307,8 +307,11 @@ serve(async (req) => {
             .order('created_at', { ascending: true });
 
           if (demoKeys && demoKeys.length > 0) {
-            // Rotasi starting key berdasarkan dailyCount, tapi coba SEMUA key sebagai fallback
-            const startIndex = (dailyCount ?? 0) % demoKeys.length;
+            // Rotasi starting key agar beban terdistribusi merata antar demo keys
+            const rotationSeed = (typeof totalCount !== 'undefined' && totalCount > 0)
+              ? totalCount
+              : Math.floor(Math.random() * demoKeys.length);
+            const startIndex = rotationSeed % demoKeys.length;
             const rotatedKeys = [
               ...demoKeys.slice(startIndex),
               ...demoKeys.slice(0, startIndex),
@@ -321,7 +324,6 @@ serve(async (req) => {
           }
         }
       }
-    }
     
     // Fallback to Lovable API Key if no user key and no demo key
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
@@ -335,8 +337,7 @@ serve(async (req) => {
       "gemini-3.0-flash",
       "gemini-3.5-flash-lite",
       "gemini-2.5-flash",
-      "gemini-2.5-flash-lite",
-      "gemini-1.5-flash"
+      "gemini-2.5-flash-lite"
     ];
     
     const getGeminiEndpoint = (model: string, key: string) => 
