@@ -3,6 +3,7 @@ import type { OutputFormat } from '@/types/export-format';
 import { formatRichText, parseMarkdownTable, renderInstruksiWithTable, formatMathAndHtml } from '@/lib/formatters';
 import { formatMathTextSimple } from '@/components/ui/MathRenderer';
 import { DPL_OPTIONS, NILAI_KARAKTER_OPTIONS, KBC_ELEMEN_CINTA } from '@/lib/constants';
+import { hasMeaningfulValue } from '@/lib/autofill';
 import { classifySoal, computeAnswerLines, parseAlternatifJawaban } from '@/lib/soal-format';
 import { Sparkles } from 'lucide-react';
 import { StimulusImageGenerator } from '@/components/modul/StimulusImageGenerator';
@@ -873,6 +874,85 @@ export const DocumentPreview = ({
   const isTabel = outputFormat === 'tabel' || (!isRingkasan && !isPanduan && !isMinimalis && !isPerPertemuan && !isModular);
   const isNarasi = !isTabel;
 
+  // Filter item-item opsional agar poin kosong / "-" / "Tidak relevan" tidak dimunculkan di Preview & Export Word
+  const filterItems = (items: Array<{ label: string; value?: string | null }>) =>
+    items
+      .filter((item): item is { label: string; value: string } => hasMeaningfulValue(item.value))
+      .map((item) => ({ label: item.label, value: item.value.trim() }));
+
+  const identifikasiMuridItems = filterItems([
+    { label: 'Aspek Pengetahuan Awal', value: formData.aspekPengetahuanAwal },
+    { label: 'Aspek Minat', value: formData.aspekMinat },
+    { label: 'Aspek Latar Belakang', value: formData.aspekLatarBelakang },
+    { label: 'Aspek Kebutuhan Belajar', value: formData.aspekKebutuhanBelajar },
+  ]);
+
+  const jenisPengetahuanItems = filterItems([
+    { label: 'Faktual', value: formData.materiPengetahuan?.faktual },
+    { label: 'Konseptual', value: formData.materiPengetahuan?.konseptual },
+    { label: 'Prosedural', value: formData.materiPengetahuan?.prosedural },
+    { label: 'Metakognitif', value: formData.materiPengetahuan?.metakognitif },
+    { label: 'Kaitan dengan Kehidupan', value: formData.kaitanKehidupan },
+  ]);
+
+  const lintasDisiplinDetailItems = filterItems([
+    { label: 'PPKn', value: formData.lintasDisiplinIlmu?.ppkn },
+    { label: 'IPS', value: formData.lintasDisiplinIlmu?.ips },
+    { label: 'Matematika', value: formData.lintasDisiplinIlmu?.matematika },
+    { label: 'Bahasa Indonesia', value: formData.lintasDisiplinIlmu?.bahasaIndonesia },
+    { label: 'Seni Budaya', value: formData.lintasDisiplinIlmu?.seniBudaya },
+    { label: 'Prakarya', value: formData.lintasDisiplinIlmu?.prakarya },
+    { label: 'PJOK', value: formData.lintasDisiplinIlmu?.penjaskes },
+    { label: 'Lainnya', value: formData.lintasDisiplinIlmu?.lainnya },
+  ]);
+  const lintasDisiplinItems =
+    lintasDisiplinDetailItems.length > 0
+      ? lintasDisiplinDetailItems
+      : hasMeaningfulValue(formData.lintasDisiplin)
+      ? [{ label: 'Lintas Disiplin', value: formData.lintasDisiplin.trim() }]
+      : [];
+
+  const kemitraanDetailItems = filterItems([
+    { label: 'Guru Bidang Studi Lain', value: formData.kemitraanPembelajaran?.guruBidangStudiLain },
+    { label: 'Orang Tua', value: formData.kemitraanPembelajaran?.orangTua },
+    { label: 'Tokoh Masyarakat', value: formData.kemitraanPembelajaran?.tokohMasyarakat },
+    { label: 'Instansi Terkait', value: formData.kemitraanPembelajaran?.instansiTerkait },
+    { label: 'Dunia Usaha/Industri', value: formData.kemitraanPembelajaran?.duniaUsaha },
+    { label: 'Perguruan Tinggi/LSM', value: formData.kemitraanPembelajaran?.perguruanTinggiLSM },
+    { label: 'MGMP/Komunitas Belajar', value: formData.kemitraanPembelajaran?.mgmpKomunitasBelajar },
+  ]);
+  const kemitraanItems =
+    kemitraanDetailItems.length > 0
+      ? kemitraanDetailItems
+      : hasMeaningfulValue(formData.kemitraan)
+      ? [{ label: 'Kemitraan', value: formData.kemitraan.trim() }]
+      : [];
+
+  const lingkunganDetailItems = filterItems([
+    { label: 'Ruang Fisik', value: formData.lingkunganPembelajaranDetail?.ruangFisik },
+    { label: 'Ruang Virtual', value: formData.lingkunganPembelajaranDetail?.ruangVirtual },
+    { label: 'Budaya Belajar', value: formData.lingkunganPembelajaranDetail?.budayaBelajar },
+  ]);
+  const legacyLingkungan = (formData.lingkunganBelajar || []).filter((v) => hasMeaningfulValue(v));
+  const lingkunganItems =
+    lingkunganDetailItems.length > 0
+      ? lingkunganDetailItems
+      : legacyLingkungan.length > 0
+      ? [{ label: 'Lingkungan', value: legacyLingkungan.join(', ') }]
+      : [];
+
+  const pemanfaatanDigitalDetailItems = filterItems([
+    { label: 'Perencanaan', value: formData.pemanfaatanDigitalDetail?.perencanaan },
+    { label: 'Pelaksanaan', value: formData.pemanfaatanDigitalDetail?.pelaksanaan },
+    { label: 'Asesmen', value: formData.pemanfaatanDigitalDetail?.asesmen },
+  ]);
+  const pemanfaatanDigitalItems =
+    pemanfaatanDigitalDetailItems.length > 0
+      ? pemanfaatanDigitalDetailItems
+      : hasMeaningfulValue(formData.pemanfaatanDigital)
+      ? [{ label: 'Digital', value: formData.pemanfaatanDigital.trim() }]
+      : [];
+
   // Always use Word-compatible math formatter for consistency
   const mathFormatter = formatMathTextSimple;
 
@@ -1009,22 +1089,37 @@ export const DocumentPreview = ({
               <div style={{ marginBottom: '4px' }}><strong>Jumlah Pertemuan:</strong> {formData.pertemuan.length} ({getTotalDurasi(formData)} Menit)</div>
             </div>
 
-            <h3 style={{ fontSize: '12pt', fontWeight: 'bold', borderBottom: '1px solid black', paddingBottom: '4px', marginBottom: '8px' }}>II. IDENTIFIKASI MURID</h3>
-            <div style={{ paddingLeft: '8px', marginBottom: '16px' }}>
-              <div style={{ marginBottom: '4px' }}><strong>Aspek Pengetahuan Awal:</strong> {formData.aspekPengetahuanAwal || '-'}</div>
-              <div style={{ marginBottom: '4px' }}><strong>Aspek Minat:</strong> {formData.aspekMinat || '-'}</div>
-              <div style={{ marginBottom: '4px' }}><strong>Aspek Latar Belakang:</strong> {formData.aspekLatarBelakang || '-'}</div>
-              <div style={{ marginBottom: '4px' }}><strong>Aspek Kebutuhan Belajar:</strong> {formData.aspekKebutuhanBelajar || '-'}</div>
-            </div>
+            {identifikasiMuridItems.length > 0 && (
+              <>
+                <h3 style={{ fontSize: '12pt', fontWeight: 'bold', borderBottom: '1px solid black', paddingBottom: '4px', marginBottom: '8px' }}>II. IDENTIFIKASI MURID</h3>
+                <div style={{ paddingLeft: '8px', marginBottom: '16px' }}>
+                  {identifikasiMuridItems.map((item) => (
+                    <div key={item.label} style={{ marginBottom: '4px' }}>
+                      <strong>{item.label}:</strong> {item.value}
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
 
-            <h3 style={{ fontSize: '12pt', fontWeight: 'bold', borderBottom: '1px solid black', paddingBottom: '4px', marginBottom: '8px' }}>III. JENIS PENGETAHUAN MATERI</h3>
-            <div style={{ paddingLeft: '8px', marginBottom: '16px' }}>
-              <div style={{ marginBottom: '4px' }}><strong>Faktual:</strong> {formData.materiPengetahuan?.faktual || '-'}</div>
-              <div style={{ marginBottom: '4px' }}><strong>Konseptual:</strong> {formData.materiPengetahuan?.konseptual || '-'}</div>
-              <div style={{ marginBottom: '4px' }}><strong>Prosedural:</strong> {formData.materiPengetahuan?.prosedural || '-'}</div>
-              <div style={{ marginBottom: '4px' }}><strong>Metakognitif:</strong> {formData.materiPengetahuan?.metakognitif || '-'}</div>
-              <div style={{ marginBottom: '4px', marginTop: '8px' }}><strong>Kaitan dengan Kehidupan:</strong> {formData.kaitanKehidupan || '-'}</div>
-            </div>
+            {jenisPengetahuanItems.length > 0 && (
+              <>
+                <h3 style={{ fontSize: '12pt', fontWeight: 'bold', borderBottom: '1px solid black', paddingBottom: '4px', marginBottom: '8px' }}>III. JENIS PENGETAHUAN MATERI</h3>
+                <div style={{ paddingLeft: '8px', marginBottom: '16px' }}>
+                  {jenisPengetahuanItems.map((item) => (
+                    <div
+                      key={item.label}
+                      style={{
+                        marginBottom: '4px',
+                        marginTop: item.label === 'Kaitan dengan Kehidupan' ? '8px' : undefined,
+                      }}
+                    >
+                      <strong>{item.label}:</strong> {item.value}
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
             
             <h3 style={{ fontSize: '12pt', fontWeight: 'bold', borderBottom: '1px solid black', paddingBottom: '4px', marginBottom: '8px' }}>IV. INTEGRASI NILAI & KARAKTER</h3>
             <div style={{ paddingLeft: '8px', marginBottom: '16px' }}>
@@ -1163,98 +1258,52 @@ export const DocumentPreview = ({
               </tr>
               
               {/* Identifikasi Murid Section */}
-              <tr style={{ backgroundColor: '#dbeafe' }}>
-                <td
-                  colSpan={2}
-                  style={{ border: '1px solid black', padding: '8px', fontWeight: 'bold' }}
-                >
-                  II. IDENTIFIKASI MURID
-                </td>
-              </tr>
-              <tr>
-                <td style={{ border: '1px solid black', padding: '6px', fontWeight: 'bold', verticalAlign: 'top' }}>
-                  Aspek Pengetahuan Awal
-                </td>
-                <td style={{ border: '1px solid black', padding: '6px' }}>
-                  {formData.aspekPengetahuanAwal || '-'}
-                </td>
-              </tr>
-              <tr>
-                <td style={{ border: '1px solid black', padding: '6px', fontWeight: 'bold', verticalAlign: 'top' }}>
-                  Aspek Minat
-                </td>
-                <td style={{ border: '1px solid black', padding: '6px' }}>
-                  {formData.aspekMinat || '-'}
-                </td>
-              </tr>
-              <tr>
-                <td style={{ border: '1px solid black', padding: '6px', fontWeight: 'bold', verticalAlign: 'top' }}>
-                  Aspek Latar Belakang
-                </td>
-                <td style={{ border: '1px solid black', padding: '6px' }}>
-                  {formData.aspekLatarBelakang || '-'}
-                </td>
-              </tr>
-              <tr>
-                <td style={{ border: '1px solid black', padding: '6px', fontWeight: 'bold', verticalAlign: 'top' }}>
-                  Aspek Kebutuhan Belajar
-                </td>
-                <td style={{ border: '1px solid black', padding: '6px' }}>
-                  {formData.aspekKebutuhanBelajar || '-'}
-                </td>
-              </tr>
+              {identifikasiMuridItems.length > 0 && (
+                <>
+                  <tr style={{ backgroundColor: '#dbeafe' }}>
+                    <td
+                      colSpan={2}
+                      style={{ border: '1px solid black', padding: '8px', fontWeight: 'bold' }}
+                    >
+                      II. IDENTIFIKASI MURID
+                    </td>
+                  </tr>
+                  {identifikasiMuridItems.map((item) => (
+                    <tr key={item.label}>
+                      <td style={{ border: '1px solid black', padding: '6px', fontWeight: 'bold', verticalAlign: 'top' }}>
+                        {item.label}
+                      </td>
+                      <td style={{ border: '1px solid black', padding: '6px' }}>
+                        {item.value}
+                      </td>
+                    </tr>
+                  ))}
+                </>
+              )}
               
               {/* Jenis Pengetahuan Materi */}
-              <tr style={{ backgroundColor: '#dcfce7' }}>
-                <td
-                  colSpan={2}
-                  style={{ border: '1px solid black', padding: '8px', fontWeight: 'bold' }}
-                >
-                  III. JENIS PENGETAHUAN MATERI
-                </td>
-              </tr>
-              <tr>
-                <td style={{ border: '1px solid black', padding: '6px', fontWeight: 'bold', verticalAlign: 'top' }}>
-                  Faktual
-                </td>
-                <td style={{ border: '1px solid black', padding: '6px' }}>
-                  {formData.materiPengetahuan?.faktual || '-'}
-                </td>
-              </tr>
-              <tr>
-                <td style={{ border: '1px solid black', padding: '6px', fontWeight: 'bold', verticalAlign: 'top' }}>
-                  Konseptual
-                </td>
-                <td style={{ border: '1px solid black', padding: '6px' }}>
-                  {formData.materiPengetahuan?.konseptual || '-'}
-                </td>
-              </tr>
-              <tr>
-                <td style={{ border: '1px solid black', padding: '6px', fontWeight: 'bold', verticalAlign: 'top' }}>
-                  Prosedural
-                </td>
-                <td style={{ border: '1px solid black', padding: '6px' }}>
-                  {formData.materiPengetahuan?.prosedural || '-'}
-                </td>
-              </tr>
-              <tr>
-                <td style={{ border: '1px solid black', padding: '6px', fontWeight: 'bold', verticalAlign: 'top' }}>
-                  Metakognitif
-                </td>
-                <td style={{ border: '1px solid black', padding: '6px' }}>
-                  {formData.materiPengetahuan?.metakognitif || '-'}
-                </td>
-              </tr>
-              
-              {/* Kaitan Kehidupan */}
-              <tr>
-                <td style={{ border: '1px solid black', padding: '6px', fontWeight: 'bold', verticalAlign: 'top' }}>
-                  Kaitan dengan Kehidupan
-                </td>
-                <td style={{ border: '1px solid black', padding: '6px' }}>
-                  {formData.kaitanKehidupan || '-'}
-                </td>
-              </tr>
+              {jenisPengetahuanItems.length > 0 && (
+                <>
+                  <tr style={{ backgroundColor: '#dcfce7' }}>
+                    <td
+                      colSpan={2}
+                      style={{ border: '1px solid black', padding: '8px', fontWeight: 'bold' }}
+                    >
+                      III. JENIS PENGETAHUAN MATERI
+                    </td>
+                  </tr>
+                  {jenisPengetahuanItems.map((item) => (
+                    <tr key={item.label}>
+                      <td style={{ border: '1px solid black', padding: '6px', fontWeight: 'bold', verticalAlign: 'top' }}>
+                        {item.label}
+                      </td>
+                      <td style={{ border: '1px solid black', padding: '6px' }}>
+                        {item.value}
+                      </td>
+                    </tr>
+                  ))}
+                </>
+              )}
               
               {/* Integrasi Nilai & Karakter */}
               <tr style={{ backgroundColor: '#fef3c7' }}>
@@ -1401,23 +1450,18 @@ export const DocumentPreview = ({
               </div>
             </div>
 
-            <h3 style={{ fontSize: '12pt', fontWeight: 'bold', borderBottom: '1px solid black', paddingBottom: '4px', marginBottom: '8px' }}>VII. LINTAS DISIPLIN ILMU</h3>
-            <div style={{ paddingLeft: '8px', marginBottom: '16px' }}>
-              {formData.lintasDisiplinIlmu ? (
-                <ul style={{ margin: '0', paddingLeft: '20px' }}>
-                  {formData.lintasDisiplinIlmu.ppkn && <li><strong>PPKn:</strong> {formData.lintasDisiplinIlmu.ppkn}</li>}
-                  {formData.lintasDisiplinIlmu.ips && <li><strong>IPS:</strong> {formData.lintasDisiplinIlmu.ips}</li>}
-                  {formData.lintasDisiplinIlmu.matematika && <li><strong>Matematika:</strong> {formData.lintasDisiplinIlmu.matematika}</li>}
-                  {formData.lintasDisiplinIlmu.bahasaIndonesia && <li><strong>Bahasa Indonesia:</strong> {formData.lintasDisiplinIlmu.bahasaIndonesia}</li>}
-                  {formData.lintasDisiplinIlmu.seniBudaya && <li><strong>Seni Budaya:</strong> {formData.lintasDisiplinIlmu.seniBudaya}</li>}
-                  {formData.lintasDisiplinIlmu.prakarya && <li><strong>Prakarya:</strong> {formData.lintasDisiplinIlmu.prakarya}</li>}
-                  {formData.lintasDisiplinIlmu.penjaskes && <li><strong>PJOK:</strong> {formData.lintasDisiplinIlmu.penjaskes}</li>}
-                  {formData.lintasDisiplinIlmu.lainnya && <li><strong>Lainnya:</strong> {formData.lintasDisiplinIlmu.lainnya}</li>}
-                </ul>
-              ) : (
-                <div>-</div>
-              )}
-            </div>
+            {lintasDisiplinItems.length > 0 && (
+              <>
+                <h3 style={{ fontSize: '12pt', fontWeight: 'bold', borderBottom: '1px solid black', paddingBottom: '4px', marginBottom: '8px' }}>VII. LINTAS DISIPLIN ILMU</h3>
+                <div style={{ paddingLeft: '8px', marginBottom: '16px' }}>
+                  <ul style={{ margin: '0', paddingLeft: '20px' }}>
+                    {lintasDisiplinItems.map((item) => (
+                      <li key={item.label}><strong>{item.label}:</strong> {item.value}</li>
+                    ))}
+                  </ul>
+                </div>
+              </>
+            )}
           </div>
         ) : (
         <table
@@ -1500,207 +1544,83 @@ export const DocumentPreview = ({
             </tr>
             
             {/* Lintas Disiplin Ilmu */}
-            <tr style={{ backgroundColor: '#f0fdf4' }}>
-              <td
-                colSpan={2}
-                style={{ border: '1px solid black', padding: '8px', fontWeight: 'bold' }}
-              >
-                VII. LINTAS DISIPLIN ILMU
-              </td>
-            </tr>
-            {formData.lintasDisiplinIlmu && (
+            {lintasDisiplinItems.length > 0 && (
               <>
-                {formData.lintasDisiplinIlmu.ppkn && (
-                  <tr>
-                    <td style={{ border: '1px solid black', padding: '6px', fontWeight: 'bold' }}>PPKn</td>
-                    <td style={{ border: '1px solid black', padding: '6px' }}>{formData.lintasDisiplinIlmu.ppkn}</td>
+                <tr style={{ backgroundColor: '#f0fdf4' }}>
+                  <td
+                    colSpan={2}
+                    style={{ border: '1px solid black', padding: '8px', fontWeight: 'bold' }}
+                  >
+                    VII. LINTAS DISIPLIN ILMU
+                  </td>
+                </tr>
+                {lintasDisiplinItems.map((item) => (
+                  <tr key={item.label}>
+                    <td style={{ border: '1px solid black', padding: '6px', fontWeight: 'bold' }}>{item.label}</td>
+                    <td style={{ border: '1px solid black', padding: '6px' }}>{item.value}</td>
                   </tr>
-                )}
-                {formData.lintasDisiplinIlmu.ips && (
-                  <tr>
-                    <td style={{ border: '1px solid black', padding: '6px', fontWeight: 'bold' }}>IPS</td>
-                    <td style={{ border: '1px solid black', padding: '6px' }}>{formData.lintasDisiplinIlmu.ips}</td>
-                  </tr>
-                )}
-                {formData.lintasDisiplinIlmu.matematika && (
-                  <tr>
-                    <td style={{ border: '1px solid black', padding: '6px', fontWeight: 'bold' }}>Matematika</td>
-                    <td style={{ border: '1px solid black', padding: '6px' }}>{formData.lintasDisiplinIlmu.matematika}</td>
-                  </tr>
-                )}
-                {formData.lintasDisiplinIlmu.bahasaIndonesia && (
-                  <tr>
-                    <td style={{ border: '1px solid black', padding: '6px', fontWeight: 'bold' }}>Bahasa Indonesia</td>
-                    <td style={{ border: '1px solid black', padding: '6px' }}>{formData.lintasDisiplinIlmu.bahasaIndonesia}</td>
-                  </tr>
-                )}
-                {formData.lintasDisiplinIlmu.seniBudaya && (
-                  <tr>
-                    <td style={{ border: '1px solid black', padding: '6px', fontWeight: 'bold' }}>Seni Budaya</td>
-                    <td style={{ border: '1px solid black', padding: '6px' }}>{formData.lintasDisiplinIlmu.seniBudaya}</td>
-                  </tr>
-                )}
-                {formData.lintasDisiplinIlmu.prakarya && (
-                  <tr>
-                    <td style={{ border: '1px solid black', padding: '6px', fontWeight: 'bold' }}>Prakarya</td>
-                    <td style={{ border: '1px solid black', padding: '6px' }}>{formData.lintasDisiplinIlmu.prakarya}</td>
-                  </tr>
-                )}
-                {formData.lintasDisiplinIlmu.penjaskes && (
-                  <tr>
-                    <td style={{ border: '1px solid black', padding: '6px', fontWeight: 'bold' }}>PJOK</td>
-                    <td style={{ border: '1px solid black', padding: '6px' }}>{formData.lintasDisiplinIlmu.penjaskes}</td>
-                  </tr>
-                )}
+                ))}
               </>
             )}
-            {/* Fallback for legacy lintasDisiplin field */}
-            {!formData.lintasDisiplinIlmu?.ppkn && !formData.lintasDisiplinIlmu?.ips && formData.lintasDisiplin && (
-              <tr>
-                <td style={{ border: '1px solid black', padding: '6px', fontWeight: 'bold' }}>Lintas Disiplin</td>
-                <td style={{ border: '1px solid black', padding: '6px' }}>{formData.lintasDisiplin}</td>
-              </tr>
-            )}
-            
+
             {/* Kemitraan Pembelajaran */}
-            <tr style={{ backgroundColor: '#fce7f3' }}>
-              <td
-                colSpan={2}
-                style={{ border: '1px solid black', padding: '8px', fontWeight: 'bold' }}
-              >
-                VIII. KEMITRAAN PEMBELAJARAN
-              </td>
-            </tr>
-            {formData.kemitraanPembelajaran && (
+            {kemitraanItems.length > 0 && (
               <>
-                {formData.kemitraanPembelajaran.guruBidangStudiLain && (
-                  <tr>
-                    <td style={{ border: '1px solid black', padding: '6px', fontWeight: 'bold' }}>Guru Bidang Studi Lain</td>
-                    <td style={{ border: '1px solid black', padding: '6px' }}>{formData.kemitraanPembelajaran.guruBidangStudiLain}</td>
+                <tr style={{ backgroundColor: '#fce7f3' }}>
+                  <td
+                    colSpan={2}
+                    style={{ border: '1px solid black', padding: '8px', fontWeight: 'bold' }}
+                  >
+                    VIII. KEMITRAAN PEMBELAJARAN
+                  </td>
+                </tr>
+                {kemitraanItems.map((item) => (
+                  <tr key={item.label}>
+                    <td style={{ border: '1px solid black', padding: '6px', fontWeight: 'bold' }}>{item.label}</td>
+                    <td style={{ border: '1px solid black', padding: '6px' }}>{item.value}</td>
                   </tr>
-                )}
-                {formData.kemitraanPembelajaran.orangTua && (
-                  <tr>
-                    <td style={{ border: '1px solid black', padding: '6px', fontWeight: 'bold' }}>Orang Tua</td>
-                    <td style={{ border: '1px solid black', padding: '6px' }}>{formData.kemitraanPembelajaran.orangTua}</td>
-                  </tr>
-                )}
-                {formData.kemitraanPembelajaran.tokohMasyarakat && (
-                  <tr>
-                    <td style={{ border: '1px solid black', padding: '6px', fontWeight: 'bold' }}>Tokoh Masyarakat</td>
-                    <td style={{ border: '1px solid black', padding: '6px' }}>{formData.kemitraanPembelajaran.tokohMasyarakat}</td>
-                  </tr>
-                )}
-                {formData.kemitraanPembelajaran.instansiTerkait && (
-                  <tr>
-                    <td style={{ border: '1px solid black', padding: '6px', fontWeight: 'bold' }}>Instansi Terkait</td>
-                    <td style={{ border: '1px solid black', padding: '6px' }}>{formData.kemitraanPembelajaran.instansiTerkait}</td>
-                  </tr>
-                )}
-                {formData.kemitraanPembelajaran.duniaUsaha && (
-                  <tr>
-                    <td style={{ border: '1px solid black', padding: '6px', fontWeight: 'bold' }}>Dunia Usaha/Industri</td>
-                    <td style={{ border: '1px solid black', padding: '6px' }}>{formData.kemitraanPembelajaran.duniaUsaha}</td>
-                  </tr>
-                )}
-                {formData.kemitraanPembelajaran.perguruanTinggiLSM && (
-                  <tr>
-                    <td style={{ border: '1px solid black', padding: '6px', fontWeight: 'bold' }}>Perguruan Tinggi/LSM</td>
-                    <td style={{ border: '1px solid black', padding: '6px' }}>{formData.kemitraanPembelajaran.perguruanTinggiLSM}</td>
-                  </tr>
-                )}
-                {formData.kemitraanPembelajaran.mgmpKomunitasBelajar && (
-                  <tr>
-                    <td style={{ border: '1px solid black', padding: '6px', fontWeight: 'bold' }}>MGMP/Komunitas Belajar</td>
-                    <td style={{ border: '1px solid black', padding: '6px' }}>{formData.kemitraanPembelajaran.mgmpKomunitasBelajar}</td>
-                  </tr>
-                )}
+                ))}
               </>
             )}
-            {/* Fallback for legacy kemitraan field */}
-            {!formData.kemitraanPembelajaran?.guruBidangStudiLain && formData.kemitraan && (
-              <tr>
-                <td style={{ border: '1px solid black', padding: '6px', fontWeight: 'bold' }}>Kemitraan</td>
-                <td style={{ border: '1px solid black', padding: '6px' }}>{formData.kemitraan}</td>
-              </tr>
-            )}
-            
+
             {/* Lingkungan Pembelajaran */}
-            <tr style={{ backgroundColor: '#cffafe' }}>
-              <td
-                colSpan={2}
-                style={{ border: '1px solid black', padding: '8px', fontWeight: 'bold' }}
-              >
-                IX. LINGKUNGAN PEMBELAJARAN
-              </td>
-            </tr>
-            {formData.lingkunganPembelajaranDetail && (
+            {lingkunganItems.length > 0 && (
               <>
-                {formData.lingkunganPembelajaranDetail.ruangFisik && (
-                  <tr>
-                    <td style={{ border: '1px solid black', padding: '6px', fontWeight: 'bold' }}>Ruang Fisik</td>
-                    <td style={{ border: '1px solid black', padding: '6px' }}>{formData.lingkunganPembelajaranDetail.ruangFisik}</td>
+                <tr style={{ backgroundColor: '#cffafe' }}>
+                  <td
+                    colSpan={2}
+                    style={{ border: '1px solid black', padding: '8px', fontWeight: 'bold' }}
+                  >
+                    IX. LINGKUNGAN PEMBELAJARAN
+                  </td>
+                </tr>
+                {lingkunganItems.map((item) => (
+                  <tr key={item.label}>
+                    <td style={{ border: '1px solid black', padding: '6px', fontWeight: 'bold' }}>{item.label}</td>
+                    <td style={{ border: '1px solid black', padding: '6px' }}>{item.value}</td>
                   </tr>
-                )}
-                {formData.lingkunganPembelajaranDetail.ruangVirtual && (
-                  <tr>
-                    <td style={{ border: '1px solid black', padding: '6px', fontWeight: 'bold' }}>Ruang Virtual</td>
-                    <td style={{ border: '1px solid black', padding: '6px' }}>{formData.lingkunganPembelajaranDetail.ruangVirtual}</td>
-                  </tr>
-                )}
-                {formData.lingkunganPembelajaranDetail.budayaBelajar && (
-                  <tr>
-                    <td style={{ border: '1px solid black', padding: '6px', fontWeight: 'bold' }}>Budaya Belajar</td>
-                    <td style={{ border: '1px solid black', padding: '6px' }}>{formData.lingkunganPembelajaranDetail.budayaBelajar}</td>
-                  </tr>
-                )}
+                ))}
               </>
             )}
-            {/* Fallback for legacy lingkunganBelajar array */}
-            {!formData.lingkunganPembelajaranDetail?.ruangFisik && formData.lingkunganBelajar && formData.lingkunganBelajar.length > 0 && (
-              <tr>
-                <td style={{ border: '1px solid black', padding: '6px', fontWeight: 'bold' }}>Lingkungan</td>
-                <td style={{ border: '1px solid black', padding: '6px' }}>{formData.lingkunganBelajar.join(', ')}</td>
-              </tr>
-            )}
-            
+
             {/* Pemanfaatan Digital */}
-            <tr style={{ backgroundColor: '#ede9fe' }}>
-              <td
-                colSpan={2}
-                style={{ border: '1px solid black', padding: '8px', fontWeight: 'bold' }}
-              >
-                X. PEMANFAATAN DIGITAL
-              </td>
-            </tr>
-            {formData.pemanfaatanDigitalDetail && (
+            {pemanfaatanDigitalItems.length > 0 && (
               <>
-                {formData.pemanfaatanDigitalDetail.perencanaan && (
-                  <tr>
-                    <td style={{ border: '1px solid black', padding: '6px', fontWeight: 'bold' }}>Perencanaan</td>
-                    <td style={{ border: '1px solid black', padding: '6px' }}>{formData.pemanfaatanDigitalDetail.perencanaan}</td>
+                <tr style={{ backgroundColor: '#ede9fe' }}>
+                  <td
+                    colSpan={2}
+                    style={{ border: '1px solid black', padding: '8px', fontWeight: 'bold' }}
+                  >
+                    X. PEMANFAATAN DIGITAL
+                  </td>
+                </tr>
+                {pemanfaatanDigitalItems.map((item) => (
+                  <tr key={item.label}>
+                    <td style={{ border: '1px solid black', padding: '6px', fontWeight: 'bold' }}>{item.label}</td>
+                    <td style={{ border: '1px solid black', padding: '6px' }}>{item.value}</td>
                   </tr>
-                )}
-                {formData.pemanfaatanDigitalDetail.pelaksanaan && (
-                  <tr>
-                    <td style={{ border: '1px solid black', padding: '6px', fontWeight: 'bold' }}>Pelaksanaan</td>
-                    <td style={{ border: '1px solid black', padding: '6px' }}>{formData.pemanfaatanDigitalDetail.pelaksanaan}</td>
-                  </tr>
-                )}
-                {formData.pemanfaatanDigitalDetail.asesmen && (
-                  <tr>
-                    <td style={{ border: '1px solid black', padding: '6px', fontWeight: 'bold' }}>Asesmen</td>
-                    <td style={{ border: '1px solid black', padding: '6px' }}>{formData.pemanfaatanDigitalDetail.asesmen}</td>
-                  </tr>
-                )}
+                ))}
               </>
-            )}
-            {/* Fallback for legacy pemanfaatanDigital field */}
-            {!formData.pemanfaatanDigitalDetail?.perencanaan && formData.pemanfaatanDigital && (
-              <tr>
-                <td style={{ border: '1px solid black', padding: '6px', fontWeight: 'bold' }}>Digital</td>
-                <td style={{ border: '1px solid black', padding: '6px' }}>{formData.pemanfaatanDigital}</td>
-              </tr>
             )}
           </tbody>
         </table>
@@ -1708,56 +1628,46 @@ export const DocumentPreview = ({
 
         {/* Minimalis layout for VIII, IX, X */}
         {!isPanduan && !isRingkasan && (
-          isNarasi && (
+          isNarasi && (kemitraanItems.length > 0 || lingkunganItems.length > 0 || pemanfaatanDigitalItems.length > 0) && (
           <div style={{ marginBottom: '20px' }}>
-            <h3 style={{ fontSize: '12pt', fontWeight: 'bold', borderBottom: '1px solid black', paddingBottom: '4px', marginBottom: '8px' }}>VIII. KEMITRAAN PEMBELAJARAN</h3>
-            <div style={{ paddingLeft: '8px', marginBottom: '16px' }}>
-              {formData.kemitraanPembelajaran ? (
-                <ul style={{ margin: '0', paddingLeft: '20px' }}>
-                  {formData.kemitraanPembelajaran.guruBidangStudiLain && <li><strong>Guru Bidang Studi Lain:</strong> {formData.kemitraanPembelajaran.guruBidangStudiLain}</li>}
-                  {formData.kemitraanPembelajaran.orangTua && <li><strong>Orang Tua:</strong> {formData.kemitraanPembelajaran.orangTua}</li>}
-                  {formData.kemitraanPembelajaran.tokohMasyarakat && <li><strong>Tokoh Masyarakat:</strong> {formData.kemitraanPembelajaran.tokohMasyarakat}</li>}
-                  {formData.kemitraanPembelajaran.instansiTerkait && <li><strong>Instansi Terkait:</strong> {formData.kemitraanPembelajaran.instansiTerkait}</li>}
-                  {formData.kemitraanPembelajaran.duniaUsaha && <li><strong>Dunia Usaha/Industri:</strong> {formData.kemitraanPembelajaran.duniaUsaha}</li>}
-                  {formData.kemitraanPembelajaran.perguruanTinggiLSM && <li><strong>Perguruan Tinggi/LSM:</strong> {formData.kemitraanPembelajaran.perguruanTinggiLSM}</li>}
-                  {formData.kemitraanPembelajaran.mgmpKomunitasBelajar && <li><strong>MGMP/Komunitas Belajar:</strong> {formData.kemitraanPembelajaran.mgmpKomunitasBelajar}</li>}
-                </ul>
-              ) : formData.kemitraan ? (
-                <div style={{ marginLeft: '12px' }}>{formData.kemitraan}</div>
-              ) : (
-                <div style={{ marginLeft: '12px' }}>-</div>
-              )}
-            </div>
+            {kemitraanItems.length > 0 && (
+              <>
+                <h3 style={{ fontSize: '12pt', fontWeight: 'bold', borderBottom: '1px solid black', paddingBottom: '4px', marginBottom: '8px' }}>VIII. KEMITRAAN PEMBELAJARAN</h3>
+                <div style={{ paddingLeft: '8px', marginBottom: '16px' }}>
+                  <ul style={{ margin: '0', paddingLeft: '20px' }}>
+                    {kemitraanItems.map((item) => (
+                      <li key={item.label}><strong>{item.label}:</strong> {item.value}</li>
+                    ))}
+                  </ul>
+                </div>
+              </>
+            )}
 
-            <h3 style={{ fontSize: '12pt', fontWeight: 'bold', borderBottom: '1px solid black', paddingBottom: '4px', marginBottom: '8px' }}>IX. LINGKUNGAN PEMBELAJARAN</h3>
-            <div style={{ paddingLeft: '8px', marginBottom: '16px' }}>
-              {formData.lingkunganPembelajaranDetail ? (
-                <ul style={{ margin: '0', paddingLeft: '20px' }}>
-                  {formData.lingkunganPembelajaranDetail.ruangFisik && <li><strong>Ruang Fisik:</strong> {formData.lingkunganPembelajaranDetail.ruangFisik}</li>}
-                  {formData.lingkunganPembelajaranDetail.ruangVirtual && <li><strong>Ruang Virtual:</strong> {formData.lingkunganPembelajaranDetail.ruangVirtual}</li>}
-                  {formData.lingkunganPembelajaranDetail.budayaBelajar && <li><strong>Budaya Belajar:</strong> {formData.lingkunganPembelajaranDetail.budayaBelajar}</li>}
-                </ul>
-              ) : formData.lingkunganBelajar && formData.lingkunganBelajar.length > 0 ? (
-                <div style={{ marginLeft: '12px' }}>{formData.lingkunganBelajar.join(', ')}</div>
-              ) : (
-                <div style={{ marginLeft: '12px' }}>-</div>
-              )}
-            </div>
+            {lingkunganItems.length > 0 && (
+              <>
+                <h3 style={{ fontSize: '12pt', fontWeight: 'bold', borderBottom: '1px solid black', paddingBottom: '4px', marginBottom: '8px' }}>IX. LINGKUNGAN PEMBELAJARAN</h3>
+                <div style={{ paddingLeft: '8px', marginBottom: '16px' }}>
+                  <ul style={{ margin: '0', paddingLeft: '20px' }}>
+                    {lingkunganItems.map((item) => (
+                      <li key={item.label}><strong>{item.label}:</strong> {item.value}</li>
+                    ))}
+                  </ul>
+                </div>
+              </>
+            )}
 
-            <h3 style={{ fontSize: '12pt', fontWeight: 'bold', borderBottom: '1px solid black', paddingBottom: '4px', marginBottom: '8px' }}>X. PEMANFAATAN DIGITAL</h3>
-            <div style={{ paddingLeft: '8px', marginBottom: '16px' }}>
-              {formData.pemanfaatanDigitalDetail ? (
-                <ul style={{ margin: '0', paddingLeft: '20px' }}>
-                  {formData.pemanfaatanDigitalDetail.perencanaan && <li><strong>Perencanaan:</strong> {formData.pemanfaatanDigitalDetail.perencanaan}</li>}
-                  {formData.pemanfaatanDigitalDetail.pelaksanaan && <li><strong>Pelaksanaan:</strong> {formData.pemanfaatanDigitalDetail.pelaksanaan}</li>}
-                  {formData.pemanfaatanDigitalDetail.asesmen && <li><strong>Asesmen:</strong> {formData.pemanfaatanDigitalDetail.asesmen}</li>}
-                </ul>
-              ) : formData.pemanfaatanDigital ? (
-                <div style={{ marginLeft: '12px' }}>{formData.pemanfaatanDigital}</div>
-              ) : (
-                <div style={{ marginLeft: '12px' }}>-</div>
-              )}
-            </div>
+            {pemanfaatanDigitalItems.length > 0 && (
+              <>
+                <h3 style={{ fontSize: '12pt', fontWeight: 'bold', borderBottom: '1px solid black', paddingBottom: '4px', marginBottom: '8px' }}>X. PEMANFAATAN DIGITAL</h3>
+                <div style={{ paddingLeft: '8px', marginBottom: '16px' }}>
+                  <ul style={{ margin: '0', paddingLeft: '20px' }}>
+                    {pemanfaatanDigitalItems.map((item) => (
+                      <li key={item.label}><strong>{item.label}:</strong> {item.value}</li>
+                    ))}
+                  </ul>
+                </div>
+              </>
+            )}
           </div>
         ))}
 
