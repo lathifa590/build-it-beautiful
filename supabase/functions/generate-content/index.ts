@@ -2846,7 +2846,8 @@ SUB MATERI: ${data.subMateri || '(tidak diisi)'}
 FASE: ${data.fase || '(tidak diisi)'}
 KELAS: ${data.kelas || '(tidak diisi)'}
 
-Ekstrak bagian CP yang relevan dengan materi di atas, lalu reformulasi menjadi SATU paragraf koheren dengan kata kerja Bloom yang tepat.`;
+Ekstrak bagian CP yang relevan dengan materi di atas, lalu reformulasi menjadi SATU paragraf koheren dengan kata kerja Bloom yang tepat.
+WAJIB kembalikan objek JSON dengan key tepat "cp_kontekstual": { "cp_kontekstual": "Murid mampu ..." }`;
         break;
 
       case "suggest-desain-pembelajaran":
@@ -3129,7 +3130,7 @@ Jahit ke seksi/konten yang sudah ada — JANGAN buat seksi baru di luar struktur
       'tujuan-pembelajaran': 10000,
       'ruang-lingkup': 4000,
       'topik-materi': 4000,
-      'kontekstualisasi-cp': 1000,
+      'kontekstualisasi-cp': 2000,
       'suggest-desain-pembelajaran': 2000,
       'edit-section': 4000
     };
@@ -3310,6 +3311,30 @@ Jahit ke seksi/konten yang sudah ada — JANGAN buat seksi baru di luar struktur
         console.log("Parse success:", typeof parsedContent === 'object');
         console.log("Has auto_generated:", !!parsedContent?.auto_generated);
         console.log("Has pertemuan:", !!parsedContent?.pertemuan);
+      } else if (type === 'kontekstualisasi-cp') {
+        // Fallback khusus kontekstualisasi-cp jika AI mengembalikan teks biasa / markdown / JSON terpotong
+        const regexMatch = content.match(/"cp_kontekstual"\s*:\s*"([\s\S]*?)(?:"|$)/i)
+          || content.match(/"(?:cpKontekstual|capaian_pembelajaran|capaianPembelajaran|cp)"\s*:\s*"([\s\S]*?)(?:"|$)/i);
+        const rawFallback = (regexMatch ? regexMatch[1] : content)
+          .replace(/^```(?:json)?\s*/i, '')
+          .replace(/\s*```$/i, '')
+          .replace(/\\n/g, ' ')
+          .replace(/\\"/g, '"')
+          .trim();
+        if (rawFallback.length >= 15) {
+          parsedContent = { cp_kontekstual: rawFallback };
+          console.log("kontekstualisasi-cp: recovered via plain-text/regex fallback");
+        } else {
+          return new Response(JSON.stringify({
+            error: `Gagal memproses hasil penyesuaian CP dari AI. Silakan coba lagi.`,
+            errorCode: "parse_error",
+            triedModels,
+            contentPreview: content.substring(0, 100),
+          }), {
+            status: 200,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
       } else {
         console.error("JSON parse failed (all methods):", parsed.error);
         console.error("Raw content (first 1500 chars):", content.substring(0, 1500));
@@ -3330,10 +3355,61 @@ Jahit ke seksi/konten yang sudah ada — JANGAN buat seksi baru di luar struktur
       console.log("LKPD pre-parse success:", typeof parsedContent === 'object');
     }
 
-    // Log generation
+    // Log generation & normalize response for kontekstualisasi-cp
     if (type === 'kontekstualisasi-cp') {
-      console.log("kontekstualisasi-cp: parsed JSON:", JSON.stringify(parsedContent));
-      
+      console.log("kontekstualisasi-cp: raw parsed JSON:", JSON.stringify(parsedContent));
+
+      const extractCpText = (val: any): string => {
+        if (!val) return '';
+        if (typeof val === 'string') return val.trim();
+        if (Array.isArray(val)) {
+          for (const item of val) {
+            const extracted = extractCpText(item);
+            if (extracted) return extracted;
+          }
+          return '';
+        }
+        if (typeof val === 'object') {
+          const preferredKeys = [
+            'cp_kontekstual',
+            'cpKontekstual',
+            'cp_kontekstualisasi',
+            'kontekstualisasi_cp',
+            'capaian_pembelajaran',
+            'capaianPembelajaran',
+            'cp',
+            'hasil',
+            'result',
+            'text',
+            'content',
+            'output',
+            'data',
+          ];
+          for (const key of preferredKeys) {
+            if (val[key]) {
+              const extracted = extractCpText(val[key]);
+              if (extracted) return extracted;
+            }
+          }
+          for (const v of Object.values(val)) {
+            const extracted = extractCpText(v);
+            if (extracted) return extracted;
+          }
+        }
+        return '';
+      };
+
+      const normalizedCp = extractCpText(parsedContent);
+      if (normalizedCp) {
+        parsedContent = {
+          ...(typeof parsedContent === 'object' && !Array.isArray(parsedContent) ? parsedContent : {}),
+          cp_kontekstual: normalizedCp,
+        };
+      }
+
+      let cpRemaining: number | undefined;
+      let cpLimit: number | undefined;
+
       // Log generation
       if (authHeader) {
         const token = authHeader.replace('Bearer ', '');
@@ -3348,10 +3424,32 @@ Jahit ke seksi/konten yang sudah ada — JANGAN buat seksi baru di luar struktur
             content_type: type,
             metadata: { model: usedModel }
           });
+
+          const { count: newTotalCount } = await supabaseAdmin
+            .from('generation_logs')
+            .select('*', { count: 'exact', head: true })
+            .eq('user_id', user.id)
+            .neq('content_type', 'image');
+
+          if (isTrial) {
+            cpLimit = 50;
+            cpRemaining = Math.max(0, 50 - (newTotalCount ?? 0));
+          } else if (isOnboardingQuota) {
+            cpLimit = PAID_ONBOARDING_LIMIT;
+            cpRemaining = Math.max(0, PAID_ONBOARDING_LIMIT - (newTotalCount ?? 0));
+          }
         }
       }
 
-      return new Response(JSON.stringify({ data: parsedContent, model: usedModel, ...(pertemuanMeta ? { meta: { type, ...pertemuanMeta } } : {}) }), {
+      return new Response(JSON.stringify({
+        data: parsedContent,
+        model: usedModel,
+        remaining: cpRemaining,
+        limit: cpLimit,
+        isTrial,
+        isOnboardingQuota,
+        ...(pertemuanMeta ? { meta: { type, ...pertemuanMeta } } : {})
+      }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
