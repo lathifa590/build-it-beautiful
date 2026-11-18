@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSchool } from '@/contexts/SchoolContext';
 import { useIsAgencyOwner } from '@/hooks/useIsAgencyOwner';
-import { FolderOpen, ShoppingBag, Globe, School, Shield, Store, Settings, LogOut, Menu, X, User as UserIcon, ChevronLeft, ChevronRight } from 'lucide-react';
+import { FolderOpen, ShoppingBag, Globe, School, Shield, Store, Settings, LogOut, Menu, X, User as UserIcon, ChevronLeft, ChevronRight, Handshake } from 'lucide-react';
 
 interface AppSidebarProps {
   onClose?: () => void;
@@ -46,6 +46,12 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({ onClose }) => {
       icon: <Globe className="w-5 h-5" />,
       path: '/app/blog-management',
       isActive: location.pathname === '/app/blog-management',
+    },
+    {
+      label: 'Program Afiliasi',
+      icon: <Handshake className="w-5 h-5" />,
+      path: '/app/affiliate',
+      isActive: location.pathname.startsWith('/app/affiliate'),
     }
   ];
 

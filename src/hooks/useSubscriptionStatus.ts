@@ -16,6 +16,8 @@ export interface SubscriptionStatus {
   isLite: boolean;
   isTrial: boolean;
   isPro: boolean;
+  trialQuotaLimit?: number | null;
+  referredByCode?: string | null;
 }
 
 export const useSubscriptionStatus = () => {
@@ -32,7 +34,7 @@ export const useSubscriptionStatus = () => {
       // and claim-customer hasn't re-run (user_id may still be null on the row).
       let { data } = await supabase
         .from('allowed_customers')
-        .select('account_type, subscription_expires_at')
+        .select('account_type, subscription_expires_at, trial_quota_limit, referred_by_code')
         .eq('user_id', user!.id)
         .maybeSingle();
 
@@ -40,7 +42,7 @@ export const useSubscriptionStatus = () => {
       if (!data && user!.email) {
         const { data: dataByEmail } = await supabase
           .from('allowed_customers')
-          .select('account_type, subscription_expires_at')
+          .select('account_type, subscription_expires_at, trial_quota_limit, referred_by_code')
           .eq('email', user!.email.toLowerCase())
           .maybeSingle();
         data = dataByEmail;
@@ -48,6 +50,8 @@ export const useSubscriptionStatus = () => {
 
       const accountType = ((data as any)?.account_type ?? 'unknown') as AccountType;
       const expiresAt = (data as any)?.subscription_expires_at ?? null;
+      const trialQuotaLimit = (data as any)?.trial_quota_limit ?? null;
+      const referredByCode = (data as any)?.referred_by_code ?? null;
 
       let daysLeft: number | null = null;
       let isExpired = false;
@@ -73,6 +77,8 @@ export const useSubscriptionStatus = () => {
         isLite: accountType === 'lite',
         isTrial: accountType === 'trial',
         isPro: isSuperAdmin || accountType === 'pro_annual' || accountType === 'pro_lifetime',
+        trialQuotaLimit,
+        referredByCode,
       };
     },
   });

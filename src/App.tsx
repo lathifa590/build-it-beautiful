@@ -52,6 +52,10 @@ const AdminOrders = lazy(() => import("./pages/admin/Orders"));
 const AdminCoupons = lazy(() => import("./pages/admin/Coupons"));
 const AdminPaymentSettings = lazy(() => import("./pages/admin/PaymentSettings"));
 
+// Affiliate Imports
+const AffiliateDashboard = lazy(() => import("./pages/affiliate/AffiliateDashboard"));
+const AdminAffiliate = lazy(() => import("./pages/admin/AffiliateAdmin"));
+
 // Store Imports
 const StoreIndex = lazy(() => import("./pages/store/StoreIndex"));
 const StoreProfile = lazy(() => import("./pages/store/StoreProfile"));
@@ -78,6 +82,7 @@ const App = () => (
                 <Routes>
                 {/* Public Landing Page */}
                 <Route path="/" element={<Landing />} />
+                <Route path="/a/:refCode" element={<Landing />} />
                 <Route path="/paketsekolah" element={<PaketSekolahPage />} />
                 <Route path="/paketagency" element={<PaketAgencyPage />} />
                 <Route path="/paket-agency" element={<PaketAgencyPage />} />
@@ -147,6 +152,7 @@ const App = () => (
                       <BlogManagement />
                     </StoreGate>
                   } />
+                  <Route path="affiliate" element={<AffiliateDashboard />} />
                   <Route path="*" element={<Index />} />
                 </Route>
 
@@ -271,6 +277,47 @@ const App = () => (
                   element={
                     <AdminRoute>
                       <AdminPaymentSettings />
+                    </AdminRoute>
+                  }
+                />
+                {/* Admin Afiliasi */}
+                <Route
+                  path="/admin/affiliate"
+                  element={
+                    <AdminRoute>
+                      <AdminAffiliate initialTab="affiliates" />
+                    </AdminRoute>
+                  }
+                />
+                <Route
+                  path="/admin/affiliate/leads"
+                  element={
+                    <AdminRoute>
+                      <AdminAffiliate initialTab="leads" />
+                    </AdminRoute>
+                  }
+                />
+                <Route
+                  path="/admin/affiliate/payouts"
+                  element={
+                    <AdminRoute>
+                      <AdminAffiliate initialTab="payouts" />
+                    </AdminRoute>
+                  }
+                />
+                <Route
+                  path="/admin/affiliate/marketing-kit"
+                  element={
+                    <AdminRoute>
+                      <AdminAffiliate initialTab="marketing" />
+                    </AdminRoute>
+                  }
+                />
+                <Route
+                  path="/admin/affiliate/settings"
+                  element={
+                    <AdminRoute>
+                      <AdminAffiliate initialTab="settings" />
                     </AdminRoute>
                   }
                 />

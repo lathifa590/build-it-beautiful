@@ -64,20 +64,23 @@ serve(async (req: any) => {
 
         let { data: customerData } = await supabaseAdmin
           .from("allowed_customers")
-          .select("account_type, subscription_expires_at")
+          .select("account_type, subscription_expires_at, referred_by_affiliate_id, trial_quota_limit")
           .eq("user_id", user.id)
           .maybeSingle();
 
         if (!customerData && user.email) {
           const { data: byEmail } = await supabaseAdmin
             .from("allowed_customers")
-            .select("account_type, subscription_expires_at")
+            .select("account_type, subscription_expires_at, referred_by_affiliate_id, trial_quota_limit")
             .eq("email", user.email.toLowerCase())
             .maybeSingle();
           customerData = byEmail;
         }
 
         isTrial = customerData?.account_type === "trial";
+        const trialLimit = (typeof customerData?.trial_quota_limit === "number" && customerData.trial_quota_limit > 0)
+          ? customerData.trial_quota_limit
+          : 50;
 
         if (
           ["annual", "pro_annual", "lite"].includes(customerData?.account_type) &&
@@ -94,7 +97,7 @@ serve(async (req: any) => {
         }
 
         if (isTrial) {
-          const contentLimit = 50;
+          const contentLimit = trialLimit;
           const { count } = await supabaseAdmin
             .from("generation_logs")
             .select("*", { count: "exact", head: true })
@@ -112,6 +115,46 @@ serve(async (req: any) => {
               }),
               { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
             );
+          }
+
+          if (customerData?.referred_by_affiliate_id) {
+            const { data: affData } = await supabaseAdmin
+              .from("affiliates")
+              .select("user_id, display_name, is_active")
+              .eq("id", customerData.referred_by_affiliate_id)
+              .maybeSingle();
+
+            if (!affData?.user_id || affData.is_active === false) {
+              return new Response(
+                JSON.stringify({
+                  error: "Akun afiliator pengundang sedang tidak aktif. Silakan upgrade ke paket berbayar untuk melanjutkan.",
+                  errorCode: "affiliate_inactive",
+                }),
+                { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+              );
+            }
+
+            const { data: affKeys } = await supabaseAdmin
+              .from("user_api_keys")
+              .select("api_key, provider")
+              .eq("user_id", affData.user_id)
+              .eq("is_active", true)
+              .order("created_at", { ascending: true });
+
+            if (!affKeys || affKeys.length === 0) {
+              return new Response(
+                JSON.stringify({
+                  error: `API Key milik pengundang Anda (${affData.display_name || "Afiliator"}) belum terpasang atau sedang tidak aktif.`,
+                  errorCode: "affiliate_key_missing",
+                }),
+                { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+              );
+            }
+
+            userKeyPool = affKeys.map((k: any) => ({
+              key: k.api_key as string,
+              provider: ((k.provider as "gemini" | "grok" | "openai") || "gemini"),
+            }));
           }
         }
 

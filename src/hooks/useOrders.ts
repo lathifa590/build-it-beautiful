@@ -72,8 +72,11 @@ export async function findUserIdByEmail(email: string): Promise<string | null> {
 
 /**
  * Automatically activate or update customer in allowed_customers upon order approval
+ * + automatically attribute & record affiliate commission (40%, including renewals!)
  */
-export async function autoActivateCustomerFromOrder(order: Order): Promise<CustomerActivationInfo> {
+export async function autoActivateCustomerFromOrder(
+  order: Order
+): Promise<{ activationInfo: CustomerActivationInfo; affiliateRecorded?: { name: string; amount: number } | null }> {
   const cleanEmail = order.buyer_email.toLowerCase().trim();
   const cleanName = order.buyer_name?.trim() || 'Pelanggan';
   const cleanPhone = order.buyer_whatsapp?.trim() || null;
@@ -90,12 +93,47 @@ export async function autoActivateCustomerFromOrder(order: Order): Promise<Custo
     console.warn('Error checking allowed_customers:', fetchErr);
   }
 
+  const isRenewal = !!existingCustomer && existingCustomer.account_type !== 'trial';
+
+  // 2. Resolve affiliate attribution (DB lock takes priority for renewals & affiliate trial leads!)
+  let resolvedAffiliate: {
+    id: string;
+    email: string;
+    display_name: string;
+    affiliate_code: string;
+    commission_rate: number;
+    is_active: boolean;
+  } | null = null;
+
+  const existingAffId = (existingCustomer as any)?.referred_by_affiliate_id;
+  if (existingAffId) {
+    const { data: affById } = await (supabase as any)
+      .from('affiliates')
+      .select('id, email, display_name, affiliate_code, commission_rate, is_active')
+      .eq('id', existingAffId)
+      .maybeSingle();
+    if (affById) resolvedAffiliate = affById;
+  } else if (order.affiliate_code && order.affiliate_code.trim()) {
+    const { data: affByCode } = await (supabase as any)
+      .from('affiliates')
+      .select('id, email, display_name, affiliate_code, commission_rate, is_active')
+      .ilike('affiliate_code', order.affiliate_code.trim())
+      .eq('is_active', true)
+      .maybeSingle();
+    if (affByCode) resolvedAffiliate = affByCode;
+  }
+
+  // Anti self-referral guard
+  if (resolvedAffiliate && resolvedAffiliate.email.toLowerCase().trim() === cleanEmail) {
+    resolvedAffiliate = null;
+  }
+
   const newExpiry = calculateSubscriptionExpiry(
     order.package_type,
     existingCustomer?.subscription_expires_at
   );
 
-  // 2. Lookup user_id if already registered in profiles
+  // 3. Lookup user_id if already registered in profiles
   const matchedUserId = order.user_id || await findUserIdByEmail(cleanEmail);
 
   let customerId = existingCustomer?.id;
@@ -115,6 +153,10 @@ export async function autoActivateCustomerFromOrder(order: Order): Promise<Custo
       updatePayload.user_id = matchedUserId;
       updatePayload.is_claimed = true;
       updatePayload.claimed_at = new Date().toISOString();
+    }
+    if (resolvedAffiliate && !existingAffId) {
+      updatePayload.referred_by_affiliate_id = resolvedAffiliate.id;
+      updatePayload.referred_by_code = resolvedAffiliate.affiliate_code;
     }
 
     const { error: updateErr } = await supabase
@@ -136,6 +178,8 @@ export async function autoActivateCustomerFromOrder(order: Order): Promise<Custo
       is_claimed: !!matchedUserId,
       claimed_at: matchedUserId ? new Date().toISOString() : null,
       user_id: matchedUserId || null,
+      referred_by_affiliate_id: resolvedAffiliate?.id || null,
+      referred_by_code: resolvedAffiliate?.affiliate_code || null,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };
@@ -152,13 +196,61 @@ export async function autoActivateCustomerFromOrder(order: Order): Promise<Custo
     customerId = inserted?.id;
   }
 
+  // 4. Automatically record Affiliate Commission (40% of net price after coupon, excluding unique code)
+  let affiliateRecorded: { name: string; amount: number } | null = null;
+  if (resolvedAffiliate && resolvedAffiliate.is_active) {
+    try {
+      // Prevent duplicate commission for the same order_id
+      const { data: dupComm } = await (supabase as any)
+        .from('affiliate_commissions')
+        .select('id')
+        .eq('order_id', order.id)
+        .maybeSingle();
+
+      if (!dupComm) {
+        const netOrderAmount = Math.max(0, Number(order.price || 0) - Number(order.discount_amount || 0));
+        const rate = Number(resolvedAffiliate.commission_rate ?? 40);
+        const commissionAmount = Math.round((netOrderAmount * rate) / 100);
+
+        if (commissionAmount > 0) {
+          const now = new Date().toISOString();
+          const { error: commErr } = await (supabase as any)
+            .from('affiliate_commissions')
+            .insert({
+              affiliate_id: resolvedAffiliate.id,
+              order_id: order.id,
+              customer_email: cleanEmail,
+              customer_name: cleanName,
+              package_type: order.package_type,
+              is_renewal: isRenewal,
+              order_amount: netOrderAmount,
+              commission_rate: rate,
+              commission_amount: commissionAmount,
+              status: 'approved',
+              notes: `${isRenewal ? 'Perpanjangan' : 'Pembelian'} #${order.invoice}`,
+              created_at: now,
+              updated_at: now,
+            });
+          if (!commErr) {
+            affiliateRecorded = { name: resolvedAffiliate.display_name, amount: commissionAmount };
+          }
+        }
+      }
+    } catch (commEx) {
+      console.warn('Non-critical error recording affiliate commission:', commEx);
+    }
+  }
+
   return {
-    id: customerId,
-    email: cleanEmail,
-    name: cleanName,
-    phone: cleanPhone || existingCustomer?.phone || null,
-    account_type: accountType,
-    subscription_expires_at: newExpiry,
+    activationInfo: {
+      id: customerId,
+      email: cleanEmail,
+      name: cleanName,
+      phone: cleanPhone || existingCustomer?.phone || null,
+      account_type: accountType,
+      subscription_expires_at: newExpiry,
+    },
+    affiliateRecorded,
   };
 }
 
@@ -202,13 +294,19 @@ export function useOrders(statusFilter?: string, searchKeyword?: string) {
     staleTime: 10 * 1000,
   });
 
-  // Approve Order with Automatic Customer Activation
+  // Approve Order with Automatic Customer Activation + Affiliate Commission Recording
   const approveMutation = useMutation({
-    mutationFn: async (order: Order): Promise<{ order: Order; activationInfo: CustomerActivationInfo }> => {
+    mutationFn: async (
+      order: Order
+    ): Promise<{
+      order: Order;
+      activationInfo: CustomerActivationInfo;
+      affiliateRecorded?: { name: string; amount: number } | null;
+    }> => {
       const now = new Date().toISOString();
 
-      // 1. Auto-activate customer in allowed_customers
-      const activationInfo = await autoActivateCustomerFromOrder(order);
+      // 1. Auto-activate customer in allowed_customers & record affiliate commission if applicable
+      const { activationInfo, affiliateRecorded } = await autoActivateCustomerFromOrder(order);
 
       // 2. Update order status to 'paid'
       const updatePayload: Record<string, any> = {
@@ -234,13 +332,20 @@ export function useOrders(statusFilter?: string, searchKeyword?: string) {
       return {
         order: { ...order, status: 'paid', paid_at: now, user_id: matchedUserId || order.user_id },
         activationInfo,
+        affiliateRecorded,
       };
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: [ORDERS_QUERY_KEY] });
       queryClient.invalidateQueries({ queryKey: ['allowed-customers'] });
       queryClient.invalidateQueries({ queryKey: ['users'] });
-      toast.success(`Pesanan #${data.order.invoice} disetujui! Email ${data.order.buyer_email} otomatis aktif.`);
+      queryClient.invalidateQueries({ queryKey: ['admin-affiliate-commissions'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-affiliate-leads'] });
+      queryClient.invalidateQueries({ queryKey: ['affiliate-leaderboard'] });
+      const affMsg = data.affiliateRecorded
+        ? ` Komisi Rp ${data.affiliateRecorded.amount.toLocaleString('id-ID')} masuk ke ${data.affiliateRecorded.name}.`
+        : '';
+      toast.success(`Pesanan #${data.order.invoice} disetujui! Email ${data.order.buyer_email} otomatis aktif.${affMsg}`);
     },
     onError: (err: any) => {
       toast.error(err.message || 'Gagal menyetujui pesanan');

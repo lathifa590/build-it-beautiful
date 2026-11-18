@@ -315,11 +315,18 @@ export default function AdminOrders() {
                               minute: '2-digit',
                             })}
                           </div>
-                          {order.coupon_code && (
-                            <Badge variant="outline" className="mt-1 text-[10px] font-mono border-emerald-600/40 text-emerald-700 bg-emerald-500/10">
-                              Kupon: {order.coupon_code}
-                            </Badge>
-                          )}
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {order.coupon_code && (
+                              <Badge variant="outline" className="text-[10px] font-mono border-emerald-600/40 text-emerald-700 bg-emerald-500/10">
+                                Kupon: {order.coupon_code}
+                              </Badge>
+                            )}
+                            {order.affiliate_code && (
+                              <Badge variant="outline" className="text-[10px] font-mono border-indigo-600/40 text-indigo-700 bg-indigo-500/10">
+                                🤝 Aff: {order.affiliate_code}
+                              </Badge>
+                            )}
+                          </div>
                         </TableCell>
 
                         {/* Buyer Data */}

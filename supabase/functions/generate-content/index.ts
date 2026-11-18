@@ -152,6 +152,7 @@ serve(async (req) => {
     let isUsingDemoKeys = false; // true saat menggunakan demo key pool (bukan user key pribadi)
     let isOnboardingQuota = false; // true saat user berbayar belum pasang key & memakai kuota pengenalan (max 20)
     let isTrial = false;
+    let trialLimit = 50;
     const PAID_ONBOARDING_LIMIT = 20;
     
     const authHeader = req.headers.get('Authorization');
@@ -205,20 +206,23 @@ serve(async (req) => {
         // Check account type from allowed_customers (with email fallback if not yet claimed)
         let { data: customerData } = await supabaseAdmin
           .from('allowed_customers')
-          .select('account_type, subscription_expires_at')
+          .select('account_type, subscription_expires_at, referred_by_affiliate_id, trial_quota_limit')
           .eq('user_id', user.id)
           .maybeSingle();
 
         if (!customerData && user.email) {
           const { data: byEmail } = await supabaseAdmin
             .from('allowed_customers')
-            .select('account_type, subscription_expires_at')
+            .select('account_type, subscription_expires_at, referred_by_affiliate_id, trial_quota_limit')
             .eq('email', user.email.toLowerCase())
             .maybeSingle();
           customerData = byEmail;
         }
 
         isTrial = customerData?.account_type === 'trial';
+        trialLimit = (typeof customerData?.trial_quota_limit === 'number' && customerData.trial_quota_limit > 0)
+          ? customerData.trial_quota_limit
+          : 50;
 
         // Block expired annual / pro_annual / lite subscriptions
         if (
@@ -235,10 +239,10 @@ serve(async (req) => {
           });
         }
 
-        // Rate limit check - only for trial users (kuota 50 kali untuk selamanya)
+        // Rate limit check - only for trial users (50 untuk trial admin, atau trial_quota_limit mis. 25 untuk trial binaan afiliator)
         let totalCount = 0;
         if (isTrial) {
-          const contentLimit = 50;
+          const contentLimit = trialLimit;
           const { count } = await supabaseAdmin
             .from('generation_logs')
             .select('*', { count: 'exact', head: true })
@@ -258,6 +262,62 @@ serve(async (req) => {
               status: 200,
               headers: { ...corsHeaders, "Content-Type": "application/json" },
             });
+          }
+
+          // Jika akun trial didaftarkan oleh afiliator: WAJIB pakai Gemini API Key milik afiliator (bukan demo key admin!)
+          if (customerData?.referred_by_affiliate_id) {
+            const { data: affData } = await supabaseAdmin
+              .from('affiliates')
+              .select('user_id, display_name, is_active')
+              .eq('id', customerData.referred_by_affiliate_id)
+              .maybeSingle();
+
+            if (!affData?.user_id || affData.is_active === false) {
+              return new Response(JSON.stringify({
+                error: 'Akun afiliator pengundang sedang tidak aktif. Silakan upgrade ke paket berbayar untuk melanjutkan penggunaan aplikasi.',
+                errorCode: 'affiliate_inactive',
+              }), {
+                status: 200,
+                headers: { ...corsHeaders, "Content-Type": "application/json" },
+              });
+            }
+
+            const { data: affKeys } = await supabaseAdmin
+              .from('user_api_keys')
+              .select('api_key, provider')
+              .eq('user_id', affData.user_id)
+              .eq('is_active', true)
+              .order('created_at', { ascending: true });
+
+            if (!affKeys || affKeys.length === 0) {
+              return new Response(JSON.stringify({
+                error: `API Key milik pengundang Anda (${affData.display_name || 'Afiliator'}) belum terpasang atau sedang tidak aktif. Mohon hubungi pengundang Anda atau upgrade ke paket berbayar.`,
+                errorCode: 'affiliate_key_missing',
+              }), {
+                status: 200,
+                headers: { ...corsHeaders, "Content-Type": "application/json" },
+              });
+            }
+
+            // Rotasi key pool milik afiliator (utamakan Gemini)
+            const geminiAffKeys = affKeys.filter((k: any) => !k.provider || k.provider === 'gemini');
+            const orderedAffKeys = geminiAffKeys.length > 0
+              ? [...geminiAffKeys, ...affKeys.filter((k: any) => k.provider && k.provider !== 'gemini')]
+              : affKeys;
+            const startIdx = (totalCount > 0 ? totalCount : Math.floor(Math.random() * orderedAffKeys.length)) % orderedAffKeys.length;
+            const rotatedAff = [
+              ...orderedAffKeys.slice(startIdx),
+              ...orderedAffKeys.slice(0, startIdx),
+            ];
+            userKeyPool = rotatedAff.map((k: any) => ({
+              key: k.api_key as string,
+              provider: ((k.provider as 'gemini' | 'grok' | 'openai') || 'gemini'),
+            }));
+            userApiKey = userKeyPool[0].key;
+            userProvider = userKeyPool[0].provider;
+            useGeminiDirect = true;
+            isUsingDemoKeys = false;
+            console.log(`Using affiliate (${affData.display_name}) key pool: ${userKeyPool.length} keys, start=${startIdx}`);
           }
         }
 
@@ -3432,8 +3492,8 @@ Jahit ke seksi/konten yang sudah ada — JANGAN buat seksi baru di luar struktur
             .neq('content_type', 'image');
 
           if (isTrial) {
-            cpLimit = 50;
-            cpRemaining = Math.max(0, 50 - (newTotalCount ?? 0));
+            cpLimit = trialLimit;
+            cpRemaining = Math.max(0, trialLimit - (newTotalCount ?? 0));
           } else if (isOnboardingQuota) {
             cpLimit = PAID_ONBOARDING_LIMIT;
             cpRemaining = Math.max(0, PAID_ONBOARDING_LIMIT - (newTotalCount ?? 0));
@@ -3552,9 +3612,9 @@ Jahit ke seksi/konten yang sudah ada — JANGAN buat seksi baru di luar struktur
             .eq('user_id', user.id)
             .neq('content_type', 'image');
 
-          // Compute remaining for trial users (kuota 50 kali) or onboarding paid users (kuota 20 kali)
+          // Compute remaining for trial users (trialLimit: 50 admin / 25 affiliate) or onboarding paid users (20)
           if (isTrial) {
-            const contentLimit = 50;
+            const contentLimit = trialLimit;
             limit = contentLimit;
             remaining = Math.max(0, contentLimit - (newTotalCount ?? 0));
           } else if (isOnboardingQuota) {

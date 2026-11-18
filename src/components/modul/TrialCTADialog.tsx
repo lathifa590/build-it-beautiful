@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
 import {
   Dialog,
   DialogContent,
@@ -61,8 +62,12 @@ const CONTENT = {
 };
 
 export const TrialCTADialog = ({ open, onOpenChange, reason = 'quota' }: TrialCTADialogProps) => {
+  const { data: subStatus } = useSubscriptionStatus();
   const content = CONTENT[reason];
   const Icon = content.icon;
+  const checkoutUrl = subStatus?.referredByCode
+    ? `/checkout?package=standar&ref=${encodeURIComponent(subStatus.referredByCode)}`
+    : '/checkout?package=standar';
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -114,7 +119,7 @@ export const TrialCTADialog = ({ open, onOpenChange, reason = 'quota' }: TrialCT
               asChild
               className="w-full font-bold text-base py-6 bg-primary hover:bg-primary/90 text-primary-foreground border-2 border-foreground shadow-brutal-sm hover:translate-y-0.5 active:translate-y-1 transition-all gap-2"
             >
-              <Link to="/checkout?package=standar" onClick={() => onOpenChange(false)}>
+              <Link to={checkoutUrl} onClick={() => onOpenChange(false)}>
                 <Sparkles className="w-5 h-5" />
                 Upgrade & Beli Langganan
                 <ArrowRight className="w-4 h-4 ml-1" />

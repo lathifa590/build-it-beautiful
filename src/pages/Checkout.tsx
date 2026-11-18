@@ -37,6 +37,11 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import {
+  saveAffiliateRef,
+  getStoredAffiliateRef,
+  fetchAffiliatePublicInfo,
+} from '@/lib/affiliate-tracking';
 
 export default function Checkout() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -55,8 +60,28 @@ export default function Checkout() {
     return PACKAGES_CONFIG[selectedPackageKey] || PACKAGES_CONFIG.standar;
   }, [selectedPackageKey]);
 
-  // Affiliate ref
-  const affiliateRef = searchParams.get('ref') || searchParams.get('aff') || null;
+  // Affiliate ref (URL param takes priority, else 30-day stored referral code)
+  const urlAffiliateRef = searchParams.get('ref') || searchParams.get('aff');
+  const [affiliateRef, setAffiliateRef] = useState<string | null>(() => {
+    if (urlAffiliateRef && urlAffiliateRef.trim()) return saveAffiliateRef(urlAffiliateRef);
+    return getStoredAffiliateRef();
+  });
+  const [recommenderName, setRecommenderName] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (urlAffiliateRef && urlAffiliateRef.trim()) {
+      const clean = saveAffiliateRef(urlAffiliateRef);
+      setAffiliateRef(clean);
+    }
+  }, [urlAffiliateRef]);
+
+  useEffect(() => {
+    if (affiliateRef) {
+      fetchAffiliatePublicInfo(affiliateRef).then((info) => {
+        if (info?.display_name) setRecommenderName(info.display_name);
+      });
+    }
+  }, [affiliateRef]);
 
   // Invoice query param (if user visits /checkout?invoice=INV-...)
   const invoiceParam = searchParams.get('invoice');
@@ -582,6 +607,12 @@ Berikut saya lampirkan bukti transfernya. Mohon bantuannya untuk verifikasi & ak
                 <p className="text-sm text-muted-foreground mt-1">
                   Pilih paket dan lengkapi data Anda untuk mengaktifkan akun ModulAjar.Online.
                 </p>
+                {recommenderName && affiliateRef && (
+                  <div className="mt-2 inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-500/10 border border-emerald-600/40 rounded-full text-xs font-bold text-emerald-800">
+                    <span>🤝 Direkomendasikan oleh {recommenderName}</span>
+                    <span className="font-mono text-[10px] opacity-80">({affiliateRef})</span>
+                  </div>
+                )}
               </div>
 
               {/* Package Selector Cards */}

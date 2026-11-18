@@ -19,6 +19,9 @@ import {
   ShoppingCart,
   Ticket,
   CreditCard,
+  Handshake,
+  Wallet,
+  Sliders,
 } from 'lucide-react';
 
 interface AdminLayoutProps {
@@ -37,6 +40,14 @@ const storeTransItems = [
   { icon: ShoppingCart, label: 'Pesanan & Transaksi', path: '/admin/orders' },
   { icon: Ticket, label: 'Kupon & Voucher', path: '/admin/coupons' },
   { icon: CreditCard, label: 'Rekening & Pembayaran', path: '/admin/payment-settings' },
+];
+
+const affiliateAdminItems = [
+  { icon: Handshake, label: 'Daftar Afiliator', path: '/admin/affiliate' },
+  { icon: UserCheck, label: 'Prospek Trial', path: '/admin/affiliate/leads' },
+  { icon: Wallet, label: 'Pencairan Komisi', path: '/admin/affiliate/payouts' },
+  { icon: Megaphone, label: 'Marketing Kit', path: '/admin/affiliate/marketing-kit' },
+  { icon: Sliders, label: 'Pengaturan & Kontes', path: '/admin/affiliate/settings' },
 ];
 
 const superAdminItems = [
@@ -140,6 +151,32 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
           )}
           {!sidebarOpen && <div className="pt-2 border-t border-foreground/10" />}
           {storeTransItems.map((item) => {
+            const isActive = location.pathname === item.path;
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                onClick={() => setMobileMenuOpen(false)}
+                className={`flex items-center gap-3 px-3.5 py-2.5 rounded-lg border-2 transition-all ${
+                  isActive
+                    ? 'bg-foreground text-background border-foreground shadow-none'
+                    : 'border-transparent hover:bg-secondary hover:border-foreground/20'
+                }`}
+              >
+                <item.icon className="w-5 h-5 flex-shrink-0" />
+                {sidebarOpen && <span className="font-medium text-xs sm:text-sm">{item.label}</span>}
+              </Link>
+            );
+          })}
+
+          {/* AFILIASI */}
+          {sidebarOpen && (
+            <div className="pt-4 pb-1 px-2 text-[10px] font-extrabold tracking-widest text-muted-foreground">
+              AFILIASI
+            </div>
+          )}
+          {!sidebarOpen && <div className="pt-2 border-t border-foreground/10" />}
+          {affiliateAdminItems.map((item) => {
             const isActive = location.pathname === item.path;
             return (
               <Link

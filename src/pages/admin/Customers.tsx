@@ -614,8 +614,13 @@ const AdminCustomers = () => {
                         <TableCell className="font-medium whitespace-nowrap max-w-[160px] truncate">
                           {customer.name}
                         </TableCell>
-                        <TableCell className="whitespace-nowrap max-w-[200px] truncate text-sm">
-                          {customer.email}
+                        <TableCell className="whitespace-nowrap max-w-[220px] text-sm">
+                          <div className="truncate">{customer.email}</div>
+                          {customer.referred_by_code && (
+                            <span className="inline-flex items-center gap-1 mt-0.5 px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-800 border border-indigo-300 text-[10px] font-mono font-bold">
+                              🤝 Aff: {customer.referred_by_code}
+                            </span>
+                          )}
                         </TableCell>
                         <TableCell>
                           <span

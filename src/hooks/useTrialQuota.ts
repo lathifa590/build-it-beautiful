@@ -20,9 +20,13 @@ export const useTrialQuota = () => {
   const queryClient = useQueryClient();
 
   const isTrial = subStatus?.isTrial ?? false;
+  const effectiveTrialLimit =
+    typeof subStatus?.trialQuotaLimit === 'number' && subStatus.trialQuotaLimit > 0
+      ? subStatus.trialQuotaLimit
+      : TRIAL_CONTENT_LIMIT;
 
   const query = useQuery<TrialQuotaInfo | null>({
-    queryKey: ['trial-quota', user?.id],
+    queryKey: ['trial-quota', user?.id, effectiveTrialLimit],
     enabled: !!user?.id && isTrial,
     staleTime: 30_000,
     queryFn: async () => {
@@ -36,25 +40,25 @@ export const useTrialQuota = () => {
         if (error) {
           console.warn('[useTrialQuota] Failed to count generation logs:', error);
           return {
-            remaining: TRIAL_CONTENT_LIMIT,
-            limit: TRIAL_CONTENT_LIMIT,
+            remaining: effectiveTrialLimit,
+            limit: effectiveTrialLimit,
             isTrial: true,
           };
         }
 
         const totalCount = count ?? 0;
-        const remaining = Math.max(0, TRIAL_CONTENT_LIMIT - totalCount);
+        const remaining = Math.max(0, effectiveTrialLimit - totalCount);
 
         return {
           remaining,
-          limit: TRIAL_CONTENT_LIMIT,
+          limit: effectiveTrialLimit,
           isTrial: true,
         };
       } catch (err) {
         console.error('[useTrialQuota] Error:', err);
         return {
-          remaining: TRIAL_CONTENT_LIMIT,
-          limit: TRIAL_CONTENT_LIMIT,
+          remaining: effectiveTrialLimit,
+          limit: effectiveTrialLimit,
           isTrial: true,
         };
       }
@@ -63,8 +67,8 @@ export const useTrialQuota = () => {
 
   const updateQuota = (info: Partial<TrialQuotaInfo>) => {
     if (!user?.id) return;
-    queryClient.setQueryData<TrialQuotaInfo | null>(['trial-quota', user.id], (prev) => {
-      const effectiveLimit = info.limit ?? prev?.limit ?? (info.isOnboardingQuota ? PAID_ONBOARDING_LIMIT : TRIAL_CONTENT_LIMIT);
+    queryClient.setQueryData<TrialQuotaInfo | null>(['trial-quota', user.id, effectiveTrialLimit], (prev) => {
+      const effectiveLimit = info.limit ?? prev?.limit ?? (info.isOnboardingQuota ? PAID_ONBOARDING_LIMIT : effectiveTrialLimit);
       const normalizedLimit = effectiveLimit === 100 ? 50 : effectiveLimit;
       const effectiveRemaining = info.remaining ?? prev?.remaining ?? normalizedLimit;
       const res: TrialQuotaInfo = {

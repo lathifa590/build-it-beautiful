@@ -1,4 +1,12 @@
+import { useEffect, useState } from 'react';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { Navbar } from '@/components/landing/Navbar';
+import {
+  saveAffiliateRef,
+  getStoredAffiliateRef,
+  trackAffiliateClickOnce,
+  fetchAffiliatePublicInfo,
+} from '@/lib/affiliate-tracking';
 import { HeroSection } from '@/components/landing/HeroSection';
 import { StatsSection } from '@/components/landing/StatsSection';
 import { ComparisonSection } from '@/components/landing/ComparisonSection';
@@ -92,6 +100,28 @@ const landingSchema = JSON.stringify([
 ]);
 
 const Landing = () => {
+  const { refCode } = useParams<{ refCode?: string }>();
+  const [searchParams] = useSearchParams();
+  const [recommender, setRecommender] = useState<{ display_name: string; affiliate_code: string } | null>(null);
+
+  useEffect(() => {
+    const incomingCode = refCode || searchParams.get('ref') || searchParams.get('aff');
+    if (incomingCode && incomingCode.trim()) {
+      const clean = saveAffiliateRef(incomingCode);
+      trackAffiliateClickOnce(clean);
+      fetchAffiliatePublicInfo(clean).then((info) => {
+        if (info) setRecommender({ display_name: info.display_name, affiliate_code: info.affiliate_code });
+      });
+    } else {
+      const stored = getStoredAffiliateRef();
+      if (stored) {
+        fetchAffiliatePublicInfo(stored).then((info) => {
+          if (info) setRecommender({ display_name: info.display_name, affiliate_code: info.affiliate_code });
+        });
+      }
+    }
+  }, [refCode, searchParams]);
+
   return (
     <div className="min-h-screen bg-background">
       <SEOHead 
@@ -99,6 +129,14 @@ const Landing = () => {
         description="Aplikasi Modul Ajar Generator & Pembuat RPP Otomatis dengan AI. Buat Modul Ajar Kurikulum Merdeka, Pembelajaran Mendalam (Deep Learning), LKPD, Asesmen, Prota & Promes, dan KBC Kemenag dalam hitungan detik." 
         schema={landingSchema}
       />
+      {recommender && (
+        <div className="bg-emerald-600 text-white text-xs sm:text-sm font-semibold py-2 px-4 text-center border-b-2 border-foreground">
+          🤝 Direkomendasikan oleh <span className="font-extrabold">{recommender.display_name}</span>{' '}
+          <span className="font-mono text-[11px] bg-white/20 px-1.5 py-0.5 rounded ml-1">
+            {recommender.affiliate_code}
+          </span>
+        </div>
+      )}
       <header>
         <Navbar />
       </header>

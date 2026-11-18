@@ -13,6 +13,9 @@ export interface AllowedCustomer {
   account_type: string;
   subscription_expires_at: string | null;
   lynk_purchased_at: string | null;
+  referred_by_affiliate_id?: string | null;
+  referred_by_code?: string | null;
+  trial_quota_limit?: number | null;
   created_at: string;
   updated_at: string;
 }
