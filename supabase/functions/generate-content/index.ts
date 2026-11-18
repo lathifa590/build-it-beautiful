@@ -3414,7 +3414,6 @@ Jahit ke seksi/konten yang sudah ada — JANGAN buat seksi baru di luar struktur
     // Log successful generation for analytics (non-blocking) & compute remaining quota
     let remaining: number | undefined;
     let limit: number | undefined;
-    let isTrial: boolean | undefined;
     
     try {
       const authHeader = req.headers.get('Authorization');
