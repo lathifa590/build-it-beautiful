@@ -177,11 +177,15 @@ export default function AffiliateDashboard() {
     };
   }, [commissions, payouts, leads, affiliate, settings]);
 
-  // Leaderboard Top 5 + my own rank
-  const top5Leaderboard = useMemo(() => leaderboard.slice(0, 5), [leaderboard]);
+  // Leaderboard Top 5 (hanya afiliator yang sudah memiliki minimal 1 closing) + my own rank
+  const closedLeaderboard = useMemo(
+    () => leaderboard.filter((e) => e.total_conversions > 0),
+    [leaderboard]
+  );
+  const top5Leaderboard = useMemo(() => closedLeaderboard.slice(0, 5), [closedLeaderboard]);
   const myLeaderboardEntry = useMemo(
-    () => (affiliate ? leaderboard.find((e) => e.affiliate_id === affiliate.id) || null : null),
-    [leaderboard, affiliate]
+    () => (affiliate ? closedLeaderboard.find((e) => e.affiliate_id === affiliate.id) || null : null),
+    [closedLeaderboard, affiliate]
   );
 
   const handleCopy = (text: string, key: string, label = 'Teks') => {
@@ -740,12 +744,9 @@ export default function AffiliateDashboard() {
                         </div>
                       </div>
                       <div className="text-right shrink-0">
-                        <p className="text-sm font-black text-foreground">
+                        <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-emerald-500/15 border border-emerald-600/40 text-xs sm:text-sm font-black text-emerald-800">
                           {entry.total_conversions} Closing
-                        </p>
-                        <p className="text-[11px] font-mono font-bold text-emerald-700">
-                          Rp {entry.total_commission.toLocaleString('id-ID')}
-                        </p>
+                        </span>
                       </div>
                     </div>
                   );
@@ -754,8 +755,8 @@ export default function AffiliateDashboard() {
             )}
 
             {/* Personal Rank Nudge */}
-            {myLeaderboardEntry && (
-              <div className="p-3 bg-secondary/70 border border-foreground/20 rounded-xl text-xs flex items-center justify-between gap-2">
+            {myLeaderboardEntry ? (
+              <div className="p-3 bg-secondary/70 border border-foreground/20 rounded-xl text-xs flex flex-wrap items-center justify-between gap-2">
                 <span>
                   Peringkat Anda saat ini: <strong>#{myLeaderboardEntry.rank_position}</strong> (
                   <strong>{myLeaderboardEntry.total_conversions} closing</strong>)
@@ -765,6 +766,10 @@ export default function AffiliateDashboard() {
                     Butuh {Math.max(1, top5Leaderboard[4].total_conversions - myLeaderboardEntry.total_conversions + 1)} closing lagi ke Top 5! 🔥
                   </span>
                 )}
+              </div>
+            ) : (
+              <div className="p-3 bg-secondary/70 border border-foreground/20 rounded-xl text-xs text-muted-foreground">
+                Anda belum memiliki closing pada periode ini — raih closing pertama untuk masuk papan peringkat! 🚀
               </div>
             )}
           </div>
