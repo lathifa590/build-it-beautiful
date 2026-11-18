@@ -339,22 +339,20 @@ export default function AffiliateDashboard() {
           </div>
 
           <div className="flex flex-col sm:flex-row justify-center gap-3 pt-2">
-            <Link to="/checkout?package=standar">
+            <Link to="/checkout?package=standar" className="w-full sm:w-auto">
               <Button
                 variant="outline"
-                size="lg"
-                className="w-full sm:w-auto border-2 border-foreground font-bold shadow-brutal-sm"
+                className="w-full sm:w-auto h-auto whitespace-normal text-center leading-snug text-sm py-3 px-4 border-2 border-foreground font-bold shadow-brutal-sm"
               >
                 Upgrade Paket Standar (Rp 149rb)
               </Button>
             </Link>
-            <Link to="/checkout?package=pro">
+            <Link to="/checkout?package=pro" className="w-full sm:w-auto">
               <Button
-                size="lg"
-                className="w-full sm:w-auto bg-primary text-primary-foreground border-2 border-foreground font-black shadow-brutal gap-2"
+                className="w-full sm:w-auto h-auto whitespace-normal text-center leading-snug text-sm py-3 px-4 bg-primary text-primary-foreground border-2 border-foreground font-black shadow-brutal gap-2"
               >
-                Upgrade Paket Pro (Rp 197rb)
-                <ArrowRight className="w-4 h-4" />
+                <span>Upgrade Paket Pro (Rp 197rb)</span>
+                <ArrowRight className="w-4 h-4 shrink-0" />
               </Button>
             </Link>
           </div>
@@ -366,17 +364,17 @@ export default function AffiliateDashboard() {
   // CASE 2: ELIGIBLE BUT NOT YET ACTIVATED -> INSTANT AUTO-ACTIVATION FORM
   if (!affiliate) {
     return (
-      <div className="max-w-3xl mx-auto p-4 sm:p-8 space-y-6">
-        <div className="p-6 sm:p-8 bg-card border-2 border-foreground rounded-2xl shadow-brutal space-y-6">
+      <div className="max-w-3xl mx-auto p-3 sm:p-8 space-y-6">
+        <div className="p-4 sm:p-8 bg-card border-2 border-foreground rounded-2xl shadow-brutal space-y-5">
           <div className="flex items-start gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-emerald-500/15 border-2 border-foreground flex items-center justify-center shadow-brutal-sm shrink-0">
-              <Handshake className="w-6 h-6 text-emerald-700" />
+            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-emerald-500/15 border-2 border-foreground flex items-center justify-center shadow-brutal-sm shrink-0">
+              <Handshake className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-700" />
             </div>
-            <div>
-              <Badge className="bg-emerald-600 text-white font-bold text-[10px] mb-1">
+            <div className="min-w-0">
+              <Badge className="bg-emerald-600 text-white font-bold text-[10px] mb-1 whitespace-normal text-left">
                 Akun Anda Memenuhi Syarat! • Aktivasi Otomatis
               </Badge>
-              <h1 className="text-2xl font-black text-foreground">
+              <h1 className="text-xl sm:text-2xl font-black text-foreground leading-tight">
                 Gabung Program Afiliasi (Komisi {settings.default_commission_rate}%)
               </h1>
               <p className="text-xs sm:text-sm text-muted-foreground mt-1">
@@ -469,11 +467,10 @@ export default function AffiliateDashboard() {
             <Button
               type="submit"
               disabled={registerMutation.isPending}
-              size="lg"
-              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black text-base py-6 border-2 border-foreground shadow-brutal gap-2"
+              className="w-full h-auto min-h-[48px] whitespace-normal text-center leading-snug bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm sm:text-base py-3.5 sm:py-4 px-4 border-2 border-foreground shadow-brutal gap-2"
             >
-              <Sparkles className="w-5 h-5" />
-              {registerMutation.isPending ? 'Mengaktifkan...' : 'Aktifkan Akun Afiliator Sekarang (Gratis)'}
+              <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
+              <span>{registerMutation.isPending ? 'Mengaktifkan...' : 'Aktifkan Akun Afiliator (Gratis)'}</span>
             </Button>
           </form>
         </div>
