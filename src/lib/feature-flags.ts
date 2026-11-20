@@ -5,15 +5,12 @@
 
 /**
  * Mengaktifkan arsitektur "Dokumen per Pertemuan V2".
- * Selama false, seluruh flow produksi (state, preview, export, history, backend)
- * TIDAK berubah. Flag ini hanya dibaca oleh kode V2 yang akan datang di fase
- * berikutnya.
- *
- * Aktifkan lewat env var `VITE_ENABLE_PERTEMUAN_DOCS_V2=true` saat build dev.
- * Jangan mengaktifkan lewat localStorage di produksi.
+ * Default TRUE di seluruh lingkungan (produksi, preview, staging, dev)
+ * agar UI/UX konsisten dengan sistem pertemuan modern.
+ * Hanya bernilai false jika secara eksplisit disetel 'false' di env.
  */
 export const ENABLE_PERTEMUAN_DOCS_V2: boolean =
-  import.meta.env.VITE_ENABLE_PERTEMUAN_DOCS_V2 === 'true';
+  import.meta.env.VITE_ENABLE_PERTEMUAN_DOCS_V2 !== 'false';
 
 /**
  * Kontrol tampilan format dokumen alternatif (Minimalis Bersih, Modular, dll).

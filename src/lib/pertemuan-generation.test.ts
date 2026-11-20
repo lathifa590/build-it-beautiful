@@ -228,9 +228,9 @@ describe('pertemuan-generation — stable id & legacy', () => {
 });
 
 describe('feature flag & deploy terbatas guard', () => {
-  it('ENABLE_PERTEMUAN_DOCS_V2 mengikuti konfigurasi environment VITE_ENABLE_PERTEMUAN_DOCS_V2', () => {
+  it('ENABLE_PERTEMUAN_DOCS_V2 aktif secara default (kecuali eksplisit disetel false)', () => {
     expect(ENABLE_PERTEMUAN_DOCS_V2).toBe(
-      import.meta.env.VITE_ENABLE_PERTEMUAN_DOCS_V2 === 'true',
+      import.meta.env.VITE_ENABLE_PERTEMUAN_DOCS_V2 !== 'false',
     );
   });
 
