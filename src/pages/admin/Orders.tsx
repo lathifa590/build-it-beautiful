@@ -392,6 +392,21 @@ export default function AdminOrders() {
                           >
                             {isPaid ? 'Lunas' : isCancelled ? 'Dibatalkan' : 'Pending'}
                           </Badge>
+                          {isPending && order.last_followed_up_at && (
+                            <div className="mt-1">
+                              <Badge
+                                variant="outline"
+                                className={`text-[9px] font-bold px-1.5 py-0.5 ${
+                                  order.last_followed_up_by === 'affiliate'
+                                    ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
+                                    : 'bg-blue-50 text-blue-800 border-blue-300'
+                                }`}
+                                title={`Follow-up terakhir pada ${new Date(order.last_followed_up_at).toLocaleString('id-ID')}`}
+                              >
+                                {order.last_followed_up_by === 'affiliate' ? 'Disapa Afiliator' : 'Followed Up Admin'}
+                              </Badge>
+                            </div>
+                          )}
                         </TableCell>
 
                         {/* Actions */}

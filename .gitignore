@@ -44,6 +44,9 @@ Revisi*.md
 # Temporary MS Word lock files & scratch
 ~$*
 scratch/
+.tmp/
+*.docx
+*.pdf
 
 # bun.lock - ignore to let Cloudflare Pages use package-lock.json (npm)
 bun.lock

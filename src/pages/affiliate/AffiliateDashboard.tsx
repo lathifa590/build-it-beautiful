@@ -9,12 +9,15 @@ import {
   useMyAffiliateLeads,
   useRegisterAffiliateTrialLeads,
   useMyAffiliateCommissions,
+  useMyAffiliateReferralOrders,
   useMyAffiliatePayouts,
   useRequestAffiliatePayout,
   useAffiliateLeaderboard,
   useAffiliateMarketingKits,
   generateAffiliateCode,
 } from '@/hooks/useAffiliate';
+import { AffiliateReferralOrder } from '@/types/affiliate';
+import { AffiliateFollowUpModal } from '@/components/affiliate/AffiliateFollowUpModal';
 import {
   buildAffiliateLandingUrl,
   renderMarketingKitText,
@@ -60,6 +63,7 @@ import {
   Video,
   Presentation,
   RefreshCw,
+  Phone,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -83,8 +87,16 @@ export default function AffiliateDashboard() {
 
   const { data: leads = [], isLoading: isLoadingLeads, refetch: refetchLeads } = useMyAffiliateLeads(affiliate?.id);
   const { data: commissions = [], isLoading: isLoadingComms } = useMyAffiliateCommissions(affiliate?.id);
+  const { data: referralOrders = [], isLoading: isLoadingOrders } = useMyAffiliateReferralOrders(affiliate?.id);
   const { data: payouts = [] } = useMyAffiliatePayouts(affiliate?.id);
   const { data: marketingKits = [] } = useAffiliateMarketingKits();
+
+  const pendingOrders = useMemo(
+    () => referralOrders.filter((o) => o.status === 'pending'),
+    [referralOrders]
+  );
+  const [selectedOrderForFollowUp, setSelectedOrderForFollowUp] = useState<AffiliateReferralOrder | null>(null);
+  const [isFollowUpModalOpen, setIsFollowUpModalOpen] = useState(false);
 
   const [activeTab, setActiveTab] = useState<DashboardTab>('overview');
   const [leaderboardPeriod, setLeaderboardPeriod] = useState<LeaderboardPeriod>('month');
@@ -616,6 +628,13 @@ export default function AffiliateDashboard() {
             <TrendingUp className="w-4 h-4 text-emerald-600" />
           </div>
           <div className="text-2xl font-black font-mono text-emerald-700">{stats.totalConversions}</div>
+          {pendingOrders.length > 0 && (
+            <div className="mt-1">
+              <span className="text-[10px] font-bold text-amber-800 bg-amber-500/15 border border-amber-500/40 px-1.5 py-0.5 rounded inline-block">
+                {pendingOrders.length} Menunggu Bayar
+              </span>
+            </div>
+          )}
         </div>
 
         <div className="p-4 bg-emerald-500/10 border-2 border-emerald-700 rounded-2xl shadow-brutal-sm">
@@ -644,7 +663,12 @@ export default function AffiliateDashboard() {
         {[
           { id: 'overview', label: 'Leaderboard & Link', icon: Trophy },
           { id: 'leads', label: `Prospek Trial (${leads.length})`, icon: UserPlus },
-          { id: 'commissions', label: 'Komisi & Pencairan', icon: Wallet },
+          {
+            id: 'commissions',
+            label: pendingOrders.length > 0 ? `Komisi & Pesanan (${pendingOrders.length} Pending)` : 'Komisi & Pencairan',
+            icon: Wallet,
+            badge: pendingOrders.length > 0 ? `${pendingOrders.length} Pending` : undefined,
+          },
           { id: 'marketing', label: 'Marketing Kit', icon: Megaphone },
           { id: 'settings', label: 'Profil & Rekening', icon: Settings },
         ].map((t) => {
@@ -655,11 +679,10 @@ export default function AffiliateDashboard() {
               key={t.id}
               type="button"
               onClick={() => setActiveTab(t.id as DashboardTab)}
-              className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-extrabold whitespace-nowrap transition-all ${
-                isActive
+              className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-extrabold whitespace-nowrap transition-all ${isActive
                   ? 'bg-foreground text-background shadow-sm'
                   : 'text-muted-foreground hover:text-foreground'
-              }`}
+                }`}
             >
               <Icon className="w-4 h-4" />
               <span>{t.label}</span>
@@ -695,11 +718,10 @@ export default function AffiliateDashboard() {
                     key={p.id}
                     type="button"
                     onClick={() => setLeaderboardPeriod(p.id as LeaderboardPeriod)}
-                    className={`px-2.5 py-1 rounded text-[11px] font-bold transition-all ${
-                      leaderboardPeriod === p.id
+                    className={`px-2.5 py-1 rounded text-[11px] font-bold transition-all ${leaderboardPeriod === p.id
                         ? 'bg-foreground text-background'
                         : 'text-muted-foreground hover:text-foreground'
-                    }`}
+                      }`}
                   >
                     {p.label}
                   </button>
@@ -721,13 +743,12 @@ export default function AffiliateDashboard() {
                   return (
                     <div
                       key={entry.affiliate_id}
-                      className={`p-3.5 rounded-xl border-2 flex items-center justify-between gap-3 ${
-                        isMe
+                      className={`p-3.5 rounded-xl border-2 flex items-center justify-between gap-3 ${isMe
                           ? 'bg-primary/10 border-primary shadow-brutal-sm'
                           : idx === 0
-                          ? 'bg-amber-500/10 border-amber-500/50'
-                          : 'bg-secondary/40 border-foreground/15'
-                      }`}
+                            ? 'bg-amber-500/10 border-amber-500/50'
+                            : 'bg-secondary/40 border-foreground/15'
+                        }`}
                     >
                       <div className="flex items-center gap-3 min-w-0">
                         <span className="text-lg font-black w-8 text-center shrink-0">{medal}</span>
@@ -867,22 +888,20 @@ export default function AffiliateDashboard() {
               <button
                 type="button"
                 onClick={() => setTrialMode('single')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold border-2 ${
-                  trialMode === 'single'
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold border-2 ${trialMode === 'single'
                     ? 'bg-primary text-primary-foreground border-foreground'
                     : 'bg-secondary border-transparent text-muted-foreground'
-                }`}
+                  }`}
               >
                 Tambah 1 Email
               </button>
               <button
                 type="button"
                 onClick={() => setTrialMode('bulk')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold border-2 ${
-                  trialMode === 'bulk'
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold border-2 ${trialMode === 'bulk'
                     ? 'bg-primary text-primary-foreground border-foreground'
                     : 'bg-secondary border-transparent text-muted-foreground'
-                }`}
+                  }`}
               >
                 Tempel Banyak Email (Bulk Workshop / KKG)
               </button>
@@ -1001,11 +1020,10 @@ export default function AffiliateDashboard() {
                           </TableCell>
                           <TableCell className="py-3">
                             <Badge
-                              className={`text-[10px] font-bold uppercase ${
-                                isTrial
+                              className={`text-[10px] font-bold uppercase ${isTrial
                                   ? 'bg-purple-100 text-purple-800 border border-purple-300'
                                   : 'bg-emerald-600 text-white'
-                              }`}
+                                }`}
                             >
                               {isTrial
                                 ? lead.is_claimed
@@ -1059,233 +1077,442 @@ export default function AffiliateDashboard() {
 
       {/* TAB 3: KOMISI & PENCAIRAN */}
       {activeTab === 'commissions' && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* Request Payout Form (5 cols) */}
-          <div className="lg:col-span-5 p-5 sm:p-6 bg-card border-2 border-foreground rounded-2xl shadow-brutal space-y-4">
-            <div className="pb-3 border-b-2 border-foreground/15">
-              <h2 className="text-lg font-black text-foreground flex items-center gap-2">
-                <Wallet className="w-5 h-5 text-emerald-600" />
-                <span>Ajukan Pencairan Komisi</span>
-              </h2>
-              <p className="text-xs text-muted-foreground">
-                Saldo siap cair saat ini:{' '}
-                <strong className="text-emerald-700 font-mono">
-                  Rp {stats.availableBalance.toLocaleString('id-ID')}
-                </strong>
-              </p>
-            </div>
-
-            {(!affiliate.bank_name || !affiliate.bank_account_number) ? (
-              <div className="p-4 bg-amber-500/15 border-2 border-amber-500 rounded-xl text-xs text-amber-950 space-y-2">
-                <p className="font-extrabold">Rekening Pencairan Belum Diisi</p>
-                <p>Lengkapi nama bank/e-wallet dan nomor rekening Anda di tab Profil & Rekening terlebih dahulu.</p>
-                <Button
-                  size="sm"
-                  onClick={() => setActiveTab('settings')}
-                  className="bg-amber-600 text-white font-bold text-xs border-2 border-foreground"
-                >
-                  Isi Rekening Sekarang →
-                </Button>
-              </div>
-            ) : (
-              <form onSubmit={handleRequestPayoutSubmit} className="space-y-4">
-                <div className="p-3 bg-secondary/60 rounded-xl border border-foreground/20 text-xs space-y-1">
-                  <span className="text-[10px] font-bold uppercase text-muted-foreground block">
-                    Rekening Tujuan:
-                  </span>
-                  <p className="font-extrabold text-foreground">
-                    {affiliate.bank_name} — <span className="font-mono">{affiliate.bank_account_number}</span>
-                  </p>
-                  <p className="text-muted-foreground">a.n. {affiliate.bank_account_holder}</p>
+        <div className="space-y-6">
+          {/* SECTION: PESANAN MASUK DARI LINK REFERRAL ANDA */}
+          <div className="bg-card border-2 border-foreground rounded-2xl shadow-brutal overflow-hidden">
+            <div className="p-4 sm:p-5 border-b-2 border-foreground/15 bg-gradient-to-r from-amber-500/10 via-orange-500/5 to-transparent flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-xl bg-amber-500/20 border-2 border-amber-600 flex items-center justify-center text-amber-800 shadow-brutal-sm shrink-0 mt-0.5">
+                  <Clock className="w-5 h-5 text-amber-700" />
                 </div>
-
-                <div className="space-y-1.5">
-                  <Label className="text-xs font-bold">Nominal Pencairan (Rp)</Label>
-                  <Input
-                    type="number"
-                    min={1000}
-                    max={stats.availableBalance}
-                    required
-                    placeholder={`Maks: ${stats.availableBalance}`}
-                    value={payoutAmount}
-                    onChange={(e) => setPayoutAmount(e.target.value)}
-                    className="font-mono font-bold border-2 border-foreground/30"
-                  />
-                  <div className="flex items-center justify-between text-[11px] text-muted-foreground">
-                    <span>Gratis biaya admin mulai Rp {(settings.min_payout_free_fee ?? 50000).toLocaleString('id-ID')}</span>
-                    {stats.availableBalance > 0 && (
-                      <button
-                        type="button"
-                        onClick={() => setPayoutAmount(String(stats.availableBalance))}
-                        className="text-primary font-bold hover:underline"
-                      >
-                        Tarik Semua
-                      </button>
+                <div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h2 className="text-base sm:text-lg font-black text-foreground">
+                      Pesanan Masuk dari Link Anda ({referralOrders.length})
+                    </h2>
+                    {pendingOrders.length > 0 ? (
+                      <Badge className="bg-amber-600 text-white font-extrabold text-[10px]">
+                        {pendingOrders.length} Menunggu Pembayaran
+                      </Badge>
+                    ) : (
+                      <Badge variant="outline" className="text-emerald-700 border-emerald-600/40 bg-emerald-50 text-[10px] font-bold">
+                        Semua Terverifikasi
+                      </Badge>
                     )}
                   </div>
-                </div>
-
-                {numericPayoutInput > 0 && (
-                  <div
-                    className={`p-3 rounded-xl border text-xs space-y-1 ${
-                      isBelowFreeFee
-                        ? 'bg-amber-500/10 border-amber-500/40 text-amber-950'
-                        : 'bg-emerald-500/10 border-emerald-500/40 text-emerald-950'
-                    }`}
-                  >
-                    <div className="flex justify-between">
-                      <span>Nominal Diajukan:</span>
-                      <span className="font-mono font-bold">Rp {numericPayoutInput.toLocaleString('id-ID')}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Biaya Admin Transfer:</span>
-                      <span className="font-mono font-bold">
-                        {isBelowFreeFee ? `- Rp ${estimatedFee.toLocaleString('id-ID')} (ditanggung afiliator)` : 'Rp 0 (Gratis)'}
-                      </span>
-                    </div>
-                    <div className="flex justify-between pt-1 border-t border-foreground/15 font-extrabold">
-                      <span>Estimasi Diterima:</span>
-                      <span className="font-mono">Rp {estimatedNet.toLocaleString('id-ID')}</span>
-                    </div>
-                  </div>
-                )}
-
-                <Button
-                  type="submit"
-                  disabled={requestPayoutMutation.isPending || stats.availableBalance <= 0}
-                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white border-2 border-foreground font-black text-xs py-5 shadow-brutal-sm"
-                >
-                  {requestPayoutMutation.isPending ? 'Mengirim Pengajuan...' : 'Ajukan Pencairan Sekarang'}
-                </Button>
-              </form>
-            )}
-
-            {/* Payout History List */}
-            {payouts.length > 0 && (
-              <div className="pt-4 border-t-2 border-foreground/15 space-y-2">
-                <h3 className="text-xs font-extrabold uppercase text-muted-foreground">
-                  Riwayat Pencairan ({payouts.length})
-                </h3>
-                <div className="space-y-2 max-h-64 overflow-y-auto">
-                  {payouts.map((p) => (
-                    <div key={p.id} className="p-3 bg-secondary/40 rounded-xl border border-foreground/15 text-xs flex items-center justify-between gap-2">
-                      <div>
-                        <p className="font-mono font-black text-foreground">
-                          Rp {p.net_amount.toLocaleString('id-ID')}
-                          {p.admin_fee > 0 && (
-                            <span className="text-[10px] font-normal text-muted-foreground ml-1">
-                              (Fee Rp {p.admin_fee.toLocaleString('id-ID')})
-                            </span>
-                          )}
-                        </p>
-                        <p className="text-[10px] text-muted-foreground">
-                          {new Date(p.requested_at).toLocaleDateString('id-ID', {
-                            day: 'numeric',
-                            month: 'short',
-                            year: 'numeric',
-                          })}
-                          {p.transfer_reference ? ` • Ref: ${p.transfer_reference}` : ''}
-                        </p>
-                      </div>
-                      <Badge
-                        className={`text-[10px] font-bold ${
-                          p.status === 'paid'
-                            ? 'bg-emerald-600 text-white'
-                            : p.status === 'rejected'
-                            ? 'bg-destructive text-white'
-                            : 'bg-amber-500/20 text-amber-800 border border-amber-500/40'
-                        }`}
-                      >
-                        {p.status === 'paid' ? 'Sudah Ditransfer' : p.status === 'rejected' ? 'Ditolak' : 'Menunggu'}
-                      </Badge>
-                    </div>
-                  ))}
+                  <p className="text-xs text-muted-foreground mt-0.5 max-w-2xl">
+                    Pantau rekan yang melakukan checkout lewat link Anda secara real-time. Jika status masih menunggu transfer, Anda dapat membantu menyapa secara ramah untuk menanyakan kendala.
+                  </p>
                 </div>
               </div>
-            )}
-          </div>
 
-          {/* Commission Ledger (7 cols) */}
-          <div className="lg:col-span-7 bg-card border-2 border-foreground rounded-2xl shadow-brutal overflow-hidden">
-            <div className="p-4 border-b-2 border-foreground/15">
-              <h3 className="font-black text-sm text-foreground">
-                Riwayat Komisi Masuk ({commissions.length})
-              </h3>
+              {pendingOrders.length > 0 && (
+                <div className="p-2.5 sm:p-3 bg-secondary/80 border-2 border-amber-500/40 rounded-xl text-left sm:text-right shrink-0">
+                  <span className="text-[10px] font-bold text-muted-foreground uppercase block">
+                    Potensi Komisi Tertunda:
+                  </span>
+                  <span className="text-base font-black font-mono text-emerald-700">
+                    +Rp {pendingOrders.reduce((sum, o) => sum + Number(o.estimated_commission || 0), 0).toLocaleString('id-ID')}
+                  </span>
+                </div>
+              )}
             </div>
+
+            {/* Orders Table */}
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader className="bg-secondary/60">
                   <TableRow>
-                    <TableHead className="text-xs font-extrabold uppercase">Tanggal & Pembeli</TableHead>
-                    <TableHead className="text-xs font-extrabold uppercase">Paket</TableHead>
-                    <TableHead className="text-xs font-extrabold uppercase">Komisi</TableHead>
-                    <TableHead className="text-xs font-extrabold uppercase">Status</TableHead>
+                    <TableHead className="text-xs font-extrabold uppercase">Invoice & Pembeli</TableHead>
+                    <TableHead className="text-xs font-extrabold uppercase">Paket & Tagihan</TableHead>
+                    <TableHead className="text-xs font-extrabold uppercase">Estimasi Komisi</TableHead>
+                    <TableHead className="text-xs font-extrabold uppercase">Status & Follow Up</TableHead>
+                    <TableHead className="text-xs font-extrabold uppercase text-right">Aksi</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {isLoadingComms ? (
+                  {isLoadingOrders ? (
                     <TableRow>
-                      <TableCell colSpan={4} className="text-center py-10 text-xs text-muted-foreground">
-                        Memuat komisi...
+                      <TableCell colSpan={5} className="text-center py-10 text-xs text-muted-foreground">
+                        Memuat daftar pesanan...
                       </TableCell>
                     </TableRow>
-                  ) : commissions.length === 0 ? (
+                  ) : referralOrders.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={4} className="text-center py-10 text-xs text-muted-foreground">
-                        Belum ada komisi tercatat. Bagikan link LP Anda atau daftarkan user trial sekarang!
+                      <TableCell colSpan={5} className="text-center py-10 text-xs text-muted-foreground">
+                        Belum ada pesanan masuk lewat link referral Anda. Bagikan link landing page unik Anda sekarang!
                       </TableCell>
                     </TableRow>
                   ) : (
-                    commissions.map((c) => (
-                      <TableRow key={c.id}>
-                        <TableCell className="py-3">
-                          <p className="font-bold text-xs text-foreground">
-                            {c.customer_name || c.customer_email}
+                    referralOrders.map((ord) => {
+                      const isPending = ord.status === 'pending';
+                      const isPaid = ord.status === 'paid';
+                      return (
+                        <TableRow key={ord.order_id} className={isPending ? 'bg-amber-500/5' : ''}>
+                          <TableCell className="py-3.5">
+                            <p className="font-extrabold text-sm text-foreground flex items-center gap-1.5">
+                              <span>{ord.buyer_name}</span>
+                            </p>
+                            <p className="text-xs text-muted-foreground">{ord.buyer_email}</p>
+                            {ord.buyer_whatsapp && (
+                              <p className="text-[11px] font-mono text-emerald-700 flex items-center gap-1 mt-0.5">
+                                <Phone className="w-3 h-3 shrink-0" />
+                                <span>{ord.buyer_whatsapp}</span>
+                              </p>
+                            )}
+                            <div className="text-[10px] text-muted-foreground font-mono mt-1 flex items-center gap-1.5">
+                              <span className="font-bold text-foreground">#{ord.invoice}</span>
+                              <span>•</span>
+                              <span>
+                                {new Date(ord.created_at).toLocaleDateString('id-ID', {
+                                  day: 'numeric',
+                                  month: 'short',
+                                  year: 'numeric',
+                                  hour: '2-digit',
+                                  minute: '2-digit',
+                                })}
+                              </span>
+                            </div>
+                          </TableCell>
+
+                          <TableCell className="py-3.5">
+                            <Badge variant="outline" className="text-[10px] font-bold uppercase">
+                              {ord.item_title || ord.package_type}
+                            </Badge>
+                            <div className="font-black font-mono text-sm text-foreground mt-1">
+                              Rp {ord.total_amount?.toLocaleString('id-ID')}
+                            </div>
+                            {ord.unique_code > 0 && (
+                              <div className="text-[10px] text-muted-foreground font-mono">
+                                Kode unik: +{ord.unique_code}
+                              </div>
+                            )}
+                          </TableCell>
+
+                          <TableCell className="py-3.5">
+                            <div className="font-mono font-black text-sm text-emerald-700">
+                              +Rp {ord.estimated_commission?.toLocaleString('id-ID')}
+                            </div>
+                            <span className="text-[10px] text-muted-foreground block">
+                              {isPaid ? 'Sudah masuk saldo ✅' : 'Masuk saat diverifikasi'}
+                            </span>
+                          </TableCell>
+
+                          <TableCell className="py-3.5">
+                            {isPaid ? (
+                              <Badge className="bg-emerald-600 text-white text-[10px] font-bold">
+                                Lunas & Aktif ✅
+                              </Badge>
+                            ) : ord.status === 'cancelled' ? (
+                              <Badge className="bg-destructive/20 text-destructive text-[10px] font-bold border border-destructive/40">
+                                Dibatalkan
+                              </Badge>
+                            ) : (
+                              <div className="space-y-1">
+                                <Badge className="bg-amber-500/20 text-amber-800 text-[10px] font-bold border border-amber-600/40">
+                                  Menunggu Transfer
+                                </Badge>
+                                {ord.last_followed_up_at ? (
+                                  <div className="text-[10px] font-bold flex items-center gap-1">
+                                    {ord.last_followed_up_by === 'admin' ? (
+                                      <span className="text-blue-700 bg-blue-50 border border-blue-200 px-1.5 py-0.5 rounded">
+                                        Sudah dihubungi Admin (
+                                        {new Date(ord.last_followed_up_at).toLocaleTimeString('id-ID', {
+                                          hour: '2-digit',
+                                          minute: '2-digit',
+                                        })}
+                                        )
+                                      </span>
+                                    ) : (
+                                      <span className="text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded">
+                                        Sudah disapa Anda (
+                                        {new Date(ord.last_followed_up_at).toLocaleTimeString('id-ID', {
+                                          hour: '2-digit',
+                                          minute: '2-digit',
+                                        })}
+                                        )
+                                      </span>
+                                    )}
+                                  </div>
+                                ) : (
+                                  <span className="text-[10px] text-amber-700 font-semibold block">
+                                    Belum disapa
+                                  </span>
+                                )}
+                              </div>
+                            )}
+                          </TableCell>
+
+                          <TableCell className="py-3.5 text-right">
+                            {isPending ? (
+                              <Button
+                                size="sm"
+                                onClick={() => {
+                                  setSelectedOrderForFollowUp(ord);
+                                  setIsFollowUpModalOpen(true);
+                                }}
+                                className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs gap-1 border border-foreground shadow-brutal-sm"
+                              >
+                                <MessageCircle className="w-3.5 h-3.5" />
+                                <span>Bantu Sapa (WA)</span>
+                              </Button>
+                            ) : isPaid ? (
+                              <a
+                                href={
+                                  ord.buyer_whatsapp
+                                    ? `https://wa.me/${cleanPhoneForWhatsApp(ord.buyer_whatsapp)}?text=${encodeURIComponent(
+                                      `Halo Bapak/Ibu ${ord.buyer_name}, terima kasih banyak sudah berlangganan ModulAjar.Online lewat rekomendasi saya! Semoga makin memudahkan administrasi mengajar ya. Jika butuh bantuan atau panduan fitur, kabari saya kapan saja 🙏✨`
+                                    )}`
+                                    : '#'
+                                }
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="border border-emerald-600/50 hover:bg-emerald-500/10 text-emerald-700 font-bold text-xs gap-1"
+                                >
+                                  <MessageCircle className="w-3.5 h-3.5" />
+                                  <span>Ucapan Terima Kasih</span>
+                                </Button>
+                              </a>
+                            ) : null}
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            {/* Request Payout Form (5 cols) */}
+            <div className="lg:col-span-5 p-5 sm:p-6 bg-card border-2 border-foreground rounded-2xl shadow-brutal space-y-4">
+              <div className="pb-3 border-b-2 border-foreground/15">
+                <h2 className="text-lg font-black text-foreground flex items-center gap-2">
+                  <Wallet className="w-5 h-5 text-emerald-600" />
+                  <span>Ajukan Pencairan Komisi</span>
+                </h2>
+                <p className="text-xs text-muted-foreground">
+                  Saldo siap cair saat ini:{' '}
+                  <strong className="text-emerald-700 font-mono">
+                    Rp {stats.availableBalance.toLocaleString('id-ID')}
+                  </strong>
+                </p>
+              </div>
+
+              {(!affiliate.bank_name || !affiliate.bank_account_number) ? (
+                <div className="p-4 bg-amber-500/15 border-2 border-amber-500 rounded-xl text-xs text-amber-950 space-y-2">
+                  <p className="font-extrabold">Rekening Pencairan Belum Diisi</p>
+                  <p>Lengkapi nama bank/e-wallet dan nomor rekening Anda di tab Profil & Rekening terlebih dahulu.</p>
+                  <Button
+                    size="sm"
+                    onClick={() => setActiveTab('settings')}
+                    className="bg-amber-600 text-white font-bold text-xs border-2 border-foreground"
+                  >
+                    Isi Rekening Sekarang →
+                  </Button>
+                </div>
+              ) : (
+                <form onSubmit={handleRequestPayoutSubmit} className="space-y-4">
+                  <div className="p-3 bg-secondary/60 rounded-xl border border-foreground/20 text-xs space-y-1">
+                    <span className="text-[10px] font-bold uppercase text-muted-foreground block">
+                      Rekening Tujuan:
+                    </span>
+                    <p className="font-extrabold text-foreground">
+                      {affiliate.bank_name} — <span className="font-mono">{affiliate.bank_account_number}</span>
+                    </p>
+                    <p className="text-muted-foreground">a.n. {affiliate.bank_account_holder}</p>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label className="text-xs font-bold">Nominal Pencairan (Rp)</Label>
+                    <Input
+                      type="number"
+                      min={1000}
+                      max={stats.availableBalance}
+                      required
+                      placeholder={`Maks: ${stats.availableBalance}`}
+                      value={payoutAmount}
+                      onChange={(e) => setPayoutAmount(e.target.value)}
+                      className="font-mono font-bold border-2 border-foreground/30"
+                    />
+                    <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+                      <span>Gratis biaya admin mulai Rp {(settings.min_payout_free_fee ?? 50000).toLocaleString('id-ID')}</span>
+                      {stats.availableBalance > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => setPayoutAmount(String(stats.availableBalance))}
+                          className="text-primary font-bold hover:underline"
+                        >
+                          Tarik Semua
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {numericPayoutInput > 0 && (
+                    <div
+                      className={`p-3 rounded-xl border text-xs space-y-1 ${isBelowFreeFee
+                          ? 'bg-amber-500/10 border-amber-500/40 text-amber-950'
+                          : 'bg-emerald-500/10 border-emerald-500/40 text-emerald-950'
+                        }`}
+                    >
+                      <div className="flex justify-between">
+                        <span>Nominal Diajukan:</span>
+                        <span className="font-mono font-bold">Rp {numericPayoutInput.toLocaleString('id-ID')}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Biaya Admin Transfer:</span>
+                        <span className="font-mono font-bold">
+                          {isBelowFreeFee ? `- Rp ${estimatedFee.toLocaleString('id-ID')} (ditanggung afiliator)` : 'Rp 0 (Gratis)'}
+                        </span>
+                      </div>
+                      <div className="flex justify-between pt-1 border-t border-foreground/15 font-extrabold">
+                        <span>Estimasi Diterima:</span>
+                        <span className="font-mono">Rp {estimatedNet.toLocaleString('id-ID')}</span>
+                      </div>
+                    </div>
+                  )}
+
+                  <Button
+                    type="submit"
+                    disabled={requestPayoutMutation.isPending || stats.availableBalance <= 0}
+                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white border-2 border-foreground font-black text-xs py-5 shadow-brutal-sm"
+                  >
+                    {requestPayoutMutation.isPending ? 'Mengirim Pengajuan...' : 'Ajukan Pencairan Sekarang'}
+                  </Button>
+                </form>
+              )}
+
+              {/* Payout History List */}
+              {payouts.length > 0 && (
+                <div className="pt-4 border-t-2 border-foreground/15 space-y-2">
+                  <h3 className="text-xs font-extrabold uppercase text-muted-foreground">
+                    Riwayat Pencairan ({payouts.length})
+                  </h3>
+                  <div className="space-y-2 max-h-64 overflow-y-auto">
+                    {payouts.map((p) => (
+                      <div key={p.id} className="p-3 bg-secondary/40 rounded-xl border border-foreground/15 text-xs flex items-center justify-between gap-2">
+                        <div>
+                          <p className="font-mono font-black text-foreground">
+                            Rp {p.net_amount.toLocaleString('id-ID')}
+                            {p.admin_fee > 0 && (
+                              <span className="text-[10px] font-normal text-muted-foreground ml-1">
+                                (Fee Rp {p.admin_fee.toLocaleString('id-ID')})
+                              </span>
+                            )}
                           </p>
-                          <p className="text-[11px] text-muted-foreground">{c.customer_email}</p>
                           <p className="text-[10px] text-muted-foreground">
-                            {new Date(c.created_at).toLocaleDateString('id-ID', {
+                            {new Date(p.requested_at).toLocaleDateString('id-ID', {
                               day: 'numeric',
                               month: 'short',
                               year: 'numeric',
                             })}
+                            {p.transfer_reference ? ` • Ref: ${p.transfer_reference}` : ''}
                           </p>
-                        </TableCell>
-                        <TableCell className="py-3">
-                          <Badge variant="outline" className="text-[10px] font-bold uppercase">
-                            {c.package_type}
-                          </Badge>
-                          {c.is_renewal && (
-                            <Badge className="ml-1 bg-blue-600 text-white text-[9px]">Renewal</Badge>
-                          )}
-                          <p className="text-[10px] text-muted-foreground font-mono mt-0.5">
-                            Order: Rp {c.order_amount.toLocaleString('id-ID')}
-                          </p>
-                        </TableCell>
-                        <TableCell className="py-3 font-mono font-black text-sm text-emerald-700">
-                          +Rp {c.commission_amount.toLocaleString('id-ID')}
-                          <span className="block text-[10px] font-normal text-muted-foreground">
-                            ({c.commission_rate}%)
-                          </span>
-                        </TableCell>
-                        <TableCell className="py-3">
-                          <Badge
-                            className={`text-[10px] font-bold ${
-                              c.status === 'paid'
-                                ? 'bg-blue-600 text-white'
-                                : c.status === 'approved'
-                                ? 'bg-emerald-600 text-white'
-                                : 'bg-amber-500/20 text-amber-800'
+                        </div>
+                        <Badge
+                          className={`text-[10px] font-bold ${p.status === 'paid'
+                              ? 'bg-emerald-600 text-white'
+                              : p.status === 'rejected'
+                                ? 'bg-destructive text-white'
+                                : 'bg-amber-500/20 text-amber-800 border border-amber-500/40'
                             }`}
-                          >
-                            {c.status === 'paid' ? 'Sudah Cair' : c.status === 'approved' ? 'Siap Cair' : c.status}
-                          </Badge>
+                        >
+                          {p.status === 'paid' ? 'Sudah Ditransfer' : p.status === 'rejected' ? 'Ditolak' : 'Menunggu'}
+                        </Badge>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Commission Ledger (7 cols) */}
+            <div className="lg:col-span-7 bg-card border-2 border-foreground rounded-2xl shadow-brutal overflow-hidden">
+              <div className="p-4 border-b-2 border-foreground/15">
+                <h3 className="font-black text-sm text-foreground">
+                  Riwayat Komisi Masuk ({commissions.length})
+                </h3>
+              </div>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader className="bg-secondary/60">
+                    <TableRow>
+                      <TableHead className="text-xs font-extrabold uppercase">Tanggal & Pembeli</TableHead>
+                      <TableHead className="text-xs font-extrabold uppercase">Paket</TableHead>
+                      <TableHead className="text-xs font-extrabold uppercase">Komisi</TableHead>
+                      <TableHead className="text-xs font-extrabold uppercase">Status</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {isLoadingComms ? (
+                      <TableRow>
+                        <TableCell colSpan={4} className="text-center py-10 text-xs text-muted-foreground">
+                          Memuat komisi...
                         </TableCell>
                       </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
+                    ) : commissions.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={4} className="text-center py-10 text-xs text-muted-foreground">
+                          Belum ada komisi tercatat. Bagikan link LP Anda atau daftarkan user trial sekarang!
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      commissions.map((c) => (
+                        <TableRow key={c.id}>
+                          <TableCell className="py-3">
+                            <p className="font-bold text-xs text-foreground">
+                              {c.customer_name || c.customer_email}
+                            </p>
+                            <p className="text-[11px] text-muted-foreground">{c.customer_email}</p>
+                            <p className="text-[10px] text-muted-foreground">
+                              {new Date(c.created_at).toLocaleDateString('id-ID', {
+                                day: 'numeric',
+                                month: 'short',
+                                year: 'numeric',
+                              })}
+                            </p>
+                          </TableCell>
+                          <TableCell className="py-3">
+                            <Badge variant="outline" className="text-[10px] font-bold uppercase">
+                              {c.package_type}
+                            </Badge>
+                            {c.is_renewal && (
+                              <Badge className="ml-1 bg-blue-600 text-white text-[9px]">Renewal</Badge>
+                            )}
+                            <p className="text-[10px] text-muted-foreground font-mono mt-0.5">
+                              Order: Rp {c.order_amount.toLocaleString('id-ID')}
+                            </p>
+                          </TableCell>
+                          <TableCell className="py-3 font-mono font-black text-sm text-emerald-700">
+                            +Rp {c.commission_amount.toLocaleString('id-ID')}
+                            <span className="block text-[10px] font-normal text-muted-foreground">
+                              ({c.commission_rate}%)
+                            </span>
+                          </TableCell>
+                          <TableCell className="py-3">
+                            <Badge
+                              className={`text-[10px] font-bold ${c.status === 'paid'
+                                  ? 'bg-blue-600 text-white'
+                                  : c.status === 'approved'
+                                    ? 'bg-emerald-600 text-white'
+                                    : 'bg-amber-500/20 text-amber-800'
+                                }`}
+                            >
+                              {c.status === 'paid' ? 'Sudah Cair' : c.status === 'approved' ? 'Siap Cair' : c.status}
+                            </Badge>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
             </div>
           </div>
         </div>
@@ -1307,11 +1534,10 @@ export default function AffiliateDashboard() {
                   key={cat.id}
                   type="button"
                   onClick={() => setKitCategory(cat.id)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold border-2 ${
-                    kitCategory === cat.id
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold border-2 ${kitCategory === cat.id
                       ? 'bg-foreground text-background border-foreground'
                       : 'bg-card border-foreground/20 text-muted-foreground hover:text-foreground'
-                  }`}
+                    }`}
                 >
                   {cat.label}
                 </button>
@@ -1336,10 +1562,10 @@ export default function AffiliateDashboard() {
                   kit.category === 'banner'
                     ? ImageIcon
                     : kit.category === 'video'
-                    ? Video
-                    : kit.category === 'presentasi'
-                    ? Presentation
-                    : FileText;
+                      ? Video
+                      : kit.category === 'presentasi'
+                        ? Presentation
+                        : FileText;
 
                 return (
                   <div
@@ -1525,6 +1751,17 @@ export default function AffiliateDashboard() {
           </form>
         </div>
       )}
+
+      {/* MODAL FOLLOW UP WHATSAPP CALON PEMBELI OLEH AFILIATOR */}
+      <AffiliateFollowUpModal
+        isOpen={isFollowUpModalOpen}
+        onClose={() => {
+          setIsFollowUpModalOpen(false);
+          setSelectedOrderForFollowUp(null);
+        }}
+        order={selectedOrderForFollowUp}
+        affiliate={affiliate}
+      />
     </div>
   );
 }

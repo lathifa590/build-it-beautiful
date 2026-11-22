@@ -153,6 +153,9 @@ export interface Order {
   created_at: string;
   updated_at: string;
   paid_at?: string | null;
+  last_followed_up_at?: string | null;
+  last_followed_up_by?: 'admin' | 'affiliate' | string | null;
+  last_followed_up_note?: string | null;
 }
 
 export interface Coupon {

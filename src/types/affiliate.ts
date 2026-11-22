@@ -120,6 +120,28 @@ export interface AffiliateLead {
   generation_count?: number;
 }
 
+export interface AffiliateReferralOrder {
+  order_id: string;
+  invoice: string;
+  buyer_name: string;
+  buyer_email: string;
+  buyer_whatsapp: string;
+  package_type: string;
+  item_title: string;
+  price: number;
+  discount_amount: number;
+  total_amount: number;
+  unique_code: number;
+  status: 'pending' | 'paid' | 'cancelled';
+  affiliate_code: string;
+  created_at: string;
+  paid_at?: string | null;
+  last_followed_up_at?: string | null;
+  last_followed_up_by?: 'admin' | 'affiliate' | string | null;
+  last_followed_up_note?: string | null;
+  estimated_commission: number;
+}
+
 export const ELIGIBLE_AFFILIATE_ACCOUNT_TYPES = [
   'annual',
   'pro_annual',

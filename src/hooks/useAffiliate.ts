@@ -10,6 +10,7 @@ import {
   AffiliateMarketingKit,
   LeaderboardEntry,
   AffiliateLead,
+  AffiliateReferralOrder,
   isEligibleAccountTypeForAffiliate,
 } from '@/types/affiliate';
 import { PACKAGES_CONFIG } from '@/types/orders';
@@ -21,6 +22,7 @@ export const AFFILIATE_SETTINGS_KEY = 'affiliate-settings';
 export const MY_AFFILIATE_KEY = 'my-affiliate';
 export const MY_AFFILIATE_LEADS_KEY = 'my-affiliate-leads';
 export const MY_AFFILIATE_COMMISSIONS_KEY = 'my-affiliate-commissions';
+export const MY_AFFILIATE_ORDERS_KEY = 'my-affiliate-orders';
 export const MY_AFFILIATE_PAYOUTS_KEY = 'my-affiliate-payouts';
 export const AFFILIATE_LEADERBOARD_KEY = 'affiliate-leaderboard';
 export const AFFILIATE_MARKETING_KITS_KEY = 'affiliate-marketing-kits';
@@ -512,6 +514,80 @@ export function useRequestAffiliatePayout() {
       toast.success('Pengajuan pencairan komisi berhasil dikirim! Admin akan segera memprosesnya.');
     },
     onError: (err: any) => toast.error(err.message || 'Gagal mengajukan pencairan komisi'),
+  });
+}
+
+/**
+ * 7b. Affiliate's Referral Orders (Pending & Paid) via RPC get_affiliate_referral_orders
+ */
+export function useMyAffiliateReferralOrders(affiliateId?: string) {
+  return useQuery({
+    queryKey: [MY_AFFILIATE_ORDERS_KEY, affiliateId],
+    enabled: !!affiliateId,
+    queryFn: async (): Promise<AffiliateReferralOrder[]> => {
+      const { data, error } = await (supabase as any).rpc('get_affiliate_referral_orders', {
+        p_affiliate_id: affiliateId,
+      });
+
+      if (error) {
+        console.warn('get_affiliate_referral_orders RPC error:', error.message);
+        return [];
+      }
+
+      return (data || []).map((row: any) => ({
+        order_id: row.order_id,
+        invoice: row.invoice,
+        buyer_name: row.buyer_name,
+        buyer_email: row.buyer_email,
+        buyer_whatsapp: row.buyer_whatsapp,
+        package_type: row.package_type,
+        item_title: row.item_title,
+        price: Number(row.price || 0),
+        discount_amount: Number(row.discount_amount || 0),
+        total_amount: Number(row.total_amount || 0),
+        unique_code: Number(row.unique_code || 0),
+        status: row.status,
+        affiliate_code: row.affiliate_code,
+        created_at: row.created_at,
+        paid_at: row.paid_at,
+        last_followed_up_at: row.last_followed_up_at,
+        last_followed_up_by: row.last_followed_up_by,
+        last_followed_up_note: row.last_followed_up_note,
+        estimated_commission: Number(row.estimated_commission || 0),
+      }));
+    },
+    staleTime: 10 * 1000,
+  });
+}
+
+/**
+ * Mark order as followed up by affiliate or admin
+ */
+export function useMarkOrderFollowedUp() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      orderId,
+      by = 'affiliate',
+      note,
+    }: {
+      orderId: string;
+      by?: 'affiliate' | 'admin';
+      note?: string;
+    }) => {
+      const { data, error } = await (supabase as any).rpc('mark_order_followed_up', {
+        p_order_id: orderId,
+        p_by: by,
+        p_note: note || null,
+      });
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [MY_AFFILIATE_ORDERS_KEY] });
+      queryClient.invalidateQueries({ queryKey: ['admin-orders'] });
+    },
   });
 }
 

@@ -30,6 +30,7 @@ import {
 import { toast } from 'sonner';
 import { Order, PaymentSettings, DEFAULT_PAYMENT_SETTINGS } from '@/types/orders';
 import { cleanPhoneForWhatsApp } from '@/components/admin/ActivationMessageModal';
+import { useMarkOrderFollowedUp } from '@/hooks/useAffiliate';
 
 interface OrderFollowUpModalProps {
   isOpen: boolean;
@@ -157,6 +158,7 @@ export const OrderFollowUpModal: React.FC<OrderFollowUpModalProps> = ({
   const [phone, setPhone] = useState('');
   const [messageText, setMessageText] = useState('');
   const [isCopied, setIsCopied] = useState(false);
+  const markFollowedUpMutation = useMarkOrderFollowedUp();
 
   // Sync state whenever modal opens or order changes
   useEffect(() => {
@@ -215,8 +217,11 @@ export const OrderFollowUpModal: React.FC<OrderFollowUpModalProps> = ({
     }
 
     const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(messageText)}`;
+    if (order?.id) {
+      markFollowedUpMutation.mutate({ orderId: order.id, by: 'admin' });
+    }
     window.open(waUrl, '_blank', 'noopener,noreferrer');
-    toast.success('Membuka chat WhatsApp...');
+    toast.success('Membuka chat WhatsApp & status follow-up tercatat!');
   };
 
   if (!order) return null;
@@ -246,6 +251,28 @@ export const OrderFollowUpModal: React.FC<OrderFollowUpModalProps> = ({
         </DialogHeader>
 
         <div className="space-y-4 py-2">
+          {/* Status info if already followed up */}
+          {order.last_followed_up_at && (
+            <div className={`p-3 rounded-xl border-2 text-xs flex items-start gap-2.5 ${
+              order.last_followed_up_by === 'affiliate'
+                ? 'bg-emerald-500/15 border-emerald-600/50 text-emerald-950'
+                : 'bg-blue-500/15 border-blue-600/50 text-blue-950'
+            }`}>
+              <Info className="w-4 h-4 shrink-0 mt-0.5" />
+              <div>
+                <p className="font-extrabold">
+                  {order.last_followed_up_by === 'affiliate'
+                    ? `Perhatian: Afiliator (${order.affiliate_code || 'Mitra'}) sudah menyapa pembeli ini!`
+                    : 'Catatan: Pembeli ini sudah pernah di-follow up oleh Admin.'}
+                </p>
+                <p className="mt-0.5 text-[11px] opacity-90">
+                  Waktu: {new Date(order.last_followed_up_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })} pk {new Date(order.last_followed_up_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}.
+                  {order.last_followed_up_by === 'affiliate' && ' Gunakan pesan pengingat resmi jika pembeli membutuhkan konfirmasi rekening.'}
+                </p>
+              </div>
+            </div>
+          )}
+
           {/* Order Snapshot Card */}
           <div className="p-3.5 bg-secondary/60 border-2 border-foreground/20 rounded-xl space-y-2">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
