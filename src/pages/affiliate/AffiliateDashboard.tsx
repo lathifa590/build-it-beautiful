@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useMemo, useEffect } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import {
   useAffiliateSettings,
@@ -16,7 +16,7 @@ import {
   useAffiliateMarketingKits,
   generateAffiliateCode,
 } from '@/hooks/useAffiliate';
-import { AffiliateReferralOrder } from '@/types/affiliate';
+import { AffiliateReferralOrder, Affiliate } from '@/types/affiliate';
 import { AffiliateFollowUpModal } from '@/components/affiliate/AffiliateFollowUpModal';
 import {
   buildAffiliateLandingUrl,
@@ -70,26 +70,406 @@ import { toast } from 'sonner';
 type DashboardTab = 'overview' | 'leads' | 'commissions' | 'marketing' | 'settings';
 type LeaderboardPeriod = 'month' | 'week' | 'contest' | 'all';
 
+const DEMO_AFFILIATE: Affiliate = {
+  id: 'demo-affiliate-budi',
+  user_id: 'demo-user-budi',
+  affiliate_code: 'GURUPINTAR',
+  display_name: 'Pak Budi Santoso, M.Pd',
+  whatsapp: '081234567890',
+  commission_rate: 40,
+  is_active: true,
+  bank_name: 'BCA',
+  bank_account_number: '8820192831',
+  bank_account_holder: 'Budi Santoso',
+  custom_landing_slug: null,
+  max_trials_per_month: 30,
+  total_clicks: 184,
+  created_at: '2026-09-01T08:00:00Z',
+  updated_at: '2026-11-22T08:00:00Z',
+};
+
+const DEMO_REFERRAL_ORDERS: AffiliateReferralOrder[] = [
+  {
+    order_id: 'demo-order-1',
+    invoice: 'INV-20261122-872A',
+    buyer_name: 'Pak Hariyadi, S.Pd',
+    buyer_email: 'hariyadi.guru@gmail.com',
+    buyer_whatsapp: '081392817263',
+    item_title: 'Paket Pro (1 Tahun)',
+    package_type: 'pro',
+    price: 197000,
+    discount_amount: 0,
+    total_amount: 197820,
+    unique_code: 820,
+    status: 'pending',
+    affiliate_code: 'GURUPINTAR',
+    last_followed_up_at: null,
+    last_followed_up_by: null,
+    last_followed_up_note: null,
+    estimated_commission: 78800,
+    created_at: '2026-11-22T10:45:00Z',
+  },
+  {
+    order_id: 'demo-order-2',
+    invoice: 'INV-20261122-OHUV',
+    buyer_name: 'Ibu Niken Indah, S.Pd',
+    buyer_email: 'mrsnikenindah@gmail.com',
+    buyer_whatsapp: '088228511309',
+    item_title: 'Paket Standar (1 Tahun)',
+    package_type: 'standar',
+    price: 149000,
+    discount_amount: 0,
+    total_amount: 149988,
+    unique_code: 988,
+    status: 'pending',
+    affiliate_code: 'GURUPINTAR',
+    last_followed_up_at: '2026-11-22T11:05:00Z',
+    last_followed_up_by: 'affiliate',
+    last_followed_up_note: 'Sudah disapa via WhatsApp',
+    estimated_commission: 59600,
+    created_at: '2026-11-22T10:50:00Z',
+  },
+  {
+    order_id: 'demo-order-3',
+    invoice: 'INV-20261122-541C',
+    buyer_name: 'Ibu Siti Aminah',
+    buyer_email: 'siti.aminah99@gmail.com',
+    buyer_whatsapp: '085712398450',
+    item_title: 'Paket Standar (1 Tahun)',
+    package_type: 'standar',
+    price: 149000,
+    discount_amount: 0,
+    total_amount: 149310,
+    unique_code: 310,
+    status: 'pending',
+    affiliate_code: 'GURUPINTAR',
+    last_followed_up_at: '2026-11-22T09:30:00Z',
+    last_followed_up_by: 'admin',
+    last_followed_up_note: 'Admin konfirmasi',
+    estimated_commission: 59600,
+    created_at: '2026-11-22T09:15:00Z',
+  },
+  {
+    order_id: 'demo-order-4',
+    invoice: 'INV-20261120-112F',
+    buyer_name: 'Pak Ahmad Fauzi, M.Pd',
+    buyer_email: 'ahmad.fauzi@sekolah.sch.id',
+    buyer_whatsapp: '081298716253',
+    item_title: 'Paket Pro (1 Tahun)',
+    package_type: 'pro',
+    price: 197000,
+    discount_amount: 0,
+    total_amount: 197450,
+    unique_code: 450,
+    status: 'paid',
+    paid_at: '2026-11-20T14:35:00Z',
+    affiliate_code: 'GURUPINTAR',
+    last_followed_up_at: '2026-11-20T14:10:00Z',
+    last_followed_up_by: 'affiliate',
+    last_followed_up_note: null,
+    estimated_commission: 78800,
+    created_at: '2026-11-20T14:00:00Z',
+  },
+  {
+    order_id: 'demo-order-5',
+    invoice: 'INV-20261118-992K',
+    buyer_name: 'Ibu Ratna Dewi, S.Pd',
+    buyer_email: 'ratnadewi.smp@gmail.com',
+    buyer_whatsapp: '081928374650',
+    item_title: 'Paket Standar (1 Tahun)',
+    package_type: 'standar',
+    price: 149000,
+    discount_amount: 0,
+    total_amount: 149200,
+    unique_code: 200,
+    status: 'paid',
+    paid_at: '2026-11-18T09:00:00Z',
+    affiliate_code: 'GURUPINTAR',
+    last_followed_up_at: null,
+    last_followed_up_by: null,
+    last_followed_up_note: null,
+    estimated_commission: 59600,
+    created_at: '2026-11-18T08:30:00Z',
+  },
+];
+
+const DEMO_COMMISSIONS = [
+  {
+    id: 'comm-1',
+    affiliate_id: 'demo-affiliate-budi',
+    referred_user_id: 'user-1',
+    referred_email: 'ahmad.fauzi@sekolah.sch.id',
+    order_id: 'demo-order-4',
+    invoice: 'INV-20261120-112F',
+    order_amount: 197000,
+    commission_rate: 40,
+    commission_amount: 78800,
+    status: 'approved',
+    created_at: '2026-11-20T14:40:00Z',
+  },
+  {
+    id: 'comm-2',
+    affiliate_id: 'demo-affiliate-budi',
+    referred_user_id: 'user-2',
+    referred_email: 'ratnadewi.smp@gmail.com',
+    order_id: 'demo-order-5',
+    invoice: 'INV-20261118-992K',
+    order_amount: 149000,
+    commission_rate: 40,
+    commission_amount: 59600,
+    status: 'approved',
+    created_at: '2026-11-18T09:00:00Z',
+  },
+  {
+    id: 'comm-3',
+    affiliate_id: 'demo-affiliate-budi',
+    referred_user_id: 'user-3',
+    referred_email: 'bambang.guru@gmail.com',
+    order_id: 'demo-order-6',
+    invoice: 'INV-20261115-331B',
+    order_amount: 197000,
+    commission_rate: 40,
+    commission_amount: 78800,
+    status: 'approved',
+    created_at: '2026-11-15T11:20:00Z',
+  },
+  {
+    id: 'comm-4',
+    affiliate_id: 'demo-affiliate-budi',
+    referred_user_id: 'user-4',
+    referred_email: 'triwahyuni.sd@gmail.com',
+    order_id: 'demo-order-7',
+    invoice: 'INV-20261112-782W',
+    order_amount: 149000,
+    commission_rate: 40,
+    commission_amount: 59600,
+    status: 'approved',
+    created_at: '2026-11-12T16:15:00Z',
+  },
+  {
+    id: 'comm-5',
+    affiliate_id: 'demo-affiliate-budi',
+    referred_user_id: 'user-5',
+    referred_email: 'hendra.gunawan@gmail.com',
+    order_id: 'demo-order-8',
+    invoice: 'INV-20261110-449H',
+    order_amount: 197000,
+    commission_rate: 40,
+    commission_amount: 78800,
+    status: 'approved',
+    created_at: '2026-11-10T10:00:00Z',
+  },
+  {
+    id: 'comm-6',
+    affiliate_id: 'demo-affiliate-budi',
+    referred_user_id: 'user-6',
+    referred_email: 'nurul.hidayah@gmail.com',
+    order_id: 'demo-order-9',
+    invoice: 'INV-20261105-881N',
+    order_amount: 149000,
+    commission_rate: 40,
+    commission_amount: 59600,
+    status: 'approved',
+    created_at: '2026-11-05T13:45:00Z',
+  },
+  {
+    id: 'comm-7',
+    affiliate_id: 'demo-affiliate-budi',
+    referred_user_id: 'user-7',
+    referred_email: 'dedi.kurniawan@gmail.com',
+    order_id: 'demo-order-10',
+    invoice: 'INV-20261028-119D',
+    order_amount: 197000,
+    commission_rate: 40,
+    commission_amount: 78800,
+    status: 'paid',
+    payout_id: 'demo-payout-1',
+    created_at: '2026-10-28T09:30:00Z',
+  },
+  {
+    id: 'comm-8',
+    affiliate_id: 'demo-affiliate-budi',
+    referred_user_id: 'user-8',
+    referred_email: 'maya.safitri@gmail.com',
+    order_id: 'demo-order-11',
+    invoice: 'INV-20261025-442M',
+    order_amount: 149000,
+    commission_rate: 40,
+    commission_amount: 59600,
+    status: 'paid',
+    payout_id: 'demo-payout-1',
+    created_at: '2026-10-25T15:20:00Z',
+  },
+];
+
+const DEMO_PAYOUTS = [
+  {
+    id: 'demo-payout-1',
+    affiliate_id: 'demo-affiliate-budi',
+    requested_amount: 138400,
+    admin_fee: 0,
+    net_amount: 138400,
+    bank_name: 'BCA',
+    bank_account_number: '8820192831',
+    bank_account_holder: 'Budi Santoso',
+    status: 'completed',
+    created_at: '2026-11-01T08:00:00Z',
+    paid_at: '2026-11-02T10:00:00Z',
+  },
+];
+
+const DEMO_LEADS = [
+  {
+    id: 'lead-1',
+    affiliate_id: 'demo-affiliate-budi',
+    user_id: 'user-hariyadi',
+    name: 'Pak Hariyadi, S.Pd',
+    email: 'hariyadi.guru@gmail.com',
+    phone: '081392817263',
+    account_type: 'trial',
+    generation_count: 12,
+    is_claimed: true,
+    trial_quota_limit: 25,
+    created_at: '2026-11-21T09:00:00Z',
+  },
+  {
+    id: 'lead-2',
+    affiliate_id: 'demo-affiliate-budi',
+    user_id: 'user-niken',
+    name: 'Ibu Niken Indah, S.Pd',
+    email: 'mrsnikenindah@gmail.com',
+    phone: '088228511309',
+    account_type: 'trial',
+    generation_count: 24,
+    is_claimed: true,
+    trial_quota_limit: 25,
+    created_at: '2026-11-20T10:30:00Z',
+  },
+  {
+    id: 'lead-3',
+    affiliate_id: 'demo-affiliate-budi',
+    user_id: 'user-siti',
+    name: 'Ibu Siti Aminah',
+    email: 'siti.aminah99@gmail.com',
+    phone: '085712398450',
+    account_type: 'trial',
+    generation_count: 3,
+    is_claimed: true,
+    trial_quota_limit: 25,
+    created_at: '2026-11-22T08:15:00Z',
+  },
+  {
+    id: 'lead-4',
+    affiliate_id: 'demo-affiliate-budi',
+    user_id: 'user-ahmad',
+    name: 'Pak Ahmad Fauzi, M.Pd',
+    email: 'ahmad.fauzi@sekolah.sch.id',
+    phone: '081298716253',
+    account_type: 'pro',
+    generation_count: 25,
+    is_claimed: true,
+    trial_quota_limit: 25,
+    created_at: '2026-11-19T11:00:00Z',
+  },
+  {
+    id: 'lead-5',
+    affiliate_id: 'demo-affiliate-budi',
+    user_id: 'user-ratna',
+    name: 'Ibu Ratna Dewi, S.Pd',
+    email: 'ratnadewi.smp@gmail.com',
+    phone: '081928374650',
+    account_type: 'standar',
+    generation_count: 18,
+    is_claimed: true,
+    trial_quota_limit: 25,
+    created_at: '2026-11-16T14:20:00Z',
+  },
+  {
+    id: 'lead-6',
+    affiliate_id: 'demo-affiliate-budi',
+    user_id: 'user-teguh',
+    name: 'Pak Teguh Widodo',
+    email: 'teguh.smk@gmail.com',
+    phone: '081329182390',
+    account_type: 'trial',
+    generation_count: 0,
+    is_claimed: false,
+    trial_quota_limit: 25,
+    created_at: '2026-11-22T07:00:00Z',
+  },
+];
+
+const DEMO_LEADERBOARD = [
+  {
+    rank_position: 1,
+    affiliate_id: 'lead-top-1',
+    display_name: 'Ibu Sri Wahyuni, M.Pd',
+    affiliate_code: 'SRIW',
+    total_conversions: 14,
+    total_commission_amount: 1023200,
+  },
+  {
+    rank_position: 2,
+    affiliate_id: 'demo-affiliate-budi',
+    display_name: 'Pak Budi Santoso, M.Pd',
+    affiliate_code: 'GURUPINTAR',
+    total_conversions: 8,
+    total_commission_amount: 514800,
+  },
+  {
+    rank_position: 3,
+    affiliate_id: 'lead-top-3',
+    display_name: 'Drs. M. Yusuf',
+    affiliate_code: 'YUSUF99',
+    total_conversions: 6,
+    total_commission_amount: 387600,
+  },
+  {
+    rank_position: 4,
+    affiliate_id: 'lead-top-4',
+    display_name: 'Rina Kartika, S.Pd',
+    affiliate_code: 'RINASPD',
+    total_conversions: 4,
+    total_commission_amount: 277200,
+  },
+  {
+    rank_position: 5,
+    affiliate_id: 'lead-top-5',
+    display_name: 'Joko Prasetyo, S.Kom',
+    affiliate_code: 'JOKOPRO',
+    total_conversions: 3,
+    total_commission_amount: 198000,
+  },
+];
+
 export default function AffiliateDashboard() {
   const { user } = useAuth();
+  const [searchParams] = useSearchParams();
+  const isDemo = searchParams.get('demo') === '1' || searchParams.get('mode') === 'demo';
+
   const { settings } = useAffiliateSettings();
   const { data: myAffData, isLoading: isLoadingAff, refetch: refetchMyAff } = useMyAffiliate();
 
-  const affiliate = myAffData?.affiliate ?? null;
-  const isEligible = myAffData?.isEligible ?? false;
-  const accountType = myAffData?.accountType ?? null;
-  const activeApiKeyCount = myAffData?.activeApiKeyCount ?? 0;
+  const affiliate = isDemo ? (DEMO_AFFILIATE as Affiliate) : (myAffData?.affiliate ?? null);
+  const isEligible = isDemo ? true : (myAffData?.isEligible ?? false);
+  const accountType = isDemo ? 'standar' : (myAffData?.accountType ?? null);
+  const activeApiKeyCount = isDemo ? 1 : (myAffData?.activeApiKeyCount ?? 0);
 
   const registerMutation = useRegisterAffiliate();
   const updateProfileMutation = useUpdateMyAffiliate();
   const registerTrialsMutation = useRegisterAffiliateTrialLeads();
   const requestPayoutMutation = useRequestAffiliatePayout();
 
-  const { data: leads = [], isLoading: isLoadingLeads, refetch: refetchLeads } = useMyAffiliateLeads(affiliate?.id);
-  const { data: commissions = [], isLoading: isLoadingComms } = useMyAffiliateCommissions(affiliate?.id);
-  const { data: referralOrders = [], isLoading: isLoadingOrders } = useMyAffiliateReferralOrders(affiliate?.id);
-  const { data: payouts = [] } = useMyAffiliatePayouts(affiliate?.id);
+  const { data: realLeads = [], isLoading: isLoadingLeads, refetch: refetchLeads } = useMyAffiliateLeads(affiliate?.id);
+  const { data: realCommissions = [], isLoading: isLoadingComms } = useMyAffiliateCommissions(affiliate?.id);
+  const { data: realReferralOrders = [], isLoading: isLoadingOrders } = useMyAffiliateReferralOrders(affiliate?.id);
+  const { data: realPayouts = [] } = useMyAffiliatePayouts(affiliate?.id);
   const { data: marketingKits = [] } = useAffiliateMarketingKits();
+
+  const leads = isDemo ? (DEMO_LEADS as any[]) : realLeads;
+  const commissions = isDemo ? (DEMO_COMMISSIONS as any[]) : realCommissions;
+  const referralOrders = isDemo ? (DEMO_REFERRAL_ORDERS as AffiliateReferralOrder[]) : realReferralOrders;
+  const payouts = isDemo ? (DEMO_PAYOUTS as any[]) : realPayouts;
 
   const pendingOrders = useMemo(
     () => referralOrders.filter((o) => o.status === 'pending'),
@@ -98,9 +478,30 @@ export default function AffiliateDashboard() {
   const [selectedOrderForFollowUp, setSelectedOrderForFollowUp] = useState<AffiliateReferralOrder | null>(null);
   const [isFollowUpModalOpen, setIsFollowUpModalOpen] = useState(false);
 
-  const [activeTab, setActiveTab] = useState<DashboardTab>('overview');
+  const tabParam = searchParams.get('tab') as DashboardTab | null;
+  const [activeTab, setActiveTab] = useState<DashboardTab>(() => {
+    if (tabParam && ['overview', 'leads', 'commissions', 'marketing', 'settings'].includes(tabParam)) {
+      return tabParam;
+    }
+    return 'overview';
+  });
+
+  useEffect(() => {
+    if (tabParam && ['overview', 'leads', 'commissions', 'marketing', 'settings'].includes(tabParam)) {
+      setActiveTab(tabParam);
+    }
+  }, [tabParam]);
+
+  useEffect(() => {
+    if (isDemo && searchParams.get('modal') === 'followup') {
+      setSelectedOrderForFollowUp(DEMO_REFERRAL_ORDERS[0]);
+      setIsFollowUpModalOpen(true);
+    }
+  }, [isDemo, searchParams]);
+
   const [leaderboardPeriod, setLeaderboardPeriod] = useState<LeaderboardPeriod>('month');
-  const { data: leaderboard = [], isLoading: isLoadingLeaderboard } = useAffiliateLeaderboard(leaderboardPeriod);
+  const { data: realLeaderboard = [], isLoading: isLoadingLeaderboard } = useAffiliateLeaderboard(leaderboardPeriod);
+  const leaderboard = isDemo ? (DEMO_LEADERBOARD as any[]) : realLeaderboard;
 
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
@@ -298,7 +699,7 @@ export default function AffiliateDashboard() {
   };
 
   // Loading state
-  if (isLoadingAff) {
+  if (isLoadingAff && !isDemo) {
     return (
       <div className="p-8 flex items-center justify-center min-h-[60vh]">
         <div className="text-center space-y-2 text-muted-foreground">
@@ -495,8 +896,12 @@ export default function AffiliateDashboard() {
   }
 
   // CASE 3: ACTIVE AFFILIATE DASHBOARD
-  const landingUrl = buildAffiliateLandingUrl(affiliate.affiliate_code);
-  const prettyLandingUrl = `${window.location.origin}/a/${affiliate.affiliate_code}`;
+  const landingUrl = isDemo
+    ? `https://modulajar.online/?ref=${affiliate.affiliate_code}`
+    : buildAffiliateLandingUrl(affiliate.affiliate_code);
+  const prettyLandingUrl = isDemo
+    ? `https://modulajar.online/a/${affiliate.affiliate_code}`
+    : `${window.location.origin}/a/${affiliate.affiliate_code}`;
   const numericPayoutInput = Number(payoutAmount.replace(/\D/g, '')) || 0;
   const isBelowFreeFee = numericPayoutInput > 0 && numericPayoutInput < (settings.min_payout_free_fee ?? 50000);
   const estimatedFee = isBelowFreeFee ? (settings.below_min_admin_fee ?? 2500) : 0;
@@ -729,7 +1134,7 @@ export default function AffiliateDashboard() {
               </div>
             </div>
 
-            {isLoadingLeaderboard ? (
+            {(isLoadingLeaderboard && !isDemo) ? (
               <div className="py-10 text-center text-xs text-muted-foreground">Memuat peringkat...</div>
             ) : top5Leaderboard.length === 0 ? (
               <div className="py-10 text-center text-xs text-muted-foreground">
@@ -992,7 +1397,7 @@ export default function AffiliateDashboard() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {isLoadingLeads ? (
+                  {(isLoadingLeads && !isDemo) ? (
                     <TableRow>
                       <TableCell colSpan={5} className="text-center py-10 text-xs text-muted-foreground">
                         Memuat data prospek...
@@ -1131,7 +1536,7 @@ export default function AffiliateDashboard() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {isLoadingOrders ? (
+                  {(isLoadingOrders && !isDemo) ? (
                     <TableRow>
                       <TableCell colSpan={5} className="text-center py-10 text-xs text-muted-foreground">
                         Memuat daftar pesanan...
@@ -1450,7 +1855,7 @@ export default function AffiliateDashboard() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {isLoadingComms ? (
+                    {(isLoadingComms && !isDemo) ? (
                       <TableRow>
                         <TableCell colSpan={4} className="text-center py-10 text-xs text-muted-foreground">
                           Memuat komisi...

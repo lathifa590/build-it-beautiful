@@ -28,6 +28,10 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({ onClose }) => {
     navigate('/auth');
   };
 
+  const isDemo = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('demo') === '1';
+  const displayUserName = isDemo ? 'Pak Budi Santoso, M.Pd' : (user?.user_metadata?.full_name || 'Pengguna');
+  const displayUserEmail = isDemo ? 'budi.guru@gmail.com' : (user?.email || 'Afiliator Resmi');
+
   const navItems = [
     {
       label: 'Workspace',
@@ -151,8 +155,8 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({ onClose }) => {
               )}
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-bold text-slate-900 truncate">{user?.user_metadata?.full_name || 'Pengguna'}</p>
-              <p className="text-[10px] font-medium text-slate-500 truncate">{user?.email}</p>
+              <p className="text-sm font-bold text-slate-900 truncate">{displayUserName}</p>
+              <p className="text-[10px] font-medium text-slate-500 truncate">{displayUserEmail}</p>
             </div>
           </div>
         ) : (
