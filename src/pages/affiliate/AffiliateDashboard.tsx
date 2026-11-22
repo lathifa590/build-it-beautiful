@@ -399,6 +399,44 @@ const DEMO_LEADS = [
   },
 ];
 
+const DEMO_MARKETING_KITS = [
+  {
+    id: 'kit-1',
+    title: 'Copywriting Siap Sebar untuk WhatsApp (Grup Guru / MGMP / KKG)',
+    category: 'copywriting' as const,
+    description: 'Teks promosi santai yang fokus ke solusi menghemat waktu administrasi ajar.',
+    content_text: `Bapak/Ibu guru yang terhormat, yuk ringankan beban administrasi ajar semester ini dengan ModulAjar.Online! 🚀✨
+
+Cukup sekali klik, modul ajar, prota, prosem, hingga kisi-kisi dan bank soal langsung beres rapi sesuai standar kurikulum.
+
+Daftar dan coba langsung lewat tautan rekomendasi saya di sini:
+👉 {LINK_AFILIASI}
+
+Salam hangat,
+{NAMA_AFILIATOR}`,
+    asset_url: null,
+    thumbnail_url: null,
+  },
+  {
+    id: 'kit-2',
+    title: 'Banner Promosi Siap Posting (Format Status WA & Instagram)',
+    category: 'banner' as const,
+    description: 'Desain visual elegan yang siap langsung Anda bagikan di media sosial.',
+    content_text: null,
+    asset_url: 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=800',
+    thumbnail_url: 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=800',
+  },
+  {
+    id: 'kit-3',
+    title: 'Slide Presentasi ModulAjar.Online untuk Sosialisasi',
+    category: 'presentasi' as const,
+    description: 'Slide siap tayang saat Anda berbagi di workshop, rapat dewan guru, atau komunitas pendidik.',
+    content_text: null,
+    asset_url: 'https://modulajar.online',
+    thumbnail_url: null,
+  },
+];
+
 const DEMO_LEADERBOARD = [
   {
     rank_position: 1,
@@ -464,7 +502,8 @@ export default function AffiliateDashboard() {
   const { data: realCommissions = [], isLoading: isLoadingComms } = useMyAffiliateCommissions(affiliate?.id);
   const { data: realReferralOrders = [], isLoading: isLoadingOrders } = useMyAffiliateReferralOrders(affiliate?.id);
   const { data: realPayouts = [] } = useMyAffiliatePayouts(affiliate?.id);
-  const { data: marketingKits = [] } = useAffiliateMarketingKits();
+  const { data: realMarketingKits = [] } = useAffiliateMarketingKits();
+  const marketingKits = isDemo && realMarketingKits.length === 0 ? (DEMO_MARKETING_KITS as any[]) : realMarketingKits;
 
   const leads = isDemo ? (DEMO_LEADS as any[]) : realLeads;
   const commissions = isDemo ? (DEMO_COMMISSIONS as any[]) : realCommissions;

@@ -129,11 +129,11 @@ const Landing = () => {
         description="Aplikasi Modul Ajar Generator & Pembuat RPP Otomatis dengan AI. Buat Modul Ajar Kurikulum Merdeka, Pembelajaran Mendalam (Deep Learning), LKPD, Asesmen, Prota & Promes, dan KBC Kemenag dalam hitungan detik." 
         schema={landingSchema}
       />
-      {recommender && (
-        <div className="bg-emerald-600 text-white text-xs sm:text-sm font-semibold py-2 px-4 text-center border-b-2 border-foreground">
-          🤝 Direkomendasikan oleh <span className="font-extrabold">{recommender.display_name}</span>{' '}
+      {(recommender || refCode?.toUpperCase() === 'GURUPINTAR' || searchParams.get('ref')?.toUpperCase() === 'GURUPINTAR') && (
+        <div className="bg-emerald-600 text-white text-xs sm:text-sm font-semibold py-2 px-4 text-center border-b-2 border-foreground shadow-sm">
+          🤝 Direkomendasikan oleh <span className="font-extrabold">{recommender?.display_name || 'Pak Budi Santoso, M.Pd'}</span>{' '}
           <span className="font-mono text-[11px] bg-white/20 px-1.5 py-0.5 rounded ml-1">
-            {recommender.affiliate_code}
+            {recommender?.affiliate_code || 'GURUPINTAR'}
           </span>
         </div>
       )}
