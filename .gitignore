@@ -45,6 +45,7 @@ Revisi*.md
 ~$*
 scratch/
 .tmp/
+Katalog_Modul_Ajar/
 *.docx
 *.pdf
 !materi_video_afiliasi/*.pdf
