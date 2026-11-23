@@ -446,10 +446,17 @@ ${infoBlock(formData)}${pertemuanBlock(formData)}${identifikasiMuridBlock(formDa
 }
 
 function buildLKPDBase(formData: FormData): string {
-  return `Kamu adalah ahli pendidikan yang membuat LKPD (Lembar Kerja Peserta Didik) yang interaktif dan bermakna${formData.kurikulum === 'kbc' ? ' sesuai Kurikulum Berbasis Cinta (KBC) Kemenag' : ''}.
+  const isEnglish = /bahasa\s*inggris|english/i.test(formData.mataPelajaran || '');
+  return `Kamu adalah ahli pendidikan yang membuat LKPD (Lembar Kerja Peserta Didik / Student Worksheet) yang interaktif dan bermakna${formData.kurikulum === 'kbc' ? ' sesuai Kurikulum Berbasis Cinta (KBC) Kemenag' : ''}.
 
 ${infoBlock(formData)}
-
+${isEnglish ? `
+ATURAN KHUSUS MATA PELAJARAN BAHASA INGGRIS (WAJIB 100% BAHASA INGGRIS):
+Karena mata pelajaran adalah BAHASA INGGRIS, MAKA SELURUH KONTEN LKPD (Judul, Petunjuk Belajar, Teks Bacaan, Instruksi Aktivitas, Pertanyaan Kunci, Format Jawaban, dan Refleksi) WAJIB 100% MENGGUNAKAN BAHASA INGGRIS (Full English), BUKAN Bahasa Indonesia!
+- Judul: "Student Worksheet: [Topic / Unit]"
+- Instruksi: Full English (misal: "Read the text carefully. Analyze the text structure and language features. Complete the table below!")
+- Pertanyaan: Full English (misal: "Which paragraph serves as the General Classification?", "Identify 3 sentences using Simple Present Tense!")
+` : ''}
 PENTING - FORMAT MATEMATIKA (untuk mapel Matematika/Fisika/Kimia):
 - SEMUA ekspresi matematika WAJIB dibungkus $...$. Contoh: $\\sin x$, $\\cos x$, $\\frac{a}{b}$, $\\sqrt{2}$, $x^{2}$, $\\lim_{x \\to 0} \\frac{\\sin x}{x} = 1$.
 - DILARANG menulis \\sin, \\cos, \\lim, \\frac, \\sqrt, \\to di luar $...$.

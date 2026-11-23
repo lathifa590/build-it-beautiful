@@ -1822,8 +1822,43 @@ INSTRUKSI:
         break;
       }
 
-      case "lkpd":
-        systemPrompt = `Kamu adalah asisten ahli pendidikan yang membuat LKPD (Lembar Kerja Peserta Didik) yang interaktif dan bermakna${data.kurikulum === 'kbc' ? ' sesuai Kurikulum Berbasis Cinta (KBC) Kemenag. Gunakan istilah "peserta didik" dan integrasikan nilai-nilai Elemen Cinta dalam konteks aktivitas.' : '.'}
+      case "lkpd": {
+        const isEnglishSubjectLkpd = /bahasa\s*inggris|english/i.test(data.mataPelajaran || '');
+        const isArabicSubjectLkpd = /bahasa\s*arab/i.test(data.mataPelajaran || '');
+
+        systemPrompt = `Kamu adalah asisten ahli pendidikan yang membuat LKPD (Lembar Kerja Peserta Didik / Student Worksheet) yang interaktif dan bermakna${data.kurikulum === 'kbc' ? ' sesuai Kurikulum Berbasis Cinta (KBC) Kemenag. Gunakan istilah "peserta didik" dan integrasikan nilai-nilai Elemen Cinta dalam konteks aktivitas.' : '.'}
+${isEnglishSubjectLkpd ? `
+======================================================================
+ATURAN MUTLAK MATA PELAJARAN BAHASA INGGRIS (100% FULL ENGLISH):
+Karena mata pelajaran adalah BAHASA INGGRIS (English Language):
+1. SELURUH KONTEN LKPD YANG DIBACA / DIKERJAKAN PESERTA DIDIK WAJIB 100% DITULIS DALAM BAHASA INGGRIS!
+2. DILARANG KERAS MENGGUNAKAN BAHASA INDONESIA PADA:
+   - "judul_lkpd": Tulis dalam Bahasa Inggris (contoh: "Student Worksheet: Report Text - Honeybees", "Student Worksheet: Analytical Exposition - Healthy Lifestyle", dsb). DILARANG menulis kata "Lembar Kerja Peserta Didik".
+   - "petunjuk_belajar": Seluruh poin petunjuk WAJIB Bahasa Inggris (contoh: ["Read the provided text and instructions carefully.", "Analyze the generic structure and language features.", "Write your answers clearly in the spaces provided."]).
+   - "informasi_pendukung": Ringkasan konsep materi WAJIB dalam Bahasa Inggris (contoh: Social Function, Generic Structure, Language Features).
+   - "pertanyaan_pemantik": Pertanyaan pemantik WAJIB dalam Bahasa Inggris (contoh: "What do you know about honeybees? How do they work together in a colony?").
+   - "masalah_kontekstual": Skenario masalah WAJIB dalam Bahasa Inggris.
+   - "aktivitas_utama":
+     * "judul": Judul aktivitas WAJIB Bahasa Inggris (contoh: "Activity 1: Text Structure Analysis", "Activity 2: Language Features Hunt", "Activity 3: Comprehension Check").
+     * "jenis": Jenis kegiatan WAJIB Bahasa Inggris (contoh: "Reading Comprehension", "Text Analysis", "Vocabulary & Grammar Practice", "Pair Discussion").
+     * "teks_pendukung": Teks stimulus bacaan LENGKAP dalam Bahasa Inggris yang bermutu dan sesuai tingkat kelas (contoh: teks bacaan bahasa Inggris 'Honeybees' yang utuh dan komprehensif).
+     * "instruksi": Instruksi kegiatan WAJIB 100% DALAM BAHASA INGGRIS!
+       Contoh BENAR: "Read the text 'Honeybees' above carefully. Analyze the text structure (General Classification & Description) and identify the language features found in the text. Fill in the table below!"
+       Contoh SALAH: "Bacalah teks 'Honeybees' di atas dengan teliti. Analisis struktur teks (General Classification & Description) dan temukan unsur kebahasaan yang ada pada teks tersebut. Isilah tabel di bawah ini!"
+     * "pertanyaan_kunci": SEMUA butir pertanyaan WAJIB 100% DALAM BAHASA INGGRIS!
+       Contoh BENAR:
+       - "Which paragraph serves as the 'General Classification'? Write down its topic sentence!"
+       - "What detailed information is explained in the 'Description' section (Paragraph 2)?"
+       - "Identify at least 3 example sentences that use the 'Simple Present Tense' from the text!"
+       - "Find 2 examples of 'General Nouns' and 2 examples of 'Relating Verbs' in the text!"
+       Contoh SALAH:
+       - "Paragraf manakah yang berfungsi sebagai 'General Classification'? Tuliskan kalimat utamanya!"
+       - "Informasi apa saja yang dijelaskan pada bagian 'Description' (Paragraf 2)?"
+       - "Identifikasi minimal 3 contoh kalimat yang menggunakan 'Simple Present Tense'!"
+       - "Temukan 2 contoh 'General Nouns' dan 2 contoh 'Relating Verbs' dari teks!"
+     * "format_jawaban": Format jawaban dalam Bahasa Inggris (contoh: "Written answer in the answer box / Structured table").
+   - "refleksi": Refleksi diri dan teman sebaya WAJIB dalam Bahasa Inggris (contoh: ["What new vocabulary did you learn today?", "Which part of analyzing the text was most challenging?"]).
+======================================================================` : ''}
 
 PENTING - FORMAT MATEMATIKA (WAJIB DIIKUTI UNTUK MAPEL MATEMATIKA/FISIKA/KIMIA):
 SEMUA ekspresi matematika WAJIB dibungkus dengan delimiter $...$ tanpa kecuali.
@@ -1883,11 +1918,25 @@ Sub Materi: ${data.subMateri || '-'}
 Tujuan: ${data.tujuanPembelajaran}
 Kelas: ${data.kelas}
 
+${isEnglishSubjectLkpd ? `PENTING SEKALI: Karena mata pelajaran adalah BAHASA INGGRIS, SELURUH isi LKPD (judul_lkpd, petunjuk_belajar, informasi_pendukung, pertanyaan_pemantik, masalah_kontekstual, teks_pendukung, instruksi kegiatan aktivitas_utama, pertanyaan_kunci, format_jawaban, refleksi) WAJIB 100% DALAM BAHASA INGGRIS. JANGAN MENGGUNAKAN BAHASA INDONESIA sama sekali untuk instruksi dan pertanyaan peserta didik!` : ''}
+${isArabicSubjectLkpd ? `PENTING: Karena mata pelajaran adalah BAHASA ARAB, seluruh teks bacaan, teks model, instruksi, dan latihan disajikan dalam Bahasa Arab (berharakat lengkap untuk SD/SMP) dengan petunjuk yang sesuai!` : ''}
 PENTING: Jika ada aktivitas yang membutuhkan siswa membaca teks atau bacaan, WAJIB sertakan teks lengkap tersebut dalam field "teks_pendukung". Jangan hanya memberikan instruksi untuk membaca tanpa menyediakan teksnya.${ctxBlock}`;
         break;
+      }
 
-      case "asesmen":
+      case "asesmen": {
+        const isEnglishSubjectAsesmen = /bahasa\s*inggris|english/i.test(data.mataPelajaran || '');
+
         systemPrompt = `Kamu adalah ahli asesmen pendidikan Indonesia yang membuat instrumen penilaian sesuai Kurikulum Merdeka dengan Pembelajaran Mendalam.
+${isEnglishSubjectAsesmen ? `
+======================================================================
+ATURAN KHUSUS MATA PELAJARAN BAHASA INGGRIS (ASESMEN):
+Karena mata pelajaran adalah BAHASA INGGRIS:
+- Semua butir pertanyaan asesmen awal (diagnostik) WAJIB dalam Bahasa Inggris.
+- Semua instruksi kegiatan dan pertanyaan diskusi pada asesmen proses (formatif) WAJIB dalam Bahasa Inggris.
+- Semua soal tes tertulis uraian pada asesmen akhir (sumatif) WAJIB dalam Bahasa Inggris.
+- Rubrik penilaian dan kunci jawaban disesuaikan dalam Bahasa Inggris.
+======================================================================` : ''}
 
 PRINSIP ASESMEN ${data.kurikulum === 'kbc' ? 'KBC (Kurikulum Berbasis Cinta)' : 'KURIKULUM MERDEKA'}:
 1. Asesmen merupakan bagian terpadu dari pembelajaran
@@ -1974,12 +2023,13 @@ Sub Materi: ${data.subMateri || '-'}
 Tujuan Pembelajaran: ${data.tujuanPembelajaran}
 
 Pastikan asesmen:
-1. Relevan dengan tujuan pembelajaran
+${isEnglishSubjectAsesmen ? '- SEMUA butir pertanyaan asesmen (awal, proses, dan akhir sumatif) WAJIB dalam Bahasa Inggris.\n' : ''}1. Relevan dengan tujuan pembelajaran
 2. Menggunakan konteks nyata sesuai karakteristik siswa
 3. Mencakup aspek kognitif, afektif, dan psikomotorik
 4. Memiliki rubrik yang jelas dengan 4 level capaian (Sangat Baik, Baik, Cukup, Kurang)
 5. Menyediakan penilaian diri dan penilaian sejawat untuk asesmen proses${ctxBlock}`;
         break;
+      }
 
       case "materi":
         // Helper function untuk parsing kelas dengan angka Romawi

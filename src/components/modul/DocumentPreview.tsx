@@ -1900,10 +1900,10 @@ export const DocumentPreview = ({
           
           {/* Header - Plain heading */}
           <h2 style={{ textAlign: 'center', fontWeight: 'bold', fontSize: '14pt', marginBottom: '4px' }}>
-            LEMBAR KERJA PESERTA DIDIK
+            {isEnglishSubject(formData.mataPelajaran) ? 'STUDENT WORKSHEET (LKPD)' : 'LEMBAR KERJA PESERTA DIDIK'}
           </h2>
           <p style={{ textAlign: 'center', fontSize: '10pt', marginBottom: '24px' }}>
-            Model: Deep Learning 2026
+            {isEnglishSubject(formData.mataPelajaran) ? 'Model: Deep Learning 2026' : 'Model: Deep Learning 2026'}
           </p>
           
           {/* All activities as natural flow */}
@@ -1912,7 +1912,7 @@ export const DocumentPreview = ({
               <EditableSection
                 key={`edit-lkpd-${i}`}
                 sectionId={`aktivitas_utama.${i}`}
-                sectionLabel={`Aktivitas ${i + 1}: ${act.judul}`}
+                sectionLabel={`${isEnglishSubject(formData.mataPelajaran) ? 'Activity' : 'Aktivitas'} ${i + 1}: ${act.judul}`}
                 currentContent={act}
                 onEdit={handleOpenEditor('lkpd')}
               >
@@ -1944,7 +1944,9 @@ export const DocumentPreview = ({
                 {/* Teks Pendukung - jika ada */}
                 {act.teks_pendukung && (
                   <div style={{ backgroundColor: '#f9fafb', padding: '12px', marginBottom: '12px' }}>
-                    <strong style={{ fontSize: '10pt', color: '#4b5563' }}>📖 Bacaan:</strong>
+                    <strong style={{ fontSize: '10pt', color: '#4b5563' }}>
+                      {isEnglishSubject(formData.mataPelajaran) ? '📖 Reading Text:' : '📖 Bacaan:'}
+                    </strong>
                     <p style={{ textAlign: 'justify', whiteSpace: 'pre-line', marginTop: '8px', marginBottom: 0 }}>{mathFormatter(act.teks_pendukung)}</p>
                   </div>
                 )}
@@ -1968,7 +1970,9 @@ export const DocumentPreview = ({
                               verticalAlign: 'top',
                               backgroundColor: '#fafafa'
                             }}>
-                              <span style={{ color: '#9ca3af', fontSize: '9pt' }}>Jawaban:</span>
+                              <span style={{ color: '#9ca3af', fontSize: '9pt' }}>
+                                {isEnglishSubject(formData.mataPelajaran) ? 'Answer:' : 'Jawaban:'}
+                              </span>
                               <br/><br/><br/><br/>
                             </td>
                           </tr>
@@ -1987,7 +1991,9 @@ export const DocumentPreview = ({
                           verticalAlign: 'top',
                           backgroundColor: '#fafafa'
                         }}>
-                          <span style={{ color: '#6b7280', fontSize: '10pt' }}>Area Kerja Siswa</span>
+                          <span style={{ color: '#6b7280', fontSize: '10pt' }}>
+                            {isEnglishSubject(formData.mataPelajaran) ? 'Student Workspace' : 'Area Kerja Siswa'}
+                          </span>
                           <br/><br/><br/><br/><br/><br/>
                         </td>
                       </tr>
