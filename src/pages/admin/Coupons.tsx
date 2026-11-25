@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Table,
   TableBody,
@@ -43,6 +44,49 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 
+export const AVAILABLE_COUPON_PACKAGES = [
+  {
+    id: 'lite',
+    name: 'Paket Lite',
+    period: '6 Bulan',
+    price: 99000,
+    badgeClass: 'border-blue-400 bg-blue-50 text-blue-700',
+  },
+  {
+    id: 'standar',
+    name: 'Paket Standar',
+    period: '1 Tahun',
+    price: 149000,
+    badgeClass: 'border-amber-400 bg-amber-50 text-amber-800',
+  },
+  {
+    id: 'pro',
+    name: 'Paket Pro',
+    period: '1 Tahun',
+    price: 197000,
+    badgeClass: 'border-purple-400 bg-purple-50 text-purple-800',
+  },
+] as const;
+
+export function parseApplicablePackages(val?: string | null): string[] {
+  if (!val || val === 'all' || val === 'subscription') {
+    return ['lite', 'standar', 'pro'];
+  }
+  const tokens = val.toLowerCase().split(',').map((s) => s.trim()).filter(Boolean);
+  const res: string[] = [];
+  if (tokens.includes('lite')) res.push('lite');
+  if (tokens.includes('standar') || tokens.includes('annual')) res.push('standar');
+  if (tokens.includes('pro') || tokens.includes('pro_annual')) res.push('pro');
+  return res.length > 0 ? res : ['lite', 'standar', 'pro'];
+}
+
+export function serializeApplicablePackages(selected: string[]): string {
+  if (selected.length === 0 || selected.length === AVAILABLE_COUPON_PACKAGES.length) {
+    return 'all';
+  }
+  return selected.join(',');
+}
+
 export default function AdminCoupons() {
   const { data: coupons = [], isLoading, refetch } = useCoupons();
   const createCouponMutation = useCreateCoupon();
@@ -58,6 +102,9 @@ export default function AdminCoupons() {
 
   // Delete Confirm Dialog state
   const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  // Selected packages checkboxes state
+  const [selectedPackages, setSelectedPackages] = useState<string[]>(['lite', 'standar', 'pro']);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -76,6 +123,7 @@ export default function AdminCoupons() {
 
   const handleOpenCreate = () => {
     setEditingCoupon(null);
+    setSelectedPackages(['lite', 'standar', 'pro']);
     setFormData({
       code: '',
       name: '',
@@ -94,6 +142,7 @@ export default function AdminCoupons() {
 
   const handleOpenEdit = (coupon: Coupon) => {
     setEditingCoupon(coupon);
+    setSelectedPackages(parseApplicablePackages(coupon.applicable_to));
     setFormData({
       code: coupon.code,
       name: coupon.name,
@@ -121,6 +170,12 @@ export default function AdminCoupons() {
       toast.error('Nama promo kupon wajib diisi');
       return;
     }
+    if (selectedPackages.length === 0) {
+      toast.error('Pilih minimal satu varian paket yang mendapatkan diskon');
+      return;
+    }
+
+    const finalApplicableTo = serializeApplicablePackages(selectedPackages);
 
     const payload = {
       code: formData.code.trim().toUpperCase(),
@@ -130,7 +185,7 @@ export default function AdminCoupons() {
       max_discount_amount: formData.has_max_discount ? Number(formData.max_discount_amount) : null,
       min_purchase_amount: Number(formData.min_purchase_amount) || 0,
       max_uses: formData.has_quota ? Number(formData.max_uses) : null,
-      applicable_to: formData.applicable_to,
+      applicable_to: finalApplicableTo,
       is_active: formData.is_active,
     };
 
@@ -313,17 +368,29 @@ export default function AdminCoupons() {
 
                       {/* Applicable To */}
                       <TableCell className="align-top py-3.5">
-                        <Badge variant="outline" className="border-foreground/30 text-[10px] font-bold uppercase">
-                          {coupon.applicable_to === 'all'
-                            ? 'Semua Paket'
-                            : coupon.applicable_to === 'lite'
-                            ? 'Paket Lite'
-                            : coupon.applicable_to === 'annual'
-                            ? 'Paket Standar'
-                            : coupon.applicable_to === 'pro_annual'
-                            ? 'Paket Pro'
-                            : coupon.applicable_to}
-                        </Badge>
+                        {(() => {
+                          const pkgs = parseApplicablePackages(coupon.applicable_to);
+                          if (coupon.applicable_to === 'all' || pkgs.length === AVAILABLE_COUPON_PACKAGES.length) {
+                            return (
+                              <Badge variant="outline" className="border-emerald-500/50 bg-emerald-50 text-emerald-800 text-[10px] font-bold">
+                                Semua Paket (3)
+                              </Badge>
+                            );
+                          }
+                          return (
+                            <div className="flex flex-wrap gap-1 max-w-[180px]">
+                              {pkgs.map((pkgId) => {
+                                const pkg = AVAILABLE_COUPON_PACKAGES.find((p) => p.id === pkgId);
+                                if (!pkg) return null;
+                                return (
+                                  <Badge key={pkgId} variant="outline" className={`${pkg.badgeClass} text-[10px] font-bold`}>
+                                    {pkg.name.replace('Paket ', '')}
+                                  </Badge>
+                                );
+                              })}
+                            </div>
+                          );
+                        })()}
                       </TableCell>
 
                       {/* Status Switch */}
@@ -502,19 +569,79 @@ export default function AdminCoupons() {
                 )}
               </div>
 
-              {/* Applicable to */}
-              <div className="space-y-1.5">
-                <Label className="text-xs font-bold text-foreground">Berlaku Untuk Paket</Label>
-                <select
-                  value={formData.applicable_to}
-                  onChange={(e) => setFormData({ ...formData, applicable_to: e.target.value })}
-                  className="w-full px-3 py-2 text-xs font-semibold bg-background border-2 border-foreground/30 rounded-lg outline-none focus:border-foreground"
-                >
-                  <option value="all">Semua Paket (Lite, Standar, Pro)</option>
-                  <option value="lite">Hanya Paket Lite</option>
-                  <option value="annual">Hanya Paket Standar</option>
-                  <option value="pro_annual">Hanya Paket Pro</option>
-                </select>
+              {/* Applicable to Packages with Checkboxes */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs font-bold text-foreground">
+                    Berlaku Untuk Varian Paket <span className="text-destructive">*</span>
+                  </Label>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (selectedPackages.length === AVAILABLE_COUPON_PACKAGES.length) {
+                        setSelectedPackages([]);
+                      } else {
+                        setSelectedPackages(AVAILABLE_COUPON_PACKAGES.map((p) => p.id));
+                      }
+                    }}
+                    className="text-[11px] font-bold text-primary hover:underline cursor-pointer"
+                  >
+                    {selectedPackages.length === AVAILABLE_COUPON_PACKAGES.length
+                      ? 'Batal Pilih Semua'
+                      : 'Pilih Semua Varian'}
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 p-2.5 rounded-lg border-2 border-foreground/30 bg-muted/20">
+                  {AVAILABLE_COUPON_PACKAGES.map((pkg) => {
+                    const isChecked = selectedPackages.includes(pkg.id);
+                    return (
+                      <label
+                        key={pkg.id}
+                        className={`flex items-start gap-2.5 p-2.5 rounded-md border-2 cursor-pointer transition-all ${
+                          isChecked
+                            ? 'bg-primary/10 border-primary shadow-sm'
+                            : 'bg-background border-foreground/20 text-muted-foreground hover:border-foreground/40'
+                        }`}
+                      >
+                        <Checkbox
+                          checked={isChecked}
+                          onCheckedChange={() => {
+                            setSelectedPackages((prev) =>
+                              prev.includes(pkg.id)
+                                ? prev.filter((id) => id !== pkg.id)
+                                : [...prev, pkg.id]
+                            );
+                          }}
+                          className="mt-0.5 border-2 border-foreground/50 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                        />
+                        <div className="text-xs leading-tight select-none">
+                          <div className={`font-bold ${isChecked ? 'text-primary' : 'text-foreground'}`}>
+                            {pkg.name}
+                          </div>
+                          <div className="text-[10px] text-muted-foreground mt-0.5">
+                            {pkg.period} • Rp {pkg.price.toLocaleString('id-ID')}
+                          </div>
+                        </div>
+                      </label>
+                    );
+                  })}
+                </div>
+
+                {selectedPackages.length === 0 ? (
+                  <p className="text-[11px] font-semibold text-destructive">
+                    ⚠️ Wajib mencentang minimal 1 varian paket yang mendapatkan diskon.
+                  </p>
+                ) : (
+                  <p className="text-[11px] text-muted-foreground">
+                    {selectedPackages.length === AVAILABLE_COUPON_PACKAGES.length
+                      ? '✓ Kupon berlaku untuk SEMUA varian paket (Lite, Standar, Pro).'
+                      : `✓ Kupon berlaku khusus untuk: ${selectedPackages
+                          .map((id) => AVAILABLE_COUPON_PACKAGES.find((p) => p.id === id)?.name)
+                          .filter(Boolean)
+                          .join(' & ')}.`}
+                  </p>
+                )}
               </div>
 
               {/* Active switch */}

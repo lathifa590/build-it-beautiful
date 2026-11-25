@@ -14,6 +14,60 @@ export interface CouponValidationResult {
 }
 
 /**
+ * Helper to check whether a coupon is applicable to a specific package type
+ * Supports multi-variant comma-separated packages (e.g. 'lite,standar', 'standar,pro', 'all')
+ */
+export function isCouponApplicableToPackage(
+  applicableTo?: string | null,
+  packageType?: string
+): boolean {
+  if (!applicableTo || applicableTo === 'all' || applicableTo === 'subscription') {
+    return true;
+  }
+  if (!packageType) return true;
+
+  const pkg = packageType.toLowerCase().trim();
+  const tokens = applicableTo.toLowerCase().split(',').map((t) => t.trim()).filter(Boolean);
+
+  if (tokens.length === 0 || tokens.includes('all') || tokens.includes('subscription')) {
+    return true;
+  }
+
+  // Alias mapping:
+  // 'lite' matches 'lite'
+  // 'standar' matches 'standar' or 'annual'
+  // 'pro' matches 'pro' or 'pro_annual'
+  const packageAliases: Record<string, string[]> = {
+    lite: ['lite'],
+    standar: ['standar', 'annual'],
+    annual: ['standar', 'annual'],
+    pro: ['pro', 'pro_annual'],
+    pro_annual: ['pro', 'pro_annual'],
+  };
+
+  const allowedAliases = packageAliases[pkg] || [pkg];
+  return tokens.some((token) => allowedAliases.includes(token));
+}
+
+/**
+ * Helper to format human-readable names of packages a coupon applies to
+ */
+export function getApplicablePackageNames(applicableTo?: string | null): string {
+  if (!applicableTo || applicableTo === 'all' || applicableTo === 'subscription') {
+    return 'Semua Paket';
+  }
+  const tokens = applicableTo.toLowerCase().split(',').map((t) => t.trim()).filter(Boolean);
+  const names: string[] = [];
+  if (tokens.some((t) => t === 'lite')) names.push('Paket Lite');
+  if (tokens.some((t) => t === 'standar' || t === 'annual')) names.push('Paket Standar');
+  if (tokens.some((t) => t === 'pro' || t === 'pro_annual')) names.push('Paket Pro');
+
+  if (names.length === 3) return 'Semua Paket';
+  if (names.length === 0) return applicableTo;
+  return names.join(' & ');
+}
+
+/**
  * Validates a coupon code against an item price and package type
  */
 export function validateCouponCode(
@@ -59,15 +113,13 @@ export function validateCouponCode(
     };
   }
 
-  if (coupon.applicable_to && coupon.applicable_to !== 'all') {
-    if (packageType && coupon.applicable_to !== packageType && coupon.applicable_to !== 'subscription') {
-      return {
-        valid: false,
-        discountAmount: 0,
-        finalPrice: price,
-        message: `Kupon ini hanya berlaku untuk paket tertentu`,
-      };
-    }
+  if (coupon.applicable_to && !isCouponApplicableToPackage(coupon.applicable_to, packageType)) {
+    return {
+      valid: false,
+      discountAmount: 0,
+      finalPrice: price,
+      message: `Kupon ini hanya berlaku untuk ${getApplicablePackageNames(coupon.applicable_to)}`,
+    };
   }
 
   // Calculate discount amount
